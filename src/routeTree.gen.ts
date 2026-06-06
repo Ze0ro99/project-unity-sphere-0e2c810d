@@ -10,15 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as GovernanceRouteImport } from './routes/governance'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContractsRouteImport } from './routes/contracts'
+import { Route as AlphaHubRouteImport } from './routes/alpha-hub'
 import { Route as IndexRouteImport } from './routes/index'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GovernanceRoute = GovernanceRouteImport.update({
@@ -41,6 +48,11 @@ const ContractsRoute = ContractsRouteImport.update({
   path: '/contracts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlphaHubRoute = AlphaHubRouteImport.update({
+  id: '/alpha-hub',
+  path: '/alpha-hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,62 +61,76 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alpha-hub': typeof AlphaHubRoute
   '/contracts': typeof ContractsRoute
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/resources': typeof ResourcesRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alpha-hub': typeof AlphaHubRoute
   '/contracts': typeof ContractsRoute
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/resources': typeof ResourcesRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alpha-hub': typeof AlphaHubRoute
   '/contracts': typeof ContractsRoute
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/resources': typeof ResourcesRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/alpha-hub'
     | '/contracts'
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/resources'
     | '/wallet'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/alpha-hub'
     | '/contracts'
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/resources'
     | '/wallet'
   id:
     | '__root__'
     | '/'
+    | '/alpha-hub'
     | '/contracts'
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/resources'
     | '/wallet'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlphaHubRoute: typeof AlphaHubRoute
   ContractsRoute: typeof ContractsRoute
   DashboardRoute: typeof DashboardRoute
   DevelopersRoute: typeof DevelopersRoute
   GovernanceRoute: typeof GovernanceRoute
+  ResourcesRoute: typeof ResourcesRoute
   WalletRoute: typeof WalletRoute
 }
 
@@ -115,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/wallet'
       preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/governance': {
@@ -145,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContractsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/alpha-hub': {
+      id: '/alpha-hub'
+      path: '/alpha-hub'
+      fullPath: '/alpha-hub'
+      preLoaderRoute: typeof AlphaHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -157,12 +197,24 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlphaHubRoute: AlphaHubRoute,
   ContractsRoute: ContractsRoute,
   DashboardRoute: DashboardRoute,
   DevelopersRoute: DevelopersRoute,
   GovernanceRoute: GovernanceRoute,
+  ResourcesRoute: ResourcesRoute,
   WalletRoute: WalletRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
