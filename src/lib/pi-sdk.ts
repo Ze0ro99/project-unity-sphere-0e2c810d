@@ -70,26 +70,29 @@ export async function initPi(sandbox = true): Promise<boolean> {
   return initPromise;
 }
 
-export async function authenticatePi(): Promise<PiAuthResult | null> {
+export async function authenticatePi(
+  scopes: PiScopes[] = ["username", "payments"],
+  onIncompletePaymentFound: (payment: unknown) => void = (p) =>
+    console.warn("Incomplete Pi payment found:", p),
+): Promise<PiAuthResult | null> {
   const ok = await initPi();
   if (!ok || !window.Pi) return null;
   try {
-    return await window.Pi.authenticate(
-      ["username"],
-      (incomplete) => console.log("Incomplete payment found:", incomplete),
-    );
+    return await window.Pi.authenticate(scopes, onIncompletePaymentFound);
   } catch (err) {
     console.error("Pi auth failed", err);
     return null;
   }
 }
 
-export function createPiPayment(data: PiPaymentData, callbacks: PiPaymentCallbacks) {
-  initPi().then((ok) => {
-    if (!ok || !window.Pi) {
-      callbacks.onError(new Error("Pi SDK not available. Open inside the Pi Browser."));
-      return;
-    }
-    window.Pi.createPayment(data, callbacks);
-  });
+export async function createPiPayment(
+  data: PiPaymentData,
+  callbacks: PiPaymentCallbacks,
+): Promise<void> {
+  const ok = await initPi();
+  if (!ok || !window.Pi) {
+    callbacks.onError(new Error("Pi SDK not available. Open inside the Pi Browser."));
+    return;
+  }
+  window.Pi.createPayment(data, callbacks);
 }
