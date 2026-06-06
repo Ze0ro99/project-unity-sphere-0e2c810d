@@ -20,24 +20,38 @@ export const Route = createFileRoute("/wallet")({
 
 function WalletPage() {
   const { t } = useTranslation();
+  const { user, hasPremium, paymentStatus, paymentError, purchase, signIn } = usePiAuth();
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
   const address = "GACQ7XQ...M3N4P9KLM";
 
-  const send = (e: React.FormEvent) => {
+  const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
-    createPiPayment(
+    await createPiPayment(
       { amount: amt, memo: memo || "PiRC transfer", metadata: { source: "pirc-wallet" } },
       {
-        onReadyForServerApproval: (id) => toast.info(`Approve on server: ${id}`),
-        onReadyForServerCompletion: (id, txid) => toast.success(`Completed ${txid}`),
+        onReadyForServerApproval: async (id) => {
+          try { await approvePiPayment({ data: { paymentId: id } }); toast.info("Approved"); }
+          catch (err) { toast.error((err as Error).message); }
+        },
+        onReadyForServerCompletion: async (id, txid) => {
+          try { await completePiPayment({ data: { paymentId: id, txid } }); toast.success(`Completed ${txid.slice(0, 8)}…`); }
+          catch (err) { toast.error((err as Error).message); }
+        },
         onCancel: () => toast.warning("Payment cancelled"),
         onError: (err) => toast.error(err.message),
       },
     );
   };
+
+  const buyPremium = async () => {
+    if (!user) { toast.info("Sign in with Pi to purchase."); await signIn(); return; }
+    await purchase();
+  };
+
+  const paying = paymentStatus === "creating" || paymentStatus === "approving" || paymentStatus === "completing";
 
   return (
     <Layout>
