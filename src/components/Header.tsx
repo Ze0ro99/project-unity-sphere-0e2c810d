@@ -15,8 +15,10 @@ export function Header() {
     { to: "/", label: t("nav.home") },
     { to: "/dashboard", label: t("nav.dashboard") },
     { to: "/wallet", label: t("nav.wallet") },
+    { to: "/resources", label: t("nav.resources") },
     { to: "/contracts", label: t("nav.contracts") },
     { to: "/governance", label: t("nav.governance") },
+    { to: "/alpha-hub", label: t("nav.alpha") },
     { to: "/developers", label: t("nav.developers") },
   ] as const;
 
@@ -31,7 +33,7 @@ export function Header() {
           </div>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden xl:flex items-center gap-1">
           {links.map((l) => {
             const active = pathname === l.to;
             return (
@@ -55,13 +57,13 @@ export function Header() {
               {t("cta.launch")}
             </Button>
           </Link>
-          <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setOpen(!open)} aria-label="menu">
+          <Button variant="ghost" size="sm" className="xl:hidden" onClick={() => setOpen(!open)} aria-label="menu">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
       </div>
       {open && (
-        <nav className="lg:hidden border-t border-border/40 px-4 py-3 flex flex-col gap-1 glass">
+        <nav className="xl:hidden border-t border-border/40 px-4 py-3 flex flex-col gap-1 glass">
           {links.map((l) => (
             <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="px-3 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/40">
               {l.label}

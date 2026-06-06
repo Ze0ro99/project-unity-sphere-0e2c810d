@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { LANGS } from "@/i18n";
+import { useEffect, useState } from "react";
+import { LANGS, getSavedLanguage, setAppLanguage } from "@/i18n";
 import { Globe } from "lucide-react";
 import {
   DropdownMenu,
@@ -11,7 +12,14 @@ import { Button } from "@/components/ui/button";
 
 export function LangSwitcher() {
   const { i18n, t } = useTranslation();
-  const current = LANGS.find((l) => l.code === i18n.language) ?? LANGS[0];
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    setAppLanguage(getSavedLanguage());
+  }, []);
+  const current = mounted
+    ? (LANGS.find((l) => l.code === i18n.language) ?? LANGS[0])
+    : LANGS[0];
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -23,7 +31,7 @@ export function LangSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="glass">
         {LANGS.map((l) => (
-          <DropdownMenuItem key={l.code} onClick={() => i18n.changeLanguage(l.code)} className="gap-2 cursor-pointer">
+          <DropdownMenuItem key={l.code} onClick={() => setAppLanguage(l.code)} className="gap-2 cursor-pointer">
             <span>{l.flag}</span> <span>{l.label}</span>
           </DropdownMenuItem>
         ))}

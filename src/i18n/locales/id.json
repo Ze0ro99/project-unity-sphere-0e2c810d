@@ -8,7 +8,9 @@
     "contracts": "Kontrak Pintar",
     "governance": "Tata Kelola",
     "developers": "Pengembang",
-    "docs": "Dokumentasi"
+    "docs": "Dokumentasi",
+    "resources": "Sumber Daya",
+    "alpha": "Alpha Hub"
   },
   "cta": {
     "launch": "Buka Aplikasi",
@@ -29,12 +31,30 @@
   "features": {
     "title": "Semua yang Anda butuhkan untuk membangun di Pi",
     "subtitle": "Paket lengkap untuk Pioneer, pengembang, dan institusi.",
-    "auth": { "title": "Autentikasi Pi", "desc": "Login mulus melalui Pi SDK dengan identitas pioneer terverifikasi." },
-    "payments": { "title": "Pembayaran Pi", "desc": "Buat, setujui, dan selesaikan pembayaran Pi dengan alur terpadu." },
-    "contracts": { "title": "Kontrak Pintar", "desc": "Template Stellar / Soroban teraudit untuk ekosistem Pi." },
-    "vaults": { "title": "Vault Berdaulat", "desc": "Vault self-custody dengan tata kelola multi-tanda tangan." },
-    "governance": { "title": "Tata Kelola On-chain", "desc": "Vote pada proposal yang membentuk masa depan jaringan." },
-    "security": { "title": "Keamanan Pasca-Kuantum", "desc": "Kriptografi yang diperkuat untuk serangan generasi berikutnya." }
+    "auth": {
+      "title": "Autentikasi Pi",
+      "desc": "Login mulus melalui Pi SDK dengan identitas pioneer terverifikasi."
+    },
+    "payments": {
+      "title": "Pembayaran Pi",
+      "desc": "Buat, setujui, dan selesaikan pembayaran Pi dengan alur terpadu."
+    },
+    "contracts": {
+      "title": "Kontrak Pintar",
+      "desc": "Template Stellar / Soroban teraudit untuk ekosistem Pi."
+    },
+    "vaults": {
+      "title": "Vault Berdaulat",
+      "desc": "Vault self-custody dengan tata kelola multi-tanda tangan."
+    },
+    "governance": {
+      "title": "Tata Kelola On-chain",
+      "desc": "Vote pada proposal yang membentuk masa depan jaringan."
+    },
+    "security": {
+      "title": "Keamanan Pasca-Kuantum",
+      "desc": "Kriptografi yang diperkuat untuk serangan generasi berikutnya."
+    }
   },
   "sdk": {
     "title": "Pi Network SDK — Built-in",
@@ -94,5 +114,26 @@
     "rights": "Hak cipta dilindungi.",
     "built": "Dibangun untuk ekosistem Pi."
   },
-  "language": "Bahasa"
+  "language": "Bahasa",
+  "resources": {
+    "title": "PiRC Wealth Core",
+    "subtitle": "Mesin revaluasi aset Bumi & luar angkasa.",
+    "cycle": "Siklus Aktif",
+    "expansion": "Delta Ekspansi",
+    "totalValuation": "Total Valuasi Sistem",
+    "compounding": "Penggabungan desimal real-time aktif",
+    "trend": "Tren Pertumbuhan Jaringan",
+    "stability": "Stabilitas Algoritmik",
+    "classifications": "Klasifikasi Aset",
+    "quantity": "Jumlah",
+    "unitPrice": "Harga Satuan",
+    "value": "Nilai Total",
+    "log": "Log Sistem · Node Terdesentralisasi"
+  },
+  "alpha": {
+    "title": "PiRC Alpha Hub",
+    "subtitle": "Interkoneksi pipeline V3 untuk Jaringan Universal PiRC.",
+    "routing": "Routing Jaringan",
+    "pipeline": "Pipeline Sinkronisasi"
+  }
 }

@@ -8,7 +8,9 @@
     "contracts": "智能合约",
     "governance": "治理",
     "developers": "开发者",
-    "docs": "文档"
+    "docs": "文档",
+    "resources": "资源",
+    "alpha": "Alpha 中枢"
   },
   "cta": {
     "launch": "启动应用",
@@ -29,12 +31,30 @@
   "features": {
     "title": "在 Pi 上构建所需的一切",
     "subtitle": "为先锋、开发者和机构设计的完整套件。",
-    "auth": { "title": "Pi 身份验证", "desc": "通过 Pi SDK 实现无缝登录与已验证的先锋身份。" },
-    "payments": { "title": "Pi 支付", "desc": "通过统一流程创建、批准并完成 Pi 支付。" },
-    "contracts": { "title": "智能合约", "desc": "为 Pi 生态系统审计的 Stellar / Soroban 合约模板。" },
-    "vaults": { "title": "主权金库", "desc": "具有多重签名治理的自托管金库。" },
-    "governance": { "title": "链上治理", "desc": "对塑造网络未来的提案进行投票。" },
-    "security": { "title": "后量子安全", "desc": "针对下一代攻击强化的加密技术。" }
+    "auth": {
+      "title": "Pi 身份验证",
+      "desc": "通过 Pi SDK 实现无缝登录与已验证的先锋身份。"
+    },
+    "payments": {
+      "title": "Pi 支付",
+      "desc": "通过统一流程创建、批准并完成 Pi 支付。"
+    },
+    "contracts": {
+      "title": "智能合约",
+      "desc": "为 Pi 生态系统审计的 Stellar / Soroban 合约模板。"
+    },
+    "vaults": {
+      "title": "主权金库",
+      "desc": "具有多重签名治理的自托管金库。"
+    },
+    "governance": {
+      "title": "链上治理",
+      "desc": "对塑造网络未来的提案进行投票。"
+    },
+    "security": {
+      "title": "后量子安全",
+      "desc": "针对下一代攻击强化的加密技术。"
+    }
   },
   "sdk": {
     "title": "Pi Network SDK — 内置",
@@ -94,5 +114,26 @@
     "rights": "保留所有权利。",
     "built": "为 Pi 生态系统而建。"
   },
-  "language": "语言"
+  "language": "语言",
+  "resources": {
+    "title": "PiRC 财富核心",
+    "subtitle": "全球与外太空资产重估引擎。",
+    "cycle": "活动周期",
+    "expansion": "扩展增量",
+    "totalValuation": "系统总估值",
+    "compounding": "实时小数复利运行中",
+    "trend": "网络增长趋势",
+    "stability": "算法稳定性",
+    "classifications": "资产分类",
+    "quantity": "数量",
+    "unitPrice": "单位价格",
+    "value": "总价值",
+    "log": "系统日志 · 去中心化节点"
+  },
+  "alpha": {
+    "title": "PiRC Alpha 中枢",
+    "subtitle": "PiRC 通用网络的 V3 管线互联。",
+    "routing": "网络路由",
+    "pipeline": "同步管线"
+  }
 }
