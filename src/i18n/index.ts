@@ -1,6 +1,5 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
 import en from "./locales/en.json";
 import ar from "./locales/ar.json";
 import zh from "./locales/zh.json";
@@ -13,32 +12,42 @@ export const LANGS = [
   { code: "id", label: "Bahasa Indonesia", dir: "ltr", flag: "🇮🇩" },
 ] as const;
 
+const SUPPORTED = ["en", "ar", "zh", "id"];
+
 if (!i18n.isInitialized) {
-  i18n
-    .use(LanguageDetector)
-    .use(initReactI18next)
-    .init({
-      resources: {
-        en: { translation: en },
-        ar: { translation: ar },
-        zh: { translation: zh },
-        id: { translation: id },
-      },
-      fallbackLng: "en",
-      supportedLngs: ["en", "ar", "zh", "id"],
-      interpolation: { escapeValue: false },
-      detection: { order: ["localStorage", "navigator"], caches: ["localStorage"] },
-    });
+  i18n.use(initReactI18next).init({
+    resources: {
+      en: { translation: en },
+      ar: { translation: ar },
+      zh: { translation: zh },
+      id: { translation: id },
+    },
+    // SSR + first client paint always render English to avoid hydration mismatch.
+    // The user's saved language is applied after mount via setAppLanguage().
+    lng: "en",
+    fallbackLng: "en",
+    supportedLngs: SUPPORTED,
+    interpolation: { escapeValue: false },
+  });
 }
 
-if (typeof document !== "undefined") {
-  const apply = (lng: string) => {
-    const meta = LANGS.find((l) => l.code === lng) ?? LANGS[0];
+export function getSavedLanguage(): string {
+  if (typeof window === "undefined") return "en";
+  const saved = localStorage.getItem("lang");
+  if (saved && SUPPORTED.includes(saved)) return saved;
+  const nav = navigator.language?.split("-")[0];
+  return nav && SUPPORTED.includes(nav) ? nav : "en";
+}
+
+export function setAppLanguage(lng: string) {
+  if (!SUPPORTED.includes(lng)) return;
+  const meta = LANGS.find((l) => l.code === lng) ?? LANGS[0];
+  if (typeof document !== "undefined") {
     document.documentElement.lang = meta.code;
     document.documentElement.dir = meta.dir;
-  };
-  apply(i18n.language || "en");
-  i18n.on("languageChanged", apply);
+    localStorage.setItem("lang", meta.code);
+  }
+  if (i18n.language !== lng) i18n.changeLanguage(lng);
 }
 
 export default i18n;
