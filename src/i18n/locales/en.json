@@ -1,0 +1,98 @@
+{
+  "brand": "PiRC",
+  "tagline": "Pi Network Resource Center",
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "wallet": "Wallet",
+    "contracts": "Smart Contracts",
+    "governance": "Governance",
+    "developers": "Developers",
+    "docs": "Docs"
+  },
+  "cta": {
+    "launch": "Launch App",
+    "connect": "Connect with Pi",
+    "explore": "Explore Network",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More"
+  },
+  "hero": {
+    "badge": "Powered by Pi Network SDK",
+    "title": "The Sovereign Portal for the Pi Economy",
+    "subtitle": "Authenticate, transact, and build on Pi with an enterprise-grade resource center. Wallets, smart contracts, governance and developer tools — unified.",
+    "stat1": "Active Pioneers",
+    "stat2": "Total Transactions",
+    "stat3": "Smart Contracts",
+    "stat4": "Network Uptime"
+  },
+  "features": {
+    "title": "Everything you need to build on Pi",
+    "subtitle": "A complete suite designed for Pioneers, developers and institutions.",
+    "auth": { "title": "Pi Authentication", "desc": "Seamless sign-in with the Pi SDK and verified pioneer identity." },
+    "payments": { "title": "Pi Payments", "desc": "Create, approve and complete Pi payments with a unified flow." },
+    "contracts": { "title": "Smart Contracts", "desc": "Stellar / Soroban contract templates audited for the Pi ecosystem." },
+    "vaults": { "title": "Sovereign Vaults", "desc": "Self-custodial vaults with multi-signature governance." },
+    "governance": { "title": "On-chain Governance", "desc": "Vote on proposals shaping the future of the network." },
+    "security": { "title": "Post-Quantum Security", "desc": "Cryptography hardened for the next generation of attacks." }
+  },
+  "sdk": {
+    "title": "Pi Network SDK — Built-in",
+    "subtitle": "Drop-in integration with the official Pi SDK. Authenticate users, request Pi payments, and verify transactions on the Pi mainnet.",
+    "step1": "Initialize the SDK",
+    "step2": "Authenticate the Pioneer",
+    "step3": "Create & approve payment",
+    "step4": "Complete on the server",
+    "copy": "Copy",
+    "copied": "Copied"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, Pioneer",
+    "balance": "Total Balance",
+    "send": "Send",
+    "receive": "Receive",
+    "swap": "Swap",
+    "stake": "Stake",
+    "recent": "Recent Activity",
+    "no_activity": "No activity yet",
+    "network": "Network Status",
+    "operational": "All systems operational"
+  },
+  "wallet": {
+    "title": "Pi Wallet",
+    "address": "Wallet Address",
+    "balance": "Available Balance",
+    "history": "Transaction History",
+    "amount": "Amount",
+    "to": "Recipient",
+    "memo": "Memo (optional)",
+    "submit": "Send Pi"
+  },
+  "contracts": {
+    "title": "Smart Contracts",
+    "subtitle": "Audited Soroban templates ready for deployment.",
+    "deploy": "Deploy",
+    "view": "View Source"
+  },
+  "governance": {
+    "title": "Governance",
+    "subtitle": "Shape the future of the Pi ecosystem.",
+    "active": "Active",
+    "passed": "Passed",
+    "rejected": "Rejected",
+    "vote_for": "Vote For",
+    "vote_against": "Vote Against"
+  },
+  "devs": {
+    "title": "Developer Portal",
+    "subtitle": "Everything you need to ship on Pi.",
+    "apiKeys": "API Keys",
+    "create": "Create Key",
+    "docs": "Read the Docs"
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "built": "Built for the Pi ecosystem."
+  },
+  "language": "Language"
+}
