@@ -57,7 +57,43 @@ function WalletPage() {
     <Layout>
       <div className="container mx-auto px-4 py-10 max-w-5xl">
         <h1 className="text-3xl font-bold text-foreground mb-2">{t("wallet.title")}</h1>
-        <p className="text-muted-foreground text-sm mb-8">{t("tagline")}</p>
+        <p className="text-muted-foreground text-sm mb-6">{t("tagline")}</p>
+
+        <Card className="glass border-0 p-6 mb-5 bg-gradient-primary">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="h-11 w-11 rounded-full bg-gradient-gold text-gold-foreground flex items-center justify-center">
+                <Crown className="h-5 w-5" />
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-foreground">{PREMIUM_ACCESS_PRODUCT.name}</h2>
+                  {hasPremium && (
+                    <Badge variant="outline" className="gold-border text-gold gap-1">
+                      <CheckCircle2 className="h-3 w-3" /> Active
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground max-w-xl mt-0.5">{PREMIUM_ACCESS_PRODUCT.memo}</p>
+                {paymentError && <p className="text-xs text-destructive mt-1">{paymentError}</p>}
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider">Price</div>
+                <div className="text-2xl font-bold text-gold">π {PREMIUM_ACCESS_PRODUCT.amount}</div>
+              </div>
+              <Button
+                onClick={buyPremium}
+                disabled={paying || hasPremium}
+                className="bg-gradient-gold text-gold-foreground font-semibold"
+              >
+                {paying && <Loader2 className="h-4 w-4 animate-spin" />}
+                {hasPremium ? "Unlocked" : paying ? paymentStatus : "Buy with Pi"}
+              </Button>
+            </div>
+          </div>
+        </Card>
 
         <div className="grid lg:grid-cols-5 gap-5">
           <Card className="glass border-0 p-6 lg:col-span-3 bg-gradient-primary">
