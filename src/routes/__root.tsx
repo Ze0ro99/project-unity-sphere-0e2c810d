@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import "../i18n";
 import { Toaster } from "@/components/ui/sonner";
+import { PiAuthProvider } from "@/lib/pi-auth-context";
 
 function NotFoundComponent() {
   return (
