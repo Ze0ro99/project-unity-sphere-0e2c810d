@@ -5,8 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, Wallet as WalletIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Copy, Wallet as WalletIcon, Crown, CheckCircle2, Loader2 } from "lucide-react";
 import { createPiPayment } from "@/lib/pi-sdk";
+import { approvePiPayment, completePiPayment } from "@/lib/pi-payments.functions";
+import { usePiAuth, PREMIUM_ACCESS_PRODUCT } from "@/lib/pi-auth-context";
 import { useState } from "react";
 import { toast } from "sonner";
 
