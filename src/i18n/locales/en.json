@@ -8,6 +8,8 @@
     "contracts": "Smart Contracts",
     "governance": "Governance",
     "developers": "Developers",
+    "resources": "Resources",
+    "alpha": "Alpha Hub",
     "docs": "Docs"
   },
   "cta": {
@@ -20,7 +22,7 @@
   "hero": {
     "badge": "Powered by Pi Network SDK",
     "title": "The Sovereign Portal for the Pi Economy",
-    "subtitle": "Authenticate, transact, and build on Pi with an enterprise-grade resource center. Wallets, smart contracts, governance and developer tools — unified.",
+    "subtitle": "Authenticate, transact, and build on Pi with an enterprise-grade resource center. Wallets, smart contracts, governance, Earth & space resource valuation — unified.",
     "stat1": "Active Pioneers",
     "stat2": "Total Transactions",
     "stat3": "Smart Contracts",
@@ -49,50 +51,53 @@
   "dashboard": {
     "welcome": "Welcome back, Pioneer",
     "balance": "Total Balance",
-    "send": "Send",
-    "receive": "Receive",
-    "swap": "Swap",
-    "stake": "Stake",
-    "recent": "Recent Activity",
-    "no_activity": "No activity yet",
-    "network": "Network Status",
-    "operational": "All systems operational"
+    "send": "Send", "receive": "Receive", "swap": "Swap", "stake": "Stake",
+    "recent": "Recent Activity", "no_activity": "No activity yet",
+    "network": "Network Status", "operational": "All systems operational"
   },
   "wallet": {
     "title": "Pi Wallet",
-    "address": "Wallet Address",
-    "balance": "Available Balance",
-    "history": "Transaction History",
-    "amount": "Amount",
-    "to": "Recipient",
-    "memo": "Memo (optional)",
-    "submit": "Send Pi"
+    "address": "Wallet Address", "balance": "Available Balance",
+    "history": "Transaction History", "amount": "Amount",
+    "to": "Recipient", "memo": "Memo (optional)", "submit": "Send Pi"
   },
   "contracts": {
     "title": "Smart Contracts",
     "subtitle": "Audited Soroban templates ready for deployment.",
-    "deploy": "Deploy",
-    "view": "View Source"
+    "deploy": "Deploy", "view": "View Source"
   },
   "governance": {
     "title": "Governance",
     "subtitle": "Shape the future of the Pi ecosystem.",
-    "active": "Active",
-    "passed": "Passed",
-    "rejected": "Rejected",
-    "vote_for": "Vote For",
-    "vote_against": "Vote Against"
+    "active": "Active", "passed": "Passed", "rejected": "Rejected",
+    "vote_for": "Vote For", "vote_against": "Vote Against"
   },
   "devs": {
     "title": "Developer Portal",
     "subtitle": "Everything you need to ship on Pi.",
-    "apiKeys": "API Keys",
-    "create": "Create Key",
-    "docs": "Read the Docs"
+    "apiKeys": "API Keys", "create": "Create Key", "docs": "Read the Docs"
   },
-  "footer": {
-    "rights": "All rights reserved.",
-    "built": "Built for the Pi ecosystem."
+  "resources": {
+    "title": "PiRC Wealth Core",
+    "subtitle": "Global & extraterrestrial asset revaluation engine.",
+    "cycle": "Active Cycle",
+    "expansion": "Expansion Delta",
+    "totalValuation": "Total System Valuation",
+    "compounding": "Real-time decimal compounding active",
+    "trend": "Network Growth Trend",
+    "stability": "Algorithmic Stability",
+    "classifications": "Asset Classifications",
+    "quantity": "Quantity",
+    "unitPrice": "Unit Price",
+    "value": "Total Value",
+    "log": "System Log · Decentralized Nodes"
   },
+  "alpha": {
+    "title": "PiRC Alpha Hub",
+    "subtitle": "V3 Pipeline interconnect for the PiRC Universal Network.",
+    "routing": "Network Routing",
+    "pipeline": "Sync Pipeline"
+  },
+  "footer": { "rights": "All rights reserved.", "built": "Built for the Pi ecosystem." },
   "language": "Language"
 }
