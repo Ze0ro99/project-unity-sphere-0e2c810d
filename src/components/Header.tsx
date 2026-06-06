@@ -11,6 +11,7 @@ export function Header() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user, status, signIn, signOut } = usePiAuth();
 
   const links = [
     { to: "/", label: t("nav.home") },
