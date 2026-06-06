@@ -54,11 +54,29 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <LangSwitcher />
-          <Link to="/dashboard" className="hidden sm:block">
-            <Button size="sm" className="bg-gradient-gold text-gold-foreground hover:opacity-90 font-semibold">
-              {t("cta.launch")}
+          {user ? (
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary/60 text-xs text-foreground">
+                <User2 className="h-3.5 w-3.5 text-gold" /> @{user.username}
+              </span>
+              <Button size="sm" variant="ghost" onClick={signOut} aria-label="Sign out">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <Button
+              size="sm"
+              onClick={signIn}
+              disabled={status === "authenticating"}
+              className="bg-gradient-gold text-gold-foreground hover:opacity-90 font-semibold"
+            >
+              {status === "authenticating" ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> {t("cta.connect")}</>
+              ) : (
+                t("cta.connect")
+              )}
             </Button>
-          </Link>
+          )}
           <Button variant="ghost" size="sm" className="xl:hidden" onClick={() => setOpen(!open)} aria-label="menu">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
