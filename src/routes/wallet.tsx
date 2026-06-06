@@ -5,8 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, Wallet as WalletIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Copy, Wallet as WalletIcon, Crown, CheckCircle2, Loader2 } from "lucide-react";
 import { createPiPayment } from "@/lib/pi-sdk";
+import { approvePiPayment, completePiPayment } from "@/lib/pi-payments.functions";
+import { usePiAuth, PREMIUM_ACCESS_PRODUCT } from "@/lib/pi-auth-context";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -17,30 +20,80 @@ export const Route = createFileRoute("/wallet")({
 
 function WalletPage() {
   const { t } = useTranslation();
+  const { user, hasPremium, paymentStatus, paymentError, purchase, signIn } = usePiAuth();
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
   const address = "GACQ7XQ...M3N4P9KLM";
 
-  const send = (e: React.FormEvent) => {
+  const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) return toast.error("Enter a valid amount");
-    createPiPayment(
+    await createPiPayment(
       { amount: amt, memo: memo || "PiRC transfer", metadata: { source: "pirc-wallet" } },
       {
-        onReadyForServerApproval: (id) => toast.info(`Approve on server: ${id}`),
-        onReadyForServerCompletion: (id, txid) => toast.success(`Completed ${txid}`),
+        onReadyForServerApproval: async (id) => {
+          try { await approvePiPayment({ data: { paymentId: id } }); toast.info("Approved"); }
+          catch (err) { toast.error((err as Error).message); }
+        },
+        onReadyForServerCompletion: async (id, txid) => {
+          try { await completePiPayment({ data: { paymentId: id, txid } }); toast.success(`Completed ${txid.slice(0, 8)}…`); }
+          catch (err) { toast.error((err as Error).message); }
+        },
         onCancel: () => toast.warning("Payment cancelled"),
         onError: (err) => toast.error(err.message),
       },
     );
   };
 
+  const buyPremium = async () => {
+    if (!user) { toast.info("Sign in with Pi to purchase."); await signIn(); return; }
+    await purchase();
+  };
+
+  const paying = paymentStatus === "creating" || paymentStatus === "approving" || paymentStatus === "completing";
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-10 max-w-5xl">
         <h1 className="text-3xl font-bold text-foreground mb-2">{t("wallet.title")}</h1>
-        <p className="text-muted-foreground text-sm mb-8">{t("tagline")}</p>
+        <p className="text-muted-foreground text-sm mb-6">{t("tagline")}</p>
+
+        <Card className="glass border-0 p-6 mb-5 bg-gradient-primary">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="h-11 w-11 rounded-full bg-gradient-gold text-gold-foreground flex items-center justify-center">
+                <Crown className="h-5 w-5" />
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-foreground">{PREMIUM_ACCESS_PRODUCT.name}</h2>
+                  {hasPremium && (
+                    <Badge variant="outline" className="gold-border text-gold gap-1">
+                      <CheckCircle2 className="h-3 w-3" /> Active
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground max-w-xl mt-0.5">{PREMIUM_ACCESS_PRODUCT.memo}</p>
+                {paymentError && <p className="text-xs text-destructive mt-1">{paymentError}</p>}
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground uppercase tracking-wider">Price</div>
+                <div className="text-2xl font-bold text-gold">π {PREMIUM_ACCESS_PRODUCT.amount}</div>
+              </div>
+              <Button
+                onClick={buyPremium}
+                disabled={paying || hasPremium}
+                className="bg-gradient-gold text-gold-foreground font-semibold"
+              >
+                {paying && <Loader2 className="h-4 w-4 animate-spin" />}
+                {hasPremium ? "Unlocked" : paying ? paymentStatus : "Buy with Pi"}
+              </Button>
+            </div>
+          </div>
+        </Card>
 
         <div className="grid lg:grid-cols-5 gap-5">
           <Card className="glass border-0 p-6 lg:col-span-3 bg-gradient-primary">
