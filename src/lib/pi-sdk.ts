@@ -1,10 +1,7 @@
 /**
  * Pi Network SDK integration helpers.
- *
- * The Pi SDK is delivered via the Pi Browser at runtime:
- *   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
- *
- * Docs: https://github.com/pi-apps/pi-platform-docs
+ * Script tag injected via __root.tsx: https://sdk.minepi.com/pi-sdk.js
+ * Docs: https://pi-apps.github.io/pi-sdk-docs/quick-start/genai/Authentication
  */
 
 export type PiScopes = "username" | "payments" | "wallet_address";
@@ -30,7 +27,7 @@ export interface PiPaymentCallbacks {
 declare global {
   interface Window {
     Pi?: {
-      init: (opts: { version: string; sandbox?: boolean }) => void;
+      init: (opts: { version: string; sandbox?: boolean }) => Promise<void> | void;
       authenticate: (
         scopes: PiScopes[],
         onIncompletePaymentFound: (p: unknown) => void,
@@ -40,22 +37,45 @@ declare global {
   }
 }
 
-let initialized = false;
+let initPromise: Promise<boolean> | null = null;
 
-export function initPi(sandbox = true) {
+/** Wait for the Pi SDK script tag to load (up to ~5s). */
+function waitForPiSdk(timeoutMs = 5000): Promise<boolean> {
+  if (typeof window === "undefined") return Promise.resolve(false);
+  if (window.Pi) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const id = window.setInterval(() => {
+      if (window.Pi) {
+        window.clearInterval(id);
+        resolve(true);
+      } else if (Date.now() - start > timeoutMs) {
+        window.clearInterval(id);
+        resolve(false);
+      }
+    }, 100);
+  });
+}
+
+/** Treat Pi.init as a Promise; await fully before authenticate. */
+export async function initPi(sandbox = true): Promise<boolean> {
   if (typeof window === "undefined") return false;
-  if (!window.Pi) return false;
-  if (initialized) return true;
-  window.Pi.init({ version: "2.0", sandbox });
-  initialized = true;
-  return true;
+  if (initPromise) return initPromise;
+  initPromise = (async () => {
+    const ready = await waitForPiSdk();
+    if (!ready || !window.Pi) return false;
+    await Promise.resolve(window.Pi.init({ version: "2.0", sandbox }));
+    return true;
+  })();
+  return initPromise;
 }
 
 export async function authenticatePi(): Promise<PiAuthResult | null> {
-  if (!initPi()) return null;
+  const ok = await initPi();
+  if (!ok || !window.Pi) return null;
   try {
-    return await window.Pi!.authenticate(
-      ["username", "payments", "wallet_address"],
+    return await window.Pi.authenticate(
+      ["username"],
       (incomplete) => console.log("Incomplete payment found:", incomplete),
     );
   } catch (err) {
@@ -65,9 +85,11 @@ export async function authenticatePi(): Promise<PiAuthResult | null> {
 }
 
 export function createPiPayment(data: PiPaymentData, callbacks: PiPaymentCallbacks) {
-  if (!initPi()) {
-    callbacks.onError(new Error("Pi SDK not available. Open inside the Pi Browser."));
-    return;
-  }
-  window.Pi!.createPayment(data, callbacks);
+  initPi().then((ok) => {
+    if (!ok || !window.Pi) {
+      callbacks.onError(new Error("Pi SDK not available. Open inside the Pi Browser."));
+      return;
+    }
+    window.Pi.createPayment(data, callbacks);
+  });
 }

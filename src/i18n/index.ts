@@ -22,13 +22,13 @@ if (!i18n.isInitialized) {
       zh: { translation: zh },
       id: { translation: id },
     },
-    // SSR + first client paint always render English to avoid hydration mismatch.
-    // The user's saved language is applied after mount via setAppLanguage().
     lng: "en",
     fallbackLng: "en",
     supportedLngs: SUPPORTED,
     interpolation: { escapeValue: false },
+    react: { useSuspense: false },
   });
+
 }
 
 export function getSavedLanguage(): string {
