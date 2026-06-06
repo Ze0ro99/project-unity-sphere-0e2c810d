@@ -27,8 +27,8 @@ if (!i18n.isInitialized) {
     supportedLngs: SUPPORTED,
     interpolation: { escapeValue: false },
     react: { useSuspense: false },
-    initImmediate: false,
   });
+
 }
 
 export function getSavedLanguage(): string {
