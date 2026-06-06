@@ -3,8 +3,9 @@ import { useTranslation } from "react-i18next";
 import { LangSwitcher } from "./LangSwitcher";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/pirc-logo.png";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, User2, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { usePiAuth } from "@/lib/pi-auth-context";
 
 export function Header() {
   const { t } = useTranslation();
