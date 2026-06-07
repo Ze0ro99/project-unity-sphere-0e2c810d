@@ -17,9 +17,13 @@ export function Header() {
     { to: "/", label: t("nav.home") },
     { to: "/dashboard", label: t("nav.dashboard") },
     { to: "/wallet", label: t("nav.wallet") },
+    { to: "/matrix", label: t("nav.matrix", "Matrix") },
+    { to: "/monetary", label: t("nav.monetary", "Monetary") },
     { to: "/resources", label: t("nav.resources") },
     { to: "/contracts", label: t("nav.contracts") },
+    { to: "/justice", label: t("nav.justice", "Justice") },
     { to: "/governance", label: t("nav.governance") },
+    { to: "/sync", label: t("nav.sync", "Sync") },
     { to: "/alpha-hub", label: t("nav.alpha") },
     { to: "/developers", label: t("nav.developers") },
   ] as const;
