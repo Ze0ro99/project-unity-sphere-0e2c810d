@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as MatrixRouteImport } from './routes/matrix'
 import { Route as GovernanceRouteImport } from './routes/governance'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -26,6 +27,11 @@ const WalletRoute = WalletRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatrixRoute = MatrixRouteImport.update({
+  id: '/matrix',
+  path: '/matrix',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GovernanceRoute = GovernanceRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/matrix': typeof MatrixRoute
   '/resources': typeof ResourcesRoute
   '/wallet': typeof WalletRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/matrix': typeof MatrixRoute
   '/resources': typeof ResourcesRoute
   '/wallet': typeof WalletRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/matrix': typeof MatrixRoute
   '/resources': typeof ResourcesRoute
   '/wallet': typeof WalletRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/matrix'
     | '/resources'
     | '/wallet'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/matrix'
     | '/resources'
     | '/wallet'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/matrix'
     | '/resources'
     | '/wallet'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DevelopersRoute: typeof DevelopersRoute
   GovernanceRoute: typeof GovernanceRoute
+  MatrixRoute: typeof MatrixRoute
   ResourcesRoute: typeof ResourcesRoute
   WalletRoute: typeof WalletRoute
 }
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matrix': {
+      id: '/matrix'
+      path: '/matrix'
+      fullPath: '/matrix'
+      preLoaderRoute: typeof MatrixRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/governance': {
@@ -202,9 +222,20 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DevelopersRoute: DevelopersRoute,
   GovernanceRoute: GovernanceRoute,
+  MatrixRoute: MatrixRoute,
   ResourcesRoute: ResourcesRoute,
   WalletRoute: WalletRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
