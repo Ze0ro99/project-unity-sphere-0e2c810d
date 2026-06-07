@@ -10,7 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as SyncRouteImport } from './routes/sync'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as MonetaryRouteImport } from './routes/monetary'
+import { Route as MatrixRouteImport } from './routes/matrix'
+import { Route as JusticeRouteImport } from './routes/justice'
 import { Route as GovernanceRouteImport } from './routes/governance'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -23,9 +27,29 @@ const WalletRoute = WalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SyncRoute = SyncRouteImport.update({
+  id: '/sync',
+  path: '/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonetaryRoute = MonetaryRouteImport.update({
+  id: '/monetary',
+  path: '/monetary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatrixRoute = MatrixRouteImport.update({
+  id: '/matrix',
+  path: '/matrix',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JusticeRoute = JusticeRouteImport.update({
+  id: '/justice',
+  path: '/justice',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GovernanceRoute = GovernanceRouteImport.update({
@@ -66,7 +90,11 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/justice': typeof JusticeRoute
+  '/matrix': typeof MatrixRoute
+  '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRoutesByTo {
@@ -76,7 +104,11 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/justice': typeof JusticeRoute
+  '/matrix': typeof MatrixRoute
+  '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRoutesById {
@@ -87,7 +119,11 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/justice': typeof JusticeRoute
+  '/matrix': typeof MatrixRoute
+  '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRouteTypes {
@@ -99,7 +135,11 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/justice'
+    | '/matrix'
+    | '/monetary'
     | '/resources'
+    | '/sync'
     | '/wallet'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -109,7 +149,11 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/justice'
+    | '/matrix'
+    | '/monetary'
     | '/resources'
+    | '/sync'
     | '/wallet'
   id:
     | '__root__'
@@ -119,7 +163,11 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/justice'
+    | '/matrix'
+    | '/monetary'
     | '/resources'
+    | '/sync'
     | '/wallet'
   fileRoutesById: FileRoutesById
 }
@@ -130,7 +178,11 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DevelopersRoute: typeof DevelopersRoute
   GovernanceRoute: typeof GovernanceRoute
+  JusticeRoute: typeof JusticeRoute
+  MatrixRoute: typeof MatrixRoute
+  MonetaryRoute: typeof MonetaryRoute
   ResourcesRoute: typeof ResourcesRoute
+  SyncRoute: typeof SyncRoute
   WalletRoute: typeof WalletRoute
 }
 
@@ -143,11 +195,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sync': {
+      id: '/sync'
+      path: '/sync'
+      fullPath: '/sync'
+      preLoaderRoute: typeof SyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/monetary': {
+      id: '/monetary'
+      path: '/monetary'
+      fullPath: '/monetary'
+      preLoaderRoute: typeof MonetaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matrix': {
+      id: '/matrix'
+      path: '/matrix'
+      fullPath: '/matrix'
+      preLoaderRoute: typeof MatrixRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/justice': {
+      id: '/justice'
+      path: '/justice'
+      fullPath: '/justice'
+      preLoaderRoute: typeof JusticeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/governance': {
@@ -202,7 +282,11 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DevelopersRoute: DevelopersRoute,
   GovernanceRoute: GovernanceRoute,
+  JusticeRoute: JusticeRoute,
+  MatrixRoute: MatrixRoute,
+  MonetaryRoute: MonetaryRoute,
   ResourcesRoute: ResourcesRoute,
+  SyncRoute: SyncRoute,
   WalletRoute: WalletRoute,
 }
 export const routeTree = rootRouteImport
