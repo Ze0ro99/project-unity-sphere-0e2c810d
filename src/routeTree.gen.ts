@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as SyncRouteImport } from './routes/sync'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as MonetaryRouteImport } from './routes/monetary'
 import { Route as MatrixRouteImport } from './routes/matrix'
@@ -24,6 +25,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SyncRoute = SyncRouteImport.update({
+  id: '/sync',
+  path: '/sync',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResourcesRoute = ResourcesRouteImport.update({
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/matrix': typeof MatrixRoute
   '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRoutesByTo {
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/matrix': typeof MatrixRoute
   '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRoutesById {
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/matrix': typeof MatrixRoute
   '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
 }
 export interface FileRouteTypes {
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/matrix'
     | '/monetary'
     | '/resources'
+    | '/sync'
     | '/wallet'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/matrix'
     | '/monetary'
     | '/resources'
+    | '/sync'
     | '/wallet'
   id:
     | '__root__'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/matrix'
     | '/monetary'
     | '/resources'
+    | '/sync'
     | '/wallet'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +182,7 @@ export interface RootRouteChildren {
   MatrixRoute: typeof MatrixRoute
   MonetaryRoute: typeof MonetaryRoute
   ResourcesRoute: typeof ResourcesRoute
+  SyncRoute: typeof SyncRoute
   WalletRoute: typeof WalletRoute
 }
 
@@ -180,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/wallet'
       preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sync': {
+      id: '/sync'
+      path: '/sync'
+      fullPath: '/sync'
+      preLoaderRoute: typeof SyncRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resources': {
@@ -266,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatrixRoute: MatrixRoute,
   MonetaryRoute: MonetaryRoute,
   ResourcesRoute: ResourcesRoute,
+  SyncRoute: SyncRoute,
   WalletRoute: WalletRoute,
 }
 export const routeTree = rootRouteImport
