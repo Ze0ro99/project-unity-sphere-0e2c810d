@@ -123,6 +123,47 @@ function Dashboard() {
             ))}
           </div>
         </Card>
+
+        {/* Quick KPIs across the unified PiRC ecosystem */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+          {[
+            { icon: Layers, label: "Omni Layers", value: `${OMNI_LAYERS.length}/7`, to: "/matrix" },
+            { icon: FileCode2, label: "Contracts", value: CONTRACT_REGISTRY.length.toString(), to: "/contracts" },
+            { icon: GitBranch, label: "Standards", value: PIRC_STANDARDS.length.toString(), to: "/contracts" },
+            { icon: Scale, label: "Justice Cases", value: "12 active", to: "/justice" },
+          ].map((s) => (
+            <Link key={s.label} to={s.to} className="block">
+              <Card className="glass border-0 p-5 hover:shadow-[var(--shadow-glow)] transition">
+                <s.icon className="h-5 w-5 text-gold" />
+                <div className="mt-2 text-xs text-muted-foreground">{s.label}</div>
+                <div className="text-xl font-bold text-foreground">{s.value}</div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+
+        {/* 7-Tier Fairness Standard */}
+        <Card className="glass border-0 p-6 mt-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Scale className="h-5 w-5 text-gold" />
+              <h3 className="font-semibold text-foreground">7-Tier Fairness Standard</h3>
+            </div>
+            <Link to="/matrix" className="text-xs text-gold hover:underline">View matrix →</Link>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-7 gap-3">
+            {FAIRNESS_TIERS.map((tier) => (
+              <div key={tier.tier} className="p-3 rounded-lg bg-secondary/40">
+                <div className="flex items-center justify-between">
+                  <span className="h-6 w-6 rounded-full bg-gradient-gold text-gold-foreground flex items-center justify-center text-[10px] font-bold">T{tier.tier}</span>
+                  <span className="text-[10px] text-gold font-mono">{(tier.weight * 100).toFixed(0)}%</span>
+                </div>
+                <div className="text-xs font-medium text-foreground mt-2 truncate">{tier.name}</div>
+                <Progress value={tier.weight * 100} className="h-1 mt-1.5" />
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
     </Layout>
   );
