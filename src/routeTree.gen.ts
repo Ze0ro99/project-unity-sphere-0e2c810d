@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as MonetaryRouteImport } from './routes/monetary'
 import { Route as MatrixRouteImport } from './routes/matrix'
 import { Route as GovernanceRouteImport } from './routes/governance'
 import { Route as DevelopersRouteImport } from './routes/developers'
@@ -27,6 +28,11 @@ const WalletRoute = WalletRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonetaryRoute = MonetaryRouteImport.update({
+  id: '/monetary',
+  path: '/monetary',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatrixRoute = MatrixRouteImport.update({
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
   '/matrix': typeof MatrixRoute
+  '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
   '/wallet': typeof WalletRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
   '/matrix': typeof MatrixRoute
+  '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
   '/wallet': typeof WalletRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
   '/matrix': typeof MatrixRoute
+  '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
   '/wallet': typeof WalletRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/developers'
     | '/governance'
     | '/matrix'
+    | '/monetary'
     | '/resources'
     | '/wallet'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/developers'
     | '/governance'
     | '/matrix'
+    | '/monetary'
     | '/resources'
     | '/wallet'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/developers'
     | '/governance'
     | '/matrix'
+    | '/monetary'
     | '/resources'
     | '/wallet'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   DevelopersRoute: typeof DevelopersRoute
   GovernanceRoute: typeof GovernanceRoute
   MatrixRoute: typeof MatrixRoute
+  MonetaryRoute: typeof MonetaryRoute
   ResourcesRoute: typeof ResourcesRoute
   WalletRoute: typeof WalletRoute
 }
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/monetary': {
+      id: '/monetary'
+      path: '/monetary'
+      fullPath: '/monetary'
+      preLoaderRoute: typeof MonetaryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matrix': {
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevelopersRoute: DevelopersRoute,
   GovernanceRoute: GovernanceRoute,
   MatrixRoute: MatrixRoute,
+  MonetaryRoute: MonetaryRoute,
   ResourcesRoute: ResourcesRoute,
   WalletRoute: WalletRoute,
 }
