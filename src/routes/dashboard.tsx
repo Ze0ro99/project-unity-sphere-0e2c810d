@@ -1,16 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Layout } from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDownLeft, ArrowUpRight, Repeat, Coins, CheckCircle2, TrendingUp } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { ArrowDownLeft, ArrowUpRight, Repeat, Coins, CheckCircle2, TrendingUp, Layers, Scale, GitBranch, FileCode2 } from "lucide-react";
 import { authenticatePi } from "@/lib/pi-sdk";
 import { useState } from "react";
 import { toast } from "sonner";
+import { FAIRNESS_TIERS, OMNI_LAYERS, CONTRACT_REGISTRY, PIRC_STANDARDS } from "@/lib/pirc-data";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — PiRC" }, { name: "description", content: "Your Pi Network dashboard." }] }),
+  head: () => ({ meta: [{ title: "Dashboard — PiRC" }, { name: "description", content: "Your unified Pi Network command center." }] }),
   component: Dashboard,
 });
 
