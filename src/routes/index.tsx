@@ -5,6 +5,7 @@ import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ProfessionalLiveDashboard } from "@/components/ProfessionalLiveDashboard";
 import heroBg from "@/assets/hero-bg.jpg";
 import {
   Shield, Wallet, FileCode2, Vote, Sparkles, Lock,
@@ -118,6 +119,9 @@ window.Pi.createPayment(
           </div>
         </div>
       </section>
+
+      {/* LIVE SOVEREIGN TELEMETRY */}
+      <ProfessionalLiveDashboard />
 
       {/* FEATURES */}
       <section className="container mx-auto px-4 py-20">

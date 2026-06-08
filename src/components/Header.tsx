@@ -15,6 +15,7 @@ export function Header() {
 
   const links = [
     { to: "/", label: t("nav.home") },
+    { to: "/sovereign", label: t("nav.sovereign", "Sovereign") },
     { to: "/dashboard", label: t("nav.dashboard") },
     { to: "/wallet", label: t("nav.wallet") },
     { to: "/matrix", label: t("nav.matrix", "Matrix") },
