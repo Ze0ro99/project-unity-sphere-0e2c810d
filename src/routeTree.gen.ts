@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as SyncRouteImport } from './routes/sync'
+import { Route as SovereignRouteImport } from './routes/sovereign'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as MonetaryRouteImport } from './routes/monetary'
 import { Route as MatrixRouteImport } from './routes/matrix'
@@ -30,6 +31,11 @@ const WalletRoute = WalletRouteImport.update({
 const SyncRoute = SyncRouteImport.update({
   id: '/sync',
   path: '/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SovereignRoute = SovereignRouteImport.update({
+  id: '/sovereign',
+  path: '/sovereign',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResourcesRoute = ResourcesRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/matrix': typeof MatrixRoute
   '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/sovereign': typeof SovereignRoute
   '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/matrix': typeof MatrixRoute
   '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/sovereign': typeof SovereignRoute
   '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/matrix': typeof MatrixRoute
   '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/sovereign': typeof SovereignRoute
   '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/matrix'
     | '/monetary'
     | '/resources'
+    | '/sovereign'
     | '/sync'
     | '/wallet'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/matrix'
     | '/monetary'
     | '/resources'
+    | '/sovereign'
     | '/sync'
     | '/wallet'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/matrix'
     | '/monetary'
     | '/resources'
+    | '/sovereign'
     | '/sync'
     | '/wallet'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   MatrixRoute: typeof MatrixRoute
   MonetaryRoute: typeof MonetaryRoute
   ResourcesRoute: typeof ResourcesRoute
+  SovereignRoute: typeof SovereignRoute
   SyncRoute: typeof SyncRoute
   WalletRoute: typeof WalletRoute
 }
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/sync'
       fullPath: '/sync'
       preLoaderRoute: typeof SyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sovereign': {
+      id: '/sovereign'
+      path: '/sovereign'
+      fullPath: '/sovereign'
+      preLoaderRoute: typeof SovereignRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resources': {
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatrixRoute: MatrixRoute,
   MonetaryRoute: MonetaryRoute,
   ResourcesRoute: ResourcesRoute,
+  SovereignRoute: SovereignRoute,
   SyncRoute: SyncRoute,
   WalletRoute: WalletRoute,
 }
