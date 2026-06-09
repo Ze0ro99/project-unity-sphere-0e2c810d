@@ -8,7 +8,7 @@ export type PiScopes = "username" | "payments" | "wallet_address";
 
 export interface PiAuthResult {
   accessToken: string;
-  user: { uid: string; username: string };
+  user: { uid: string; username: string; wallet_address?: string };
 }
 
 export interface PiPaymentData {
@@ -39,25 +39,18 @@ declare global {
 
 let initPromise: Promise<boolean> | null = null;
 
-/** Wait for the Pi SDK script tag to load (up to ~5s). */
 function waitForPiSdk(timeoutMs = 5000): Promise<boolean> {
   if (typeof window === "undefined") return Promise.resolve(false);
   if (window.Pi) return Promise.resolve(true);
   return new Promise((resolve) => {
     const start = Date.now();
     const id = window.setInterval(() => {
-      if (window.Pi) {
-        window.clearInterval(id);
-        resolve(true);
-      } else if (Date.now() - start > timeoutMs) {
-        window.clearInterval(id);
-        resolve(false);
-      }
+      if (window.Pi) { window.clearInterval(id); resolve(true); }
+      else if (Date.now() - start > timeoutMs) { window.clearInterval(id); resolve(false); }
     }, 100);
   });
 }
 
-/** Treat Pi.init as a Promise; await fully before authenticate. */
 export async function initPi(sandbox = true): Promise<boolean> {
   if (typeof window === "undefined") return false;
   if (initPromise) return initPromise;
@@ -71,7 +64,7 @@ export async function initPi(sandbox = true): Promise<boolean> {
 }
 
 export async function authenticatePi(
-  scopes: PiScopes[] = ["username", "payments"],
+  scopes: PiScopes[] = ["username", "payments", "wallet_address"],
   onIncompletePaymentFound: (payment: unknown) => void = (p) =>
     console.warn("Incomplete Pi payment found:", p),
 ): Promise<PiAuthResult | null> {
