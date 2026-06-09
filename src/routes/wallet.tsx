@@ -105,13 +105,25 @@ function WalletPage() {
               <WalletIcon className="h-4 w-4" /> {t("wallet.address")}
             </div>
             <div className="flex items-center gap-2 mb-6">
-              <code className="text-foreground font-mono text-sm bg-secondary/40 px-3 py-1.5 rounded">{address}</code>
-              <Button size="sm" variant="ghost" onClick={() => { navigator.clipboard.writeText(address); toast.success("Copied"); }}>
-                <Copy className="h-3.5 w-3.5" />
-              </Button>
+              <code className="text-foreground font-mono text-xs sm:text-sm bg-secondary/40 px-3 py-1.5 rounded break-all">{address}</code>
+              {user?.wallet_address && (
+                <>
+                  <Button size="sm" variant="ghost" onClick={() => { navigator.clipboard.writeText(address); toast.success("Copied"); }}>
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                  <a href={explorerAccount(network, user.wallet_address)} target="_blank" rel="noreferrer" className="text-gold">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </>
+              )}
             </div>
-            <div className="text-sm text-muted-foreground">{t("wallet.balance")}</div>
-            <div className="text-4xl font-bold text-gold mt-1">π 12,480.32</div>
+            <div className="text-sm text-muted-foreground flex items-center gap-2">
+              {t("wallet.balance")}
+              {account.isFetching && <Loader2 className="h-3 w-3 animate-spin" />}
+            </div>
+            <div className="text-4xl font-bold text-gold mt-1">
+              π {balance ? Number(balance).toLocaleString(undefined, { maximumFractionDigits: 4 }) : user?.wallet_address ? "0.00" : "—"}
+            </div>
           </Card>
 
           <Card className="glass border-0 p-6 lg:col-span-2">
