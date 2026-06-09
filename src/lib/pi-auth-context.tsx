@@ -10,6 +10,7 @@ import {
 export interface PiSessionUser {
   uid: string;
   username: string;
+  wallet_address?: string;
 }
 
 export interface PiProduct {
@@ -82,15 +83,19 @@ export function PiAuthProvider({ children }: { children: ReactNode }) {
     setStatus("authenticating");
     setError(null);
     try {
-      const result = await authenticatePi(["username", "payments"], handleIncomplete);
+      const result = await authenticatePi(
+        ["username", "payments", "wallet_address"],
+        handleIncomplete,
+      );
       if (!result) {
         setStatus("unavailable");
         setError("Pi SDK unavailable. Open this app inside the Pi Browser.");
         return;
       }
       const verified = await verifyPiAccessToken({ data: { accessToken: result.accessToken } });
-      const session = { user: verified, accessToken: result.accessToken };
-      setUser(verified);
+      const merged: PiSessionUser = { ...verified, wallet_address: result.user?.wallet_address };
+      const session = { user: merged, accessToken: result.accessToken };
+      setUser(merged);
       setAccessToken(result.accessToken);
       setStatus("authenticated");
       try {
