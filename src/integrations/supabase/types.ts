@@ -14,7 +14,130 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      service_catalog: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          description: string
+          duration_hours: number
+          id: string
+          min_price_pi: number
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description: string
+          duration_hours: number
+          id: string
+          min_price_pi: number
+          name: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string
+          duration_hours?: number
+          id?: string
+          min_price_pi?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      service_orders: {
+        Row: {
+          activated_at: string | null
+          amount_pi: number
+          app_url: string | null
+          created_at: string
+          deposit_memo: string
+          expires_at: string | null
+          id: string
+          network: string
+          pi_username: string | null
+          receiver_address: string
+          service_id: string
+          status: string
+          txid: string | null
+          user_uid: string
+        }
+        Insert: {
+          activated_at?: string | null
+          amount_pi: number
+          app_url?: string | null
+          created_at?: string
+          deposit_memo: string
+          expires_at?: string | null
+          id?: string
+          network?: string
+          pi_username?: string | null
+          receiver_address: string
+          service_id: string
+          status?: string
+          txid?: string | null
+          user_uid: string
+        }
+        Update: {
+          activated_at?: string | null
+          amount_pi?: number
+          app_url?: string | null
+          created_at?: string
+          deposit_memo?: string
+          expires_at?: string | null
+          id?: string
+          network?: string
+          pi_username?: string | null
+          receiver_address?: string
+          service_id?: string
+          status?: string
+          txid?: string | null
+          user_uid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_orders_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_payment_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          order_id: string
+          payload: Json | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          order_id: string
+          payload?: Json | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          order_id?: string
+          payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_payment_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
