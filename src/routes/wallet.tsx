@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Wallet as WalletIcon, Crown, CheckCircle2, Loader2 } from "lucide-react";
+import { Copy, Wallet as WalletIcon, Crown, CheckCircle2, Loader2, ExternalLink } from "lucide-react";
 import { createPiPayment } from "@/lib/pi-sdk";
 import { approvePiPayment, completePiPayment } from "@/lib/pi-payments.functions";
 import { usePiAuth, PREMIUM_ACCESS_PRODUCT } from "@/lib/pi-auth-context";
+import { useAccount, explorerAccount, type PiNetwork } from "@/lib/pi-horizon";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -23,7 +24,10 @@ function WalletPage() {
   const { user, hasPremium, paymentStatus, paymentError, purchase, signIn } = usePiAuth();
   const [amount, setAmount] = useState("");
   const [memo, setMemo] = useState("");
-  const address = "GACQ7XQ...M3N4P9KLM";
+  const [network] = useState<PiNetwork>("testnet");
+  const address = user?.wallet_address ?? "Sign in to view address";
+  const account = useAccount(user?.wallet_address, network);
+  const balance = account.data?.balances?.find((b) => b.asset_type === "native")?.balance;
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
