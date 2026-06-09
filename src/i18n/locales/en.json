@@ -5,6 +5,8 @@
     "home": "Home",
     "dashboard": "Dashboard",
     "wallet": "Wallet",
+    "markets": "Markets",
+    "services": "Services",
     "matrix": "Omni-Matrix",
     "monetary": "Monetary",
     "contracts": "Contracts",
@@ -14,6 +16,7 @@
     "developers": "Developers",
     "resources": "Resources",
     "alpha": "Alpha Hub",
+    "sovereign": "Sovereign",
     "docs": "Docs"
   },
   "cta": {
