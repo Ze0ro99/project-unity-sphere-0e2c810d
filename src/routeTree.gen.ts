@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as SyncRouteImport } from './routes/sync'
 import { Route as SovereignRouteImport } from './routes/sovereign'
+import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as MonetaryRouteImport } from './routes/monetary'
 import { Route as MatrixRouteImport } from './routes/matrix'
+import { Route as MarketsRouteImport } from './routes/markets'
 import { Route as JusticeRouteImport } from './routes/justice'
 import { Route as GovernanceRouteImport } from './routes/governance'
 import { Route as DevelopersRouteImport } from './routes/developers'
@@ -22,6 +24,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContractsRouteImport } from './routes/contracts'
 import { Route as AlphaHubRouteImport } from './routes/alpha-hub'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServicesOrderIdRouteImport } from './routes/services.$orderId'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
@@ -38,6 +41,11 @@ const SovereignRoute = SovereignRouteImport.update({
   path: '/sovereign',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
@@ -51,6 +59,11 @@ const MonetaryRoute = MonetaryRouteImport.update({
 const MatrixRoute = MatrixRouteImport.update({
   id: '/matrix',
   path: '/matrix',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketsRoute = MarketsRouteImport.update({
+  id: '/markets',
+  path: '/markets',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JusticeRoute = JusticeRouteImport.update({
@@ -88,6 +101,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesOrderIdRoute = ServicesOrderIdRouteImport.update({
+  id: '/$orderId',
+  path: '/$orderId',
+  getParentRoute: () => ServicesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -97,12 +115,15 @@ export interface FileRoutesByFullPath {
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
   '/justice': typeof JusticeRoute
+  '/markets': typeof MarketsRoute
   '/matrix': typeof MatrixRoute
   '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/services': typeof ServicesRouteWithChildren
   '/sovereign': typeof SovereignRoute
   '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
+  '/services/$orderId': typeof ServicesOrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -112,12 +133,15 @@ export interface FileRoutesByTo {
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
   '/justice': typeof JusticeRoute
+  '/markets': typeof MarketsRoute
   '/matrix': typeof MatrixRoute
   '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/services': typeof ServicesRouteWithChildren
   '/sovereign': typeof SovereignRoute
   '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
+  '/services/$orderId': typeof ServicesOrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -128,12 +152,15 @@ export interface FileRoutesById {
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
   '/justice': typeof JusticeRoute
+  '/markets': typeof MarketsRoute
   '/matrix': typeof MatrixRoute
   '/monetary': typeof MonetaryRoute
   '/resources': typeof ResourcesRoute
+  '/services': typeof ServicesRouteWithChildren
   '/sovereign': typeof SovereignRoute
   '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
+  '/services/$orderId': typeof ServicesOrderIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -145,12 +172,15 @@ export interface FileRouteTypes {
     | '/developers'
     | '/governance'
     | '/justice'
+    | '/markets'
     | '/matrix'
     | '/monetary'
     | '/resources'
+    | '/services'
     | '/sovereign'
     | '/sync'
     | '/wallet'
+    | '/services/$orderId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -160,12 +190,15 @@ export interface FileRouteTypes {
     | '/developers'
     | '/governance'
     | '/justice'
+    | '/markets'
     | '/matrix'
     | '/monetary'
     | '/resources'
+    | '/services'
     | '/sovereign'
     | '/sync'
     | '/wallet'
+    | '/services/$orderId'
   id:
     | '__root__'
     | '/'
@@ -175,12 +208,15 @@ export interface FileRouteTypes {
     | '/developers'
     | '/governance'
     | '/justice'
+    | '/markets'
     | '/matrix'
     | '/monetary'
     | '/resources'
+    | '/services'
     | '/sovereign'
     | '/sync'
     | '/wallet'
+    | '/services/$orderId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -191,9 +227,11 @@ export interface RootRouteChildren {
   DevelopersRoute: typeof DevelopersRoute
   GovernanceRoute: typeof GovernanceRoute
   JusticeRoute: typeof JusticeRoute
+  MarketsRoute: typeof MarketsRoute
   MatrixRoute: typeof MatrixRoute
   MonetaryRoute: typeof MonetaryRoute
   ResourcesRoute: typeof ResourcesRoute
+  ServicesRoute: typeof ServicesRouteWithChildren
   SovereignRoute: typeof SovereignRoute
   SyncRoute: typeof SyncRoute
   WalletRoute: typeof WalletRoute
@@ -222,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SovereignRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
@@ -241,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/matrix'
       fullPath: '/matrix'
       preLoaderRoute: typeof MatrixRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/markets': {
+      id: '/markets'
+      path: '/markets'
+      fullPath: '/markets'
+      preLoaderRoute: typeof MarketsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/justice': {
@@ -292,8 +344,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services/$orderId': {
+      id: '/services/$orderId'
+      path: '/$orderId'
+      fullPath: '/services/$orderId'
+      preLoaderRoute: typeof ServicesOrderIdRouteImport
+      parentRoute: typeof ServicesRoute
+    }
   }
 }
+
+interface ServicesRouteChildren {
+  ServicesOrderIdRoute: typeof ServicesOrderIdRoute
+}
+
+const ServicesRouteChildren: ServicesRouteChildren = {
+  ServicesOrderIdRoute: ServicesOrderIdRoute,
+}
+
+const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
+  ServicesRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -303,9 +374,11 @@ const rootRouteChildren: RootRouteChildren = {
   DevelopersRoute: DevelopersRoute,
   GovernanceRoute: GovernanceRoute,
   JusticeRoute: JusticeRoute,
+  MarketsRoute: MarketsRoute,
   MatrixRoute: MatrixRoute,
   MonetaryRoute: MonetaryRoute,
   ResourcesRoute: ResourcesRoute,
+  ServicesRoute: ServicesRouteWithChildren,
   SovereignRoute: SovereignRoute,
   SyncRoute: SyncRoute,
   WalletRoute: WalletRoute,
