@@ -25,6 +25,7 @@ import { Route as ContractsRouteImport } from './routes/contracts'
 import { Route as AlphaHubRouteImport } from './routes/alpha-hub'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServicesOrderIdRouteImport } from './routes/services.$orderId'
+import { Route as ApiPublicGithubWebhookRouteImport } from './routes/api/public/github-webhook'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
@@ -106,6 +107,11 @@ const ServicesOrderIdRoute = ServicesOrderIdRouteImport.update({
   path: '/$orderId',
   getParentRoute: () => ServicesRoute,
 } as any)
+const ApiPublicGithubWebhookRoute = ApiPublicGithubWebhookRouteImport.update({
+  id: '/api/public/github-webhook',
+  path: '/api/public/github-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
   '/services/$orderId': typeof ServicesOrderIdRoute
+  '/api/public/github-webhook': typeof ApiPublicGithubWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
   '/services/$orderId': typeof ServicesOrderIdRoute
+  '/api/public/github-webhook': typeof ApiPublicGithubWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/sync': typeof SyncRoute
   '/wallet': typeof WalletRoute
   '/services/$orderId': typeof ServicesOrderIdRoute
+  '/api/public/github-webhook': typeof ApiPublicGithubWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/sync'
     | '/wallet'
     | '/services/$orderId'
+    | '/api/public/github-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/sync'
     | '/wallet'
     | '/services/$orderId'
+    | '/api/public/github-webhook'
   id:
     | '__root__'
     | '/'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/sync'
     | '/wallet'
     | '/services/$orderId'
+    | '/api/public/github-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   SovereignRoute: typeof SovereignRoute
   SyncRoute: typeof SyncRoute
   WalletRoute: typeof WalletRoute
+  ApiPublicGithubWebhookRoute: typeof ApiPublicGithubWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -351,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesOrderIdRouteImport
       parentRoute: typeof ServicesRoute
     }
+    '/api/public/github-webhook': {
+      id: '/api/public/github-webhook'
+      path: '/api/public/github-webhook'
+      fullPath: '/api/public/github-webhook'
+      preLoaderRoute: typeof ApiPublicGithubWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -382,6 +402,7 @@ const rootRouteChildren: RootRouteChildren = {
   SovereignRoute: SovereignRoute,
   SyncRoute: SyncRoute,
   WalletRoute: WalletRoute,
+  ApiPublicGithubWebhookRoute: ApiPublicGithubWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
