@@ -18,6 +18,8 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "crypto";
+import { importAllPirc } from "@/lib/pirc-import.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const ALLOWED_REPO = "Ze0ro99/PiRC";
 
