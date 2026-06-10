@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      pirc_snapshots: {
+        Row: {
+          bytes: number
+          commit_sha: string | null
+          content: Json | null
+          created_at: string
+          fetched_at: string
+          id: string
+          path: string
+          raw_text: string | null
+        }
+        Insert: {
+          bytes?: number
+          commit_sha?: string | null
+          content?: Json | null
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          path: string
+          raw_text?: string | null
+        }
+        Update: {
+          bytes?: number
+          commit_sha?: string | null
+          content?: Json | null
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          path?: string
+          raw_text?: string | null
+        }
+        Relationships: []
+      }
+      pirc_webhook_events: {
+        Row: {
+          delivery: string | null
+          event: string
+          head_sha: string | null
+          id: string
+          payload: Json | null
+          pusher: string | null
+          received_at: string
+          ref: string | null
+        }
+        Insert: {
+          delivery?: string | null
+          event: string
+          head_sha?: string | null
+          id?: string
+          payload?: Json | null
+          pusher?: string | null
+          received_at?: string
+          ref?: string | null
+        }
+        Update: {
+          delivery?: string | null
+          event?: string
+          head_sha?: string | null
+          id?: string
+          payload?: Json | null
+          pusher?: string | null
+          received_at?: string
+          ref?: string | null
+        }
+        Relationships: []
+      }
       service_catalog: {
         Row: {
           active: boolean
