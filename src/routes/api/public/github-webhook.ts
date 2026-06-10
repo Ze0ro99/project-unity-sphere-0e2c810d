@@ -18,6 +18,8 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "crypto";
+import { importAllPirc } from "@/lib/pirc-import.server";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const ALLOWED_REPO = "Ze0ro99/PiRC";
 
@@ -76,22 +78,37 @@ export const Route = createFileRoute("/api/public/github-webhook")({
           return Response.json({ ok: true, pong: true, zen: payload.zen });
         }
 
+        const headSha = (payload.head_commit as { id?: string } | undefined)?.id ?? null;
         const summary = {
           ok: true,
           event,
           delivery,
           repo: repo ?? ALLOWED_REPO,
-          ref: payload.ref ?? null,
-          head: (payload.head_commit as { id?: string } | undefined)?.id ?? null,
+          ref: (payload.ref as string | undefined) ?? null,
+          head: headSha,
           pusher: (payload.pusher as { name?: string } | undefined)?.name ?? null,
           received_at: new Date().toISOString(),
         };
 
-        // Surface in server logs for traceability — the live UI polls the raw
-        // GitHub URLs and will pick up the change on its next refresh tick.
-        console.log("[pirc-github-webhook]", JSON.stringify(summary));
+        // Persist the event for audit/visibility (best-effort).
+        await supabaseAdmin.from("pirc_webhook_events").insert({
+          event,
+          delivery,
+          ref: summary.ref,
+          head_sha: headSha,
+          pusher: summary.pusher,
+          payload: payload as never,
+        });
 
-        return Response.json(summary);
+        // On push to main (or release/repository changes), pull the canonical
+        // PiRC files and upsert them into the snapshot table.
+        let imported: Awaited<ReturnType<typeof importAllPirc>> | undefined;
+        if (event === "push" || event === "release" || event === "repository_dispatch") {
+          imported = await importAllPirc(headSha ?? undefined);
+        }
+
+        console.log("[pirc-github-webhook]", JSON.stringify({ ...summary, imported }));
+        return Response.json({ ...summary, imported });
       },
     },
   },

@@ -18,6 +18,7 @@ import { Route as MonetaryRouteImport } from './routes/monetary'
 import { Route as MatrixRouteImport } from './routes/matrix'
 import { Route as MarketsRouteImport } from './routes/markets'
 import { Route as JusticeRouteImport } from './routes/justice'
+import { Route as ImportRouteImport } from './routes/import'
 import { Route as GovernanceRouteImport } from './routes/governance'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -72,6 +73,11 @@ const JusticeRoute = JusticeRouteImport.update({
   path: '/justice',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImportRoute = ImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GovernanceRoute = GovernanceRouteImport.update({
   id: '/governance',
   path: '/governance',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/import': typeof ImportRoute
   '/justice': typeof JusticeRoute
   '/markets': typeof MarketsRoute
   '/matrix': typeof MatrixRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/import': typeof ImportRoute
   '/justice': typeof JusticeRoute
   '/markets': typeof MarketsRoute
   '/matrix': typeof MatrixRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/developers': typeof DevelopersRoute
   '/governance': typeof GovernanceRoute
+  '/import': typeof ImportRoute
   '/justice': typeof JusticeRoute
   '/markets': typeof MarketsRoute
   '/matrix': typeof MatrixRoute
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/import'
     | '/justice'
     | '/markets'
     | '/matrix'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/import'
     | '/justice'
     | '/markets'
     | '/matrix'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/developers'
     | '/governance'
+    | '/import'
     | '/justice'
     | '/markets'
     | '/matrix'
@@ -238,6 +250,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DevelopersRoute: typeof DevelopersRoute
   GovernanceRoute: typeof GovernanceRoute
+  ImportRoute: typeof ImportRoute
   JusticeRoute: typeof JusticeRoute
   MarketsRoute: typeof MarketsRoute
   MatrixRoute: typeof MatrixRoute
@@ -313,6 +326,13 @@ declare module '@tanstack/react-router' {
       path: '/justice'
       fullPath: '/justice'
       preLoaderRoute: typeof JusticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/import': {
+      id: '/import'
+      path: '/import'
+      fullPath: '/import'
+      preLoaderRoute: typeof ImportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/governance': {
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DevelopersRoute: DevelopersRoute,
   GovernanceRoute: GovernanceRoute,
+  ImportRoute: ImportRoute,
   JusticeRoute: JusticeRoute,
   MarketsRoute: MarketsRoute,
   MatrixRoute: MatrixRoute,
@@ -407,13 +428,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
