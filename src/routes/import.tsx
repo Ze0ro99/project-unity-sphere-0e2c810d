@@ -100,8 +100,8 @@ function ImportPage() {
                   <div className="flex items-center gap-3">
                     <Badge variant="outline" className="gold-border text-gold text-[10px]">{e.event}</Badge>
                     <span className="text-foreground font-mono text-xs">{e.ref ?? "—"}</span>
-                    {e.pusher && <span className="text-muted-foreground text-xs">by {e.pusher}</span>}
                   </div>
+
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     {e.head_sha && <span className="font-mono">{e.head_sha.slice(0, 7)}</span>}
                     <span>{new Date(e.received_at).toLocaleString()}</span>
