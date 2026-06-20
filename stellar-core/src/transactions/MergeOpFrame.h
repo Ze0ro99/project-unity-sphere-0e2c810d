@@ -1,0 +1,51 @@
+// Copyright 2015 Stellar Development Foundation and contributors. Licensed
+// under the Apache License, Version 2.0. See the COPYING file at the root
+// of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
+
+#pragma once
+
+#include "transactions/OperationFrame.h"
+
+namespace stellar
+{
+
+class LedgerTxnHeader;
+
+class MergeOpFrame : public OperationFrame
+{
+    AccountMergeResult&
+    innerResult(OperationResult& res) const
+    {
+        return res.tr().accountMergeResult();
+    }
+
+    bool doApplyBeforeV16(AbstractLedgerTxn& ltx, OperationResult& res,
+                          OpEventManager& opEventManager) const;
+    bool doApplyFromV16(AbstractLedgerTxn& ltx, OperationResult& res,
+                        OpEventManager& opEventManager) const;
+
+    ThresholdLevel getThresholdLevel() const override;
+
+    virtual bool isSeqnumTooFar(AbstractLedgerTxn& ltx,
+                                LedgerTxnHeader const& header,
+                                AccountEntry const& sourceAccount) const;
+
+  public:
+    MergeOpFrame(Operation const& op, TransactionFrame const& parentTx);
+
+    bool doApply(AppConnector& app, AbstractLedgerTxn& ltx,
+                 OperationResult& res,
+                 OperationMetaBuilder& opMeta) const override;
+    bool doCheckValid(uint32_t ledgerVersion,
+                      OperationResult& res) const override;
+
+    bool doesAccessFrozenKey(
+        SorobanNetworkConfig const& sorobanConfig) const override;
+
+    static AccountMergeResultCode
+    getInnerCode(OperationResult const& res)
+    {
+        return res.tr().accountMergeResult().code();
+    }
+};
+}
