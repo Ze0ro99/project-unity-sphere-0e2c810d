@@ -1,0 +1,43 @@
+# Build stage, includes everything needed to build.
+FROM ubuntu:noble as buildstage
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get -y install iproute2 procps lsb-release \
+                       git build-essential pkg-config autoconf automake libtool \
+                       bison flex sed perl libpq-dev parallel \
+                       clang-20 libc++abi-20-dev libc++-20-dev libclang-rt-20-dev \
+                       postgresql curl
+
+COPY . stellar-core/
+WORKDIR stellar-core
+RUN git clean -dXf
+RUN git submodule foreach --recursive git clean -dXf
+
+ARG CC=clang-20
+ARG CXX=clang++-20
+ARG CFLAGS='-O3 -g1 -fno-omit-frame-pointer'
+ARG CXXFLAGS='-O3 -g1 -fno-omit-frame-pointer -stdlib=libc++'
+ARG CONFIGURE_FLAGS='--enable-tracy --enable-sdfprefs --enable-next-protocol-version-unsafe-for-production'
+
+# Asan in llvm provided in ubuntu 22.04 is incompatible with
+# high-entropy ASLR in much newer kernels that GitHub runners are
+# using leading to random crashes: https://reviews.llvm.org/D148280
+RUN sysctl vm.mmap_rnd_bits=28
+
+RUN ./autogen.sh
+RUN ./install-rust.sh
+ENV PATH "/root/.cargo/bin:$PATH"
+RUN ./configure CC="${CC}" CXX="${CXX}" CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" ${CONFIGURE_FLAGS}
+RUN sh -c 'make -j $(nproc)'
+RUN make install
+
+# Deploy stage, only includes stuff needed to run.
+FROM ubuntu:noble
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get -y install postgresql curl sqlite3 iproute2 libc++abi1-20 libc++1-20
+
+COPY --from=buildstage /usr/local/bin/stellar-core /usr/local/bin/stellar-core
+EXPOSE 11625
+EXPOSE 11626
+CMD stellar-core
