@@ -1,0 +1,12 @@
+{
+  "name": "PiRC Sovereign Platform",
+  "description": "Unified Layer Integration, Smart Contract Studio, and Repository Sync Platform for the PiRC Omni Sovereign Architecture.",
+  "requestFramePermissions": [
+    "username"
+  ],
+  "majorCapabilities": [
+    "Sovereign Matrix Registry",
+    "Smart Contract Studio",
+    "Repository Sync"
+  ]
+}
