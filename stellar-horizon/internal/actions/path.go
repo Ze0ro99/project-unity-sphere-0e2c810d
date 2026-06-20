@@ -1,0 +1,428 @@
+package actions
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"net/http"
+
+	"github.com/stellar/go-stellar-sdk/amount"
+	"github.com/stellar/go-stellar-sdk/protocols/horizon"
+	"github.com/stellar/go-stellar-sdk/support/errors"
+	"github.com/stellar/go-stellar-sdk/support/render/hal"
+	"github.com/stellar/go-stellar-sdk/support/render/problem"
+	"github.com/stellar/go-stellar-sdk/xdr"
+	horizonContext "github.com/stellar/stellar-horizon/internal/context"
+	"github.com/stellar/stellar-horizon/internal/db2/history"
+	"github.com/stellar/stellar-horizon/internal/paths"
+	horizonProblem "github.com/stellar/stellar-horizon/internal/render/problem"
+	"github.com/stellar/stellar-horizon/internal/resourceadapter"
+	"github.com/stellar/stellar-horizon/internal/simplepath"
+)
+
+// FindPathsHandler is the http handler for the find payment paths endpoint
+type FindPathsHandler struct {
+	StaleThreshold       uint
+	MaxPathLength        uint
+	SetLastLedgerHeader  bool
+	MaxAssetsParamLength int
+	PathFinder           paths.Finder
+}
+
+// StrictReceivePathsQuery query struct for paths/strict-send end-point
+type StrictReceivePathsQuery struct {
+	SourceAssets           string `schema:"source_assets" valid:"-"`
+	SourceAccount          string `schema:"source_account" valid:"accountID,optional"`
+	DestinationAccount     string `schema:"destination_account" valid:"accountID,optional"`
+	DestinationAssetType   string `schema:"destination_asset_type" valid:"assetType"`
+	DestinationAssetIssuer string `schema:"destination_asset_issuer" valid:"accountID,optional"`
+	DestinationAssetCode   string `schema:"destination_asset_code" valid:"-"`
+	DestinationAmount      string `schema:"destination_amount" valid:"amount"`
+}
+
+// Assets returns a list of xdr.Asset
+func (q StrictReceivePathsQuery) Assets() ([]xdr.Asset, error) {
+	return xdr.BuildAssets(q.SourceAssets)
+}
+
+// Amount returns source amount
+func (q StrictReceivePathsQuery) Amount() (xdr.Int64, error) {
+	parsed, err := amount.Parse(q.DestinationAmount)
+	if err != nil {
+		return 0, problem.MakeInvalidFieldProblem("destination_amount", err)
+	}
+	return parsed, nil
+}
+
+// DestinationAsset returns an xdr.Asset
+func (q StrictReceivePathsQuery) DestinationAsset() (xdr.Asset, error) {
+	asset, err := xdr.BuildAsset(
+		q.DestinationAssetType,
+		q.DestinationAssetIssuer,
+		q.DestinationAssetCode,
+	)
+	if err != nil {
+		return xdr.Asset{}, problem.MakeInvalidFieldProblem("destination_asset", err)
+	}
+	return asset, nil
+}
+
+// URITemplate returns a rfc6570 URI template for the query struct
+func (q StrictReceivePathsQuery) URITemplate() string {
+	return getURITemplate(&q, "paths/strict-receive", false)
+}
+
+// Validate runs custom validations.
+func (q StrictReceivePathsQuery) Validate() error {
+	if (len(q.SourceAccount) > 0) == (len(q.SourceAssets) > 0) {
+		return SourceAssetsOrSourceAccountProblem
+	}
+
+	err := validateAssetParams(
+		q.DestinationAssetType,
+		q.DestinationAssetCode,
+		q.DestinationAssetIssuer,
+		"destination_",
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = q.Assets()
+	if err != nil {
+		return problem.MakeInvalidFieldProblem(
+			"source_assets",
+			err,
+		)
+	}
+
+	return nil
+}
+
+// SourceAssetsOrSourceAccountProblem custom error where source assets or account is required
+var SourceAssetsOrSourceAccountProblem = problem.P{
+	Type:   "bad_request",
+	Title:  "Bad Request",
+	Status: http.StatusBadRequest,
+	Detail: "The request requires either a list of source assets or a source account. " +
+		"Both fields cannot be present.",
+}
+
+// GetResource finds a list of strict receive paths
+func (handler FindPathsHandler) GetResource(w HeaderWriter, r *http.Request) (interface{}, error) {
+	var err error
+	ctx := r.Context()
+	qp := StrictReceivePathsQuery{}
+
+	if err = getParams(&qp, r); err != nil {
+		return nil, err
+	}
+
+	query := paths.Query{}
+	query.DestinationAmount, err = qp.Amount()
+	if err != nil {
+		return nil, err
+	}
+	sourceAccount := qp.SourceAccount
+	query.SourceAssets, _ = qp.Assets()
+
+	if len(query.SourceAssets) > handler.MaxAssetsParamLength {
+		return nil, problem.MakeInvalidFieldProblem(
+			"source_assets",
+			fmt.Errorf("list of assets exceeds maximum length of %d", handler.MaxAssetsParamLength),
+		)
+	}
+	query.DestinationAsset, err = qp.DestinationAsset()
+	if err != nil {
+		return nil, err
+	}
+	if sourceAccount != "" {
+		var accountID xdr.AccountId
+		accountID, err = xdr.AddressToAccountId(sourceAccount)
+		if err != nil {
+			return nil, problem.MakeInvalidFieldProblem("source_account", err)
+		}
+		query.SourceAccount = &accountID
+		query.ValidateSourceBalance = true
+		query.SourceAssets, query.SourceAssetBalances, err = assetsForAddressWithLimit(
+			r, query.SourceAccount.Address(), handler.MaxAssetsParamLength,
+		)
+		if err != nil {
+			return nil, problem.MakeInvalidFieldProblem("source_account", err)
+		}
+	} else {
+		for range query.SourceAssets {
+			query.SourceAssetBalances = append(query.SourceAssetBalances, 0)
+		}
+	}
+
+	// Rollback REPEATABLE READ transaction so that a DB connection is released
+	// to be used by other http requests.
+	historyQ, err := horizonContext.HistoryQFromRequest(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not obtain historyQ from request")
+	}
+
+	err = historyQ.Rollback()
+	if err != nil {
+		return nil, errors.Wrap(err, "error in rollback")
+	}
+
+	records := []paths.Path{}
+	if len(query.SourceAssets) > 0 {
+		var lastIngestedLedger uint32
+		records, lastIngestedLedger, err = handler.PathFinder.Find(ctx, query, handler.MaxPathLength)
+		switch err {
+		case simplepath.ErrEmptyInMemoryOrderBook:
+			return nil, horizonProblem.StillIngesting
+		case paths.ErrRateLimitExceeded:
+			return nil, horizonProblem.ServerOverCapacity
+		default:
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if handler.SetLastLedgerHeader {
+			// To make the Last-Ledger header consistent with the response content,
+			// we need to extract it from the ledger and not the DB.
+			// Thus, we overwrite the header if it was previously set.
+			SetLastLedgerHeader(w, lastIngestedLedger)
+		}
+	}
+
+	return renderPaths(ctx, records)
+}
+
+func renderPaths(ctx context.Context, records []paths.Path) (hal.BasePage, error) {
+	var page hal.BasePage
+	page.Init()
+	for _, p := range records {
+		var res horizon.Path
+		if err := resourceadapter.PopulatePath(ctx, &res, p); err != nil {
+			return hal.BasePage{}, err
+		}
+		page.Add(res)
+	}
+	return page, nil
+}
+
+// FindFixedPathsHandler is the http handler for the find fixed payment paths endpoint
+// Fixed payment paths are payment paths where both the source and destination asset are fixed
+type FindFixedPathsHandler struct {
+	MaxPathLength        uint
+	MaxAssetsParamLength int
+	SetLastLedgerHeader  bool
+	PathFinder           paths.Finder
+}
+
+// DestinationAssetsOrDestinationAccountProblem custom error where destination asserts or accounts are required
+var DestinationAssetsOrDestinationAccountProblem = problem.P{
+	Type:   "bad_request",
+	Title:  "Bad Request",
+	Status: http.StatusBadRequest,
+	Detail: "The request requires either a list of destination assets or a destination account. " +
+		"Both fields cannot be present.",
+}
+
+// FindFixedPathsQuery query struct for paths/strict-send end-point
+type FindFixedPathsQuery struct {
+	DestinationAccount string `schema:"destination_account" valid:"accountID,optional"`
+	DestinationAssets  string `schema:"destination_assets" valid:"-"`
+	SourceAssetType    string `schema:"source_asset_type" valid:"assetType"`
+	SourceAssetIssuer  string `schema:"source_asset_issuer" valid:"accountID,optional"`
+	SourceAssetCode    string `schema:"source_asset_code" valid:"-"`
+	SourceAmount       string `schema:"source_amount" valid:"amount"`
+}
+
+// URITemplate returns a rfc6570 URI template for the query struct
+func (q FindFixedPathsQuery) URITemplate() string {
+	return getURITemplate(&q, "paths/strict-send", false)
+}
+
+// Validate runs custom validations.
+func (q FindFixedPathsQuery) Validate() error {
+	if (len(q.DestinationAccount) > 0) == (len(q.DestinationAssets) > 0) {
+		return DestinationAssetsOrDestinationAccountProblem
+	}
+
+	err := validateAssetParams(
+		q.SourceAssetType,
+		q.SourceAssetCode,
+		q.SourceAssetIssuer,
+		"source_",
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = q.Assets()
+	if err != nil {
+		return problem.MakeInvalidFieldProblem(
+			"destination_assets",
+			err,
+		)
+	}
+
+	return nil
+}
+
+// Assets returns a list of xdr.Asset
+func (q FindFixedPathsQuery) Assets() ([]xdr.Asset, error) {
+	return xdr.BuildAssets(q.DestinationAssets)
+}
+
+// Amount returns source amount
+func (q FindFixedPathsQuery) Amount() (xdr.Int64, error) {
+	parsed, err := amount.Parse(q.SourceAmount)
+	if err != nil {
+		return 0, problem.MakeInvalidFieldProblem("source_amount", err)
+	}
+	return parsed, nil
+}
+
+// SourceAsset returns an xdr.Asset
+func (q FindFixedPathsQuery) SourceAsset() (xdr.Asset, error) {
+	asset, err := xdr.BuildAsset(
+		q.SourceAssetType,
+		q.SourceAssetIssuer,
+		q.SourceAssetCode,
+	)
+	if err != nil {
+		return xdr.Asset{}, problem.MakeInvalidFieldProblem("source_asset", err)
+	}
+	return asset, nil
+}
+
+// GetResource returns a list of strict send paths
+func (handler FindFixedPathsHandler) GetResource(w HeaderWriter, r *http.Request) (interface{}, error) {
+	var err error
+	ctx := r.Context()
+	qp := FindFixedPathsQuery{}
+
+	if err = getParams(&qp, r); err != nil {
+		return nil, err
+	}
+
+	destinationAccount := qp.DestinationAccount
+	destinationAssets, _ := qp.Assets()
+
+	if len(destinationAssets) > handler.MaxAssetsParamLength {
+		return nil, problem.MakeInvalidFieldProblem(
+			"destination_assets",
+			fmt.Errorf("list of assets exceeds maximum length of %d", handler.MaxAssetsParamLength),
+		)
+	}
+
+	if destinationAccount != "" {
+		destinationAssets, _, err = assetsForAddressWithLimit(r, destinationAccount, handler.MaxAssetsParamLength)
+		if err != nil {
+			return nil, problem.MakeInvalidFieldProblem("destination_account", err)
+		}
+	}
+
+	// Rollback REPEATABLE READ transaction so that a DB connection is released
+	// to be used by other http requests.
+	historyQ, err := horizonContext.HistoryQFromRequest(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not obtain historyQ from request")
+	}
+
+	err = historyQ.Rollback()
+	if err != nil {
+		return nil, errors.Wrap(err, "error in rollback")
+	}
+
+	sourceAsset, err := qp.SourceAsset()
+	if err != nil {
+		return nil, err
+	}
+	amountToSpend, err := qp.Amount()
+	if err != nil {
+		return nil, err
+	}
+
+	records := []paths.Path{}
+	if len(destinationAssets) > 0 {
+		var lastIngestedLedger uint32
+		records, lastIngestedLedger, err = handler.PathFinder.FindFixedPaths(
+			ctx,
+			sourceAsset,
+			amountToSpend,
+			destinationAssets,
+			handler.MaxPathLength,
+		)
+		switch err {
+		case simplepath.ErrEmptyInMemoryOrderBook:
+			return nil, horizonProblem.StillIngesting
+		case paths.ErrRateLimitExceeded:
+			return nil, horizonProblem.ServerOverCapacity
+		default:
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		if handler.SetLastLedgerHeader {
+			// To make the Last-Ledger header consistent with the response content,
+			// we need to extract it from the ledger and not the DB.
+			// Thus, we overwrite the header if it was previously set.
+			SetLastLedgerHeader(w, lastIngestedLedger)
+		}
+	}
+
+	return renderPaths(ctx, records)
+}
+
+func assetsForAddressWithLimit(r *http.Request, addy string, limit int) ([]xdr.Asset, []xdr.Int64, error) {
+	historyQ, err := horizonContext.HistoryQFromRequest(r)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "could not obtain historyQ from request")
+	}
+	if historyQ.SessionInterface.GetTx() == nil {
+		return nil, nil, errors.New("cannot be called outside of a transaction")
+	}
+	if opts := historyQ.SessionInterface.GetTxOptions(); opts == nil || !opts.ReadOnly || opts.Isolation != sql.LevelRepeatableRead {
+		return nil, nil, errors.New("should only be called in a repeatable read transaction")
+	}
+
+	var account history.AccountEntry
+	account, err = historyQ.GetAccountByID(r.Context(), addy)
+	if historyQ.NoRows(err) {
+		return []xdr.Asset{}, []xdr.Int64{}, nil
+	} else if err != nil {
+		return nil, nil, errors.Wrap(err, "could not fetch account")
+	}
+
+	var trustlines []history.TrustLine
+	trustlines, err = historyQ.GetSortedTrustLinesByAccountID(r.Context(), addy)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "could not fetch trustlines for account")
+	}
+
+	var assets []xdr.Asset
+	var balances []xdr.Int64
+
+	for _, trustline := range trustlines {
+		// Ignore pool share assets because pool shares are not transferable and cannot be traded.
+		// Therefore, it doesn't make sense to send path payments where the source / destination assets are pool shares.
+		if trustline.AssetType == xdr.AssetTypeAssetTypePoolShare {
+			continue
+		}
+		var asset xdr.Asset
+		asset, err = xdr.NewCreditAsset(trustline.AssetCode, trustline.AssetIssuer)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "invalid trustline asset")
+		}
+		assets = append(assets, asset)
+		balances = append(balances, xdr.Int64(trustline.Balance))
+
+		// +1 accounts for the native XLM asset appended below
+		if len(assets)+1 > limit {
+			return nil, nil, fmt.Errorf("account has too many trustlines to use this endpoint (number of trustlines plus native XLM exceeds limit of %d)", limit)
+		}
+	}
+	assets = append(assets, xdr.MustNewNativeAsset())
+	balances = append(balances, xdr.Int64(account.Balance))
+	return assets, balances, nil
+}
