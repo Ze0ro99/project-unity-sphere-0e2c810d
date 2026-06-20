@@ -1,0 +1,7 @@
+Flask
+Flask-SQLAlchemy
+OpenZeppelin-Solidity
+pandas
+scikit-learn
+psycopg2
+web3
