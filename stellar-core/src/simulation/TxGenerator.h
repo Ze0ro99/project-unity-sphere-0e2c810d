@@ -1,0 +1,332 @@
+// Copyright 2025 Stellar Development Foundation and contributors. Licensed
+// under the Apache License, Version 2.0. See the COPYING file at the root
+// of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
+
+#pragma once
+
+#include "main/Application.h"
+#include "test/TestAccount.h"
+#include "test/TxTests.h"
+
+namespace medida
+{
+class Counter;
+}
+namespace stellar
+{
+// Calculates total size we'll need to read for all specified keys
+uint64_t footprintSize(Application& app,
+                       xdr::xvector<stellar::LedgerKey> const& keys);
+
+// Build a CONTRACT_DATA ledger key for a SAC "Balance" entry.
+LedgerKey makeSACBalanceKey(SCAddress const& sacContract,
+                            SCVal const& holderAddrVal);
+
+// Build a TRUSTLINE ledger key for the given account + asset.
+LedgerKey makeTrustlineKey(PublicKey const& accountID, Asset const& asset);
+
+// Config settings for SOROBAN_CREATE_UPGRADE
+struct SorobanUpgradeConfig
+{
+    // Network Upgrade Parameters
+    std::optional<uint32_t> maxContractSizeBytes{};
+    std::optional<uint32_t> maxContractDataKeySizeBytes{};
+    std::optional<uint32_t> maxContractDataEntrySizeBytes{};
+
+    // Compute settings for contracts (instructions and memory).
+    std::optional<int64_t> ledgerMaxInstructions{};
+    std::optional<int64_t> txMaxInstructions{};
+    std::optional<int64_t> feeRatePerInstructionsIncrement{};
+    std::optional<uint32_t> txMemoryLimit{};
+    std::optional<ContractCostParams> cpuCostParams{};
+    std::optional<ContractCostParams> memCostParams{};
+
+    // Ledger access settings for contracts.
+    std::optional<uint32_t> ledgerMaxDiskReadEntries{};
+    std::optional<uint32_t> ledgerMaxDiskReadBytes{};
+    std::optional<uint32_t> ledgerMaxWriteLedgerEntries{};
+    std::optional<uint32_t> ledgerMaxWriteBytes{};
+    std::optional<int64_t> feeDiskReadLedgerEntry{};
+    std::optional<int64_t> feeWriteLedgerEntry{};
+    std::optional<int64_t> feeDiskRead1KB{};
+    std::optional<uint32_t> ledgerMaxTxCount{};
+    std::optional<uint32_t> txMaxDiskReadEntries{};
+    std::optional<uint32_t> txMaxDiskReadBytes{};
+    std::optional<uint32_t> txMaxWriteLedgerEntries{};
+    std::optional<uint32_t> txMaxWriteBytes{};
+
+    // Historical data (pushed to core archives) settings for contracts.
+    std::optional<int64_t> feeHistorical1KB{};
+
+    // Contract events settings.
+    std::optional<uint32_t> txMaxContractEventsSizeBytes{};
+
+    // Bandwidth related data settings for contracts
+    std::optional<uint32_t> ledgerMaxTransactionsSizeBytes{};
+    std::optional<uint32_t> txMaxSizeBytes{};
+    std::optional<int64_t> feeTransactionSize1KB{};
+
+    // State Archival Settings
+    std::optional<uint32_t> maxEntryTTL{};
+    std::optional<uint32_t> minTemporaryTTL{};
+    std::optional<uint32_t> minPersistentTTL{};
+    std::optional<int64_t> persistentRentRateDenominator{};
+    std::optional<int64_t> tempRentRateDenominator{};
+    std::optional<uint32_t> maxEntriesToArchive{};
+    std::optional<uint32_t> liveSorobanStateSizeWindowSampleSize{};
+    std::optional<uint32_t> liveSorobanStateSizeWindowSamplePeriod{};
+    std::optional<uint32_t> evictionScanSize{};
+    std::optional<uint32_t> startingEvictionScanLevel{};
+
+    std::optional<int64_t> rentFee1KBSorobanStateSizeLow{};
+    std::optional<int64_t> rentFee1KBSorobanStateSizeHigh{};
+
+    // Parallel execution settings
+    std::optional<uint32_t> ledgerMaxDependentTxClusters{};
+
+    // Ledger cost extension settings
+    std::optional<uint32_t> txMaxFootprintEntries{};
+    std::optional<int64_t> feeFlatRateWrite1KB{};
+
+    // SCP timing settings
+    std::optional<uint32_t> ledgerTargetCloseTimeMilliseconds{};
+    std::optional<uint32_t> nominationTimeoutInitialMilliseconds{};
+    std::optional<uint32_t> nominationTimeoutIncrementMilliseconds{};
+    std::optional<uint32_t> ballotTimeoutInitialMilliseconds{};
+    std::optional<uint32_t> ballotTimeoutIncrementMilliseconds{};
+
+    // Frozen ledger keys delta
+    std::optional<FrozenLedgerKeysDelta> frozenLedgerKeysDelta{};
+    // Freeze bypass tx hashes delta
+    std::optional<FreezeBypassTxsDelta> freezeBypassTxsDelta{};
+};
+
+struct ApplyLoadTxProfile
+{
+    uint32_t instructions = 0;
+    uint32_t txSizeBytes = 0;
+    uint32_t diskReadEntries = 0;
+    uint32_t rwEntries = 0;
+    uint32_t dataEntrySizeBytes = 0;
+};
+
+class TxGenerator
+{
+  public:
+    // Instructions per SAC transaction
+    static constexpr uint64_t SAC_TX_INSTRUCTIONS = 250'000;
+    static constexpr uint64_t BATCH_TRANSFER_TX_INSTRUCTIONS = 500'000;
+    // Instructions per custom token transfer transaction
+    static constexpr uint64_t CUSTOM_TOKEN_TX_INSTRUCTIONS = 5'000'000;
+    // Instructions per Soroswap swap transaction
+    static constexpr uint64_t SOROSWAP_SWAP_TX_INSTRUCTIONS = 5'000'000;
+    static constexpr uint32_t SOROBAN_LOAD_V2_EVENT_SIZE_BYTES = 80;
+
+    // Special account ID to represent the root account
+    static uint64_t const ROOT_ACCOUNT_ID;
+
+    struct ContractInstance
+    {
+        // [wasm, instance]
+        xdr::xvector<LedgerKey> readOnlyKeys;
+        SCAddress contractID;
+        uint32_t contractEntriesSize = 0;
+    };
+
+    // Soroswap AMM benchmark state
+    struct SoroswapPairInfo
+    {
+        SCAddress pairContractID;
+        uint32_t tokenAIndex;
+        uint32_t tokenBIndex;
+    };
+
+    struct SoroswapState
+    {
+        SCAddress factoryContractID;
+        SCAddress routerContractID;
+
+        std::vector<SoroswapPairInfo> pairs;
+        std::vector<ContractInstance> sacInstances;
+
+        LedgerKey routerCodeKey;
+        LedgerKey pairCodeKey;
+        LedgerKey factoryCodeKey;
+
+        LedgerKey routerInstanceKey;
+        LedgerKey factoryInstanceKey;
+
+        std::vector<Asset> assets;
+        uint32_t numTokens = 0;
+    };
+
+    using TestAccountPtr = std::shared_ptr<TestAccount>;
+    TxGenerator(Application& app, uint32_t prePopulatedArchivedEntries = 0);
+
+    bool loadAccount(TestAccount& account);
+    bool loadAccount(TestAccountPtr account);
+
+    TestAccountPtr findAccount(uint64_t accountId, uint32_t ledgerNum);
+
+    std::vector<Operation> createAccounts(uint64_t start, uint64_t count,
+                                          uint32_t ledgerNum,
+                                          bool initialAccounts);
+
+    // Create transaction frame from `from` with `ops` and a generated fee
+    // between the base fee required for `ops` and `maxGeneratedFeeRate` (if
+    // present).
+    TransactionFrameBaseConstPtr
+    createTransactionFramePtr(TestAccountPtr from, std::vector<Operation> ops,
+                              std::optional<uint32_t> maxGeneratedFeeRate);
+
+    // Create transaction frame from `from` with `ops` and a generated fee
+    // between the base fee required for `ops` and `maxGeneratedFeeRate` (if
+    // present). If present, attempt to pad resulting size such that the
+    // serialization length is `byteCount`. Note that padding will not shrink a
+    // transaction, there is a minimum padded size (see comments in TxTests.h),
+    // and that padding rounds up to the nearest multiple of four (since we are
+    // using XDR).
+    TransactionFrameBaseConstPtr
+    createTransactionFramePtr(TestAccountPtr from, std::vector<Operation> ops,
+                              std::optional<uint32_t> maxGeneratedFeeRate,
+                              std::optional<uint32_t> byteCount,
+                              std::optional<Memo> memo = std::nullopt);
+
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    paymentTransaction(uint32_t numAccounts, uint32_t offset,
+                       uint32_t ledgerNum, uint64_t sourceAccount,
+                       std::optional<uint32_t> byteCount,
+                       std::optional<uint32_t> maxGeneratedFeeRate,
+                       std::optional<Memo> memo = std::nullopt);
+
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    createUploadWasmTransaction(
+        uint32_t ledgerNum, uint64_t accountId, xdr::opaque_vec<> const& wasm,
+        LedgerKey const& contractCodeLedgerKey,
+        std::optional<uint32_t> maxGeneratedFeeRate,
+        std::optional<SorobanResources> resources = std::nullopt);
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    createContractTransaction(uint32_t ledgerNum, uint64_t accountId,
+                              LedgerKey const& codeKey,
+                              uint64_t contractOverheadBytes,
+                              uint256 const& salt,
+                              std::optional<uint32_t> maxGeneratedFeeRate);
+
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    createSACTransaction(uint32_t ledgerNum, std::optional<uint64_t> accountId,
+                         Asset const& asset,
+                         std::optional<uint32_t> maxGeneratedFeeRate);
+
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    invokeSorobanLoadTransaction(uint32_t ledgerNum, uint64_t accountId,
+                                 TxGenerator::ContractInstance const& instance,
+                                 uint64_t contractOverheadBytes,
+                                 std::optional<uint32_t> maxGeneratedFeeRate);
+
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    invokeSorobanLoadTransactionV2(uint32_t ledgerNum, uint64_t accountId,
+                                   ContractInstance const& instance,
+                                   ApplyLoadTxProfile const& txProfile,
+                                   uint64_t dataEntryCount,
+                                   std::optional<uint32_t> maxGeneratedFeeRate);
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    invokeSACPayment(uint32_t ledgerNum, uint64_t fromAccountId,
+                     SCAddress const& toAddress,
+                     ContractInstance const& instance, uint64_t amount,
+                     std::optional<uint32_t> maxGeneratedFeeRate);
+
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    invokeTokenTransfer(uint32_t ledgerNum, uint64_t fromAccountId,
+                        uint64_t toAccountId, ContractInstance const& instance,
+                        uint64_t amount,
+                        std::optional<uint32_t> maxGeneratedFeeRate);
+
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    invokeBatchTransfer(uint32_t ledgerNum, uint64_t fromAccountId,
+                        ContractInstance const& batchTransferInstance,
+                        ContractInstance const& sacInstance,
+                        std::vector<SCAddress> const& destinations);
+
+    // Build a Soroswap router swap_exact_tokens_for_tokens transaction for
+    // the given pair and direction. `state` supplies the router/pair/SAC keys
+    // and assets; `swapAForB` picks the direction.
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    invokeSoroswapSwap(uint32_t ledgerNum, uint64_t fromAccountId,
+                       SoroswapState const& state, size_t pairIndex,
+                       bool swapAForB,
+                       std::optional<uint32_t> maxGeneratedFeeRate);
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    invokeSorobanCreateUpgradeTransaction(
+        uint32_t ledgerNum, uint64_t accountId, SCBytes const& upgradeBytes,
+        LedgerKey const& codeKey, LedgerKey const& instanceKey,
+        std::optional<uint32_t> maxGeneratedFeeRate,
+        std::optional<SorobanResources> resources = std::nullopt);
+    std::pair<TestAccountPtr, TransactionFrameBaseConstPtr>
+    sorobanRandomWasmTransaction(uint32_t ledgerNum, uint64_t accountId,
+                                 uint32_t inclusionFee);
+
+    int generateFee(std::optional<uint32_t> maxGeneratedFeeRate, size_t opsCnt);
+
+    std::pair<TestAccountPtr, TestAccountPtr>
+    pickAccountPair(uint32_t numAccounts, uint32_t offset, uint32_t ledgerNum,
+                    uint64_t sourceAccountId);
+
+    ConfigUpgradeSetKey
+    getConfigUpgradeSetKey(SorobanUpgradeConfig const& upgradeCfg,
+                           Hash const& contractId) const;
+
+    SCBytes getConfigUpgradeSetFromLoadConfig(
+        SorobanUpgradeConfig const& upgradeCfg) const;
+
+    std::map<uint64_t, TestAccountPtr> const& getAccounts();
+
+    medida::Counter const& getApplySorobanSuccess();
+    medida::Counter const& getApplySorobanFailure();
+
+    void reset();
+
+    TestAccountPtr getAccount(uint64_t accountId) const;
+    void addAccount(uint64_t accountId, TestAccountPtr account);
+
+  private:
+    std::pair<SorobanResources, uint32_t> sorobanRandomUploadResources();
+
+    void updateMinBalance();
+    bool isLive(LedgerKey const& lk, uint32_t ledgerNum) const;
+    void maybeLoadAccountSequenceNumber(TestAccountPtr const& account);
+
+    Application& mApp;
+
+    // Accounts cache
+    std::map<uint64_t, TestAccountPtr> mAccounts;
+
+    int64 mMinBalance;
+
+    // Counts of soroban transactions that succeeded or failed at apply time
+    medida::Counter const& mApplySorobanSuccess;
+    medida::Counter const& mApplySorobanFailure;
+
+    // mPrePopulatedArchivedEntries contains the
+    // total number of pre-populated archived entries to autorestore for IO
+    // load.
+    uint32_t const mPrePopulatedArchivedEntries;
+
+    // index of next entry to autorestore. LedgerKey can be derived from index
+    // using ApplyLoad::getKeyForArchivedEntry.
+    uint32_t mNextKeyToRestore{};
+};
+
+// Build a fully-synthetic ContractInstance (contractID + CONTRACT_CODE +
+// CONTRACT_DATA instance keys) derived from `salt`. The contract does not
+// exist on-ledger; intended for overlay-only load-gen modes where apply is
+// simulated and footprint entries are never dereferenced.
+TxGenerator::ContractInstance
+makeSyntheticContractInstance(std::string const& salt);
+
+// Build a fully-synthetic SoroswapState with `numTokens` SAC instances and
+// `numPairs` pairs (all pairs use consecutive token indices modulo numTokens).
+// Same overlay-only caveat as makeSyntheticContractInstance.
+TxGenerator::SoroswapState makeSyntheticSoroswapState(uint32_t numTokens,
+                                                      uint32_t numPairs);
+
+}
