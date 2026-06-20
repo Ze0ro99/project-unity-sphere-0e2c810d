@@ -1,0 +1,220 @@
+[package]
+name = "stellar-core"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82.0"
+publish = false
+
+[lib]
+name = "rust_stellar_core"
+crate-type = ["staticlib"]
+
+[dependencies]
+log = "=0.4.19"
+cxx = "=1.0.97"
+base64 = "=0.13.1"
+rustc-simple-version = "=0.1.0"
+# NB: this must match the same rand version used by soroban (but the tooling
+# will complain if it does not match)
+rand = "=0.8.5"
+
+itertools = "=0.10.5"
+backtrace = { version = "=0.3.76", features = [ "cpp_demangle" ] }
+
+# ed25519-dalek for faster signature verification
+ed25519-dalek = "2.1.1"
+
+# rsntp: small blocking SNTP client used only to detect (and warn about) local
+# clock drift. default-features disabled so we get the synchronous client
+# without pulling in tokio/chrono/time.
+rsntp = { version = "=4.1.1", default-features = false }
+
+# NB: tracy is quite particular about version compatibility. There must only be
+# one _implementation_ of the C++ tracy symbols in the final binary (brought in
+# by the tracy-client-sys crate) and the version and all feature flags must
+# match between the tracy-client rust crate and any C++ code built to talk to it
+# (both on the C++ side of stellar-core and in the GUI network client built to
+# talk to it).
+#
+# There is a table on the README for https://crates.io/crates/tracy-client that
+# maps versions of tracy-client to C++ tracy releases. The lib/tracy submodule
+# of this repo should be pinned out to a matched C++ tracy release version.
+#
+# Also note: this feature list also has to be passed _on the command line_ (i.e.
+# in the Makefile.am) when we separately build the soroban sub-crates because
+# they are separate cargo invocations and do not see this list, or even this
+# file, at all.
+tracy-client = { version = "=0.17.0", features = [
+    "enable",
+    "ondemand",
+    "delayed-init",
+    "system-tracing",
+    "sampling",
+    "code-transfer",
+    "timer-fallback",
+    "only-localhost",
+    "only-ipv4",
+], default-features = false, optional = true }
+
+# Stellar-core supports multiple versions of the Soroban host linked in
+# simultaneously. Each host is labeled with the _maximum_ protocol that it
+# supports. The minimum protocol supported by each host is implicitly one more
+# than the less-higher-numbered host's maximum protocol, though in some cases a
+# host may also be configured with an explicit minimum supported protocol, in
+# which case we have to keep extra hosts around to fill in any gaps in support.
+#
+# As an example: if we have hosts labeled -p21 and -p23, then the -p21 host will
+# be used to apply ledgers with protocol 20 and 21, and the -p23 host will be
+# used to apply ledgers with protocol 22 and 23.
+#
+# We add new hosts when performing a protocol upgrade. This allows us to hold
+# back any changes to the host's dependencies to the next protocol transition
+# and then simultaneously transition the entire network from one set of
+# dependencies to another at the (consensus) protocol upgrade boundary.
+#
+# We remove hosts -- when possible -- _after_ a protocol upgrade, once no more
+# ledgers with the previous protocol N-1 are being closed, and only when we have
+# convinced ourselves that the host everyone is now running, that supports the
+# new protocol N, can also faithfully replay all ledgers recorded under the
+# previous protocol N-1. If there is any divergence during replay, then either
+# the protocol N host has to be patched with some backward-compatibility code,
+# or else we have to keep the protocol N-1 host around indefinitely. If we can
+# get a clean replay with the new protocol N host, then we can remove the
+# protocol N-1 host from the codebase.
+#
+# Each additional copy of the soroban host adds a small amount of complexity to
+# the build and about 1.5MB of object code to the resulting binary. So we want
+# to keep the number of hosts down when and if it's easy to, but having the
+# number grow gradually is also not the end of the world.
+#
+
+# Note: due to some subtle mis-features in Cargo's unification of transitive
+# dependency versions, we do _not_ usually use all the separate soroban crate
+# versions listed directly here. See $(top_srcdir)/src/Makefile.am for the logic
+# that builds each crate separately and then provides them to the stellar-core
+# crate here as separate ".rlib" files.
+#
+# However that type of "non-unified" build breaks sanitizer builds, and also
+# makes it difficult to use an IDE to work on this crate since the IDE will not
+# be able to resolve the hosts to anything at all. So we keep some _optional_
+# copies of the host dependencies here, and allow enabling them with the
+# `unified` feature here.
+#
+# To reiterate: the soroban-env-host-p{21,22,23}... dependency blocks listed
+# here are NOT part of the default build. The default build relies on the
+# versions pinned as git submodules.
+#
+# However, you can _manually_ switch the default build by enabling the `unified`
+# feature using a feature-toggle in an IDE (eg. using the VS Code "Rust Feature
+# Toggler" extension), and the build system (src/Makefile.am) can be configured
+# to use the `unified` feature if you configure with
+# --enable-unified-rust-unsafe-for-production.
+#
+# If you do a unified build, be careful to reset any changes the IDE makes to
+# Cargo.lock! The unified build will re-resolve transitive dependencies and
+# unify them, perturbing the contents of the lockfile.
+
+[dependencies.soroban-env-host-p27]
+version = "=26.1.2"
+git = "https://github.com/stellar/rs-soroban-env"
+package = "soroban-env-host"
+rev = "c0e58f94ff2983a09440cef6a54253349fd3c4db"
+optional = true
+
+[dependencies.soroban-env-host-p26]
+version = "=26.0.0"
+git = "https://github.com/stellar/rs-soroban-env"
+package = "soroban-env-host"
+rev = "b351f88a468d3b9e1d6de53d5b0ca585f6b7dadb"
+optional = true
+
+[dependencies.soroban-env-host-p25]
+version = "=25.0.0"
+git = "https://github.com/stellar/rs-soroban-env"
+package = "soroban-env-host"
+rev = "0a0c2df704edeb3cdafabfcc759eddccd6775337"
+optional = true
+
+[dependencies.soroban-env-host-p24]
+version = "=24.0.0"
+git = "https://github.com/stellar/rs-soroban-env"
+package = "soroban-env-host"
+rev = "a37eeda815e626f416eff13f2eacb32a8b0c3729"
+optional = true
+
+[dependencies.soroban-env-host-p23]
+version = "=23.0.0"
+git = "https://github.com/stellar/rs-soroban-env"
+package = "soroban-env-host"
+rev = "688bc34e6cd15c71742139e625268c7f30f55a92"
+optional = true
+
+[dependencies.soroban-env-host-p22]
+version = "=22.0.0"
+git = "https://github.com/stellar/rs-soroban-env"
+package = "soroban-env-host"
+rev = "1cd8b8dca9aeeca9ce45b129cd923992b32dc258"
+optional = true
+
+[dependencies.soroban-env-host-p21]
+version = "=21.2.2"
+git = "https://github.com/stellar/rs-soroban-env"
+package = "soroban-env-host"
+rev = "7eeddd897cfb0f700f938b0c8d6f0541150d1fcb"
+optional = true
+
+# The test wasms and synth-wasm crate should usually be taken from the highest
+# supported host, since test material usually just grows over time.
+
+[dependencies.soroban-test-wasms]
+version = "=26.0.0"
+git = "https://github.com/stellar/rs-soroban-env"
+rev = "b351f88a468d3b9e1d6de53d5b0ca585f6b7dadb"
+
+[dependencies.soroban-synth-wasm]
+version = "=26.0.0"
+git = "https://github.com/stellar/rs-soroban-env"
+rev = "b351f88a468d3b9e1d6de53d5b0ca585f6b7dadb"
+
+# The soroban-fuzz-targets crate will actually pull in _its own copy_ of the
+# soroban host (or at least unify with one of the versions above if you're doing
+# a unified build) which means that it should also be updated any time the max
+# soroban is updated -- it should track the highest protocol available (or
+# at least whichever one you want to fuzz).
+[dependencies.soroban-fuzz-targets]
+version = "=26.0.0"
+git = "https://github.com/stellar/rs-soroban-env"
+rev = "b351f88a468d3b9e1d6de53d5b0ca585f6b7dadb"
+optional = true
+
+[dependencies.stellar-quorum-analyzer]
+version = "0.1.0"
+git = "https://github.com/stellar/stellar-quorum-analyzer"
+rev = "f67e9e2f080c2cc1a332d894c42277c64845e257"
+
+[features]
+
+# Turn on the optional unified build. This is typically only useful in an IDE or when
+# orchestrated by the build system. See note above and in docs/CONTRIBUTING.md.
+unified = ["dep:soroban-env-host-p21",
+           "dep:soroban-env-host-p22",
+           "dep:soroban-env-host-p23",
+           "dep:soroban-env-host-p24",
+           "dep:soroban-env-host-p25",
+           "dep:soroban-env-host-p26",
+           "dep:soroban-env-host-p27"]
+
+tracy = ["dep:tracy-client"]
+
+# The "next" feature enables not-yet-released features that (a) break protocol
+# but (b) are still under development, in between protocol releases. This
+# feature is not enabled by default, and is only intended for temporary use when
+# staging work across intra-protocol releases.
+next = []
+
+# The testutils feature turns on stuff that should only be available in a core
+# BUILD_TESTS build, such as the code to support transaction re-execution on a
+# secondary host, AND enables the soroban-fuzz-targets dependency. This allows
+# fuzz smoke tests to run in normal test builds without requiring the full fuzz
+# _instrumentation_ infrastructure.
+testutils = ["dep:soroban-fuzz-targets"]
