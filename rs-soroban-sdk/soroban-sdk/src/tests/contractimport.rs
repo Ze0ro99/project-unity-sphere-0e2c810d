@@ -1,0 +1,135 @@
+use crate as soroban_sdk;
+use soroban_sdk::{contract, contractimpl, Address, Env};
+use stellar_xdr::{ScSpecEntry, ScSpecFunctionInputV0, ScSpecFunctionV0, ScSpecTypeDef};
+
+mod addcontract {
+    use crate as soroban_sdk;
+    soroban_sdk::contractimport!(file = "../target/wasm32v1-none/release/test_add_u64.wasm");
+}
+
+mod addcontract_u128 {
+    use crate as soroban_sdk;
+    soroban_sdk::contractimport!(file = "../target/wasm32v1-none/release/test_add_u128.wasm");
+}
+
+mod subcontract {
+    use crate as soroban_sdk;
+    #[soroban_sdk::contract]
+    pub struct Contract;
+    #[soroban_sdk::contractimpl]
+    impl Contract {
+        pub fn sub(a: u64, b: u64) -> u64 {
+            a - b
+        }
+    }
+}
+
+#[contract]
+pub struct Contract;
+
+#[contractimpl(crate_path = "crate")]
+impl Contract {
+    pub fn add_with(env: Env, contract_id: Address, x: u64, y: u64) -> u64 {
+        addcontract::Client::new(&env, &contract_id).add(&x, &y)
+    }
+    pub fn sub_with(env: Env, contract_id: Address, x: u64, y: u64) -> u64 {
+        subcontract::ContractClient::new(&env, &contract_id).sub(&x, &y)
+    }
+}
+
+#[test]
+fn test_functional() {
+    let e = Env::default();
+
+    let add_contract_id = e.register(addcontract::WASM, ());
+
+    let contract_id = e.register(Contract, ());
+    let client = ContractClient::new(&e, &contract_id);
+
+    let x = 10u64;
+    let y = 12u64;
+    let z = client.add_with(&add_contract_id, &x, &y);
+    assert!(z == 22);
+}
+
+#[test]
+fn test_register_at_id() {
+    let e = Env::default();
+
+    let add_contract_id = Address::from_contract_id(&e, [1; 32]);
+    e.register_at(&add_contract_id, addcontract::WASM, ());
+
+    let contract_id = e.register(Contract, ());
+    let client = ContractClient::new(&e, &contract_id);
+
+    let x = 10u64;
+    let y = 12u64;
+    let z = client.add_with(&add_contract_id, &x, &y);
+    assert!(z == 22);
+}
+
+#[test]
+fn test_reregister_wasm() {
+    let e = Env::default();
+    let add_contract_id = e.register(addcontract_u128::WASM, ());
+    // Reregister the contract with different code replacing the code. This is
+    // the contract we expect to be executed.
+    e.register_at(&add_contract_id, addcontract::WASM, ());
+
+    let contract_id = e.register(Contract, ());
+    let client = ContractClient::new(&e, &contract_id);
+
+    let x = 10u64;
+    let y = 12u64;
+    let z = client.add_with(&add_contract_id, &x, &y);
+    assert!(z == 22);
+}
+
+#[test]
+fn test_reregister_over_wasm_with_rust_impl() {
+    let e = Env::default();
+
+    // Register a contract with wasm.
+    let other_contract_id = e.register(addcontract::WASM, ());
+    // Reregister the contract with a rust impl instead that does something
+    // different.
+    e.register_at(&other_contract_id, subcontract::Contract, ());
+
+    let contract_id = e.register(Contract, ());
+    let client = ContractClient::new(&e, &contract_id);
+
+    let x = 12u64;
+    let y = 10u64;
+    let z = client.sub_with(&other_contract_id, &x, &y);
+    assert!(z == 2);
+}
+
+#[test]
+fn test_spec() {
+    let entries = soroban_spec::read::parse_raw(&Contract::spec_xdr_add_with()).unwrap();
+    let expect = vec![ScSpecEntry::FunctionV0(ScSpecFunctionV0 {
+        doc: "".try_into().unwrap(),
+        name: "add_with".try_into().unwrap(),
+        inputs: vec![
+            ScSpecFunctionInputV0 {
+                doc: "".try_into().unwrap(),
+                name: "contract_id".try_into().unwrap(),
+                type_: ScSpecTypeDef::Address,
+            },
+            ScSpecFunctionInputV0 {
+                doc: "".try_into().unwrap(),
+                name: "x".try_into().unwrap(),
+                type_: ScSpecTypeDef::U64,
+            },
+            ScSpecFunctionInputV0 {
+                doc: "".try_into().unwrap(),
+                name: "y".try_into().unwrap(),
+                type_: ScSpecTypeDef::U64,
+            },
+        ]
+        .try_into()
+        .unwrap(),
+        outputs: vec![ScSpecTypeDef::U64].try_into().unwrap(),
+    })];
+    assert_eq!(entries, expect);
+}

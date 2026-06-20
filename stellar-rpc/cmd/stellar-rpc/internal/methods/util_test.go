@@ -1,0 +1,90 @@
+package methods
+
+import (
+	"path"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/stellar/go-stellar-sdk/support/log"
+	"github.com/stellar/go-stellar-sdk/xdr"
+
+	"github.com/stellar/stellar-rpc/cmd/stellar-rpc/internal/daemon/interfaces"
+	"github.com/stellar/stellar-rpc/cmd/stellar-rpc/internal/db"
+)
+
+func BenchmarkGetProtocolVersion(b *testing.B) {
+	dbx := NewTestDB(b)
+	daemon := interfaces.MakeNoOpDeamon()
+
+	ledgerReader := db.NewLedgerReader(dbx)
+	_, exists, err := ledgerReader.GetLedger(b.Context(), 1)
+	require.NoError(b, err)
+	assert.False(b, exists)
+
+	ledgerSequence := uint32(1)
+	tx, err := db.NewReadWriter(log.DefaultLogger, dbx, daemon, 15, "passphrase").NewTx(b.Context())
+	require.NoError(b, err)
+	ledgerCloseMeta := createMockLedgerCloseMeta(ledgerSequence)
+	require.NoError(b, tx.LedgerWriter().InsertLedger(ledgerCloseMeta))
+	require.NoError(b, tx.Commit(ledgerCloseMeta, nil))
+
+	for b.Loop() {
+		_, err := getProtocolVersion(b.Context(), ledgerReader)
+		if err != nil {
+			b.Fatalf("getProtocolVersion failed: %v", err)
+		}
+	}
+}
+
+func TestGetProtocolVersion(t *testing.T) {
+	dbx := NewTestDB(t)
+	daemon := interfaces.MakeNoOpDeamon()
+
+	ledgerReader := db.NewLedgerReader(dbx)
+	_, exists, err := ledgerReader.GetLedger(t.Context(), 1)
+	require.NoError(t, err)
+	assert.False(t, exists)
+
+	ledgerSequence := uint32(1)
+	tx, err := db.NewReadWriter(log.DefaultLogger, dbx, daemon, 15, "passphrase").NewTx(t.Context())
+	require.NoError(t, err)
+	ledgerCloseMeta := createMockLedgerCloseMeta(ledgerSequence)
+	require.NoError(t, tx.LedgerWriter().InsertLedger(ledgerCloseMeta))
+	require.NoError(t, tx.Commit(ledgerCloseMeta, nil))
+
+	protocolVersion, err := getProtocolVersion(t.Context(), ledgerReader)
+	require.NoError(t, err)
+	require.Equal(t, uint32(20), protocolVersion)
+}
+
+func createMockLedgerCloseMeta(ledgerSequence uint32) xdr.LedgerCloseMeta {
+	return xdr.LedgerCloseMeta{
+		V: 1,
+		V1: &xdr.LedgerCloseMetaV1{
+			LedgerHeader: xdr.LedgerHeaderHistoryEntry{
+				Hash: xdr.Hash{},
+				Header: xdr.LedgerHeader{
+					LedgerSeq:     xdr.Uint32(ledgerSequence),
+					LedgerVersion: xdr.Uint32(20),
+				},
+			},
+			TxSet: xdr.GeneralizedTransactionSet{
+				V:       1,
+				V1TxSet: &xdr.TransactionSetV1{},
+			},
+		},
+	}
+}
+
+func NewTestDB(tb testing.TB) *db.DB {
+	tmp := tb.TempDir()
+	dbPath := path.Join(tmp, "db.sqlite")
+	dbConn, err := db.OpenSQLiteDB(dbPath)
+	require.NoError(tb, err)
+	tb.Cleanup(func() {
+		require.NoError(tb, dbConn.Close())
+	})
+	return dbConn
+}
