@@ -2,9 +2,16 @@
 pragma solidity ^0.8.20;
 
 /**
+<<<<<<< HEAD
  * @title PiRC-101 Sovereign Vault (Hardened Reference Model)
  * @author EslaM-X Protocol Architect
  * @notice Formalizes 10M:1 Credit Expansion with Hardened Exit Throttling Logic and Unit Consistency (Deterministic Spec).
+=======
+ * @title PiRC-101 Sovereign Vault (Reference Model)
+ * @author EslaM-X Protocol Architect
+ * @notice Formalizes 10M:1 Credit Expansion with Quadratic Liquidity Guardrails (Deterministic Spec).
+ * @dev Update: Implements hybrid decay for Provenance Invariant Psi.
+>>>>>>> a5f3c592 (Create PiRC101Vault.sol)
  */
 contract PiRC101Vault {
     // --- Constants ---
@@ -22,25 +29,45 @@ contract PiRC101Vault {
     GlobalState public systemState;
     mapping(address => mapping(uint8 => uint256)) public userBalances;
     
+<<<<<<< HEAD
     // Provenance Invariant Psi: Track Mined vs External Status
+=======
+    // Track KYC-verified snapshot wallets to enforce Invariant Psi (Provenance)
+>>>>>>> a5f3c592 (Create PiRC101Vault.sol)
     mapping(address => bool) public isSnapshotWallet;
 
     // --- Events ---
     event CreditExpanded(address indexed user, uint256 piDeposited, uint256 refMinted, uint256 phi);
+<<<<<<< HEAD
     event CreditThrottledExit(address indexed user, uint256 refBurned, uint256 piWithdrawn, uint256 remainingCap);
 
     /**
      * @notice Deposits External Pi and Mints Internal REF Credits.
+=======
+
+    /**
+     * @notice Deposits External Pi and Mints Internal REF Credits.
+     * @param _amount Amount of Pi to lock.
+     * @param _class Target utility class (e.g., 0: Retail, 1: GCV, etc.)
+>>>>>>> a5f3c592 (Create PiRC101Vault.sol)
      */
     function depositAndMint(uint256 _amount, uint8 _class) external {
         require(_amount > 0, "Amount must be greater than zero");
         
+<<<<<<< HEAD
         // --- Placeholders for Oracle Integration (Decentralized Aggregation Required for Production) ---
         // TODO: integrate decentralized oracle feed
         uint256 piPrice = 314000; // $0.314 (scaled to 6 decimals)
         uint256 currentLiquidity = 10_000_000 * 1e6; // $10M Market Depth (scaled to 6 decimals)
 
         // --- Compute Phi first for the solvency guardrail ---
+=======
+        // --- Mock Oracle Data (Must integrate decentralized aggregator) ---
+        uint256 piPrice = 314000; // $0.314 (scaled to 6 decimals)
+        uint256 currentLiquidity = 10_000_000 * 1e6; // $10M Market Depth (scaled to 6 decimals)
+
+        // --- Calculate Phi (The Throttling Coefficient) ---
+>>>>>>> a5f3c592 (Create PiRC101Vault.sol)
         uint256 phi = calculatePhi(currentLiquidity, systemState.totalREF);
         
         // --- Insolvency Guardrail Check ---
@@ -49,10 +76,19 @@ contract PiRC101Vault {
         // --- Expansion Logic (Pi -> USD -> 10M REF) ---
         uint256 capturedValue = (_amount * piPrice) / 1e6;
         
+<<<<<<< HEAD
         // --- Provenance Logic: Single wcf declaration to fix redeclaration error ---
         uint256 wcf = 1e18; // 1.0 default (External Pi weight)
         if (isSnapshotWallet[msg.sender]) {
             wcf = 1e25; // Placeholder for high mined Pi weight (e.g., Wm = 1.0)
+=======
+        // Update: Determine WCF based on Provenance (Mined vs External)
+        uint256 wcf = 1e18; // 1.0 (Assume External Pi weight default)
+        
+        // If the depositor is using Pi directly from their snapshot wallet:
+        if (isSnapshotWallet[msg.sender]) {
+            wcf = 1e25; // Placeholder for extreme W_m weight (1 mined Pi = 10M credit)
+>>>>>>> a5f3c592 (Create PiRC101Vault.sol)
         }
 
         uint256 mintAmount = (capturedValue * QWF_MAX * phi * wcf) / 1e36;
@@ -62,7 +98,10 @@ contract PiRC101Vault {
         systemState.totalREF += mintAmount;
         userBalances[msg.sender][_class] += mintAmount;
 
+<<<<<<< HEAD
         // --- Emit Hardened Event ---
+=======
+>>>>>>> a5f3c592 (Create PiRC101Vault.sol)
         emit CreditExpanded(msg.sender, _amount, mintAmount, phi);
     }
 
@@ -70,6 +109,7 @@ contract PiRC101Vault {
      * @notice Pure, deterministic calculation of the Phi guardrail invariant.
      */
     function calculatePhi(uint256 _depth, uint256 _supply) public pure returns (uint256) {
+<<<<<<< HEAD
         if (_supply == 0) return 1e18; // 1.0 (Full Expansion)
         uint256 ratio = (_depth * 1e18) / _supply; // simplified 1:1 QWF scaling assumption
         if (ratio >= 1.5e18) return 1e18; // Healthy threshold (Gamma = 1.5)
@@ -158,3 +198,12 @@ contract PiRC101Vault {
         emit CreditThrottledExit(msg.sender, _refAmount, piOut, remainingDailyUsdCap);
     }
 }
+=======
+        if (_supply == 0) return 1e18; // 1.0 (Full Expansion permitted at start)
+        uint256 ratio = (_depth * 1e18) / _supply; // Note: simplified 1:1 QWF scaling assumption
+        if (ratio >= 1.5e18) return 1e18; // Healthy threshold (Gamma = 1.5)
+        return (ratio * ratio) / 2.25e18; // Quadratic Throttling (ratio^2 / Gamma^2)
+    }
+}
+
+>>>>>>> a5f3c592 (Create PiRC101Vault.sol)
