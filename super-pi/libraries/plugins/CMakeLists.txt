@@ -1,0 +1,7 @@
+add_subdirectory( witness )
+add_subdirectory( account_history )
+add_subdirectory( market_history )
+add_subdirectory( delayed_node )
+add_subdirectory( debug_witness )
+add_subdirectory( incentive_history )
+add_subdirectory( transaction_record )

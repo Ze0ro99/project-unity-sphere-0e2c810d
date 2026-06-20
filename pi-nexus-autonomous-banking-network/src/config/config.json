@@ -1,0 +1,34 @@
+{
+    "development": {
+        "database": {
+            "host": "localhost",
+            "port": 5432,
+            "user": "devuser",
+            "password": "devpassword",
+            "name": "devdatabase"
+        },
+        "api": {
+            "key": "dev_api_key_here"
+        },
+        "logging": {
+            "level": "debug",
+            "file": "logs/dev.log"
+        }
+    },
+    "production": {
+        "database": {
+            "host": "prod-db-host",
+            "port": 5432,
+            "user": "produser",
+            "password": "prodpassword",
+            "name": "proddatabase"
+        },
+        "api": {
+            "key": "prod_api_key_here"
+        },
+        "logging": {
+            "level": "error",
+            "file": "logs/prod.log"
+        }
+    }
+}
