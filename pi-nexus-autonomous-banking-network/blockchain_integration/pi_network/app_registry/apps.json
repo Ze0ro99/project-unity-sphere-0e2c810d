@@ -1,0 +1,21 @@
+{
+  "apps": [
+    {
+      "id": "pi_ticket",
+      "name": "Pi Ticket",
+      "description": "Decentralized ticketing app",
+      "icon": "pi_ticket_icon.png",
+      "url": "/pi_ticket",
+      "contractAddress": "0x...PiTicketContractAddress..."
+    },
+    {
+      "id": "PiGenesis",
+      "name": "PiGenesis",
+      "description": "PiGenesis is a decentralized banking application built on the Pi network blockchain. This application allows users to create and manage their own virtual bank, including the ability to issue their own currency, manage transactions, and monitor financial data.",
+      "icon": "PiGenesis_icon.png",
+      "url": "/pigenesis",
+      "contractAddress": "0x...PiGenesisContractAddress..."
+    },
+   ...
+  ]
+}
