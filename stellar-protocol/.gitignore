@@ -1,0 +1,10 @@
+*.html
+*~
+
+# vscode
+.vscode/
+
+# IntelliJ IDEA
+.idea
+
+node_modules
