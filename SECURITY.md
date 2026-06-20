@@ -1,21 +1,24 @@
-# Security Policy
+# 📡 PiRC Architecture & Security Verification Framework
 
-## Supported Versions
+This document defines the unified development protocols, sanitization standards, and telemetry mechanisms for the PiRC ecosystem.
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+---
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+## 1. Input Neutralization & Telemetry Logging
+To satisfy advanced data-flow integrity constraints, all user-provided variables, HTTP route methods, and URI paths must be stripped of carriage returns, line feeds, and non-printable structures before processing.
 
-## Reporting a Vulnerability
+```javascript
+// Neutralize control structures and HTTP Header tracking vectors
+const cleanMethod = req.method.replace(/[^A-Z]/g, '');
+const cleanPath = req.path.replace(/[
+]/g, '_');
+```
 
-Use this section to tell people how to report a vulnerability.
+## 2. External CDN Subresource Governance
+Third-party client integrations, physical ledger bridges, and ecosystem scripts running inside public spaces must protect transaction integrity through explicit origin separation.
+* **Rule:** Third-party assets must include `crossorigin="anonymous"` on execution nodes to bypass untrusted source warnings.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+## 3. Mathematical Telemetry Models
+Dynamic performance vectors must map to deterministic mathematical equations rather than floating unverified values:
+* **Weighted Contribution Factor (WCF):** Bounds system oscillation relative to a static baseline equilibrium.
+* **I2cremental Price-to-Participation Ratio (IPPR):** Constrained within variance thresholds strictly bounded at Delta <= 0.004.
