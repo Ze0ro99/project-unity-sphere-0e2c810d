@@ -1,0 +1,24 @@
+name: 'Prettier for SEP files'
+
+on:
+  pull_request:
+    paths:
+      - 'ecosystem/*.md'
+      - 'package.json'
+      - 'yarn.lock'
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: sep-check
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Run SEP Prettier Check
+        run: |
+          corepack enable
+          corepack prepare yarn@stable --activate
+          yarn install --frozen-lockfile
+          yarn sep-check
