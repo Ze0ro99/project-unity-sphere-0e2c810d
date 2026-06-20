@@ -1,0 +1,104 @@
+version: "2"
+linters:
+  default: all
+  disable:
+    - depguard
+    - err113
+    - exhaustruct
+    - godot
+    - godox
+    - ireturn
+    - mnd
+    - nlreturn
+    - paralleltest
+    - testpackage
+    - thelper
+    - noinlineerr
+    - wsl_v5
+    - varnamelen
+    - wrapcheck
+    - wsl
+  settings:
+    cyclop:
+      max-complexity: 15
+    dogsled:
+      max-blank-identifiers: 3
+    dupl:
+      threshold: 100
+    exhaustive:
+      default-signifies-exhaustive: true
+    forbidigo:
+      forbid:
+        - pattern: ^(fmt\.Print(|f|ln)|print|println)$
+          msg: Do not commit debug print statements (in tests use t.Log()).
+        - pattern: ^.*$
+          pkg: ^github.com/stellar/go-stellar-sdk/support/errors$
+          msg: Do not use stellar/go-stellar-sdk/support/errors, use the standard 'errors' package and fmt.Errorf().
+      exclude-godoc-examples: false
+      analyze-types: true
+    funlen:
+      lines: 100
+      statements: 50
+    misspell:
+      locale: US
+    testifylint:
+      enable-all: true
+      disable:
+        - go-require
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        - .Wrap(
+        - .Wrapf(
+        - .WithMessage(
+        - .WithMessagef(
+        - .WithStack(
+      ignore-sig-regexps:
+        - \.New.*Error\(
+      ignore-package-globs:
+        - encoding/*
+        - github.com/pkg/*
+        - github.com/stellar/*
+      ignore-interface-regexps:
+        - ^(?i)c(?-i)ach(ing|e)
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - gochecknoglobals
+          - gosec
+          - mnd
+          - nosprintfhostport
+        path: ^(.*_test\.go|cmd/stellar-rpc/internal/integrationtest/infrastructure/.*)$
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/stellar/)
+        - localmodule
+      custom-order: true
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
