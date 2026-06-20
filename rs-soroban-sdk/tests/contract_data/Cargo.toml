@@ -1,0 +1,18 @@
+[package]
+name = "test_contract_data"
+version.workspace = true
+authors = ["Stellar Development Foundation <info@stellar.org>"]
+license = "Apache-2.0"
+edition = "2021"
+rust-version.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+doctest = false
+
+[dependencies]
+soroban-sdk = {path = "../../soroban-sdk", features = ["experimental_spec_shaking_v2"]}
+
+[dev-dependencies]
+soroban-sdk = {path = "../../soroban-sdk", features = ["testutils"]}
