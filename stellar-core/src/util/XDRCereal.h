@@ -1,0 +1,206 @@
+// Copyright 2020 Stellar Development Foundation and contributors. Licensed
+// under the Apache License, Version 2.0. See the COPYING file at the root
+// of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
+
+#pragma once
+
+#ifdef _XDRPP_CEREAL_H_HEADER_INCLUDED_
+#error This header includes xdrpp/cereal.h after necessary definitions \
+       so include this file instead of directly including xdrpp/cereal.h.
+#endif
+
+#include "crypto/Hex.h"
+#include "crypto/SecretKey.h"
+#include "transactions/TransactionUtils.h"
+#include "util/types.h"
+#include <cereal/archives/json.hpp>
+
+using namespace std::placeholders;
+
+template <uint32_t N>
+void
+cereal_override(cereal::JSONOutputArchive& ar, xdr::xstring<N> const& s,
+                char const* field)
+{
+    xdr::archive(ar, static_cast<std::string const&>(s), field);
+}
+
+template <uint32_t N>
+void
+cereal_override(cereal::JSONOutputArchive& ar, xdr::opaque_array<N> const& s,
+                char const* field)
+{
+    xdr::archive(ar, stellar::binToHex(stellar::ByteSlice(s.data(), s.size())),
+                 field);
+}
+
+template <typename T>
+std::enable_if_t<xdr::xdr_traits<T>::is_container>
+cereal_override(cereal::JSONOutputArchive& ar, T const& t, char const* field)
+{
+    // CEREAL_SAVE_FUNCTION_NAME in include/cereal/archives/json.hpp runs
+    // ar.setNextName() and ar(). ar() in turns calls process() in
+    // include/cereal/cereal.hpp which calls prologue(), processImpl(),
+    // epilogue(). We are imitating this behavior here by creating a sub-object
+    // using prologue(), printing the content with xdr::archive, and finally
+    // calling epilogue(). We must use xdr::archive instead of ar() because we
+    // need to access the nested cereal_overrides.
+    //
+    // tl;dr This does what ar(cereal::make_nvp(...)) does while using nested
+    // cereal_overrides.
+    ar.setNextName(field);
+    cereal::prologue(ar, t);
+
+    // It does not matter what value we pass here to cereal::make_size_tag
+    // since it will be ignored. See the comment
+    //
+    // > SizeTags are strictly ignored for JSON, they just indicate
+    // > that the current node should be made into an array
+    //
+    // in include/cereal/archives/json.hpp
+    ar(cereal::make_size_tag(0));
+    for (auto const& element : t)
+    {
+        xdr::archive(ar, element);
+    }
+    cereal::epilogue(ar, t);
+}
+
+template <uint32_t N>
+void
+cereal_override(cereal::JSONOutputArchive& ar, xdr::opaque_vec<N> const& s,
+                char const* field)
+{
+    xdr::archive(ar, stellar::binToHex(stellar::ByteSlice(s.data(), s.size())),
+                 field);
+}
+
+void cereal_override(cereal::JSONOutputArchive& ar, stellar::PublicKey const& s,
+                     char const* field);
+
+void cereal_override(cereal::JSONOutputArchive& ar,
+                     stellar::SCAddress const& addr, char const* field);
+
+void cereal_override(cereal::JSONOutputArchive& ar,
+                     stellar::ConfigUpgradeSetKey const& key,
+                     char const* field);
+
+void cereal_override(cereal::JSONOutputArchive& ar,
+                     stellar::MuxedAccount const& muxedAccount,
+                     char const* field);
+
+void cerealPoolAsset(cereal::JSONOutputArchive& ar, stellar::Asset const& asset,
+                     char const* field);
+
+void cerealPoolAsset(cereal::JSONOutputArchive& ar,
+                     stellar::TrustLineAsset const& asset, char const* field);
+
+void cerealPoolAsset(cereal::JSONOutputArchive& ar,
+                     stellar::ChangeTrustAsset const& asset, char const* field);
+
+template <typename T>
+typename std::enable_if<std::is_same<stellar::Asset, T>::value ||
+                        std::is_same<stellar::TrustLineAsset, T>::value ||
+                        std::is_same<stellar::ChangeTrustAsset, T>::value>::type
+cereal_override(cereal::JSONOutputArchive& ar, T const& asset,
+                char const* field)
+{
+    switch (asset.type())
+    {
+    case stellar::ASSET_TYPE_NATIVE:
+        xdr::archive(ar, std::string("NATIVE"), field);
+        break;
+    case stellar::ASSET_TYPE_POOL_SHARE:
+        cerealPoolAsset(ar, asset, field);
+        break;
+    case stellar::ASSET_TYPE_CREDIT_ALPHANUM4:
+    case stellar::ASSET_TYPE_CREDIT_ALPHANUM12:
+    {
+        ar.setNextName(field);
+        ar.startNode();
+
+        // asset is templated, so we just pull the assetCode string directly so
+        // we don't have to templatize assetToString
+        std::string code;
+        if (asset.type() == stellar::ASSET_TYPE_CREDIT_ALPHANUM4)
+        {
+            stellar::assetCodeToStr(asset.alphaNum4().assetCode, code);
+        }
+        else
+        {
+            stellar::assetCodeToStr(asset.alphaNum12().assetCode, code);
+        }
+
+        xdr::archive(ar, code, "assetCode");
+        xdr::archive(ar, stellar::getIssuer(asset), "issuer");
+        ar.finishNode();
+        break;
+    }
+    default:
+        xdr::archive(ar, std::string("UNKNOWN"), field);
+    }
+}
+
+template <typename T>
+typename std::enable_if<xdr::xdr_traits<T>::is_enum>::type
+cereal_override(cereal::JSONOutputArchive& ar, T const& t, char const* field)
+{
+    auto const np = xdr::xdr_traits<T>::enum_name(t);
+    std::string name;
+    if (np != nullptr)
+    {
+        name = np;
+    }
+    else
+    {
+        name = std::to_string(t);
+    }
+    xdr::archive(ar, name, field);
+}
+
+template <typename T>
+void
+cereal_override(cereal::JSONOutputArchive& ar, xdr::pointer<T> const& t,
+                char const* field)
+{
+    // We tolerate a little information-loss here collapsing *T into T for
+    // the non-null case, and use JSON 'null' for the null case. This reads
+    // much better than the thing JSONOutputArchive does with PtrWrapper.
+    if (t)
+    {
+        xdr::archive(ar, *t, field);
+    }
+    else
+    {
+        ar.setNextName(field);
+        ar.writeName();
+        ar.saveValue(nullptr);
+    }
+}
+
+// NOTE: Nothing else should include xdrpp/cereal.h directly.
+// cereal_override's have to be defined before xdrpp/cereal.h,
+// otherwise some interplay of name lookup and visibility
+// during the enable_if call in the cereal adaptor fails to find them.
+#include <xdrpp/cereal.h>
+
+namespace stellar
+{
+// If compact = true, the output string will not contain any indentation.
+template <typename T>
+std::string
+xdrToCerealString(T const& t, std::string const& name, bool compact = false)
+{
+    std::stringstream os;
+
+    // Archives are designed to be used in an RAII manner and are guaranteed to
+    // flush their contents only on destruction.
+    {
+        cereal::JSONOutputArchive ar(
+            os, compact ? cereal::JSONOutputArchive::Options::NoIndent()
+                        : cereal::JSONOutputArchive::Options::Default());
+        xdr::archive(ar, t, name.c_str());
+    }
+    return os.str();
+}
+}

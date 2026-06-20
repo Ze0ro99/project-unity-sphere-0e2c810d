@@ -1,0 +1,399 @@
+// Copyright 2014 Stellar Development Foundation and contributors. Licensed
+// under the Apache License, Version 2.0. See the COPYING file at the root
+// of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
+
+#pragma once
+
+#include "herder/Herder.h"
+#include "herder/HerderSCPDriver.h"
+#include "herder/PendingEnvelopes.h"
+#include "herder/QuorumIntersectionChecker.h"
+#include "herder/TransactionQueue.h"
+#include "herder/Upgrades.h"
+#include "util/Timer.h"
+#include "util/UnorderedMap.h"
+#include "util/XDROperators.h"
+#include <deque>
+#include <memory>
+#include <optional>
+#include <vector>
+
+namespace medida
+{
+class Meter;
+class Counter;
+class Timer;
+}
+
+namespace stellar
+{
+
+class Application;
+class LedgerManager;
+class HerderSCPDriver;
+
+/*
+ * Is in charge of receiving transactions from the network.
+ */
+class HerderImpl : public Herder
+{
+  public:
+    struct ConsensusData
+    {
+        uint64_t mConsensusIndex{0};
+        TimePoint mConsensusCloseTime{0};
+    };
+
+    void setTrackingSCPState(uint64_t index, StellarValue const& value,
+                             bool isTrackingNetwork) override;
+
+    // returns the latest known ledger from the network, requires Herder to be
+    // in fully booted state
+    uint32 trackingConsensusLedgerIndex() const override;
+
+    TimePoint trackingConsensusCloseTime() const;
+
+    // the ledger index that we expect to externalize next
+    uint32
+    nextConsensusLedgerIndex() const
+    {
+        return trackingConsensusLedgerIndex() + 1;
+    }
+
+    void lostSync();
+
+    HerderImpl(Application& app);
+    ~HerderImpl();
+
+    State getState() const override;
+    std::string getStateHuman(State st) const override;
+
+    void syncMetrics() override;
+
+    // Bootstraps the HerderImpl if we're creating a new Network
+    void bootstrap() override;
+    void shutdown() override;
+
+    void start() override;
+
+    void lastClosedLedgerIncreased(bool latest, TxSetXDRFrameConstPtr txSet,
+                                   bool queueRebuildNeeded) override;
+
+    SCP& getSCP();
+    HerderSCPDriver&
+    getHerderSCPDriver()
+    {
+        return mHerderSCPDriver;
+    }
+
+    bool
+    isTracking() const override
+    {
+        return mState == State::HERDER_TRACKING_NETWORK_STATE;
+    }
+
+    void processExternalized(uint64 slotIndex, StellarValue const& value,
+                             bool isLatestSlot);
+    void valueExternalized(uint64 slotIndex, StellarValue const& value,
+                           bool isLatestSlot);
+    void emitEnvelope(SCPEnvelope const& envelope);
+
+#ifdef BUILD_TESTS
+    TransactionQueue::AddResult
+    recvTransaction(TransactionFrameBasePtr tx, bool submittedFromSelf,
+                    bool force = false, bool isLoadgenTx = false) override;
+#else
+    TransactionQueue::AddResult recvTransaction(TransactionFrameBasePtr tx,
+                                                bool submittedFromSelf,
+                                                bool force = false) override;
+#endif
+
+    EnvelopeStatus recvSCPEnvelope(SCPEnvelope const& envelope) override;
+#ifdef BUILD_TESTS
+    EnvelopeStatus recvSCPEnvelope(SCPEnvelope const& envelope,
+                                   const SCPQuorumSet& qset,
+                                   TxSetXDRFrameConstPtr txset) override;
+    EnvelopeStatus recvSCPEnvelope(SCPEnvelope const& envelope,
+                                   SCPQuorumSet const& qset,
+                                   StellarMessage const& txset) override;
+
+    void externalizeValue(TxSetXDRFrameConstPtr txSet, uint32_t ledgerSeq,
+                          uint64_t closeTime,
+                          xdr::xvector<UpgradeType, 6> const& upgrades,
+                          std::optional<SecretKey> skToSignValue) override;
+
+    VirtualTimer const&
+    getTriggerTimer() const override
+    {
+        return mTriggerTimer;
+    }
+
+    uint32_t mTriggerNextLedgerSeq{0};
+
+    std::optional<uint32_t> mMaxClassicTxSize;
+    std::optional<uint32_t> mMaxTxSizeOverride;
+    void
+    setMaxClassicTxSize(uint32 bytes) override
+    {
+        mMaxClassicTxSize = std::make_optional<uint32_t>(bytes);
+    }
+    void
+    setMaxTxSize(uint32 bytes) override
+    {
+        mMaxTxSizeOverride = bytes;
+    }
+    std::optional<uint32_t> mFlowControlExtraBuffer;
+    void
+    setFlowControlExtraBufferSize(uint32 bytes) override
+    {
+        mFlowControlExtraBuffer = std::make_optional<uint32_t>(bytes);
+    }
+#endif
+    void sendSCPStateToPeer(uint32 ledgerSeq, Peer::pointer peer) override;
+
+    bool recvSCPQuorumSet(Hash const& hash, SCPQuorumSet const& qset) override;
+    bool recvTxSet(Hash const& hash, TxSetXDRFrameConstPtr txset) override;
+    void peerDoesntHave(MessageType type, uint256 const& itemID,
+                        Peer::pointer peer) override;
+    TxSetResult getTxSet(Hash const& hash) override;
+    SCPQuorumSetPtr getQSet(Hash const& qSetHash) override;
+
+    // process ready SCP messages. This may trigger the node to externalze new
+    // slots. Use `synchronous=false` to avoid arbitrary delays of closing many
+    // ledgers at once.
+    void processSCPQueue(bool synchronous);
+
+    uint32_t getMaxClassicTxSize() const override;
+    uint32_t getFlowControlExtraBuffer() const override;
+
+    uint32_t
+    getMaxTxSize() const override
+    {
+#ifdef BUILD_TESTS
+        if (mMaxTxSizeOverride)
+        {
+            return *mMaxTxSizeOverride;
+        }
+#endif
+        return mMaxTxSize;
+    }
+
+    uint32 getMinLedgerSeqToAskPeers() const override;
+
+    uint32_t getMinLedgerSeqToRemember() const override;
+
+    bool isNewerNominationOrBallotSt(SCPStatement const& oldSt,
+                                     SCPStatement const& newSt) override;
+
+    uint32_t getMostRecentCheckpointSeq() override;
+
+    void triggerNextLedger(uint32_t ledgerSeqToTrigger,
+                           bool checkTrackingSCP) override;
+
+    void setInSyncAndTriggerNextLedger() override;
+
+    void setUpgrades(Upgrades::UpgradeParameters const& upgrades) override;
+    std::string getUpgradesJson() override;
+
+    void setFilteredAccounts(std::set<AccountID> const& accounts) override;
+
+    void forceSCPStateIntoSyncWithLastClosedLedger() override;
+
+    bool resolveNodeID(std::string const& s, PublicKey& retKey) override;
+
+    Json::Value getJsonInfo(size_t limit, bool fullKeys = false) override;
+    Json::Value getJsonQuorumInfo(NodeID const& id, bool summary, bool fullKeys,
+                                  uint64 index) override;
+    Json::Value getJsonTransitiveQuorumIntersectionInfo(bool fullKeys) const;
+    virtual Json::Value getJsonTransitiveQuorumInfo(NodeID const& id,
+                                                    bool summary,
+                                                    bool fullKeys) override;
+    QuorumTracker::QuorumMap const& getCurrentlyTrackedQuorum() const override;
+
+    virtual StellarValue
+    makeStellarValue(Hash const& txSetHash, uint64_t closeTime,
+                     xdr::xvector<UpgradeType, 6> const& upgrades,
+                     SecretKey const& s) override;
+
+    void startTxSetGCTimer();
+
+#ifdef BUILD_TESTS
+    // used for testing
+    PendingEnvelopes& getPendingEnvelopes();
+
+    ClassicTransactionQueue& getTransactionQueue() override;
+    SorobanTransactionQueue& getSorobanTransactionQueue() override;
+    bool sourceAccountPending(AccountID const& accountID) const override;
+
+    // Test only helper to get the active upgrades
+    Upgrades const& getUpgrades() const;
+#endif
+
+    // helper function to verify envelopes are signed
+    bool verifyEnvelope(SCPEnvelope const& envelope);
+    // helper function to sign envelopes
+    void signEnvelope(SecretKey const& s, SCPEnvelope& envelope);
+
+    // helper function to verify SCPValues signatures
+    bool verifyStellarValueSignature(StellarValue const& sv);
+
+    size_t getMaxQueueSizeOps() const override;
+    size_t getMaxQueueSizeSorobanOps() const override;
+    void maybeHandleUpgrade() override;
+
+    bool isBannedTx(Hash const& hash) const override;
+    TransactionFrameBaseConstPtr getTx(Hash const& hash) const override;
+
+  private:
+    // return true if values referenced by envelope have a valid close time:
+    // * it's within the allowed range (using lcl if possible)
+    // * it's recent enough (if `enforceRecent` is set)
+    bool checkCloseTime(SCPEnvelope const& envelope, bool enforceRecent);
+
+    // Given a candidate close time, determine an offset needed to make it
+    // valid (at current system time). Returns 0 if ct is already valid
+    std::chrono::milliseconds
+    ctValidityOffset(uint64_t ct, std::chrono::milliseconds maxCtOffset =
+                                      std::chrono::milliseconds::zero());
+
+    void setupTriggerNextLedger();
+
+    // Compute the trigger-timer anchor point using the local node's
+    // prepare-start timestamp for the previous slot. Returns a pessimistic
+    // estimate (now - expectedClose) if no prepare-start is recorded.
+    VirtualClock::time_point
+    triggerAnchorFromPrepareStart(uint64_t lastIndex,
+                                  VirtualClock::time_point now,
+                                  std::chrono::milliseconds expectedClose);
+
+    // Compute the trigger-timer anchor point using the network-agreed
+    // consensus close time on the system clock. Falls back to
+    // triggerAnchorFromPrepareStart if consensus close time is unavailable
+    // or if the local clock is significantly drifting from the network time.
+    VirtualClock::time_point triggerAnchorFromConsensusCloseTime(
+        uint64_t lastIndex, VirtualClock::time_point now,
+        std::chrono::milliseconds expectedClose);
+
+    void startOutOfSyncTimer();
+    void outOfSyncRecovery();
+    void broadcast(SCPEnvelope const& e);
+
+    void processSCPQueueUpToIndex(uint64 slotIndex);
+    void newSlotExternalized(StellarValue const& value);
+    void purgeOldSlots();
+    void purgeOldPersistedTxSets();
+    void writeDebugTxSet(LedgerCloseData const& lcd);
+
+    ClassicTransactionQueue mTransactionQueue;
+    std::unique_ptr<SorobanTransactionQueue> mSorobanTransactionQueue;
+
+    void updateTransactionQueue(TxSetXDRFrameConstPtr txSet,
+                                bool queueRebuildNeeded);
+    void maybeSetupSorobanQueue(uint32_t protocolVersion);
+
+    PendingEnvelopes mPendingEnvelopes;
+    Upgrades mUpgrades;
+    HerderSCPDriver mHerderSCPDriver;
+
+    void herderOutOfSync();
+
+    // attempt to retrieve additional SCP messages from peers
+    void getMoreSCPState();
+
+    // last slot that was persisted into the database
+    // keep track of all messages for MAX_SLOTS_TO_REMEMBER slots
+    uint64 mLastSlotSaved;
+
+    // timer that detects that we're stuck on an SCP slot
+    VirtualTimer mTrackingTimer;
+
+    // tracks the last time externalize was called
+    VirtualClock::time_point mLastExternalize;
+
+    // saves the SCP messages that the instance sent out last
+    void persistSCPState(uint64 slot);
+    // restores SCP state based on the last messages saved on disk
+    void restoreSCPState();
+
+    // Map SCP slots to local time of nomination and the time slot was
+    // externalized by the network
+    std::map<uint32_t, std::pair<uint64_t, std::optional<uint64_t>>>
+        mDriftCTSlidingWindow;
+
+    // saves upgrade parameters
+    void persistUpgrades();
+    void restoreUpgrades();
+
+    // called every time we get ledger externalized
+    // ensures that if we don't hear from the network, we throw the herder into
+    // indeterminate mode
+    void trackingHeartBeat();
+
+    VirtualTimer mTriggerTimer;
+
+    VirtualTimer mOutOfSyncTimer;
+
+    VirtualTimer mTxSetGarbageCollectTimer;
+
+    // Every CHECK_FOR_DEAD_NODES_MINUTES, we keep track of all nodes that SCP
+    // reports as missing throughout the interval.
+    VirtualTimer mCheckForDeadNodesTimer;
+    void startCheckForDeadNodesInterval();
+
+    Application& mApp;
+    LedgerManager& mLedgerManager;
+
+    struct SCPMetrics
+    {
+        medida::Meter& mLostSync;
+
+        medida::Meter& mEnvelopeEmit;
+        medida::Meter& mEnvelopeReceive;
+
+        // Counters for things reached-through the
+        // SCP maps: Slots and Nodes
+        medida::Counter& mCumulativeStatements;
+
+        // envelope signature verification
+        medida::Meter& mEnvelopeValidSig;
+        medida::Meter& mEnvelopeInvalidSig;
+
+        // Marked when the experimental trigger timer falls back from the
+        // network-close-time anchor to the local prepare-start anchor.
+        medida::Meter& mTriggerPrepareStartFallback;
+
+        SCPMetrics(Application& app);
+    };
+
+    SCPMetrics mSCPMetrics;
+
+    // Check that the quorum map intersection state is up to date, and if not
+    // run a background job that re-analyzes the current quorum map.
+    void checkAndMaybeReanalyzeQuorumMap();
+
+    void checkAndMaybeReanalyzeQuorumMapV2();
+
+    // erase all data for ledgers outside the range [minSlot, maxSlot].
+    // Either bound may be nullopt to skip that direction.
+    // Always preserves the first ledger on the current checkpoint so peers
+    // can catchup without waiting for the next checkpoint.
+    void eraseOutsideRange(std::optional<uint32> minSlot,
+                           std::optional<uint32> maxSlot);
+
+    std::shared_ptr<QuorumMapIntersectionState> mLastQuorumMapIntersectionState;
+
+    State mState;
+    void setState(State st);
+
+    // Information about the most recent tracked SCP slot
+    // Set regardless of whether the local instance if fully in sync with the
+    // network or not (Herder::State is used to properly track the state of
+    // Herder) On startup, this variable is set to LCL
+    ConsensusData mTrackingSCP;
+
+    uint32_t mMaxTxSize{0};
+
+    UnorderedSet<LedgerKey>
+    recomputeKeysToFilter(uint32_t protocolVersion) const;
+};
+}
