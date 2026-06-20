@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -e
+
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update
+
+# We need apt-transport-https for adding apt.stellar.org in the Dockerfile
+apt-get install -y wget curl python3-six python3-colorama python3-pip postgresql-client sqlite3 apt-transport-https gnupg2
+
+if grep "VERSION_CODENAME=jammy" /etc/os-release; then
+  echo "Setting up LLVM repo in the 22.04 Ubuntu base"
+  wget -O /etc/apt/trusted.gpg.d/apt.llvm.org.asc https://apt.llvm.org/llvm-snapshot.gpg.key
+
+  cat > /etc/apt/sources.list.d/llvm.list <<EOF
+  deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-20 main
+  deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-20 main
+EOF
+fi
+
+# Install aws cli for uploading history to S3
+if grep -E "VERSION_CODENAME=(jammy)" /etc/os-release; then
+  pip3 install awscli --upgrade
+else
+  # Ubuntu 24.04 or later need extra flag
+  pip3 install awscli --upgrade --break-system-packages
+fi
+
+# install test dependencies if STELLAR_CORE_VERSION ends with '~buildtests'
+if [[ "$STELLAR_CORE_VERSION" == *~buildtests ]]; then
+  apt-get install -y redis-tools
+fi
+# install test dependencies if STELLAR_CORE_VERSION ends with '~perftests'
+if [[ "$STELLAR_CORE_VERSION" == *~perftests ]]; then
+  apt-get install -y redis-tools
+fi
+
+# purge stuff we don't directly need
+apt-get purge -y sgml-base ucf gcc g++ xz-utils libpod-latex-perl dbus
+apt-get autoremove -y
+
+apt-get clean
+rm -rf /var/lib/apt/lists/*
+rm -rf /var/log/*.log /var/log/*/*.log
+
+# delete a handful of items we don't need and take up some actual space
+rm -rf /usr/include
+rm -rf /usr/share/{file,man,doc}
+rm -rf /usr/lib/llvm-5.0/build /usr/share/llvm-5.0/cmake
+rm -rf /usr/lib/llvm-5.0/lib/*.a ./lib/x86_64-linux-gnu/*.a
+rm -rf /usr/lib/llvm-5.0/bin/{opt,lli,llc,llvm-tblgen,bugpoint}
+rm -rf /usr/local/lib/python2.7/dist-packages/awscli/examples
+rm -rf /usr/share/postgresql/*/man
