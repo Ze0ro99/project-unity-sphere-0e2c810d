@@ -1,5 +1,5 @@
 export const SOVEREIGN_NETWORK_CONFIG = {
-    synchronizedAtTimestamp: "2026-06-20T02:51:46Z",
+    synchronizedAtTimestamp: "2026-06-20T03:09:28Z",
     activeTrackingBranch: "feat/pirc-215-227-amm",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
