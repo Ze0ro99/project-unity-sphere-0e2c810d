@@ -1,0 +1,10 @@
+{
+  "name": "blockchain-based-identity-verification",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.17.1",
+    "body-parser": "^1.19.0",
+    "mongoose": "^9.6.1",
+    "web3": "^1.3.4"
+  }
+}
