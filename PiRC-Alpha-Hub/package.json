@@ -27,7 +27,7 @@
     "react-router-dom": "^7.15.1",
     "recharts": "^3.8.1",
     "tailwind-merge": "^3.6.0",
-    "vite": "^8.0.16"
+    "vite": "^8.0.13"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -39,6 +39,6 @@
     "tailwindcss": "^4.3.0",
     "tsx": "^4.22.0",
     "typescript": "~6.0.3",
-    "vite": "^8.0.16"
+    "vite": "^8.0.13"
   }
 }
