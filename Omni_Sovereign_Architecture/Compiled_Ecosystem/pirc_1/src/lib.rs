@@ -1,0 +1,12 @@
+#![no_std]
+#![forbid(unsafe_code)]
+use soroban_sdk::{contract, contractimpl, Address, Env};
+#[contract]
+pub struct PiRC1Contract;
+#[contractimpl]
+impl PiRC1Contract {
+    pub fn invoke_layer(env: Env, caller: Address) -> bool {
+        caller.require_auth();
+        true
+    }
+}
