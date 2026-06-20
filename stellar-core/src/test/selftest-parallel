@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# Copyright 2018 Stellar Development Foundation and contributors. Licensed
+# under the Apache License, Version 2.0. See the COPYING file at the root
+# of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
+
+set -e
+
+# Without this, ACTUAL_NUM_TESTS will be set to 0 if
+# stellar-core throws an exception below.
+set -o pipefail
+
+export COMMAND="$1"
+if [[ -z "$NUM_PARTITIONS" ]]; then
+    NUM_PARTITIONS=1
+fi
+if [[ -z "$RUN_PARTITIONS" ]]; then
+    RUN_PARTITIONS=$(seq 0 $((NUM_PARTITIONS-1)))
+fi
+if [[ -z "$TEST_SPEC" ]]; then
+    TEST_SPEC="~[acceptance]~[.]" # All non-hidden non-acceptance tests by default
+fi
+if [[ -z "$BATCHSIZE" ]]; then
+    # number of tests to run per run per job slot
+    BATCHSIZE=5
+fi
+if [[ -z "$RND_SEED" ]]; then
+    RND_SEED=1
+fi
+if [[ -z "$INTERACTIVE" ]]; then
+    INTERACTIVE=1
+fi
+
+cleanup() {
+    rm -rf $TEST_PARTITIONS_DIR
+}
+TEST_PARTITIONS_DIR=$(mktemp -d ./test-partitions.XXXXXXXX)
+trap cleanup 0 2 15 ERR
+
+# tests with special characters like "," may cause weird interactions with catch
+# so we white list characters that can be used for test case names
+perl -e '
+         use List::Util qw/shuffle/;
+         srand($ARGV[3]);
+         my $num_partitions = $ARGV[0];
+         my $test_spec = $ARGV[1];
+         my $test_partitions_dir = $ARGV[2];
+         my @all_tests = shuffle `./stellar-core test --ll FATAL --list-test-names-only "$test_spec"`;
+         if ($?) {die "stellar-core failed";}
+
+         for (my $p = 0; $p < $num_partitions; $p++) {
+             open(my $out, ">", "$test_partitions_dir/test-partition-$p.txt");
+             for (my $i = $p; $i < @all_tests; $i+=$num_partitions) {
+                my $tn = $all_tests[$i];
+                chomp $tn;
+                die "Invalid test name \"$tn\"" if $tn =~ m{[^-A-Za-z0-9 _():/]};
+                print $out "$tn\n";
+             }
+             close $out;
+         }' -- "$NUM_PARTITIONS" "$TEST_SPEC" "$TEST_PARTITIONS_DIR" "$RND_SEED"
+
+NUM_TESTS=0
+for p in $(seq 0 $((NUM_PARTITIONS-1))); do
+    NUM_TESTS=$((NUM_TESTS + $(awk 'END{print NR}' $TEST_PARTITIONS_DIR/test-partition-$p.txt)))
+done
+ACTUAL_NUM_TESTS=$(./stellar-core test --ll FATAL --list-test-names-only "$TEST_SPEC" | awk 'END{print NR}')
+if [[ $NUM_TESTS -ne $ACTUAL_NUM_TESTS ]]; then
+    echo "Partitions contain $NUM_TESTS tests, while stellar-core lists $ACTUAL_NUM_TESTS tests"
+    exit 1
+fi
+
+if [[ $NUM_TESTS -eq 0 ]]; then
+    echo "NUM_TESTS is 0 so no tests will be run"
+    exit 1
+fi
+
+runpart()
+{
+  local PART=$1
+  shift
+  local IFS=","
+  C="$*"
+  "$COMMAND" $((50*(PART-1))) "$C"
+  exit $?
+}
+
+export -f runpart
+
+TESTS=$TEST_PARTITIONS_DIR/test-list.txt
+for i in $RUN_PARTITIONS; do
+  nparts=$((nparts+1))
+  cat $TEST_PARTITIONS_DIR/test-partition-$i.txt >> $TESTS
+done
+
+FLAGS="--group"
+if [[ $INTERACTIVE -ne 0 ]]; then
+    FLAGS="--progress --line-buffer"
+fi
+cat $TESTS | parallel -j $nparts -n $BATCHSIZE $FLAGS --tag-string '{%}' --halt-on-error 2 runpart '{%}' "{}"
