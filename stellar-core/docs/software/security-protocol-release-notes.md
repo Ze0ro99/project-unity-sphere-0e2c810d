@@ -1,0 +1,495 @@
+---
+title: Security and Protocol release notes
+---
+
+# Purpose of this document
+
+This document describes changes to the Stellar protocol as well as other changes made to address security issues.
+
+It is organized as a reverse chronological timeline of releases.
+
+## Protocol updates
+
+* Changes to SCP.
+* Changes to the Stellar Protocol (anything that modifies how the distributed ledger functions, including historical data).
+
+## Security issues
+
+* DDoS.
+* Crashes (that could lead to remote code execution).
+* Other attacks that can be exploited (inside or outside of the Stellar protocol).
+
+## External mitigations
+
+* Freezing accounts involved in an exploit.
+
+## Goals for this document
+
+* Have a summary view of changes that affect the code base (stellar-core has to be able to replay all ledgers generated since genesis on the Stellar public network).
+* Drive transparency on issues that affected the network in the past as well as their impact.
+
+## Security issues disclosure policy
+
+(does not apply to protocol changes that are not security related)
+
+The goal is work with the larger security community on a responsible disclosure model.
+
+It then follows that:
+* this document is not where security disclosures are made, instead follow the process outlined in [Stellar's bug bounty program](https://www.stellar.org/bug-bounty-program/) as a way to triage and respond to issues.
+* issues are reflected in this document 30 days after release of the version of Stellar core containing fixes for the issues.
+
+# Format of each report
+
+* `tag-name` - security - description of the problem and impact
+    * exploited - yes/no/unknown
+        * if yes: description of the attacks that took place (with timeline).
+    * mitigation: code fix, etc
+
+* `tag-name` - protocol - description of the protocol change
+
+* `tag-name` - external - description of the reason for the change to stellar-core. This is most likely not a stellar-core vulnerability but is being done because of an external request from the ecosystem.
+
+## Tags used in this document
+
+* `Overlay` - subsystem used by peers to communicate to each other
+* `Herder` - subsystem coordinating all other subsystems
+* `SCP` - subsystem implementing SCP
+* `Ledger` - Ledger management including transaction subsystem
+* `History` - History subsystem
+
+# List of releases
+
+## v26.1.0 (2026-05-07)
+* `Ledger` - security - Replace block on transactions using `ed25519SignedPayload` signatures with an overall cap on signature verifications stellar-core will perform per transaction.
+    * exploited: no
+    * mitigation: code fix
+* `Herder` - security - Fix a crash during validation of malformed legacy transaction sets.
+    * exploited: no
+    * mitigation: code fix
+
+## v26.0.1 (2026-04-03)
+* `Ledger` - security - Block transactions using `ed25519SignedPayload` signatures.
+    * exploited: no
+    * mitigation: code fix
+* `Overlay` - security - Use full hash-of-hash for Overlay adverts to prevent hash prefix collision.
+    * exploited: no
+    * mitigation: code fix
+
+## v26.0.0 (2026-03-24)
+* `Overlay` - security - Hardened the multi-threaded HTTP server against core crash from malformed requests.
+    * exploited: no
+    * mitigation: code fix
+
+## v25.2.2-external (2026-03-24)
+* `Ledger` - security - Divergence from pool-share revocation order.
+    * exploited: no
+    * mitigation: code fix
+* `Ledger` - security - Pre-validate the wasm before passing it to wasmi.
+    * exploited: no
+    * mitigation: code fix
+
+## v25.2.1-external (2026-03-17)
+* `Herder` - security - Hardened `computePerOpFee` by preventing a division-by-zero crash.
+    * exploited: no
+    * mitigation: code fix
+* `Ledger` - security - Run Soroban host on a larger Rust stack to avoid stack overflow on deeply recursive contract execution.
+    * exploited: no
+    * mitigation: code fix
+* `Overlay` - security - Rate limit `GET_SCP_STATE` messages to prevent peers from inducing elevated CPU/memory consumption via repeated SCP state requests.
+    * exploited: no
+    * mitigation: code fix
+
+## v25.2.0 (2026-02-25)
+* `Ledger` - security - Improved transaction set validation to reject invalid tx sets earlier.
+    * exploited: no
+    * mitigation: code fix
+* `Overlay` - security - Flow control fix preventing peers from overwhelming a node with messages faster than they can be processed.
+    * exploited: no
+    * mitigation: code fix
+* `SCP` - security - Clean up far-future SCP data slots when tracking, preventing unbounded memory growth from messages targeting future slots.
+    * exploited: no
+    * mitigation: code fix
+* `Overlay` - security - Fixed uncaught exceptions around `readOne` that could crash a node when processing malformed XDR in history archives.
+    * exploited: no
+    * mitigation: code fix
+* `Herder` - external - Make banned-accounts list persistent across restarts and hardening the controls used to mitigate ongoing exploits. This is marked as external because it was a mitigation for an ecosystem exploit and not a vulnerability in stellar-core.
+    * exploited: no
+    * mitigation: code fix
+
+## v25.1.3 (2026-02-22)
+* `Herder` - external - Updated banned accounts logic, refining the controls used to filter transactions related to known exploits (follow-up to v25.1.1). This is marked as external because it was a mitigation for an ecosystem exploit and not a vulnerability in stellar-core.
+    * exploited: no
+    * mitigation: code fix
+
+## v25.1.1 (2026-02-03)
+* `Herder` - external - Implement ban accounts logic to freeze the accounts involved in the Blend Yieldbox exploit. This is marked as external because it was a mitigation for an ecosystem exploit and not a vulnerability in stellar-core.
+    * exploited: no
+    * mitigation: code fix
+
+## v25.0.0 (2026-01-22)
+* `Ledger` - protocol - CAP0074 - Host functions for BN254
+* `Ledger` - protocol - CAP0075 - Cryptographic Primitives for Poseidon/Poseidon2 Hash Functions
+* `Ledger` - protocol - Fee bump Soroban transactions with memo and using Soroban auth credentials are banned
+* `Ledger` - security - Soroban transactions with re-entrant __check_auth calls do not observe the changes that the parent call made to the instance storage.
+    * exploited: no
+        * No evidence of on-chain contracts being affected.
+    * mitigation: code fix
+
+## v24.0.0 (2025-10-20)
+* `Ledger` - security - Due to a bug in Protocol 23, 478 incorrect ledger entries were moved from live to hot archive bucket list. 396 of those entries could be repaired. The remaining 84 entries, that had been subsequently restored, remained corrupted. See [CAP-76](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0076.md) for more information. 
+    * exploited: unknown
+        * No evidence of a malicious actor taking advantage of incorrectly restored entries.
+    * mitigation: 
+        * code fixes mentioned in [CAP-76](https://github.com/stellar/stellar-protocol/blob/master/core/cap-0076.md) was implemented in Protocol 24 upgrade.
+        * additionally, each impacted protocol and asset issuer where alerted to perform necessary mitigation on their side. 
+
+## v22.4.1 (2025-06-13)
+
+* `Ledger` - security - Unchecked XDR recursive data structure in a transaction beyond the limit can crash the network.
+    * exploited: no
+    * mitigation: code fix
+* `Overlay` - security - Invalid XDR enum value could crash a stellar-core node.
+    * exploited: no
+    * mitigation: code fix    
+
+## v22.2.0 (2025-03-19)
+
+* `Overlay` - security - Background Overlay thread requesting and pulling data faster than the main thread can process.
+    * exploited: no
+    * mitigation: code fix
+
+## v22.1.0 (2024-12-11)
+
+* `Overlay` - security - Peers SQL table can be grown arbitrarily and be poisoned with potentially invalid peer IPs.
+    * exploited: no
+    * mitigation: code fix
+
+* `SCP` - security - Elevated memory consumption with a lot of requests for valid transaction sets by peer.
+    * exploited: no
+    * mitigation: code fix
+
+## v22.0.0 (2024-11-06)
+
+* `Ledger` - protocol - Fixed an issue with read only TTL extensions not being charged for when initiated within a contract.
+
+## v20.4.0 (2024-04-08)
+
+* `Overlay` - security - remote crash could be triggered due to race condition in error code processing from a third party library.
+    * exploited: no
+    * mitigation: code fix
+
+## v20.0.0 (2024-02-20)
+* `Ledger` - protocol - CAP0046 - Soroban Runtime Environment
+
+## v19.14.0 (2023-09-19)
+
+* `Overlay` - security - remote crash via resource exhaustion (DoS)
+    * exploited: yes
+        * some nodes crashed and restarted
+    * mitigation:
+        * immediate: block malicious IPs
+        * actual: code fix
+
+## v18.0.1 (2021-10-04)
+
+* `Ledger` - protocol - fixed a rounding issue when initializing a liquidity pool. No impact as this was discovered before the main network upgrade to protocol 18.
+
+## v18.0.0 (2021-09-27)
+
+* `Ledger` - protocol - CAP0038 - Automated Market Makers
+
+## v17.0.0 (2021-04-26)
+
+* `Ledger` - protocol - CAP0035 - Asset Clawback
+
+## v16.0.0 (2021-04-09)
+
+* `Ledger` - protocol - fixed potential local state corruption when loading offers that could potentially corrupt sponsorships. Upgrade fixed offer 289733046 corrupted when constructing ledger 34793621 on the public network.
+
+## v15.5.0 (2021-04-07)
+
+* `Ledger` - work around a local corruption issues when loading offers that would lead to Offers potentially getting corrupt sponsorships.
+
+## v15.0.0 (2020-10-27)
+
+* `Ledger` - protocol - CAP0023 - Fixed `LedgerKey` input validation issue
+
+## v14.1.1 (2020-10-01)
+
+* `Ledger` - security - fixed potential local state corruption when applying transactions from history archive
+    * exploited: no
+    * mitigation: code fix
+
+## v14.1.0 (2020-09-28)
+
+* `Ledger` - security - fixed potential non deterministic computation of best offer
+    * exploited: no
+    * mitigation: code fix
+
+## v14.0.0 (2020-08-20)
+
+* `Ledger` - protocol - CAP0023 - Two-Part Payments with ClaimableBalanceEntry
+* `Ledger` - protocol - CAP0033 - Sponsored Reserve
+* `SCP` - protocol - CAP0034 - Preserve Transaction-Set/Close-Time Affinity During Nomination
+* `SCP` - security - fix an edge case that could lead to nominating an invalid close time
+    * exploited: no
+    * mitigation: code fix
+
+## v13.2.0 (2020-06-30)
+
+* `SCP` - security - fixed crash that could be triggered when receiving out of order messages at the wrong time
+    * exploited: no
+    * mitigation: code fix
+
+## v13.1.0 (2020-05-29)
+
+* `Overlay` - security - remote crash via unhandled exception during connection handshake (DoS)
+    * exploited: no
+    * mitigation: code fix
+    * bug bounty: [ahook](https://hackerone.com/ahook)
+
+## v13.0.0 (2020-04-29)
+
+* `Ledger` - protocol - CAP0015 - Fee-Bump Transactions
+* `Ledger` - protocol - CAP0018 - Fine-Grained Control of Authorization (eg. AUTHORIZED_TO_MAINTAIN_LIABILITIES_FLAG)
+* `Ledger` - protocol - CAP0027 - First-class multiplexed accounts
+* `Ledger` - protocol - CAP0028 - Clear pre-auth transaction signer on failed transactions
+* `Ledger` - protocol - CAP0030 - Remove NO_ISSUER Operation Results
+
+## v12.1.0 (2019-10-24)
+
+* `SCP` - protocol - added `CRITICAL` quality to quorum config generator
+
+## v12.0.0 (2019-09-30)
+
+* `Ledger` - protocol - CAP0024 - Make PathPayment symmetrical
+* `Ledger` - protocol - CAP0025 - Remove bucket shadowing
+* `Ledger` - protocol - CAP0026 - Disable inflation
+
+## v11.4.0 (2019-08-28)
+
+* `Herder` - security - connection string to the database could be logged unencrypted
+    * exploited: no
+    * mitigation: code fix
+
+## v11.2.0 (2019-06-27)
+
+* `SCP` - protocol - switch to auto generated quorum configuration
+* `SCP` - protocol - persist SCP messages across restarts, increasing the chance of propagating externalize messages
+* `SCP` - protocol - added quorum intersection monitoring
+* `Ledger` - protocol - changed to reject a ledger containing an unknown upgrade instead of corrupting the local ledger state
+
+## v11.1.0 (2019-05-23)
+
+* `Ledger` - security - crash when processing bad archive files
+    * exploited: no
+    * mitigation: code fix
+* `Overlay` - security - ignore SCP messages from a previous incarnation of the network (testnet reset)
+    * exploited: no
+    * mitigation: code fix
+
+## v11.0.0 (2019-04-24)
+
+* `Ledger` - protocol - implementing CAP0005 (Transaction pricing improvement)
+
+* `Ledger` - protocol - implementing CAP0006 (ManageBuyOffer)
+
+* `Ledger` - protocol - implementing CAP0020 (Bucket Initial Entries)
+
+* `Overlay` - security - memory exhaustion from validators not in Quorum (DDoS)
+    * exploited: no
+    * mitigation: code fix
+    * bug bounty: [ahook](https://hackerone.com/ahook)
+
+* `SCP` - protocol - attach validator ID to values introduced by that validator
+
+## v10.0.0 (2018-09-05)
+
+* `Ledger` - protocol - new `bumpSeqOp`, implementing CAP0001
+
+* `Ledger` - protocol - updated signature verification, to be done at transaction
+apply step. implements CAP0002
+
+* `Ledger` - protocol - add liabilities to offers, implements CAP0003
+
+* `Ledger` - security - rounding error could allow dust trades to make large error.
+    * exploited: yes
+        * over the course of a few weeks preceding the upgrade to 10, some
+         bots performed dust trades.
+        * Impact is determined by the ratio between assets. For example with
+        P=1/20,000 a rounding error of 10E-7 (1 in absolute term), is equivalent
+        to a 20,000:1 error (effective P is 1.0 instead of 1/20,000)
+    * mitigation: CAP0004 implemented in protocol 10
+
+* `Ledger` - protocol - fast fail attempts to `changeTrustOp` on native.
+
+* `Ledger` - protocol - fast fail `setOptionsOp` when attempting to set weight
+of a signer to more than 255.
+
+## v9.2.0 (2018-03-20)
+
+* `Herder` - protocol - properly compute next ledger start time (could lead to rounds starting too early).
+
+* `SCP` - protocol - make timing out of the ballot counters less aggressive (reduce overall SCP time to close a ledger).
+
+## v9.1.0 (2018-01-18)
+
+* `Overlay` - security - stack overflow when processing bad xdr (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+* `History` - protocol - some snapshot files could be corrupt when generated (rendering them unusable)
+
+## v9.0.1 (2017-12-20)
+
+* `SCP` - protocol - allow values to be validated differently during nomination and ballot protocol (used to be potentially more strict for the values generated during nomination)
+
+* `Herder` - protocol - change the way upgrades are managed to be "one time triggers" instead of being on all the time
+
+
+## v9.0.0 (2017-12-08)
+
+* `Overlay` - peer could perform multiple handshakes in parallel denying other nodes from connecting (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+* `Overlay` - all peers got dropped when node was getting overloaded by a single peer (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+* `Ledger` - security - overflow in base reserve computation would allow certain operation to reduce the balance below reserve.
+    * exploited: unknown
+        * while it was possible to take the balance below reserve, this would simply make accounts unusable until more Lumens were sent to the account.
+    * mitigation: code fix
+
+ * `Ledger` - protocol - `manageOffer` now computes the amount of Lumens that can be sold as if the offer was created
+
+* `Ledger` - protocol - make `BASE_RESERVE` configurable
+
+* `Ledger` - protocol - update fee processing check to not double count fee (allows to spend the last `minfee` amount from an account)
+
+* `Ledger` - protocol - updated protocol version to 9
+
+## v0.6.2 (2017-04-30)
+
+* `Ledger` - security - invalid use of cached data could lead to lumen creation (double spend) or destruction
+    * exploited: yes
+        * rogue transactions caused new Lumens to be created, not accounted for in total coins
+    * mitigation:
+        * code fix
+        * in order to restore the ledger to its expected number of coins, the foundation burned Lumens using one of the bugs fixed in this release (`pathPaymentOp`), practically speaking this ended up being equivalent to a forced distribution of Lumens by the foundation.
+        * invariant for total coins implemented
+
+* `Ledger` - protocol - updated protocol version to 8 (2017-04-26)
+
+* `Ledger` - protocol - inflation fix: properly update `totalCoins` that are re-injected in `feePool` (due to rounding or deleted winners), was causing `totalCoins` to not match the actual sum of all coins in existence
+
+* `Ledger` - protocol - don't use cached data when sending to self using `pathPaymentOp`
+
+* `Ledger` - protocol - never cache account data between operations
+
+## v0.6.1d (not widely released - 2017-04-26)
+
+* `Ledger` - protocol - updated protocol version to 7
+
+* `Ledger` - protocol - temporary disable signature verification in preparation for version 8 that contains fixes for caching problems
+
+## v0.6.1c (not widely released - 2017-04-08)
+
+* `Ledger` - security - merge account could be called on an account already merged in the same ledger, causing the Lumens balance of the doubly merged account to be credited multiple times into the destination account
+    * exploited: yes
+        * rogue transactions caused new Lumens to be created, not accounted for in total coins
+    * mitigation:
+        * another minimal code fix scoped to merge account was implemented to stop the updated pattern of transactions exploiting the bug while working on complete fix
+        * additional monitoring of network activity
+
+* `Ledger` - protocol - updated protocol version to 6
+
+* `Ledger` - protocol - reload balance of source account when merging accounts (bad fix)
+
+## v0.6.1b (not widely released - 2017-04-06)
+
+* `Ledger` - security - merge account could be called on an account already merged in the same ledger, causing the Lumens balance of the doubly merged account to be credited multiple times into the destination account
+    * exploited: yes
+        * rogue transactions caused new Lumens to be created, not accounted for in total coins
+    * mitigation:
+        * minimal code fix implemented to stop known pattern of transactions exploiting the bug
+        * additional monitoring of network activity
+
+* `Ledger` - protocol - updated protocol version to 5
+
+* `Ledger` - protocol - don't allow merging accounts from non-existent accounts (bad fix)
+
+## v0.6.1 (2017-03-07)
+
+* `Ledger` - protocol - updated protocol version to 4
+
+* `Ledger` - protocol - ensure that `ManageData` cannot be used on unsupported on protocol version smaller than (and including) 3
+
+## v0.6.0 (2017-02-07)
+
+* `Ledger` - protocol - updated protocol version to 3
+
+* `Ledger` - protocol - perform additional checks when sending to self (make failures consistent with non self payments of non-native assets)
+
+* `Ledger` - protocol - updated order book's rounding (avoid double round down when dealing with dust trades)
+
+* `Ledger` - protocol - added `hash(tx)` and `hash(X)` as signing methods
+
+* `Ledger` - protocol - do not allow to call `AllowTrustOp` and `ChangeTrustOp` on self
+
+* `Ledger` - protocol - do not allow to create an offer with an amount of 0 (would fail as if it deleted an offer)
+
+* `Ledger` - protocol - properly set `lastModifiedLedgerSeq` for `DataEntry`
+
+* `SCP` - protocol - limit number of validators in a quorum set to a smaller value
+
+* `Overlay` - security - node would cache data that it didn't request, potentially purging data that it would need from cache (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+## v0.5.0 (2016-04-11)
+
+* `Ledger` - protocol - added support for `DataEntry` and `ManageDataOp`
+
+## v0.4.0 (2015-12-21)
+
+* `Herder` - security - arbitrary validators on the network could send messages, causing validators to use up all their memory (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+## v0.3.2 (2015-11-23)
+
+* `SCP` - security - bad sequence of messages could lead to node crashing (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+## v0.3.1 (2015-11-18)
+
+* `SCP` - protocol - adjustments based on the whitepaper updates as of November 17 2015
+
+## v0.3.0 (2015-11-16)
+
+* `Overlay` - security - busy loop when peers were claiming to have data they don't have (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+* `SCP` - protocol - adjustments based on the whitepaper updates as of November 2015
+
+
+## v0.2.5 (2015-11-06)
+* `Overlay` - security - bad peers would be retried, bypassing the PREFERRED_PEERS setting (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+## v0.2 (2015-10-12)
+
+* `Overlay` - security - partial messages not handled properly could lead to busy peers (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+* `Herder` - security - creation of unknown slots would allow malicious peers to allocate memory (DDoS)
+    * exploited: no
+    * mitigation: code fix
+
+* `SCP` - protocol - additional validation of quorum sets
