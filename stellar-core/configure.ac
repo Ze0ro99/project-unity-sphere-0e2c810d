@@ -1,0 +1,605 @@
+# -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+# Copyright 2015 Stellar Development Foundation and contributors. Licensed
+# under the Apache License, Version 2.0. See the COPYING file at the root
+# of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
+
+AC_PREREQ([2.68])
+AC_INIT([stellar-core],[0.1],[],[],[http://www.stellar.org])
+# tar-ustar is required for long file names when libsodium is bundled
+AM_INIT_AUTOMAKE([-Wall -Wextra -Wconversion subdir-objects tar-ustar silent-rules])
+AC_CONFIG_SRCDIR([configure.ac])
+AC_CONFIG_MACRO_DIR([m4])
+AC_CANONICAL_HOST
+
+AC_ARG_VAR([LIBCXX_PATH], [path to libc++ and libc++abi])
+
+if test -z "${WFLAGS+set}"; then
+   WFLAGS=-Wall
+
+   # Our large include path set makes for annoying warnings without this
+   WFLAGS="$WFLAGS -Wno-unused-command-line-argument -Qunused-arguments"
+
+   # Asio's headers have unused typedefs that flood the compilation
+   # output without this
+   WFLAGS="$WFLAGS -Wno-unused-local-typedef"
+
+   # Also don't _further_ warn if the previous warning flag was unknown
+   WFLAGS="$WFLAGS -Wno-unknown-warning-option"
+
+   # We want to consider unused MUST_USE results as errors
+   WFLAGS="$WFLAGS -Werror=unused-result"
+fi
+
+# NB: use `-gdwarf-3` (not -g or -gdwarf-4 or later) specifically as
+# it produces the highest-fidelity backtraces with our current
+# rust/gimli-backed backtrace system.
+test "${CFLAGS+set}" || CFLAGS="-gdwarf-3 -O2 -fno-omit-frame-pointer"
+test "${CXXFLAGS+set}" || CXXFLAGS="$CFLAGS"
+
+AC_PROG_CC([clang gcc cc])
+AC_PROG_CXX([clang++ g++ c++])
+AM_PROG_AR
+AM_PROG_CC_C_O
+
+LT_INIT([disable-shared])
+AC_SUBST(LIBTOOL_DEPS)
+
+AC_LANG(C++)
+# if modifying the following macro for a future C++ version, please update CXX
+# for enable-afl in the fuzzer configuration block below
+AX_CXX_COMPILE_STDCXX(20, noext,mandatory)
+AX_FRESH_COMPILER
+# -pthread seems to be required by -std=c++14 on some hosts
+AX_APPEND_COMPILE_FLAGS([-pthread])
+
+# additional defines
+AX_APPEND_COMPILE_FLAGS([-DFMT_HEADER_ONLY=1])
+
+AC_MSG_CHECKING([whether defect report N4387 is resolved])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <tuple>
+std::tuple<int, int> f()
+{
+    return {1, 2};
+}
+]])], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no]); AC_MSG_ERROR([defect report N4387 is not resolved])], AC_MSG_FAILURE)
+
+AC_MSG_CHECKING([for c++14 compliant std::weak_ptr move-constructor])
+AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <memory>]], [[std::shared_ptr<int> shared = std::make_shared<int>(0);
+std::weak_ptr<int> weak1(shared);
+std::weak_ptr<int> weak2(std::move(weak1));
+return !((weak1.expired()) && (weak1.lock() == nullptr));
+]])], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no]); AC_MSG_ERROR([non-compliant std::weak_ptr move-constructor])], AC_MSG_FAILURE)
+
+AC_MSG_CHECKING([for c++14 compliant std::weak_ptr move-assignment operator])
+AC_RUN_IFELSE([AC_LANG_PROGRAM([[#include <memory>]], [[std::shared_ptr<int> shared = std::make_shared<int>(0);
+std::weak_ptr<int> weak1(shared);
+std::weak_ptr<int> weak2 = std::move(weak1);
+return !((weak1.expired()) && (weak1.lock() == nullptr));
+]])], [AC_MSG_RESULT([yes])], [AC_MSG_RESULT([no]); AC_MSG_ERROR([non-compliant std::weak_ptr move-assignment operator])], AC_MSG_FAILURE)
+
+AC_ARG_ENABLE([sdfprefs],
+    AS_HELP_STRING([--enable-sdfprefs],
+        [Enable build settings preferred by Stellar developers]))
+
+AS_IF([test xyes = "x$enable_sdfprefs"],
+        [AM_SILENT_RULES([yes])
+    WFLAGS="$WFLAGS -fcolor-diagnostics"])
+
+AS_IF([test xyes != "x$enable_sdfprefs" -a xyes != "x$enable_silent_rules"],
+        ac_configure_args="$ac_configure_args --disable-silent-rules")
+
+AX_APPEND_COMPILE_FLAGS($WFLAGS)
+AC_LANG_PUSH(C)
+AX_APPEND_COMPILE_FLAGS($WFLAGS)
+# ensure that we also enable pthread in C code
+AX_APPEND_COMPILE_FLAGS([-pthread])
+AC_LANG_POP(C)
+
+AC_ARG_ENABLE(unified-rust-unsafe-for-production,
+    AS_HELP_STRING([--enable-unified-rust-unsafe-for-production],
+        [Build rust crates as a single cargo library, risking version drift]))
+AM_CONDITIONAL(UNIFIED_RUST, [test "x$enable_unified_rust_unsafe_for_production" = "xyes"])
+
+unset sanitizeopts
+
+AC_ARG_ENABLE([asan],
+  AS_HELP_STRING([--enable-asan],
+        [build with asan (address-sanitizer) instrumentation]))
+AS_IF([test "x$enable_asan" = "xyes"], [
+  AC_MSG_NOTICE([ Enabling asan, see https://clang.llvm.org/docs/AddressSanitizer.html ])
+
+  AS_IF([test "xyes" != "x$enable_unified_rust_unsafe_for_production"], [
+    AC_MSG_WARN(Asan will not instrument rust without --enable-unified-rust-unsafe-for-production)
+  ])
+
+  sanitizeopts="address"
+])
+
+AC_ARG_ENABLE([codecoverage],
+  AS_HELP_STRING([--enable-codecoverage],
+        [build with code coverage enabled]))
+AS_IF([test "x$enable_codecoverage" = "xyes"], [
+  AC_MSG_NOTICE([ enabling codecoverage, see https://clang.llvm.org/docs/SourceBasedCodeCoverage.html ])
+
+  LDFLAGS="$LDFLAGS -fprofile-instr-generate -fcoverage-mapping"
+  CXXFLAGS="$CXXFLAGS -fprofile-instr-generate -fcoverage-mapping"
+  CFLAGS="$CFLAGS -fprofile-instr-generate -fcoverage-mapping"
+])
+
+AC_ARG_ENABLE([threadsanitizer],
+  AS_HELP_STRING([--enable-threadsanitizer],
+        [build with thread-sanitizer (TSan) instrumentation]))
+AS_IF([test "x$enable_threadsanitizer" = "xyes"], [
+  AC_MSG_NOTICE([ enabling thread-sanitizer, see https://clang.llvm.org/docs/ThreadSanitizer.html ])
+
+  AS_IF([test "xyes" != "x$enable_unified_rust_unsafe_for_production"], [
+    AC_MSG_ERROR(Enabling tsan requires --enable-unified-rust-unsafe-for-production)
+  ])
+  AS_IF([test x != "x$sanitizeopts"], [
+    AC_MSG_ERROR(Cannot enable multiple sanitizers at once)
+  ])
+  sanitizeopts="thread"
+])
+
+AC_ARG_ENABLE([threadsafety],
+  AS_HELP_STRING([--enable-threadsafety],
+        [build with thread safety static analysis instrumentation (Clang only)]))
+AS_IF([test "x$enable_threadsafety" = "xyes"], [
+  AC_MSG_NOTICE([enabling thread safety static analysis, see https://clang.llvm.org/docs/ThreadSafetyAnalysis.html])
+  AS_CASE(["$CXX"],
+          [clang*], [CXXFLAGS="$CXXFLAGS -Wthread-safety -Werror=thread-safety -Wthread-safety-beta -Werror=thread-safety-beta -DTHREAD_SAFETY"],
+          [AC_MSG_WARN([Thread safety analysis is only supported with Clang compiler, skipping])])
+])
+
+AC_ARG_ENABLE([memcheck],
+  AS_HELP_STRING([--enable-memcheck],
+        [build with memcheck (memory-sanitizer) instrumentation]))
+AS_IF([test "x$enable_memcheck" = "xyes"], [
+  AC_MSG_NOTICE([ enabling memory-sanitizer, see https://clang.llvm.org/docs/MemorySanitizer.html ])
+  AC_MSG_NOTICE([ To completely enable poison destructor set MSAN_OPTIONS=poison_in_dtor=1 before running the program ])
+
+  AS_IF([test x != "x$sanitizeopts"], [
+    AC_MSG_ERROR(Cannot enable multiple sanitizers at once)
+  ])
+  sanitizeopts="memory -fsanitize-memory-track-origins=2 -fsanitize-memory-use-after-dtor"
+
+  if test -z "$LIBCXX_PATH"; then
+   AC_MSG_ERROR(LIBCXX_PATH must be set for memcheck to work)
+  fi
+
+  CXXFLAGS="$CXXFLAGS -DMSAN_ENABLED"
+  LDFLAGS="$LDFLAGS -fsanitize=$sanitizeopts"
+])
+
+AS_IF([test x != "x$LIBCXX_PATH"], [
+  # use custom libc++
+  CXXFLAGS="$CXXFLAGS -stdlib=libc++"
+  LDFLAGS="$LDFLAGS -L$LIBCXX_PATH -stdlib=libc++ -lc++abi -Wl,-rpath -Wl,$LIBCXX_PATH"
+])
+
+AC_ARG_ENABLE([undefinedcheck],
+  AS_HELP_STRING([--enable-undefinedcheck],
+        [build with undefinedcheck (undefined-behavior-sanitizer) instrumentation]))
+AS_IF([test "x$enable_undefinedcheck" = "xyes"], [
+  AC_MSG_NOTICE([ enabling undefined-behavior-sanitizer, see https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html ])
+  AS_IF([test x != "x$sanitizeopts"], [
+    AC_MSG_ERROR(Cannot enable multiple sanitizers at once)
+  ])
+  sanitizeopts="undefined"
+])
+
+AS_IF([test x != "x$sanitizeopts"], [
+  # Compilation should fail if these options are not supported
+  sanflags="-fsanitize=$sanitizeopts -fno-omit-frame-pointer"
+  CFLAGS="$CFLAGS $sanflags"
+  CXXFLAGS="$CXXFLAGS $sanflags"
+
+  # compile our own libraries when sanitizers are enabled
+  libsodium_INTERNAL=yes
+  xdrpp_INTERNAL=yes
+
+])
+
+AC_ARG_ENABLE([extrachecks],
+  AS_HELP_STRING([--enable-extrachecks],
+        [build with additional debugging checks enabled]))
+AS_IF([test "x$enable_extrachecks" = "xyes"], [
+  # don't try to detect which c++ library we're using
+  CXXFLAGS="$CXXFLAGS -D_GLIBCXX_DEBUG=1 -D_GLIBCXX_SANITIZE_VECTOR=1 -D_LIBCPP_DEBUG=0 -DBEST_OFFER_DEBUGGING -DSCP_DEBUGGING"
+])
+
+AC_ARG_ENABLE([ccache],
+              AS_HELP_STRING([--enable-ccache], [build with ccache]))
+AS_IF([test "x$enable_ccache" = "xyes"], [
+  AC_CHECK_PROGS([CCACHE], [ccache])
+  AS_IF([test -z "$CCACHE"], [
+    AC_MSG_ERROR([ccache enabled but not found])
+  ])
+  case "$CC" in
+  *ccache\ *)
+      ;;
+  *)
+      CC="ccache ${CC}"
+      ;;
+  esac
+  case "$CXX" in
+    *ccache\ *)
+      ;;
+    *)
+      CXX="ccache ${CXX}"
+      ;;
+  esac
+])
+
+AC_ARG_ENABLE([sccache],
+              AS_HELP_STRING([--enable-sccache], [build with sccache]))
+
+AC_ARG_ENABLE([nsc-sccache],
+              AS_HELP_STRING([--enable-nsc-sccache], [configure sccache using nsc cache setup]))
+
+AS_IF([test "x$enable_nsc_sccache" = "xyes"], [
+  AC_CHECK_PROGS([NSC], [nsc])
+  AS_IF([test -z "$NSC"], [
+    AC_MSG_ERROR([--enable-nsc-sccache requested but nsc was not found])
+  ])
+
+  AC_MSG_NOTICE([configuring sccache environment with: nsc cache sccache setup --cache_name stellar])
+  NSC_SCCACHE_SETUP=`$NSC cache sccache setup --cache_name stellar`
+  nsc_rc=$?
+  AS_IF([test $nsc_rc -ne 0 -o "x$NSC_SCCACHE_SETUP" = "x"], [
+    AC_MSG_ERROR([nsc cache sccache setup failed or returned empty result])
+  ])
+
+  # Eval the nsc output into configure's environment so the sccache
+  # daemon we start below inherits the remote-cache credentials.
+  AC_MSG_NOTICE([applying nsc sccache environment variables])
+  eval "$NSC_SCCACHE_SETUP" || AC_MSG_ERROR([failed to eval nsc sccache setup output])
+
+  export SCCACHE_WEBDAV_ENDPOINT
+  export SCCACHE_WEBDAV_KEY_PREFIX
+  export SCCACHE_WEBDAV_TOKEN
+
+  enable_sccache=yes
+  enable_nsc_sccache_done=yes
+])
+
+AS_IF([test "x$enable_ccache" = "xyes" -a "x$enable_sccache" = "xyes"], [
+  AC_MSG_ERROR([Cannot enable both ccache and sccache])
+])
+
+AS_IF([test "x$enable_sccache" = "xyes"], [
+  AC_CHECK_PROGS([SCCACHE], [sccache])
+  AS_IF([test -z "$SCCACHE"], [
+    AC_MSG_ERROR([sccache enabled but not found])
+  ])
+
+  # Set SCCACHE_BASEDIRS so sccache can normalize absolute paths in
+  # both the source and build trees, improving cache hit rates when
+  # the same code is built from different directories.
+  SCCACHE_BASEDIRS="$(cd "$srcdir" && pwd):$(pwd)"
+  export SCCACHE_BASEDIRS
+  AC_MSG_NOTICE([sccache base dirs: $SCCACHE_BASEDIRS])
+
+  # Stop any existing sccache daemon -- it may be running with stale
+  # config (different credentials, local-only caching, etc.). The
+  # daemon we start below will have the correct nsc environment.
+  AC_MSG_NOTICE([stopping any existing sccache daemon])
+  "$SCCACHE" --stop-server >/dev/null 2>&1 || true
+
+  # Set idle timeout to 0 so the daemon stays alive for the entire
+  # build rather than dying after 10 minutes of inactivity (e.g.
+  # during long link steps).
+  SCCACHE_IDLE_TIMEOUT=0
+  export SCCACHE_IDLE_TIMEOUT
+
+  # Start a fresh daemon with the exported environment.
+  AC_MSG_NOTICE([starting sccache daemon with exported environment])
+  "$SCCACHE" --start-server || AC_MSG_ERROR([failed to start sccache daemon])
+
+  AS_IF([test "x$enable_nsc_sccache_done" = "xyes"], [
+    # Verify the daemon is using a remote cache (webdav/nsc) and not
+    # just local disk storage. This catches misconfiguration early.
+    # The stats line looks like: "Cache location    webdav, name: ..."
+    AC_MSG_NOTICE([verifying sccache is using remote (webdav) storage])
+    SCCACHE_STATS=`"$SCCACHE" -s 2>&1`
+    AC_MSG_NOTICE([sccache stats:
+$SCCACHE_STATS])
+    AS_CASE(["$SCCACHE_STATS"],
+      [*webdav*], [AC_MSG_NOTICE([confirmed: sccache is using webdav remote cache])],
+      [AC_MSG_ERROR([sccache daemon does not appear to be using webdav storage -- nsc configuration may have failed. Run 'sccache -s' to diagnose.])])
+  ])
+
+  case "$CC" in
+  *sccache\ *)
+      ;;
+  *)
+      CC="$SCCACHE ${CC}"
+      ;;
+  esac
+  case "$CXX" in
+    *sccache\ *)
+      ;;
+    *)
+      CXX="$SCCACHE ${CXX}"
+      ;;
+  esac
+  AS_IF([test -z "${RUSTC_WRAPPER+set}"], [
+    RUSTC_WRAPPER="$SCCACHE"
+  ])
+])
+
+# Permit user to enable libfuzzer-compatible fuzzing (works with libfuzzer,
+# honggfuzz, AFL++, etc.)
+AC_ARG_ENABLE([fuzz],
+              AS_HELP_STRING([--enable-fuzz],
+                             [build with libfuzzer-compatible fuzzing support]))
+AS_IF([test "x$enable_fuzz" = "xyes"], [
+  # Add fuzzing-specific compile-time define. This is the standard define used
+  # by oss-fuzz and enables fuzzing-specific code paths.
+  CXXFLAGS="$CXXFLAGS -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
+  CFLAGS="$CFLAGS -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
+
+  # LIB_FUZZING_ENGINE must be set to link against a fuzzing engine runtime.
+  # OSS-Fuzz always sets this. For local builds with libfuzzer, you also need
+  # to add instrumentation flags to CXXFLAGS:
+  #
+  #   libfuzzer:
+  #     CXXFLAGS="-O2 -g -fsanitize=fuzzer-no-link" LIB_FUZZING_ENGINE="-fsanitize=fuzzer" \
+  #       ./configure --enable-fuzz
+  #
+  #   honggfuzz:
+  #     CC=hfuzz-clang CXX=hfuzz-clang++ \
+  #       LIB_FUZZING_ENGINE="/path/to/honggfuzz/libhfuzz/libhfuzz.a" \
+  #       ./configure --enable-fuzz
+  #
+  #   AFL++:
+  #     CC=afl-clang-fast CXX=afl-clang-fast++ \
+  #       LIB_FUZZING_ENGINE="/path/to/AFLplusplus/libAFLDriver.a" \
+  #       ./configure --enable-fuzz
+  #
+  # OSS-Fuzz sets CXXFLAGS and LIB_FUZZING_ENGINE automatically.
+  AS_IF([test -z "$LIB_FUZZING_ENGINE"], [
+    AC_MSG_NOTICE([LIB_FUZZING_ENGINE must be set to link against a fuzzing engine runtime.])
+    AC_MSG_NOTICE([For builds with libfuzzer:])
+    AC_MSG_NOTICE([  CXXFLAGS="-O2 -g -fsanitize=fuzzer-no-link" LIB_FUZZING_ENGINE="-fsanitize=fuzzer" ./configure --enable-fuzz])
+    AC_MSG_NOTICE([For honggfuzz:])
+    AC_MSG_NOTICE([  CC=hfuzz-clang CXX=hfuzz-clang++ LIB_FUZZING_ENGINE="/path/to/honggfuzz/libhfuzz/libhfuzz.a" ./configure --enable-fuzz])
+    AC_MSG_NOTICE([For AFL++:])
+    AC_MSG_NOTICE([  CC=afl-clang-fast CXX=afl-clang-fast++ LIB_FUZZING_ENGINE="/path/to/AFLplusplus/libAFLDriver.a" ./configure --enable-fuzz])
+    AC_MSG_NOTICE([OSS-Fuzz sets CXXFLAGS and LIB_FUZZING_ENGINE automatically.])
+    AC_MSG_ERROR([--enable-fuzz requires LIB_FUZZING_ENGINE to be set])
+  ])
+  AC_MSG_NOTICE([Using LIB_FUZZING_ENGINE=$LIB_FUZZING_ENGINE])
+  AC_SUBST([LIB_FUZZING_ENGINE])
+])
+AM_CONDITIONAL([ENABLE_FUZZ], [test "x$enable_fuzz" = "xyes"])
+
+# prefer 20 as it's the one we use
+AC_CHECK_PROGS(CLANG_FORMAT, [clang-format-20 clang-format])
+AM_CONDITIONAL([USE_CLANG_FORMAT], [test "x$CLANG_FORMAT" != "x"])
+
+AX_VALGRIND_CHECK
+
+if test yes != "$enable_shared"; then
+   ac_configure_args="$ac_configure_args --disable-shared"
+fi
+
+# We use several features of sqlite that require not just a new version
+# (eg. partial indexes, >=3.8.0; upserts, >= 3.24.0) but also the carray
+# extension, which is compiled-out of most platform sqlites. We therefore
+# always use our own bundled copy, version 3.26.0 at the time of this
+# writing.
+sqlite3_CFLAGS='-isystem $(top_srcdir)/lib/sqlite -DSQLITE_CORE -DSQLITE_OMIT_LOAD_EXTENSION=1'
+sqlite3_LIBS=
+AC_SUBST(sqlite3_CFLAGS)
+AC_SUBST(sqlite3_LIBS)
+
+PKG_CHECK_MODULES(libsodium, [libsodium >= 1.0.17], :, libsodium_INTERNAL=yes)
+
+AX_PKGCONFIG_SUBDIR(lib/libsodium)
+if test -n "$libsodium_INTERNAL"; then
+   libsodium_LIBS='$(top_builddir)/lib/libsodium/src/libsodium/libsodium.la'
+fi
+
+AX_PKGCONFIG_SUBDIR(lib/xdrpp)
+AC_MSG_CHECKING(for xdrc)
+if test -n "$XDRC"; then
+   :
+elif test -n "$xdrpp_INTERNAL" -a x"$cross_compiling" != xyes; then
+   XDRC='$(top_builddir)/lib/xdrpp/xdrc/xdrc$(EXEEXT)'
+else
+   AC_PATH_PROG(XDRC, [xdrc])
+fi
+if test -z "$XDRC"; then
+   AC_MSG_ERROR(Cannot find xdrc)
+fi
+AC_MSG_RESULT($XDRC)
+AC_SUBST(XDRC)
+
+# Directory needed for xdrc output (won't exist in build directory)
+mkdir -p src/xdr
+
+if test -s "$srcdir/lib/medida.mk"; then
+   libmedida_CFLAGS='-isystem $(top_srcdir)/lib/libmedida/src'
+   libmedida_LIBS='$(top_builddir)/lib/libmedida.a'
+   libmedida_INTERNAL=yes
+else
+   PKG_CHECK_MODULES(libmedida, libmedida)
+   unset libmedida_INTERNAL
+fi
+AM_CONDITIONAL(LIBMEDIDA_INTERNAL, test -n "$libmedida_INTERNAL")
+AC_SUBST(libmedida_CFLAGS)
+AC_SUBST(libmedida_LIBS)
+
+soci_CFLAGS='-isystem $(top_srcdir)/lib/soci/src/core'
+soci_LIBS='$(top_builddir)/lib/libsoci.a'
+AC_SUBST(soci_CFLAGS)
+AC_SUBST(soci_LIBS)
+
+libasio_CFLAGS='-DASIO_SEPARATE_COMPILATION=1 -DASIO_STANDALONE -isystem $(top_srcdir)/lib/asio/asio/include'
+AC_SUBST(libasio_CFLAGS)
+
+AC_ARG_ENABLE(postgres,
+    AS_HELP_STRING([--disable-postgres],
+        [Disable postgres support even when libpq available]))
+unset have_postgres
+if test x"$enable_postgres" != xno; then
+    PKG_CHECK_MODULES(libpq, libpq, have_postgres=1)
+    if test -n "$enable_postgres" -a -z "$have_postgres"; then
+       AC_MSG_ERROR([Cannot find postgres library])
+    fi
+fi
+AM_CONDITIONAL(USE_POSTGRES, [test -n "$have_postgres"])
+
+# tcmalloc_minimal - enabled by default on Linux for improved memory allocation performance
+# Disabled when using sanitizers (asan, memcheck, tsan) as they replace malloc
+# Uses vendored gperftools from lib/gperftools
+unset have_tcmalloc
+if test "x$enable_asan" = "xyes" -o "x$enable_memcheck" = "xyes" -o "x$enable_threadsanitizer" = "xyes"; then
+    AC_MSG_NOTICE([tcmalloc disabled due to sanitizer being enabled])
+else
+    case "${host_os}" in
+        linux*)
+            # Configure gperftools for minimal tcmalloc only
+            ac_configure_args="$ac_configure_args --enable-minimal --disable-cpu-profiler --disable-heap-profiler --disable-heap-checker --disable-debugalloc"
+            AC_CONFIG_SUBDIRS([lib/gperftools])
+            have_tcmalloc=1
+            AC_DEFINE([USE_TCMALLOC], [1], [Define to 1 if using tcmalloc])
+            # Use static library with early link order for malloc replacement
+            libtcmalloc_LIBS='$(top_builddir)/lib/gperftools/.libs/libtcmalloc_minimal.a -lpthread'
+            libtcmalloc_CFLAGS='-isystem $(top_srcdir)/lib/gperftools/src'
+            AC_MSG_NOTICE([Using vendored tcmalloc_minimal from lib/gperftools])
+            ;;
+        *)
+            AC_MSG_NOTICE([tcmalloc is only used on Linux, skipping])
+            ;;
+    esac
+fi
+AM_CONDITIONAL(USE_TCMALLOC, [test -n "$have_tcmalloc"])
+AC_SUBST(libtcmalloc_CFLAGS)
+AC_SUBST(libtcmalloc_LIBS)
+
+AC_ARG_ENABLE(tests,
+    AS_HELP_STRING([--disable-tests],
+        [Disable building test suite]))
+AM_CONDITIONAL(BUILD_TESTS, [test x$enable_tests != xno])
+
+AC_ARG_ENABLE(thread-jitter,
+    AS_HELP_STRING([--enable-thread-jitter],
+        [Enable thread jitter injection for finding concurrency bugs]))
+AS_IF([test "x$enable_thread_jitter" = "xyes"], [
+  AC_MSG_NOTICE([enabling thread jitter injection])
+  AX_APPEND_COMPILE_FLAGS([-DBUILD_THREAD_JITTER=1])
+])
+AM_CONDITIONAL(BUILD_THREAD_JITTER, [test x$enable_thread_jitter = xyes])
+
+AC_ARG_ENABLE(tracy,
+    AS_HELP_STRING([--enable-tracy],
+        [Enable 'tracy' profiler/tracer client stub]))
+AM_CONDITIONAL(USE_TRACY, [test x$enable_tracy = xyes])
+tracy_CFLAGS='-DTRACY_ENABLE -DTRACY_ON_DEMAND -DTRACY_NO_BROADCAST -DTRACY_ONLY_LOCALHOST -DTRACY_ONLY_IPV4 -DTRACY_DELAYED_INIT'
+if test x"$enable_tracy" = xyes; then
+    case "${host_os}" in
+        *darwin*)
+            ;;
+        *)
+            LDFLAGS+=" -ldl "
+            ;;
+    esac
+fi
+AC_SUBST(tracy_CFLAGS)
+
+AC_ARG_ENABLE(tracy-memory-tracking,
+    AS_HELP_STRING([--enable-tracy-memory-tracking],
+        [Enable 'tracy' profiler/tracer memory tracking code (slow)]))
+AM_CONDITIONAL(USE_TRACY_MEMORY_TRACKING, [test x$enable_tracy_memory_tracking = xyes])
+
+if test x"$enable_tracy" = xyes -a x"$enable_asan" = xyes; then
+       AC_MSG_ERROR([--enable-asan is not compatible with --enable-tracy])
+fi
+if test x"$enable_tracy_memory_tracking" = xyes -a x"$enable_asan" = xyes; then
+       AC_MSG_ERROR([--enable-asan is not compatible with --enable-tracy-memory-tracking])
+fi
+
+AC_ARG_ENABLE(tracy-gui,
+    AS_HELP_STRING([--enable-tracy-gui],
+        [Enable 'tracy' profiler/tracer server GUI]))
+AM_CONDITIONAL(USE_TRACY_GUI, [test x$enable_tracy_gui = xyes])
+if test x"$enable_tracy_gui" = xyes; then
+    PKG_CHECK_MODULES(capstone, capstone)
+    PKG_CHECK_MODULES(freetype, freetype2)
+    PKG_CHECK_MODULES(glfw, glfw3)
+    case "${host_os}" in
+        *darwin*)
+            ;;
+        *)
+            PKG_CHECK_MODULES(gtk, gtk+-2.0)
+            ;;
+    esac
+fi
+
+AC_ARG_ENABLE(tracy-capture,
+    AS_HELP_STRING([--enable-tracy-capture],
+        [Enable 'tracy' profiler/tracer capture program]))
+AM_CONDITIONAL(USE_TRACY_CAPTURE, [test x$enable_tracy_capture = xyes])
+
+AC_ARG_ENABLE(tracy-csvexport,
+    AS_HELP_STRING([--enable-tracy-csvexport],
+        [Enable 'tracy' profiler/tracer csvexport program]))
+AM_CONDITIONAL(USE_TRACY_CSVEXPORT, [test x$enable_tracy_csvexport = xyes])
+
+AC_ARG_ENABLE(spdlog,
+    AS_HELP_STRING([--disable-spdlog],
+        [Disable spdlog]))
+AM_CONDITIONAL(USE_SPDLOG, [test x$enable_spdlog != xno])
+
+AC_ARG_ENABLE(next-protocol-version-unsafe-for-production,
+    AS_HELP_STRING([--enable-next-protocol-version-unsafe-for-production],
+        [Enable next protocol version UNSAFE FOR PRODUCTION]))
+AM_CONDITIONAL(ENABLE_NEXT_PROTOCOL_VERSION_UNSAFE_FOR_PRODUCTION,
+    [test x$enable_next_protocol_version_unsafe_for_production = xyes])
+
+AM_CONDITIONAL(CAP_0083,
+    [test x$enable_next_protocol_version_unsafe_for_production = xyes])
+
+AC_PATH_PROG(CARGO, cargo)
+if test x"$CARGO" = x; then
+  AC_MSG_ERROR([cannot find cargo, needed for rust code])
+fi
+CARGO_VERSION="$(${CARGO} --version)"
+CARGO_VERSION="${CARGO_VERSION#cargo}"
+AX_COMPARE_VERSION([${CARGO_VERSION}],[ge],[1.57],[],[
+  AC_MSG_ERROR([cargo version too old (need >= 1.57)])
+])
+AC_ARG_VAR(CARGO)
+
+AC_PATH_PROG(RUSTC, rustc)
+if test x"$RUSTC" = x; then
+  AC_MSG_ERROR([cannot find rustc, needed for rust code])
+fi
+RUSTC_VERSION="$(${RUSTC} --version)"
+RUSTC_VERSION="${RUSTC_VERSION#rustc}"
+AX_COMPARE_VERSION([${RUSTC_VERSION}],[ge],[1.57],[],[
+  AC_MSG_ERROR([rustc version too old (need >= 1.57)])
+])
+AC_ARG_VAR(RUSTC)
+AC_ARG_VAR([RUSTC_WRAPPER], [rustc wrapper executable (for example, sccache)])
+
+# Need this to pass through ccache/sccache for xdrpp, libsodium
+esc() {
+    out=
+    for arg in "$@"; do
+        out="$out${out+ }$(echo "$arg" | sed "s/'/'\\''/g; s/^/'/; s/\$/'/")"
+    done
+    echo $out
+}
+
+# explicitly propagate CFLAGS, CXXFLAGS and LDFLAGS in case they got modified by global options
+ac_configure_args="$ac_configure_args $(esc "CC=$CC" "CXX=$CXX" "CFLAGS=$CFLAGS" "CXXFLAGS=$CXXFLAGS" "LDFLAGS=$LDFLAGS" "RUSTC_WRAPPER=$RUSTC_WRAPPER" "LIB_FUZZING_ENGINE=$LIB_FUZZING_ENGINE")"
+
+AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_FILES(lib/Makefile src/Makefile Makefile)
+AC_OUTPUT
+
