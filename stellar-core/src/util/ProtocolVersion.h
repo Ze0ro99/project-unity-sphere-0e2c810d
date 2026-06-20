@@ -1,0 +1,74 @@
+// Copyright 2022 Stellar Development Foundation and contributors. Licensed
+// under the Apache License, Version 2.0. See the COPYING file at the root
+// of this distribution or at http://www.apache.org/licenses/LICENSE-2.0
+
+#pragma once
+
+#include <cstdint>
+namespace stellar
+{
+// This is a set of utilities for checking the ledger protocol versions in
+// expressive and searchable fashion.
+
+enum class ProtocolVersion : uint32_t
+{
+    V_0 = 0,
+    V_1,
+    V_2,
+    V_3,
+    V_4,
+    V_5,
+    V_6,
+    V_7,
+    V_8,
+    V_9,
+    V_10,
+    V_11,
+    V_12,
+    V_13,
+    V_14,
+    V_15,
+    V_16,
+    V_17,
+    V_18,
+    V_19,
+    V_20,
+    V_21,
+    V_22,
+    V_23,
+    V_24,
+    V_25,
+    V_26,
+    V_27,
+    V_28,
+    V_UINT32_MAX = UINT32_MAX,
+};
+
+// Checks whether provided protocolVersion is before (i.e. strictly lower than)
+// beforeVersion.
+bool protocolVersionIsBefore(uint32_t protocolVersion,
+                             ProtocolVersion beforeVersion);
+// Checks whether provided protocolVersion starts from (i.e. is greater than or
+// equal to) fromVersion.
+bool protocolVersionStartsFrom(uint32_t protocolVersion,
+                               ProtocolVersion fromVersion);
+// Checks whether provided protocolVersion is exactly equalsVersion.
+bool protocolVersionEquals(uint32_t protocolVersion,
+                           ProtocolVersion equalsVersion);
+
+constexpr ProtocolVersion SOROBAN_PROTOCOL_VERSION = ProtocolVersion::V_20;
+constexpr ProtocolVersion PARALLEL_SOROBAN_PHASE_PROTOCOL_VERSION =
+    ProtocolVersion::V_23;
+constexpr ProtocolVersion REUSABLE_SOROBAN_MODULE_CACHE_PROTOCOL_VERSION =
+    ProtocolVersion::V_23;
+constexpr ProtocolVersion AUTO_RESTORE_PROTOCOL_VERSION = ProtocolVersion::V_23;
+
+constexpr ProtocolVersion FIRST_PROTOCOL_CAP71 = ProtocolVersion::V_27;
+
+#ifdef CAP_0083
+constexpr ProtocolVersion EMPTY_TX_SET_PROTOCOL_VERSION = ProtocolVersion::V_28;
+#else
+constexpr ProtocolVersion EMPTY_TX_SET_PROTOCOL_VERSION =
+    ProtocolVersion::V_UINT32_MAX;
+#endif
+}
