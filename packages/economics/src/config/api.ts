@@ -3,7 +3,7 @@
  * Target: Lovable Workspace & Pi Network Blockchain Parameters
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
-    synchronizedAtTimestamp: "2026-06-22T11:10:38Z",
+    synchronizedAtTimestamp: "2026-06-22T11:58:24Z",
     activeTrackingBranch: "v2.1",
     payloadIntegrityHash: "SHA256:18afc552978cccb7a70fc4b7dad534fdc788cccfdb82b9cbc2d8c70524f106b2",
     invariantRule: "10_000_000_micro_to_1_pi",
