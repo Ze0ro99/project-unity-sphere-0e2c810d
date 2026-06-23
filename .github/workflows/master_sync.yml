@@ -1,6 +1,9 @@
 name: PiRC Master Orchestrator Sync
 
 on:
+permissions:
+  contents: write
+  pull-requests: write
   push:
     branches:
       - main
@@ -11,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Make Script Executable
         run: chmod +x pirc_master_orchestrator.sh
