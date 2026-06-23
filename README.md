@@ -1,21 +1,32 @@
-# PiRC - Pi Requests for Comment
 
-**PiRC** is an open-source framework for the standards and architecture of the Pi Network Ecosystem.
+# PiRC Enterprise Infrastructure
 
-### Current Structure
-- \`src/\` → Source Code
-- \`docs/\` → Documentation and Standards (PiRC-101 ... PiRC-207)
-- \`contracts/\` → Smart Contracts
-- \`archive/\` → Historical Versions
+PiRC is a modular research and governance framework designed for:
+- decentralized governance
+- digital asset management
+- AI-assisted workflows
+- geospatial analytics
+- digital twin simulation
+- quantum-safe security
+- smart contract automation
+- experimental sensing research
 
-### Technologies Used
-- Rust, Solidity, TypeScript, React, Node.js
+## Deployment Targets
+- Testnet environments
+- Research infrastructure
+- AI governance simulations
+- Distributed contributor ecosystems
 
-### Quick Start
-\`\`\`bash
-git clone https://github.com/Ze0ro99/PiRC.git
-cd PiRC
-pnpm install
-\`\`\`
+## Key Modules
+- PiRC-CoreEngine
+- PiRC-GeoVision
+- PiRC-AstroMiner
+- PiRC-WiFiSensing
+- PiRC-DivineJustice
+- PiRC-AgentOrchestrator
+- PiRC-QuantumSecurity
+- PiRC-NeuralConsensus
 
-**Main Documentation**: [docs/architecture/](/docs/architecture/)
+## Important Notice
+Experimental sensing and geospatial modules are research-oriented
+and require scientific validation before real-world deployment.
