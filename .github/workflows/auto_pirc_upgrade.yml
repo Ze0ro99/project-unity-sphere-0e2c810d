@@ -1,8 +1,5 @@
 name: PiRC Auto-Upgrade & Build
 on:
-permissions:
-  contents: write
-  pull-requests: write
   push:
     branches: [ main, pirc_final_update.py ]
 
@@ -11,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
