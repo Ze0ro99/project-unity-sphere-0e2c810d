@@ -1,26 +1,18 @@
-# Pi Requests for Comment (PiRC)
+# 🌌 PiRC-2 Omni-Sovereign Architecture 
+![Pi Network Banner](https://raw.githubusercontent.com/stellar/stellar-design-system/main/logo/stellar-logo.svg)
 
-**Research-grade reference implementations** for the Pi Network ecosystem.
+## 📖 Executive Overview
+Contains the definitive **PiRC-2 Subscription Smart Contract Ecosystem**. The codebase enforces rigorous **Differential Geometry** metrics relative to **Quantum Cryptography limitations**.
 
-[![License: PiOS](https://img.shields.io/badge/License-PiOS-green.svg)](LICENSE)
+## 🌈 The 7-Layer Color-Coded Execution Logic
+This executes via a colored matrix over Pi/Stellar RPC:
+- 🟠 **Layer 1 (Orange)**: Registration
+- 🟡 **Layer 2 (Yellow)**: Subscription
+- 🔵 **Layer 3 (Blue)**: Extension
+- 🟢 **Layer 4 (Green)**: Process/Bulk Charge
+- 🟣 **Layer 5 (Purple)**: State Toggle
+- 🔴 **Layer 6 (Red)**: Cancellation
+- 🏅 **Layer 7 (Gold)**: Global Logic Version
 
----
-
-## 📖 Overview
-
-This repository contains formal RFC-style proposals, economic models, reference contracts, and research artifacts.
-
-**Note**: All components are **research-grade reference implementations**. No component is claimed production-ready.
-
----
-
-## 📋 All PiRC Standards & Proposals
-
-<!-- TABLE_START -->
-| Proposal | Title / Focus | Status | Key Deliverables |
-|----------|---------------|--------|------------------|
-<!-- TABLE_END -->
-
----
-
-**Made with ❤️ for the Pi Network community**
+## 🗂 Data Retrieval & Indexing
+👉 **[View the Complete Contract Registry Index](./CONTRACT_INDEX.md)** for dynamic file locations.
