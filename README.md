@@ -1,21 +1,18 @@
-# PiRC - Pi Requests for Comment
+# 🌌 PiRC-2 Omni-Sovereign Architecture 
+![Pi Network Banner](https://raw.githubusercontent.com/stellar/stellar-design-system/main/logo/stellar-logo.svg)
 
-**PiRC** is an open-source framework for the standards and architecture of the Pi Network Ecosystem.
+## 📖 Executive Overview
+Contains the definitive **PiRC-2 Subscription Smart Contract Ecosystem**. The codebase enforces rigorous **Differential Geometry** metrics relative to **Quantum Cryptography limitations**.
 
-### Current Structure
-- \`src/\` → Source Code
-- \`docs/\` → Documentation and Standards (PiRC-101 ... PiRC-207)
-- \`contracts/\` → Smart Contracts
-- \`archive/\` → Historical Versions
+## 🌈 The 7-Layer Color-Coded Execution Logic
+This executes via a colored matrix over Pi/Stellar RPC:
+- 🟠 **Layer 1 (Orange)**: Registration
+- 🟡 **Layer 2 (Yellow)**: Subscription
+- 🔵 **Layer 3 (Blue)**: Extension
+- 🟢 **Layer 4 (Green)**: Process/Bulk Charge
+- 🟣 **Layer 5 (Purple)**: State Toggle
+- 🔴 **Layer 6 (Red)**: Cancellation
+- 🏅 **Layer 7 (Gold)**: Global Logic Version
 
-### Technologies Used
-- Rust, Solidity, TypeScript, React, Node.js
-
-### Quick Start
-\`\`\`bash
-git clone https://github.com/Ze0ro99/PiRC.git
-cd PiRC
-pnpm install
-\`\`\`
-
-**Main Documentation**: [docs/architecture/](/docs/architecture/)
+## 🗂 Data Retrieval & Indexing
+👉 **[View the Complete Contract Registry Index](./CONTRACT_INDEX.md)** for dynamic file locations.
