@@ -1,3 +1,10 @@
+#![forbid(unsafe_code)]
+mod pirc_config;
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
 #![no_std]
 
 pub mod core {
