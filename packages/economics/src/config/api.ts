@@ -4,7 +4,7 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-23T16:23:46Z",
-    activeTrackingBranch: "feature/omni-sovereign-matrix-1776526409",
+    activeTrackingBranch: "feature/pirc-v5-1-adaptive-engine",
     payloadIntegrityHash: "SHA256:fb8df40d2c9a531950fe6f69054478a1ca66958f94d20217a02d91fff0c01ff0",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
