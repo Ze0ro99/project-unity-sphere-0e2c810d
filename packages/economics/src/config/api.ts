@@ -4,8 +4,8 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-23T19:06:21Z",
-    activeTrackingBranch: "feat/pirc-233-234-synth",
-    payloadIntegrityHash: "SHA256:98b1de466e543cc2f5aa2f4fe11e6f615878667e25dbd281b4decf0211de5f25",
+    activeTrackingBranch: "feature/quantum-legacy-optimized",
+    payloadIntegrityHash: "SHA256:5cdb6b32726127fec00d495674edf6493bc863b91726c50e90a74888d67b79a4",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
     telemetryEndpoints: {
