@@ -1,6 +1,9 @@
 name: Deploy PiRC-207 7 Layers to Stellar Testnet
 
 on:
+permissions:
+  contents: write
+  pull-requests: write
   workflow_dispatch:
 
 jobs:
