@@ -1,26 +1,6 @@
-# Build outputs
-target/
-build/
-dist/
-*.wasm
-
-# Dependencies
-node_modules/
-Cargo.lock
-
-# Environment & secrets
+# Local Netlify folder
 .env
-.env.local
-*.pem
-*.key
-
-# IDE & OS
-.idea/
-.vscode/
-.DS_Store
-Thumbs.db
-
-# Logs & temp
-*.log
-*.tmp
-.cache/
+.env*.local
+.netlify
+.vercel
+node_modules/
