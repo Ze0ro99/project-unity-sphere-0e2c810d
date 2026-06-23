@@ -1,32 +1,42 @@
 # Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Production
+/build
+/dist
+/out
+.next
+
+# Rust/Cargo
 target/
-**/target/
-**/node_modules/
+Cargo.lock
+*.pdb
 
-# Build outputs
-dist/
-build/
-out/
+# Misc
+.DS_Store
+*.pem
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Environment
+# Local env files
 .env
 .env.local
-*.log
-logs/
+.env.*.local
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Large folders
-archive/
-deployment_logs/
-deployment_reports/
-logs/
