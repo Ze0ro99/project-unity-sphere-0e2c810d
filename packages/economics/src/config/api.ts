@@ -3,7 +3,7 @@
  * Target: Lovable Workspace & Pi Network Blockchain Parameters
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
-    synchronizedAtTimestamp: "2026-06-23T01:41:41Z",
+    synchronizedAtTimestamp: "2026-06-23T02:19:34Z",
     activeTrackingBranch: "feature/omni-sentinel-20260524_234929",
     payloadIntegrityHash: "SHA256:a6739d573f14ee91867580093977c8cc7030af655bd160b98eedbc142f2918b9",
     invariantRule: "10_000_000_micro_to_1_pi",
