@@ -2,7 +2,7 @@
 Global state synchronization and final ecosystem indexing.
 
 ## Technical Verification
-- **Lead Architects:** Ze0ro99 & Clawue884
+- **Lead Architects:** EslaM-X & Clawue884
 - **Ecosystem:** Pi Experimental / Stellar Testnet
 - **Compliance:** Full PIRC-101 to PIRC-260 Synchronization
 - **Network Health:** Verified via rpc.testnet.minepi.com
