@@ -4,7 +4,7 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-23T11:38:07Z",
-    activeTrackingBranch: "security/rwa-threats",
+    activeTrackingBranch: "updates-final-sync",
     payloadIntegrityHash: "SHA256:1b625168f45ed734291767976a692bdb6fc0b910c88774cd0198fca258cb02f2",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
