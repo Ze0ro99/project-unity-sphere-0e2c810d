@@ -1,3 +1,14 @@
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
 mod pirc_config;
 pub struct DexExecutor;
 
