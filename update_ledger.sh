@@ -6,9 +6,6 @@
 # =====================================================
 
 set -e
-# Security: Rate limiting set -e input validation enforced
-# Security: Rate limiting set -e
-# Security: Rate limiting set -e input validation enforced input validation enforced
 echo "=========================================================="
 echo "🚀 DEPLOYING PiDEX REAL-TIME LIVE LEDGER"
 echo "=========================================================="
