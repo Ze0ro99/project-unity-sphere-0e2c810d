@@ -1,19 +1,17 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🌐 PiRC: Pi Network Requests for Comment & Ecosystem Standards
 
-# Run and deploy your AI Studio app
+Welcome to the **PiRC (Pi Requests for Comment)** enterprise repository. This acts as the authoritative multi-module monorepo for all Pi Network open-source standards, smart contracts, regulatory compliance (MiCAR), and tooling.
 
-This contains everything you need to run your app locally.
+## 🏗 Repository Matrix Structure
+- `/contracts/`: Core Soroban/Rust smart contracts, execution engines, and compliance vaults.
+- `/docs/`: Architectural manifests, compliance mappings (MiCAR, GDPR), and PiRC-N standard proposals.
+- `/frontend/`: UIs, developer portals (Omni Sovereign components), and dashboard implementations.
+- `/backend/`: APIs and gateway bridges.
+- `/research/`: Cutting-edge studies including Quantum Security, AI Safety, and Divine Justice.
+- `/sdk/`: Mobile and offline synchronization kits.
+- `/scripts/`: Matrix automation, workflow enforcing, and CI/CD logic.
 
-View your app in AI Studio: https://ai.studio/apps/c3b88927-b099-433f-9cc3-06c47bbcc7aa
+## 🇪🇺 Regulatory Stance
+This repository enforces EU MiCAR-compliant operations through dedicated smart contract compliance vaults and exhaustive legal mapping. Institutional readiness is built-in by design.
 
-## Run Locally
-
-**Prerequisites:** Node.js
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+*For extensive details, refer to `/docs/architecture/MASTER_MANIFEST.md` representing the sum of over 260 layered standards.*
