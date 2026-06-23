@@ -1,4 +1,3 @@
-mod pirc_config;
 #![no_std]
 use soroban_sdk::{
     contractimpl, symbol, Address, Env, Symbol, Vec, map, Map,
