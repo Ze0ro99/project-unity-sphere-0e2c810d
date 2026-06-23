@@ -4,7 +4,7 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-23T12:21:32Z",
-    activeTrackingBranch: "integration/pos-workflow",
+    activeTrackingBranch: "feature/v3-auto-pr-factory",
     payloadIntegrityHash: "SHA256:853c03a4e7536af32744ce85fe626a30e61204b788d51e146fa51eb9b3ce722e",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
