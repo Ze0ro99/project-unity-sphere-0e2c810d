@@ -4,8 +4,8 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-23T17:20:52Z",
-    activeTrackingBranch: "fix-versel-environments-compatibility",
-    payloadIntegrityHash: "SHA256:b9d562310206315c494d3276ad334e23671448d092365ba9926de1a69dbb9337",
+    activeTrackingBranch: "gh-pages",
+    payloadIntegrityHash: "SHA256:94ecd86abe83b1343ea36b79e36ba2f7fffdce6c67121f1ba0cfcb606f502990",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
     telemetryEndpoints: {
