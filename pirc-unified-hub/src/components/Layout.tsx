@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from "react";
-=======
 import React from "react";
->>>>>>> upstream/main
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import {
@@ -14,11 +10,6 @@ import {
   Layers,
   Building2,
   CreditCard,
-<<<<<<< HEAD
-  LogOut,
-  Pi,
-=======
->>>>>>> upstream/main
   GitMerge
 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
