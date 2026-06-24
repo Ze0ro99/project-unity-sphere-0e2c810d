@@ -1,0 +1,54 @@
+name: Auto Sync PiRC → project-unity-sphere
+
+on:
+  push:
+    branches: [ main, lovable-sync ]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PiRC
+        uses: actions/checkout@v4
+        with:
+          repository: Ze0ro99/PiRC
+          ref: lovable-sync
+          submodules: recursive
+
+      - name: Checkout Unity Sphere
+        uses: actions/checkout@v4
+        with:
+          repository: Ze0ro99/project-unity-sphere
+          token: ${{ secrets.SYNC_TOKEN }}
+          ref: main
+
+      - name: Sync Files
+        run: |
+          rsync -av --delete --exclude='.git' --exclude='target/' "$GITHUB_WORKSPACE/apps/frontend/" ./
+          rsync -av --delete --exclude='.git' "$GITHUB_WORKSPACE/packages/" ./packages/ || true
+          rsync -av --delete --exclude='.git' "$GITHUB_WORKSPACE/docs/" ./docs/ || true
+
+      - name: Update API Config
+        run: |
+          mkdir -p src/config
+          cat > src/config/api.ts << 'EOL'
+          export const API_CONFIG = {
+            PI_TESTNET_RPC: "https://rpc.testnet.minepi.com",
+            PI_MAINNET_RPC: "https://rpc.mainnet.minepi.com",
+            SOROBAN_RPC: "https://soroban-rpc.testnet.stellar.org",
+            PIDEX_TESTNET: "https://pidex.testnet.minepi.com",
+            BASE_URL: "https://project-unity-sphere.lovable.app",
+            VERSION: "3.2.0",
+            SYNC_MODE: "bidirectional"
+          };
+          export default API_CONFIG;
+          EOL
+
+      - name: Commit & Push
+        run: |
+          git config user.name "PiRC Auto Sync"
+          git config user.email "auto-sync@ze0ro99.dev"
+          git add .
+          git commit -m "chore: auto-sync from PiRC ($(date))" || echo "No changes"
+          git push
