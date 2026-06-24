@@ -1,4 +1,4 @@
-use soroban_sdk::contracterror;
+#![no_std]
 use soroban_sdk::{contract, contractimpl, Env, Address, panic_with_error};
 
 // Define custom errors for the Justice Engine
