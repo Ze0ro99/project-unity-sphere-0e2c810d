@@ -4,15 +4,12 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-24T15:14:02Z",
-    activeTrackingBranch: "Deploy",
-    payloadIntegrityHash: "SHA256:6be91926b716d30cf847983c1d5cc628e56b76e434831eb3e670e9f3f277df05",
+    activeTrackingBranch: "feat/pirc-101-102-core",
+    payloadIntegrityHash: "SHA256:01660a8d8fb48e72135dea0eff1f323a4491f963c21f9861e6cc1537dc479393",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
     telemetryEndpoints: {
         stellarHorizonRelay: "https://horizon-testnet.stellar.org",
         oraclesChainlinkGateway: "https://api.pirc-ecosystem.ze0ro99.io"
-    }
-};
-e0ro99.io"
     }
 };
