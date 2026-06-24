@@ -1,152 +1,80 @@
-# 🌌 PiRC: Omni Sovereign Architecture
+# Pi Requests for Comment (PiRC)
 
-This repository contains the advanced smart contract architecture for the **PiRC Sovereign Record Factory**, engineered natively on the **Pi Testnet** utilizing the **Soroban v22 API**. It aligns perfectly with Pi Core Team (PiRC2) specifications to ensure non-custodial, subscription-based commerce mechanisms mathematically verified across a 7-Layer matrix.
+**Research-grade reference implementations** for the Pi Network ecosystem.
 
-## 🎯 Pi Core Team Compliance Matrix
-- **RPC Layer:** Bound natively and exclusively to `https://rpc.testnet.minepi.com`.
-- **Contract Target:** `wasm32-unknown-unknown` strictly compiled and bounded to the Soroban SDK v22 limits.
-- **Security:** Post-Quantum security modeling integrated with strict `#![forbid(unsafe_code)]` Rust enforcements.
-- **CI/CD:** GitHub Actions explicitly validate the 7-Layer matrix utilizing ephemeral dynamic Testnet identities to bypass keystore vulnerabilities.
+[![License: PiOS](https://img.shields.io/badge/License-PiOS-green.svg)](LICENSE)
 
 ---
 
-## 1. Topological Interaction Mapping
-Demonstrates explicitly how client requests are mathematically bound through a Differential Manifold state before touching the Pi Testnet blockchain layers.
+## 📖 Overview
 
-```mermaid
-graph TD
-    A[Client Request] -->|Topological Mapping| B(Differential Manifold)
-    B --> C{State Curvature Optimal?}
-    C -- Yes --> D[Direct Route to Sequence]
-    C -- No --> E[Recalculate Tensor Weights]
-    E --> B
-```
+This repository contains formal RFC-style proposals, economic models, reference contracts, and research artifacts.
+
+**Note**: All components are **research-grade reference implementations**. No component is claimed production-ready.
 
 ---
 
-## 2. Raw Record Factory (Asset to Smart Contract)
-This Sequence Diagram models the lifecycle of a Sovereign Asset minting instantly onto the Pi Network by the Rust Contract, locking it perfectly within the Sovereign Matrix.
+## 📋 All PiRC Standards & Proposals
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant SDK as JS SDK Factory
-    participant Rust as Soroban Omni-Contract
-    participant Token as Pi Network
-
-    User->>SDK: Register Asset Metadata
-    SDK->>Rust: Deploy Secure Omni-Contract
-    Rust->>Token: Emit Event (FACTORY, DEPLOYED)
-    Token-->>User: Quantum Secured TX Hash Confirmed
-```
-
----
-
-## 3. Post-Quantum Security Encapsulation
-Data moves through rigorous encryption checks utilizing node matrix validation before an immutable record is permanently fused to the Pi Network graph.
-
-```mermaid
-graph LR
-    A[Raw Data] --> B[Quantum Key Node]
-    B --> C(Kyber Encryption)
-    C --> D((Decentralized Matrix))
-    D --> E[Quantum-Safe Validator]
-    E -->|Approved| F[(Immutable Record)]
-```
-
----
-
-## 4. The Raw Record Factory Master Pipeline
-Our fully automated CI/CD synchronization architecture that deploys upgrades safely across multiple branches.
-
-```mermaid
-graph TD
-    A[Master Automation Flow] --> B(Differential Manifold Audit)
-    B --> C(Soroban v22 Bounds Upgraded)
-    C --> D(Factory Contract Injected)
-    D --> E[Pi Testnet Orchestrator Synced]
-    E --> F[Full Branch Tracking Synchronized]
-```
-
----
-
-## 5. Quantum Mechanics & Differential Threat Modeling
-This logic mitigates Shor's algorithm vulnerabilities by forcing mathematical requests through a decentralized lattice matrix before execution.
-
-```mermaid
-graph TD
-    A[Turing-Complete Environment] -->|Shor's Algorithm Threat| B(Quantum Vulnerability)
-    B --> C{Dilithium/Kyber Lattice Handshake}
-    C -- Secured --> D[Differential Manifold Node]
-    D --> E((Post-Quantum Encrypted Ledger))
-```
-
----
-
-## 6. Smart Contract Factory Generation
-Visualizes how the `register_and_deploy` function injects mathematically perfect Omni contracts directly onto the Ledger.
-
-```mermaid
-sequenceDiagram
-    participant Dev as Developer
-    participant Factory as RawRecordFactory (Soroban)
-    participant Network as Pi Testnet
-    Dev->>Factory: invoke `register_and_deploy(product_id, metadata)`
-    Factory->>Network: Allocate Wasm instance
-    Network-->>Factory: Contract ID Generated
-    Factory-->>Dev: Emits (FACTORY, DEPLOYED) with Root Hash
-```
+<!-- TABLE_START -->
+| Proposal | Title / Focus | Status | Key Deliverables |
+|----------|---------------|--------|------------------|
+| **PiRC-101** | Sovereign Monetary Standard Specification | Machine | [docs/PiRC101_Whitepaper.md](docs/PiRC101_Whitepaper.md) |
+| **PiRC-207** | CEX Liquidity Entry Rules | Ready for Review | [docs/PiRC-207_CEX_Liquidity_Entry.md](docs/PiRC-207_CEX_Liquidity_Entry.md) |
+| **PiRC-208** | Pi Network AI Integration Standard | Vector (Ω_AI) | [docs/PiRC-208-AI-Integration-Standard.md](docs/PiRC-208-AI-Integration-Standard.md) |
+| **PiRC-209** | Sovereign Decentralized Identity and Verifiable Credentials Standard | **: Draft → Ready for Community Review & Pi Core Team Approval | [docs/PiRC-209-Sovereign-Decentralized-Identity-Standard.md](docs/PiRC-209-Sovereign-Decentralized-Identity-Standard.md) |
+| **PiRC-210** | Cross-Ledger Sovereign Identity Portability and Interoperability Standard | Vector (Ω_PORT) | [docs/PiRC-210-Cross-Ledger-Identity-Portability-Standard.md](docs/PiRC-210-Cross-Ledger-Identity-Portability-Standard.md) |
+| **PiRC-211** | Sovereign EVM Bridge and Cross-Ledger Token Portability Standard | Vector (Ω_BRIDGE) | [docs/PiRC-211-Sovereign-EVM-Bridge-and-Cross-Ledger-Token-Portability-Standard.md](docs/PiRC-211-Sovereign-EVM-Bridge-and-Cross-Ledger-Token-Portability-Standard.md) |
+| **PiRC-212** | Sovereign Governance and Decentralized Proposal Execution Standard | Vector (Ω_GOV) | [docs/PiRC-212-Sovereign-Governance-and-Decentralized-Proposal-Execution-Standard.md](docs/PiRC-212-Sovereign-Governance-and-Decentralized-Proposal-Execution-Standard.md) |
+| **PiRC-213** | Sovereign RWA Tokenization Framework | **: Complete reference implementation | [docs/PiRC-213-Sovereign-RWA-Tokenization-Framework.md](docs/PiRC-213-Sovereign-RWA-Tokenization-Framework.md) |
+| **PiRC-214** | Decentralized Oracle Network Standard | **: Complete reference implementation | [docs/PiRC-214-Decentralized-Oracle-Network-Standard.md](docs/PiRC-214-Decentralized-Oracle-Network-Standard.md) |
+| **PiRC-215** | Cross-Chain Liquidity & AMM Protocol | **: Complete reference implementation | [docs/PiRC-215-Cross-Chain-Liquidity-and-AMM-Protocol.md](docs/PiRC-215-Cross-Chain-Liquidity-and-AMM-Protocol.md) |
+| **PiRC-216** | AI-Powered Risk & Compliance Engine | **: Complete reference implementation | [docs/PiRC-216-AI-Powered-Risk-and-Compliance-Engine.md](docs/PiRC-216-AI-Powered-Risk-and-Compliance-Engine.md) |
+| **PiRC-217** | Sovereign KYC & Regulatory Compliance Layer | **: Complete reference implementation | [docs/PiRC-217-Sovereign-KYC-and-Regulatory-Compliance-Layer.md](docs/PiRC-217-Sovereign-KYC-and-Regulatory-Compliance-Layer.md) |
+| **PiRC-218** | Advanced Staking & Yield Optimization Protocol | **: Complete reference implementation | [docs/PiRC-218-Advanced-Staking-and-Yield-Optimization-Protocol.md](docs/PiRC-218-Advanced-Staking-and-Yield-Optimization-Protocol.md) |
+| **PiRC-219** | PiRC Mobile SDK & Wallet Integration Standard | **: Complete reference implementation | [docs/PiRC-219-PiRC-Mobile-SDK-and-Wallet-Integration-Standard.md](docs/PiRC-219-PiRC-Mobile-SDK-and-Wallet-Integration-Standard.md) |
+| **PiRC-220** | Ecosystem Treasury & Fund Management Protocol | **: Complete reference implementation | [docs/PiRC-220-Ecosystem-Treasury-and-Fund-Management-Protocol.md](docs/PiRC-220-Ecosystem-Treasury-and-Fund-Management-Protocol.md) |
+| **PiRC-221** | Privacy-Preserving ZK-Identity | **: Ready. | [docs/PiRC-221-Privacy-Preserving-ZK-Identity.md](docs/PiRC-221-Privacy-Preserving-ZK-Identity.md) |
+| **PiRC-222** | Tokenized Intellectual Property | **: Ready. | [docs/PiRC-222-Tokenized-Intellectual-Property.md](docs/PiRC-222-Tokenized-Intellectual-Property.md) |
+| **PiRC-223** | Multi-Signature Institutional Custody | **: Ready. | [docs/PiRC-223-Institutional-Custody.md](docs/PiRC-223-Institutional-Custody.md) |
+| **PiRC-224** | Dynamic RWA Metadata | , Gold) are updated on-chain via PiRC-214 Oracles. | [docs/PiRC-224-Dynamic-RWA-Metadata.md](docs/PiRC-224-Dynamic-RWA-Metadata.md) |
+| **PiRC-225** | Proof of Reserves (PoR) | **: Ready. | [docs/PiRC-225-Proof-of-Reserves.md](docs/PiRC-225-Proof-of-Reserves.md) |
+| **PiRC-226** | Fractional Ownership | **: Ready. | [docs/PiRC-226-Fractional-Ownership.md](docs/PiRC-226-Fractional-Ownership.md) |
+| **PiRC-227** | AMM for Illiquid Assets | or fractionalized IP. | [docs/PiRC-227-Illiquid-AMM.md](docs/PiRC-227-Illiquid-AMM.md) |
+| **PiRC-228** | Decentralized Dispute Resolution | **: Ready. | [docs/PiRC-228-Dispute-Resolution.md](docs/PiRC-228-Dispute-Resolution.md) |
+| **PiRC-229** | Cross-Chain Asset Teleportation | **: Ready. | [docs/PiRC-229-Asset-Teleportation.md](docs/PiRC-229-Asset-Teleportation.md) |
+| **PiRC-230** | Economic Parity Invariant Verification (Registry v2) | **: Ready. | [docs/PiRC-230-Parity-Registry-v2.md](docs/PiRC-230-Parity-Registry-v2.md) |
+| **PiRC-231** | Over-Collateralized Lending Protocol | **: Complete reference implementation | [docs/PiRC-231-Over-Collateralized-Lending-Protocol.md](docs/PiRC-231-Over-Collateralized-Lending-Protocol.md) |
+| **PiRC-232** | Justice-Driven Liquidation Engine | **: Complete reference implementation | [docs/PiRC-232-Justice-Driven-Liquidation-Engine.md](docs/PiRC-232-Justice-Driven-Liquidation-Engine.md) |
+| **PiRC-233** | Flash-Loan Resistance Standard | **: Complete reference implementation | [docs/PiRC-233-Flash-Loan-Resistance-Standard.md](docs/PiRC-233-Flash-Loan-Resistance-Standard.md) |
+| **PiRC-234** | Synthetic RWA Generation | **: Complete reference implementation | [docs/PiRC-234-Synthetic-RWA-Generation.md](docs/PiRC-234-Synthetic-RWA-Generation.md) |
+| **PiRC-235** | Yield Tokenization Standard | **: Complete reference implementation | [docs/PiRC-235-Yield-Tokenization-Standard.md](docs/PiRC-235-Yield-Tokenization-Standard.md) |
+| **PiRC-236** | Dynamic Interest Rate Curves | **: Complete reference implementation | [docs/PiRC-236-Dynamic-Interest-Rate-Curves.md](docs/PiRC-236-Dynamic-Interest-Rate-Curves.md) |
+| **PiRC-238** | Predictive Risk Management | **: Complete reference implementation | [docs/PiRC-238-Predictive-Risk-Management.md](docs/PiRC-238-Predictive-Risk-Management.md) |
+| **PiRC-239** | Institutional Liquidity Pools | **: Complete reference implementation | [docs/PiRC-239-Institutional-Liquidity-Pools.md](docs/PiRC-239-Institutional-Liquidity-Pools.md) |
+| **PiRC-240** | Automated Yield Farming Strategies | **: Complete reference implementation | [docs/PiRC-240-Automated-Yield-Farming-Strategies.md](docs/PiRC-240-Automated-Yield-Farming-Strategies.md) |
+| **PiRC-241** | Zero-Knowledge Corporate Identity | **: Complete reference implementation | [docs/PiRC-241-Zero-Knowledge-Corporate-Identity.md](docs/PiRC-241-Zero-Knowledge-Corporate-Identity.md) |
+| **PiRC-242** | Stealth Addresses for Institutional Block Trades | **: Complete reference implementation | [docs/PiRC-242-Institutional-Stealth-Addresses.md](docs/PiRC-242-Institutional-Stealth-Addresses.md) |
+| **PiRC-243** | Automated Tax and Compliance Withholding | **: Complete reference implementation | [docs/PiRC-243-Automated-Tax-Withholding.md](docs/PiRC-243-Automated-Tax-Withholding.md) |
+| **PiRC-244** | Wholesale CBDC Integration Standards | **: Complete reference implementation | [docs/PiRC-244-Wholesale-CBDC-Integration.md](docs/PiRC-244-Wholesale-CBDC-Integration.md) |
+| **PiRC-245** | Off-Chain Settlement Batching | **: Complete reference implementation | [docs/PiRC-245-Off-Chain-Settlement-Batching.md](docs/PiRC-245-Off-Chain-Settlement-Batching.md) |
+| **PiRC-246** | Institutional Escrow Vaults | **: Complete reference implementation | [docs/PiRC-246-Institutional-Escrow-Vaults.md](docs/PiRC-246-Institutional-Escrow-Vaults.md) |
+| **PiRC-247** | Enterprise Compliance Oracles | **: Complete reference implementation | [docs/PiRC-247-Enterprise-Compliance-Oracles.md](docs/PiRC-247-Enterprise-Compliance-Oracles.md) |
+| **PiRC-248** | Multi-Chain Governance Execution | changes and contract executions on connected networks, specifically Stellar via the Soroban bridge. | [docs/PiRC-248-Multi-Chain-Governance-Execution.md](docs/PiRC-248-Multi-Chain-Governance-Execution.md) |
+| **PiRC-249** | Cross-Chain State Synchronization | Synchronization | [docs/PiRC-249-Cross-Chain-State-Synchronization.md](docs/PiRC-249-Cross-Chain-State-Synchronization.md) |
+| **PiRC-250** | Institutional Account Abstraction (Smart Accounts) | **: Complete reference implementation | [docs/PiRC-250-Institutional-Account-Abstraction.md](docs/PiRC-250-Institutional-Account-Abstraction.md) |
+| **PiRC-251** | Protocol-Owned Liquidity (POL) Routing | **: Complete reference implementation | [docs/PiRC-251-Protocol-Owned-Liquidity.md](docs/PiRC-251-Protocol-Owned-Liquidity.md) |
+| **PiRC-252** | Automated Treasury Diversification | **: Complete reference implementation | [docs/PiRC-252-Automated-Treasury-Diversification.md](docs/PiRC-252-Automated-Treasury-Diversification.md) |
+| **PiRC-253** | Ecosystem Grant Distribution Algorithms | **: Complete reference implementation | [docs/PiRC-253-Ecosystem-Grant-Distribution.md](docs/PiRC-253-Ecosystem-Grant-Distribution.md) |
+| **PiRC-254** | Ultimate Circuit Breakers | **: Complete reference implementation | [docs/PiRC-254-Ultimate-Circuit-Breakers.md](docs/PiRC-254-Ultimate-Circuit-Breakers.md) |
+| **PiRC-255** | Catastrophic Recovery Protocols | rollbacks, emergency withdrawals, and Justice Engine reallocation. | [docs/PiRC-255-Catastrophic-Recovery-Protocols.md](docs/PiRC-255-Catastrophic-Recovery-Protocols.md) |
+| **PiRC-256** | Decentralized Validator Delegation | **: Complete reference implementation | [docs/PiRC-256-Decentralized-Validator-Delegation.md](docs/PiRC-256-Decentralized-Validator-Delegation.md) |
+| **PiRC-257** | Ecosystem-Wide Fee Abstraction | **: Complete reference implementation | [docs/PiRC-257-Ecosystem-Fee-Abstraction.md](docs/PiRC-257-Ecosystem-Fee-Abstraction.md) |
+| **PiRC-258** | Standardized dApp ABIs & UI/UX Interactions | **: Complete reference implementation | [docs/PiRC-258-Standardized-dApp-ABIs.md](docs/PiRC-258-Standardized-dApp-ABIs.md) |
+| **PiRC-259** | Cross-Chain Event Emitting Standard | **: Complete reference implementation | [docs/PiRC-259-Cross-Chain-Event-Standard.md](docs/PiRC-259-Cross-Chain-Event-Standard.md) |
+| **PiRC-260** | Registry v3 (The Overarching Finalization) | **: Complete reference implementation | [docs/PiRC-260-Registry-v3-Finalization.md](docs/PiRC-260-Registry-v3-Finalization.md) |
+<!-- TABLE_END -->
 
 ---
 
-## 7. The 7-Layer Smart Contract Matrix (PiRC-2)
-The mandated PiRC-2 standard for non-custodial recurring commerce on the Pi Network.
-
-```mermaid
-flowchart TD
-    L1(1. ORANGE: register_service) --> L2(2. YELLOW: subscribe)
-    L2 --> L3(3. BLUE: extend_subscription)
-    L3 --> L4(4. GREEN: process)
-    L4 --> L5(5. PURPLE: toggle_pay_upfront)
-    L5 --> L6(6. RED: cancel)
-    L6 --> L7{7. GOLD: is_subscription_active}
-```
-
----
-
-## 8. Network Interaction & Execution
-Displays how the internal routing operates without taking custody of user keys at any point.
-
-```mermaid
-graph LR
-    A[Subscriber Wallet] -->|Signs TX| B(PiRC-2 Router)
-    B -->|Calls `do_approve` Allowance| C[Subscription Contract]
-    C -->|`try_transfer_from` Escrows/Processes| D[Merchant Wallet]
-    C -->|Cross-Invokes| E[Registry Contract]
-```
-
----
-
-## 9. Tokenomics: Identity & The Fixed Value Standard
-Defines the strict Pi Core algorithmic peg validating that **1 KYC = 10,000,000 Microns**.
-
-```mermaid
-flowchart LR
-    A[User Identity] -->|Completes KYC Validation| B{Identity Oracle}
-    B -->|Mint/Unlock| C[1 KYC Sovereign Record]
-    C == "Strictly Pegged Value" ==> D(((10,000,000 Microns)))
-    D --> E[Decentralized Exchange Routing]
-```
-
----
-
-## 10. Master Script & Pipeline Test Confirmation
-Proves that the repository scripts are 100% realistic, actively firing against the Pi Testnet, and returning verified ledger states.
-
-```mermaid
-graph TD
-    A[Termux Script 9/10] -->|Git Push| B(GitHub Actions CI/CD)
-    B -->|Injects Ephemeral S-Keys| C{Cloud-Worker}
-    C -->|Calls `stellar invoke`| D[Pi Network RPC: rpc.testnet.minepi.com]
-    D -->|Returns SUCCESS: Code 0| E((Valid On-Chain TX Synchronized))
-```
+**Made with ❤️ for the Pi Network community**
