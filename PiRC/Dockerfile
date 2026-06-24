@@ -1,14 +1,7 @@
-# --- Frontend UI Build Stage ---
-FROM node:20-alpine AS frontend-builder
+FROM rust:1.68-slim
+RUN apt-get update && apt-get install -y python3 python3-pip bash
 WORKDIR /app
-COPY package*.json ./
-COPY apps/frontend/package*.json ./apps/frontend/
-RUN npm install
-COPY apps/frontend ./apps/frontend
-RUN npm run build --workspace=apps/frontend
+COPY . .
+RUN cargo build --release
+CMD ["bash", "scripts/full_system_check.sh"]
 
-# --- Production Deployment Environment ---
-FROM nginx:1.31.1-alpine3.23-slim
-COPY --from=frontend-builder /app/apps/frontend/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
