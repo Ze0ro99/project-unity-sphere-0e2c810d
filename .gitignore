@@ -1,10 +1,2 @@
-node_modules/
-build/
-dist/
-coverage/
-.DS_Store
-*.log
-.env*
-!.env.example
-PiRC_Omni_Audit/
-PiRC_Omni_Workspace/
+# Local Netlify folder
+.netlify
