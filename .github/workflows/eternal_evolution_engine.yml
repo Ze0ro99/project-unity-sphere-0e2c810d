@@ -5,9 +5,6 @@ on:
     - cron: '0 0 * * *' # Runs midnight daily for endless evolution
   workflow_dispatch: # Allows manual trigger
 
-permissions:
-  contents: read
-
 jobs:
   evolution_cycle:
     runs-on: ubuntu-latest
