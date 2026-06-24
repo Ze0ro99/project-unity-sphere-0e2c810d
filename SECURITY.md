@@ -1,14 +1,10 @@
+# Security Policy
 
-# Security Standards
+## Supported Versions
+| Version | Supported          |
+| ------- | ------------------ |
+| 2.x.x   | :white_check_mark: |
+| 1.x.x   | :x:                |
 
-## Requirements
-- Multi-signature approvals
-- Sandboxed AI agents
-- Immutable logs
-- No plaintext secrets
-- Branch protection enabled
-
-## Recommended
-- Post-quantum cryptography
-- Zero-knowledge proofs
-- Hardware security modules
+## Reporting a Vulnerability
+Please report vulnerabilities privately via GitHub Security Advisories or to the PiRC security team.
