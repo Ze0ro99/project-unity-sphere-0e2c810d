@@ -1,21 +1,12 @@
-# PiRC - Pi Requests for Comment
+# 🌌 PiDEX Sovereign Matrix & PiRC Ecosystem Hub
+[![Network](https://img.shields.io/badge/Network-Pi%20Testnet-f4b41a.svg?style=for-the-badge)](https://minepi.com)
+[![PiRC-2](https://img.shields.io/badge/Standard-PiRC--2%20Subscriptions-9333ea.svg?style=for-the-badge)](https://github.com/PiNetwork/PiRC/blob/main/PiRC2)
 
-**PiRC** is an open-source framework for the standards and architecture of the Pi Network Ecosystem.
+Welcome to the **Official Master Repository** for the PiDEX Sovereign Matrix. This project unifies 7 Asset Layers (PiRC-101) with the fully automated PiRC-2 Subscription Contracts developed by the Pi Core Team.
 
-### Current Structure
-- \`src/\` → Source Code
-- \`docs/\` → Documentation and Standards (PiRC-101 ... PiRC-207)
-- \`contracts/\` → Smart Contracts
-- \`archive/\` → Historical Versions
+## 🎯 The Massive Breakthrough: Keeper Protocol (PiRC-260)
+We integrated the **PiRC-260 Keeper Protocol**. It incentivizes decentralized nodes to execute the `process()` renewal batches automatically, ensuring 100% uptime for PiRC-2 subscriptions.
 
-### Technologies Used
-- Rust, Solidity, TypeScript, React, Node.js
-
-### Quick Start
-\`\`\`bash
-git clone https://github.com/Ze0ro99/PiRC.git
-cd PiRC
-pnpm install
-\`\`\`
-
-**Main Documentation**: [docs/architecture/](/docs/architecture/)
+## 🔗 Official On-Chain Signatures (Pi Testnet)
+*   **PiDEX Master Core:** `GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6`
+*   **PiRC-2 Subscription (Official):** `CCUF75B6W3HRJTJD6O7OXNI72HGJ7DERZ5MUNOMFMSK23ME5GUIKPFYV`
