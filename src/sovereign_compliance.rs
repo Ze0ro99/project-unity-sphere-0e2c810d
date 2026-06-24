@@ -11,9 +11,6 @@
 #![forbid(unsafe_code)]
 #![forbid(unsafe_code)]
 #![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
 mod pirc_config;
 // Sovereign Compliance & Swap Protocol (AML/KYC Standards)
 // Tracks: Source, Product Type, Date, and Time for absolute trust.
