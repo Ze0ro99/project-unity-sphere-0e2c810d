@@ -1,12 +1,17 @@
-# 🌌 PiDEX Sovereign Matrix & PiRC Ecosystem Hub
-[![Network](https://img.shields.io/badge/Network-Pi%20Testnet-f4b41a.svg?style=for-the-badge)](https://minepi.com)
-[![PiRC-2](https://img.shields.io/badge/Standard-PiRC--2%20Subscriptions-9333ea.svg?style=for-the-badge)](https://github.com/PiNetwork/PiRC/blob/main/PiRC2)
+# 🌐 PiRC: Pi Network Requests for Comment & Ecosystem Standards
 
-Welcome to the **Official Master Repository** for the PiDEX Sovereign Matrix. This project unifies 7 Asset Layers (PiRC-101) with the fully automated PiRC-2 Subscription Contracts developed by the Pi Core Team.
+Welcome to the **PiRC (Pi Requests for Comment)** enterprise repository. This acts as the authoritative multi-module monorepo for all Pi Network open-source standards, smart contracts, regulatory compliance (MiCAR), and tooling.
 
-## 🎯 The Massive Breakthrough: Keeper Protocol (PiRC-260)
-We integrated the **PiRC-260 Keeper Protocol**. It incentivizes decentralized nodes to execute the `process()` renewal batches automatically, ensuring 100% uptime for PiRC-2 subscriptions.
+## 🏗 Repository Matrix Structure
+- `/contracts/`: Core Soroban/Rust smart contracts, execution engines, and compliance vaults.
+- `/docs/`: Architectural manifests, compliance mappings (MiCAR, GDPR), and PiRC-N standard proposals.
+- `/frontend/`: UIs, developer portals (Omni Sovereign components), and dashboard implementations.
+- `/backend/`: APIs and gateway bridges.
+- `/research/`: Cutting-edge studies including Quantum Security, AI Safety, and Divine Justice.
+- `/sdk/`: Mobile and offline synchronization kits.
+- `/scripts/`: Matrix automation, workflow enforcing, and CI/CD logic.
 
-## 🔗 Official On-Chain Signatures (Pi Testnet)
-*   **PiDEX Master Core:** `GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6`
-*   **PiRC-2 Subscription (Official):** `CCUF75B6W3HRJTJD6O7OXNI72HGJ7DERZ5MUNOMFMSK23ME5GUIKPFYV`
+## 🇪🇺 Regulatory Stance
+This repository enforces EU MiCAR-compliant operations through dedicated smart contract compliance vaults and exhaustive legal mapping. Institutional readiness is built-in by design.
+
+*For extensive details, refer to `/docs/architecture/MASTER_MANIFEST.md` representing the sum of over 260 layered standards.*
