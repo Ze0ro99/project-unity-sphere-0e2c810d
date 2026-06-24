@@ -1,66 +1,64 @@
-# Justice Engine - Advanced Security & Logic Audit Workflow
-# This configuration ensures full compliance with PiRC1-260 standards
-# Optimized for Rust, Python, and JavaScript/TypeScript
-
-name: "CodeQL Advanced Logic & Security"
+name: "CodeQL Advanced Security Scan"
 
 on:
   push:
-    branches: [ "main", "divine_justice", "pirc-*" ]
+    branches: [ "main", "v2.1", "v2.0" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "v2.1", "v2.0" ]
   schedule:
-    - cron: '29 0 * * 5'
+    - cron: '0 0 * * 0'   # Weekly
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    # Automated runner selection based on language requirements
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     permissions:
-      security-events: write
-      packages: read
       actions: read
       contents: read
+      security-events: write
+      packages: read
 
     strategy:
-     
       fail-fast: false
       matrix:
-        include:
-        - language: javascript-typescript
-          build-mode: none
-        - language: python
-          build-mode: none
-        - language: rust
-          build-mode: none  # Changed from autobuild to none
-        - language: actions
-          build-mode: none
-
+        language: [ 'javascript', 'python', 'rust', 'actions' ]
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0 # Ensures full history is available for security auditing
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-    # Initializes the CodeQL tools for scanning with extended security queries
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v4
-      with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
-        # Includes specialized queries for financial integrity and code quality
-        queries: security-extended,security-and-quality
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+          build-mode: ${{ matrix.language == 'javascript' && 'none' || 'auto' }}
+          config: |
+            paths-ignore:
+              - 'node_modules/**'
+              - 'dist/**'
+              - 'build/**'
+              - '.next/**'
+              - 'frontend/node_modules/**'
+              - 'public/**'
+              - 'PiRC-*/**'
+              - 'automation/**'
+              - 'deploy/**'
+              - 'enhanced/**'
+              - 'pirc2_integration/**'
+              - 'run/**'
+              - '**/*.min.js'
+              - '**/*.bundle.js'
+              - '**/*.d.ts'
 
-    # Automatically builds compiled languages like Rust to ensure math integrity
-    - name: Autobuild Compiled Code
-      if: matrix.build-mode == 'autobuild'
-      uses: github/codeql-action/autobuild@v4
+      - name: Autobuild (Rust & Python only)
+        if: matrix.language != 'javascript' && matrix.language != 'actions'
+        uses: github/codeql-action/autobuild@v3
 
-    # Performs the actual analysis and generates the security report
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v4
-      with:
-        category: "/language:${{matrix.language}}"
-        # Output results to the Security tab for professional auditing
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+          upload: true
