@@ -1,3 +1,4 @@
+#![no_std]
  rwa-conceptual-auth-extension
 use soroban_sdk::{contract, contractimpl, symbol_short, Address, Env, String, U256, BytesN};
 
