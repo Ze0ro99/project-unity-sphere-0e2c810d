@@ -1,4 +1,20 @@
-#![no_std]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+mod pirc_config;
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
 use soroban_sdk::{contractimpl, Address, Env, Symbol};
 
 pub struct RewardEngine;
