@@ -1,9 +1,6 @@
 name: PiRC Master Orchestrator Sync
 
 on:
-permissions:
-  contents: write
-  pull-requests: write
   push:
     branches:
       - main
