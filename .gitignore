@@ -1,32 +1,26 @@
+# Build outputs
+target/
+build/
+dist/
+*.wasm
+
 # Dependencies
 node_modules/
-target/
-**/target/
-**/node_modules/
+Cargo.lock
 
-# Build outputs
-dist/
-build/
-out/
-
-# Environment
+# Environment & secrets
 .env
 .env.local
-*.log
-logs/
+*.pem
+*.key
 
-# IDE
-.vscode/
+# IDE & OS
 .idea/
-*.swp
-*.swo
-
-# OS
+.vscode/
 .DS_Store
 Thumbs.db
 
-# Large folders
-archive/
-deployment_logs/
-deployment_reports/
-logs/
+# Logs & temp
+*.log
+*.tmp
+.cache/
