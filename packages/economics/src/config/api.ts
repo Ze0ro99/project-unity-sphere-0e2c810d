@@ -4,7 +4,7 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-24T09:03:40Z",
-    activeTrackingBranch: "feature/pirc-201-229-gov-identity",
+    activeTrackingBranch: "pirc/adaptive-proposals",
     payloadIntegrityHash: "SHA256:4cb74b97be4e9ce2deeba07c947b0e773f0b00e0d04e8335428922be525f5213",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
