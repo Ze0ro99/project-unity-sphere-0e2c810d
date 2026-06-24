@@ -4,8 +4,8 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-24T09:45:49Z",
-    activeTrackingBranch: "core/reward-logic",
-    payloadIntegrityHash: "SHA256:4906304f8f0c212daa645a4be228252fac130d2c21d50a4888dc506a6c53dfdb",
+    activeTrackingBranch: "feat/pirc-218-240-yield",
+    payloadIntegrityHash: "SHA256:af8d795f50b890f0e0e9985e8f269fdd63ca2f7749b1534c1be545340e749fda",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
     telemetryEndpoints: {
