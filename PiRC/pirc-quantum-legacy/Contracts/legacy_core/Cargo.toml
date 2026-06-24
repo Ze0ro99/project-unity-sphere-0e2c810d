@@ -1,0 +1,10 @@
+[package]
+name = "pirc-legacy-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+soroban-sdk = "22.0.11"
+
+[lib]
+crate-type = ["cdylib"]
