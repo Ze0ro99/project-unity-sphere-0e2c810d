@@ -1,26 +1,32 @@
-# Pi Requests for Comment (PiRC)
 
-**Research-grade reference implementations** for the Pi Network ecosystem.
+# PiRC Enterprise Infrastructure
 
-[![License: PiOS](https://img.shields.io/badge/License-PiOS-green.svg)](LICENSE)
+PiRC is a modular research and governance framework designed for:
+- decentralized governance
+- digital asset management
+- AI-assisted workflows
+- geospatial analytics
+- digital twin simulation
+- quantum-safe security
+- smart contract automation
+- experimental sensing research
 
----
+## Deployment Targets
+- Testnet environments
+- Research infrastructure
+- AI governance simulations
+- Distributed contributor ecosystems
 
-## 📖 Overview
+## Key Modules
+- PiRC-CoreEngine
+- PiRC-GeoVision
+- PiRC-AstroMiner
+- PiRC-WiFiSensing
+- PiRC-DivineJustice
+- PiRC-AgentOrchestrator
+- PiRC-QuantumSecurity
+- PiRC-NeuralConsensus
 
-This repository contains formal RFC-style proposals, economic models, reference contracts, and research artifacts.
-
-**Note**: All components are **research-grade reference implementations**. No component is claimed production-ready.
-
----
-
-## 📋 All PiRC Standards & Proposals
-
-<!-- TABLE_START -->
-| Proposal | Title / Focus | Status | Key Deliverables |
-|----------|---------------|--------|------------------|
-<!-- TABLE_END -->
-
----
-
-**Made with ❤️ for the Pi Network community**
+## Important Notice
+Experimental sensing and geospatial modules are research-oriented
+and require scientific validation before real-world deployment.
