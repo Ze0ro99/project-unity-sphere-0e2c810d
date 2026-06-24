@@ -1,4 +1,3 @@
-mod pirc_config;
 #[derive(Debug)]
 pub struct Escrow {
 
