@@ -1,7 +1,6 @@
 # 6 — Adaptive Proof of Contribution (APoC)
 
 ## Overview
-
 Adaptive Proof of Contribution (APoC) is an AI-assisted reward allocation layer designed to complement the existing ecosystem token allocation models.
 
 Instead of distributing tokens purely based on activity quantity, APoC evaluates **quality, authenticity, economic impact, and trustworthiness** of contributions.
@@ -24,7 +23,6 @@ Traditional Web3 incentive models suffer from:
 Even activity-based models can be gamed if quantity > quality.
 
 APoC introduces a dynamic scoring layer to ensure:
-
 > Tokens flow to contributors who create real economic value.
 
 ---
@@ -42,9 +40,7 @@ Reward emission is proportional to CS instead of raw activity.
 ## Contribution Score Components
 
 ### 1. Activity Score (A)
-
 Measures measurable actions:
-
 - Transactions
 - Purchases
 - Listings
@@ -56,9 +52,7 @@ Normalized logarithmically to prevent spam inflation.
 ---
 
 ### 2. Impact Score (I)
-
 Measures economic usefulness:
-
 - User retention caused
 - Volume generated
 - Repeat usage
@@ -67,9 +61,7 @@ Measures economic usefulness:
 ---
 
 ### 3. Trust Score (T)
-
 Derived from:
-
 - Account age
 - KYC confidence
 - Historical behavior
@@ -81,9 +73,7 @@ Non-transferable and slowly changing.
 ---
 
 ### 4. Network Effect Score (N)
-
 Rewards users who bring valuable participants:
-
 - Active referrals
 - Builder ecosystems
 - Marketplace creation
@@ -93,9 +83,7 @@ Not based on count — based on downstream contribution quality.
 ---
 
 ### 5. Integrity Score (G)
-
 AI fraud detection output:
-
 - Bot probability
 - Sybil clustering detection
 - Abnormal interaction patterns
@@ -114,7 +102,6 @@ TokenReward = DailyEmission × RewardShare
 ---
 
 ## Emission Dampening
-
 To prevent reward draining:
 
 If ecosystem velocity spikes:
@@ -127,12 +114,12 @@ EmissionRate increases
 
 ## Anti-Manipulation Design
 
-| Attack Type    | Mitigation                        |
-| -------------- | --------------------------------- |
-| Bot farms      | Behavioral clustering AI          |
-| Sybil accounts | Graph identity analysis           |
-| Wash trading   | Economic circularity detection    |
-| Spam actions   | Log normalization                 |
+| Attack Type | Mitigation |
+|-----------|------|
+| Bot farms | Behavioral clustering AI |
+| Sybil accounts | Graph identity analysis |
+| Wash trading | Economic circularity detection |
+| Spam actions | Log normalization |
 | Referral abuse | Downstream contribution weighting |
 
 ---
@@ -177,4 +164,3 @@ function claimReward() external {
 
     token.mint(msg.sender, reward);
 }
-```

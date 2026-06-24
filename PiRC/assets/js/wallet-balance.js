@@ -1,10 +1,5 @@
 import { wallet } from "./wallet.js";
-import {
-  Server,
-  Contract,
-  TransactionBuilder,
-  Networks,
-} from "https://cdn.jsdelivr.net/npm/@stellar/soroban-client/+esm";
+import { Server, Contract, TransactionBuilder, Networks } from "https://cdn.jsdelivr.net/npm/@stellar/soroban-client/+esm";
 
 const server = new Server("https://soroban-testnet.stellar.org");
 
@@ -29,8 +24,8 @@ export async function fetchBalances() {
         { accountId: wallet.address, sequence: "0" },
         {
           fee: "100",
-          networkPassphrase: Networks.TESTNET,
-        },
+          networkPassphrase: Networks.TESTNET
+        }
       )
         .addOperation(contract.call("balance", wallet.address))
         .setTimeout(30)
@@ -42,6 +37,7 @@ export async function fetchBalances() {
 
       balanceEl.innerText = balance;
       statusEl.innerText = "On-chain";
+
     } catch (err) {
       balanceEl.innerText = "Error";
       statusEl.innerText = "Fail";
