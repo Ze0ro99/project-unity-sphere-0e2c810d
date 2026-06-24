@@ -1,4 +1,3 @@
-mod pirc_config;
 use std::collections::HashMap;
 
 #[derive(Debug)]
