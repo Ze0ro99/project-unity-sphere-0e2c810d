@@ -1,0 +1,12 @@
+warning: /home/runner/work/project-unity-sphere-0e2c810d/project-unity-sphere-0e2c810d/src/contracts/contracts/pirc2_subscription/Cargo.toml: `dev_dependencies` is deprecated in favor of `dev-dependencies` and will not work in the 2024 edition
+(in the `pirc2-subscription` package)
+    Updating crates.io index
+error: failed to select a version for `soroban-sdk`.
+    ... required by package `pirc2-subscription v1.0.0 (/home/runner/work/project-unity-sphere-0e2c810d/project-unity-sphere-0e2c810d/src/contracts/contracts/pirc2_subscription)`
+versions that meet the requirements `^20.0.0` are: 20.5.0, 20.4.0, 20.3.2, 20.3.1, 20.3.0, 20.2.0, 20.1.0, 20.0.3, 20.0.2, 20.0.1, 20.0.0
+
+package `pirc2-subscription` depends on `soroban-sdk` with feature `token` but `soroban-sdk` does not have that feature.
+help: available features: alloc, docs, testutils
+
+
+failed to select a version for `soroban-sdk` which could resolve this conflict
