@@ -3,13 +3,16 @@
  * Target: Lovable Workspace & Pi Network Blockchain Parameters
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
-    synchronizedAtTimestamp: "2026-06-24T13:51:50Z",
-    activeTrackingBranch: "refactor/clean-structure-20260524_233302",
-    payloadIntegrityHash: "SHA256:0afba4c835758376b17eed19f522f137595d2c3eca5d6909c88a1b0b2686d792",
+    synchronizedAtTimestamp: "2026-06-24T14:49:08Z",
+    activeTrackingBranch: "contracts",
+    payloadIntegrityHash: "SHA256:3c7b95ae40aff8eb57fee4aa3a2947b3b80aea06a01b006bdf7b4c1e0a9dfe40",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
     telemetryEndpoints: {
         stellarHorizonRelay: "https://horizon-testnet.stellar.org",
         oraclesChainlinkGateway: "https://api.pirc-ecosystem.ze0ro99.io"
+    }
+};
+m.ze0ro99.io"
     }
 };
