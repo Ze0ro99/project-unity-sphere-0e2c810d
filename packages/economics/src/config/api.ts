@@ -4,8 +4,8 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-24T00:31:31Z",
-    activeTrackingBranch: "alert-autofix-31",
-    payloadIntegrityHash: "SHA256:fcfc98e04684cb8d1f05720ffa06f278edab7800346ed22a0ea719282f2de793",
+    activeTrackingBranch: "v2.1",
+    payloadIntegrityHash: "SHA256:820f7fbfcdc533db2f2fabf159752e8510241cc5bcae5c1f1fba1842d04174d5",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
     telemetryEndpoints: {
@@ -13,6 +13,6 @@ export const SOVEREIGN_NETWORK_CONFIG = {
         oraclesChainlinkGateway: "https://api.pirc-ecosystem.ze0ro99.io"
     }
 };
-o99.io"
+-ecosystem.ze0ro99.io"
     }
 };
