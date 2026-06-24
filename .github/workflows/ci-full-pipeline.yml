@@ -1,9 +1,6 @@
 name: PiRC-101 Full Production Pipeline (Safe Mode)
 
 on:
-permissions:
-  contents: write
-  pull-requests: write
   push:
     branches: [ "main", "develop" ]
   pull_request:

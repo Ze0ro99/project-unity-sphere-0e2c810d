@@ -1,10 +1,8 @@
-# Local Netlify folder
-.env
-.env*.local
-.netlify
-.vercel
 node_modules/
-*.zip
-pirc_ultimate_environment_export.zip
-pirc_ultimate_environment_export.zip
-pirc_ultimate_environment_export.zip
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
