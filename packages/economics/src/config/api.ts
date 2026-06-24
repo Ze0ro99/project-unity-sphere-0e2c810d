@@ -3,9 +3,9 @@
  * Target: Lovable Workspace & Pi Network Blockchain Parameters
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
-    synchronizedAtTimestamp: "2026-06-24T01:08:09Z",
-    activeTrackingBranch: "alert-autofix-9",
-    payloadIntegrityHash: "SHA256:587c1b274d621da8fe6111e34ffa8ca5752ea293df7433a653757f72b2f95535",
+    synchronizedAtTimestamp: "2026-06-24T01:07:12Z",
+    activeTrackingBranch: "feat/pirc-12-institutional-custody",
+    payloadIntegrityHash: "SHA256:02384f4a6447939786baf7f912c20a6dceed145709ad3b1e5bc58c6f58d21ac7",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
     telemetryEndpoints: {
