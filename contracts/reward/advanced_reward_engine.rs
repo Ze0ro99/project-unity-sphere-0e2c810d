@@ -1,3 +1,15 @@
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+mod pirc_config;
 use std::collections::HashMap;
 
 pub struct RewardEngine {
