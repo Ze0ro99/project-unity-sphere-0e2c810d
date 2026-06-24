@@ -1,4 +1,4 @@
- docs/official-submission
+<<<<<<< HEAD
 **# PiRC: Pi Requests for Comment**  
 **Sovereign Monetary Standard & Long-Term Utility Economy Framework for the Pi Network**
 
@@ -189,7 +189,31 @@ Clone → Deploy → Simulate → Contribute.
 
 — Ze0ro99 & PiRC Community  
 *Last updated: March 2026*
+=======
+# Pi Requests for Comment (PiRC)
 
-- [PiRC1: Pi Ecosystem Token Design](./PiRC1/ReadMe.md)
-- [PiRC2: Subscription Contract API](./PiRC2/ReadMe.md)
-main
+**Research-grade reference implementations** for the Pi Network ecosystem.
+
+[![License: PiOS](https://img.shields.io/badge/License-PiOS-green.svg)](LICENSE)
+
+---
+
+## 📖 Overview
+
+This repository contains formal RFC-style proposals, economic models, reference contracts, and research artifacts.
+
+**Note**: All components are **research-grade reference implementations**. No component is claimed production-ready.
+
+---
+
+## 📋 All PiRC Standards & Proposals
+
+<!-- TABLE_START -->
+| Proposal | Title / Focus | Status | Key Deliverables |
+|----------|---------------|--------|------------------|
+<!-- TABLE_END -->
+
+---
+
+**Made with ❤️ for the Pi Network community**
+>>>>>>> 1571faf3 (Update ReadMe.md)
