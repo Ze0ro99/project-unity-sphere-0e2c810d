@@ -1,5 +1,8 @@
 name: One-Click Testnet Deployment
 on:
+permissions:
+  contents: write
+  pull-requests: write
   workflow_dispatch: # Manual trigger for Pi Core Team
 
 jobs:
