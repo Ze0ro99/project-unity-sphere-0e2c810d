@@ -1,62 +1,31 @@
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+#![forbid(unsafe_code)]
+mod pirc_config;
 #![no_std]
-
-use soroban_sdk::{
-    contract, contractimpl, contracttype,
-    Env, Bytes, BytesN, Symbol, Vec,
-};
+use soroban_sdk::{contract, contractimpl, Env, Address, Vec};
 
 #[contract]
-pub struct RWAContract;
-
-#[contracttype]
-#[derive(Clone)]
-pub struct RwaMetadata {
-    pub pid: BytesN<32>,          // hash product id
-    pub issuer_pubkey: BytesN<32>,// ed25519 public key
-    pub signature: Bytes,         // signature
-    pub chip_uid: Bytes,          // optional NFC
-}
-
-#[contracttype]
-#[derive(Clone)]
-pub struct VerificationResult {
-    pub valid: bool,
-    pub confidence: u32,
-}
+pub struct PiRCMacroEngine;
 
 #[contractimpl]
-impl RWAContract {
-
-    // Core verification function
-    pub fn verify(env: Env, data: RwaMetadata) -> VerificationResult {
-
-        // Step 1: Verify signature
-        let is_valid_sig = env.crypto().ed25519_verify(
-    &data.issuer_pubkey,
-    &data.pid,
-    &data.signature,
-);
-
-        // Step 2: NFC binding check (optional)
-        let mut confidence: u32 = 0;
-
-        if is_valid_sig {
-            confidence += 70;
-        }
-
-        if data.chip_uid.len() > 0 {
-            confidence += 30;
-        }
-
-        VerificationResult {
-            valid: is_valid_sig,
-            confidence: confidence,
-        }
+impl PiRCMacroEngine {
+    pub fn calculate_wcf(env: Env, balance: i128, lock_time: u64) -> i128 {
+        let years = (lock_time / 31536000) + 1;
+        balance * (years as i128)
     }
 
-    // Helper: register product (optional)
-    pub fn register(env: Env, pid: BytesN<32>) {
-        let key = Symbol::short("PID");
-        env.storage().instance().set(&key, &pid);
+    pub fn apply_qwf(env: Env, amount: i128) -> i128 {
+        if amount > 1000000 { (amount * 110) / 100 } else { amount }
     }
 }
