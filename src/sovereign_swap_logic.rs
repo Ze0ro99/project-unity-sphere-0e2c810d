@@ -11,9 +11,6 @@
 #![forbid(unsafe_code)]
 #![forbid(unsafe_code)]
 #![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
 mod pirc_config;
 // Sovereign Swap & AML Tracking Logic
 // Ensures all transactions are traceable and automatically converted to App-Tokens
