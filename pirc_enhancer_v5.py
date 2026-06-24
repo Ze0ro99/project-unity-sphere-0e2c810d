@@ -1,22 +1,3 @@
-#!/bin/bash
-# ==============================================================================
-# Pi Network: PiRC Intelligent Soroban-Rust Enhancer v5.0 Setup & Execution
-# Description: Prepares the environment, installs scientific dependencies, 
-# generates the v5.0 Python Engine, and executes it for the Core Team.
-# ==============================================================================
-
-set -e
-echo "=========================================================="
-echo "🌐 INITIALIZING PiRC v5.0 QUANTUM-GEOMETRY ENHANCER"
-echo "=========================================================="
-
-# [1] Install dependencies (Ensuring Pi Core Team environment is ready)
-echo "[1] Installing Scientific Dependencies (numpy, scipy)..."
-pip install numpy scipy >/dev/null 2>&1 || echo "Dependencies already satisfied or pip unavailable. Assuming environment is ready."
-
-# [2] Generating the v5.0 Enterprise Python Engine
-echo "[2] Writing core engine: pirc_enhancer_v5.py..."
-cat << 'PYTHON_EOF' > pirc_enhancer_v5.py
 #!/usr/bin/env python3
 """
 PiRC Intelligent Soroban-Rust Quantum-Differential Geometry Enhancer v5.0
@@ -280,14 +261,3 @@ if __name__ == "__main__":
     print(f"📄 Full System Logs saved → pirc_v5_execution.log")
     print(f"🔗 All PiRC Contracts automatically linked and evaluated.")
     print(f"==========================================================")
-PYTHON_EOF
-
-# [3] Execute the script correctly for testing
-echo "[3] Executing PiRC v5.0 Engine..."
-chmod +x pirc_enhancer_v5.py
-./pirc_enhancer_v5.py --value 50000 --velocity 2.8
-
-echo "=========================================================="
-echo "🎯 EXECUTION SCRIPT FINISHED."
-echo "You can provide 'pirc_enhancer_v5.py' to the Pi Core Team!"
-echo "=========================================================="
