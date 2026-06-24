@@ -4,8 +4,8 @@
  */
 export const SOVEREIGN_NETWORK_CONFIG = {
     synchronizedAtTimestamp: "2026-06-24T16:48:16Z",
-    activeTrackingBranch: "agent-for-github-repository-upload-3094",
-    payloadIntegrityHash: "SHA256:07923c8273de8a56c50d109599ad41e626eef7fc7b8a67049360a7dad722513c",
+    activeTrackingBranch: "meta/final-root",
+    payloadIntegrityHash: "SHA256:a9849290345bae5e091832b05598bad0e39a0765864eebacb8ed9b2736c6b5b0",
     invariantRule: "10_000_000_micro_to_1_pi",
     standardsCompliance: ["PiRC-45", "PiRC-101", "PiRC-207"],
     telemetryEndpoints: {
