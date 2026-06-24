@@ -1,12 +1,31 @@
-# 🌌 PiDEX Sovereign Matrix & PiRC Ecosystem Hub
-[![Network](https://img.shields.io/badge/Network-Pi%20Testnet-f4b41a.svg?style=for-the-badge)](https://minepi.com)
-[![PiRC-2](https://img.shields.io/badge/Standard-PiRC--2%20Subscriptions-9333ea.svg?style=for-the-badge)](https://github.com/PiNetwork/PiRC/blob/main/PiRC2)
+# 🌐 PiRC: Pi Network Requests for Comment & Ecosystem Standards
 
-Welcome to the **Official Master Repository** for the PiDEX Sovereign Matrix. This project unifies 7 Asset Layers (PiRC-101) with the fully automated PiRC-2 Subscription Contracts developed by the Pi Core Team.
+Welcome to the **PiRC** (Pi Requests for Comment) standards body and ecosystem framework. This repository is the authoritative home for proposed open-source standards, smart contracts, tooling, and architecture guidelines tailored for the Pi Network ecosystem.
 
-## 🎯 The Massive Breakthrough: Keeper Protocol (PiRC-260)
-We integrated the **PiRC-260 Keeper Protocol**. It incentivizes decentralized nodes to execute the `process()` renewal batches automatically, ensuring 100% uptime for PiRC-2 subscriptions.
+## 🏗 Repository Structure
 
-## 🔗 Official On-Chain Signatures (Pi Testnet)
-*   **PiDEX Master Core:** `GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6`
-*   **PiRC-2 Subscription (Official):** `CCUF75B6W3HRJTJD6O7OXNI72HGJ7DERZ5MUNOMFMSK23ME5GUIKPFYV`
+Our workspace is highly modular to accommodate parallel development by the community:
+
+- 📜 **`/standards/`**: Core PiRC proposals (e.g., PiRC-800 Decentralized Identity).
+- ⛓️ **`/contracts/`**: Soroban-based smart contracts for Governance, RWA Tokenization, and DIDs.
+- 📡 **`/backend/`**: Standardized API Gateway specs (REST/GraphQL/WebSockets).
+- 💻 **`/frontend/`**: Reference UI components and the Developer Portal templates.
+- 📱 **`/sdk/`**: Mobile/Offline developer SDKs.
+- 🛠 **`/tools/`**: Simulators, oracles, and validator node tools.
+- 🧠 **`/research/`**: AI Safety Alignment, Quantum Resistance guidelines, and experimental modules.
+- 🔒 **`/docs/`**: Architecture Decision Records (ADRs), Threat Models, and ecosystem documentation.
+
+## 🚀 Getting Started
+
+To explore the standards or contribute:
+
+1. Read the overarching [ROADMAP.md](./ROADMAP.md) and [MATURITY.md](./MATURITY.md).
+2. Check our [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
+3. Review our [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) to understand community norms.
+
+## 🔧 Workflow Automation & Build Tools
+
+The workspace is orchestrated via standard GNU Make. See the `Makefile` for available commands to test, lint, and build the ecosystem seamlessly locally.
+
+---
+*Built by the PiRC Sovereign Engineering Community. Ensuring Security, Scalability, and Standardization for the future of Pi Network.*

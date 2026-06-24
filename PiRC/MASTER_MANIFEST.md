@@ -1,15 +1,6 @@
-# 🏆 PiRC Warehouse: Master Manifest
-**Lead Architects:** Ze0ro99 & Clawue884  
-**Organization:** Pi Network Sovereign Monetary Standard  
-**Status:** ✅ ULTIMATE COMPLETE & VERIFIED  
 
 ---
-
-## 🏛️ Live Infrastructure (7-Layer Matrix)
-The following contracts represent the fully synchronized 7-layer environment deployed on Pi and Stellar Testnets.
-
-| Component | Pi Explorer Link | Stellar Expert Link |
-| :--- | :--- | :--- |
-
-## 🛡️ Verification Signature
-Verified by Ze0ro99 Autopilot. All system state parity confirmed 1:1.
+## 🇪🇺 Regulatory & Institutional Matrices (EU MiCAR & Global)
+- [EU_COMPLIANCE_MAP.md](./docs/compliance/EU_COMPLIANCE_MAP.md): Complete mapping of PiRC to MiCAR Art 3, GDPR, and AMLD6.
+- [RISK_DISCLOSURE_FRAMEWORK.md](./docs/compliance/RISK_DISCLOSURE_FRAMEWORK.md): Mechanisms for consumer protection and compensation vaults.
+- [PROPOSAL_TO_PI_CORE.md](./docs/proposals/PROPOSAL_TO_PI_CORE_TEAM_v2.md): The official adoption matrix for institutional Pi bridging.
