@@ -1,15 +1,3 @@
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-mod pirc_config;
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
-#![forbid(unsafe_code)]
 #![no_std]
 use soroban_sdk::{contract, contractimpl, Address, Env, Symbol};
 
