@@ -1,6 +1,9 @@
 name: RWA Extension CI (Safe & Clean)
 
 on:
+permissions:
+  contents: write
+  pull-requests: write
   push:
     paths:
       - 'extensions/rwa-conceptual-auth-extension/**'
