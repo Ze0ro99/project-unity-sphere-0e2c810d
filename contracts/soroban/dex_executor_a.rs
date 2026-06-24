@@ -1,3 +1,4 @@
+#![no_std]
 use soroban_sdk::{contractimpl, Env};
 
 pub struct DexExecutor;
