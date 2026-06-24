@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-<<<<<<< HEAD
-import { GitBranch, Download, RefreshCw, FileText, Folder, CheckCircle, AlertTriangle, FileCode, FileJson, FileType, Search } from "lucide-react";
-=======
 import { GitBranch, Download, RefreshCw, FileText, Folder, CheckCircle, FileCode, FileJson, FileType, Search } from "lucide-react";
->>>>>>> upstream/main
 
 interface TreeNode {
   path: string;

@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from "react";
-=======
 import React, { useState } from "react";
->>>>>>> upstream/main
 import { useAuth } from "./AuthProvider";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { ArrowUpRight, Activity, Network, ShieldCheck, Box } from "lucide-react";
@@ -29,11 +25,7 @@ const mockLayerData = [
 
 export function Dashboard() {
   const { user } = useAuth();
-<<<<<<< HEAD
-  const [stats, setStats] = useState({
-=======
   const [stats] = useState({
->>>>>>> upstream/main
     tvl: "15,245,000",
     activeNodes: "4,240",
     contracts: "156",
