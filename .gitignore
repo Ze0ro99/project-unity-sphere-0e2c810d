@@ -1,32 +1,10 @@
-# Dependencies
-node_modules/
-target/
-**/target/
-**/node_modules/
-
-# Build outputs
-dist/
-build/
-out/
-
-# Environment
+# Local Netlify folder
 .env
-.env.local
-*.log
-logs/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Large folders
-archive/
-deployment_logs/
-deployment_reports/
-logs/
+.env*.local
+.netlify
+.vercel
+node_modules/
+*.zip
+pirc_ultimate_environment_export.zip
+pirc_ultimate_environment_export.zip
+pirc_ultimate_environment_export.zip
