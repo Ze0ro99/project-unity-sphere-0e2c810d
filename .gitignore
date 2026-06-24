@@ -1,6 +1,10 @@
-# Local Netlify folder
-.env
-.env*.local
-.netlify
-.vercel
 node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+PiRC_Omni_Audit/
+PiRC_Omni_Workspace/
