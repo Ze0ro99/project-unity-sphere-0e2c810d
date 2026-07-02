@@ -1,6 +1,12 @@
-import os
+import re
+import subprocess
+
 
 class CommunityDrivenDevelopment:
+    # Allow only refs made of alphanumerics, dash, underscore, slash, and dot.
+    # This deliberately excludes shell metacharacters (;, &, |, `, $, spaces).
+    _REF_PATTERN = re.compile(r'^[A-Za-z0-9._/-]{1,200}$')
+
     def __init__(self):
         self.contributors = []
 
@@ -16,12 +22,16 @@ class CommunityDrivenDevelopment:
             print(f"Pull request from {contributor} rejected.")
 
     def validate_pull_request(self, pull_request):
-        # Validate pull request
-        return True
+        # Reject any ref name that contains shell metacharacters or is empty.
+        return bool(self._REF_PATTERN.match(pull_request or ''))
 
     def merge_pull_request(self, pull_request):
-        # Merge pull request into main codebase
-        os.system(f"git merge {pull_request}")
+        # Pass args as a list with shell=False so the ref name is never
+        # interpreted by /bin/sh, even if validation is ever loosened later.
+        if not self.validate_pull_request(pull_request):
+            raise ValueError(f"Refusing to merge invalid ref: {pull_request!r}")
+        subprocess.run(['git', 'merge', '--', pull_request], shell=False, check=False)
+
 
 if __name__ == '__main__':
     cdd = CommunityDrivenDevelopment()
