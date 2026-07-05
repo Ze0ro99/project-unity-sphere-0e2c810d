@@ -1,11 +1,17 @@
+import { useEffect } from "react";
 import { Routes, Route, NavLink, Link } from "react-router-dom";
 import { Activity, Layers, Radio, Cpu, Search } from "lucide-react";
+import { initPi } from "@/lib/piSdk";
+import PiConnectButton from "@/components/PiConnectButton";
 import Explorer from "./pages/Explorer";
 import Layers7 from "./pages/Layers7";
 import MicroDevice from "./pages/MicroDevice";
 import Network from "./pages/Network";
 
 export default function App() {
+  useEffect(() => {
+    initPi().catch((e) => console.warn("Pi SDK init:", e?.message ?? e));
+  }, []);
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -57,7 +63,8 @@ function Header() {
           <span className="pulse-dot" />
           <span className="mono">MAINNET · api.mainnet.minepi.com</span>
         </div>
-        <button className="ml-auto md:ml-0 p-2 rounded-md border border-border hover:bg-panel2">
+        <PiConnectButton />
+        <button className="p-2 rounded-md border border-border hover:bg-panel2">
           <Search size={16} />
         </button>
       </div>
