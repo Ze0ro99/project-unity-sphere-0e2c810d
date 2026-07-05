@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import { Routes, Route, NavLink, Link } from "react-router-dom";
 import { Activity, Layers, Radio, Cpu, Search } from "lucide-react";
+import { initPi } from "@/lib/piSdk";
+import PiConnectButton from "@/components/PiConnectButton";
 import Explorer from "./pages/Explorer";
 import Layers7 from "./pages/Layers7";
 import MicroDevice from "./pages/MicroDevice";
