@@ -1,1 +1,4 @@
 project_id = "iirymtunobrpjlxxnuad"
+
+[functions.pi-payments]
+verify_jwt = false
