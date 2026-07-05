@@ -9,6 +9,9 @@ import MicroDevice from "./pages/MicroDevice";
 import Network from "./pages/Network";
 
 export default function App() {
+  useEffect(() => {
+    initPi().catch((e) => console.warn("Pi SDK init:", e?.message ?? e));
+  }, []);
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
