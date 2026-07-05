@@ -63,7 +63,8 @@ function Header() {
           <span className="pulse-dot" />
           <span className="mono">MAINNET · api.mainnet.minepi.com</span>
         </div>
-        <button className="ml-auto md:ml-0 p-2 rounded-md border border-border hover:bg-panel2">
+        <PiConnectButton />
+        <button className="p-2 rounded-md border border-border hover:bg-panel2">
           <Search size={16} />
         </button>
       </div>
