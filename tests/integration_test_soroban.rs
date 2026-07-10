@@ -1,4 +1,3 @@
-mod pirc_config;
 // Integration Test: Verifying Walled Garden & 10M:1 Multiplier
 #[test]
 fn test_monetary_parity_logic() {
