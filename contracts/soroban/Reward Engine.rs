@@ -1,4 +1,3 @@
-#![no_std]
 use soroban_sdk::{contractimpl, Address, Env, Symbol};
 
 pub struct RewardEngine;
