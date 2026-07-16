@@ -36,7 +36,7 @@ version = "=27.0.0"
 features = ["serde", "type_enum"]
 
 [workspace.dependencies.rand]
-version = "0.8.5"
+version = "0.10.2"
 features = []
 
 [profile.release-with-panic-unwind]
