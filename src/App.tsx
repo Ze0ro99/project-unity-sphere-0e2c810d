@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route, NavLink, Link } from "react-router-dom";
-import { Activity, Layers, Radio, Cpu, Search, ArrowDownUp } from "lucide-react";
+import { Activity, Layers, Radio, Cpu, Search, ArrowDownUp, FlaskConical } from "lucide-react";
 import { initPi } from "@/lib/piSdk";
 import PiConnectButton from "@/components/PiConnectButton";
 import Explorer from "./pages/Explorer";
@@ -8,6 +8,7 @@ import Layers7 from "./pages/Layers7";
 import MicroDevice from "./pages/MicroDevice";
 import Network from "./pages/Network";
 import PiDEX from "./pages/PiDEX";
+import Testnet from "./pages/Testnet";
 
 export default function App() {
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/micro-device" element={<MicroDevice />} />
           <Route path="/network" element={<Network />} />
           <Route path="/pidex" element={<PiDEX />} />
+          <Route path="/testnet" element={<Testnet />} />
         </Routes>
       </main>
       <Footer />
@@ -37,6 +39,7 @@ function Header() {
     { to: "/micro-device", label: "Micro-Device", icon: Cpu },
     { to: "/network", label: "Network", icon: Radio },
     { to: "/pidex", label: "PiDEX", icon: ArrowDownUp },
+    { to: "/testnet", label: "Testnet", icon: FlaskConical },
   ];
   return (
     <header className="border-b border-border bg-panel/60 backdrop-blur sticky top-0 z-30">
