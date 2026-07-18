@@ -24,6 +24,7 @@ export default function App() {
           <Route path="/micro-device" element={<MicroDevice />} />
           <Route path="/network" element={<Network />} />
           <Route path="/pidex" element={<PiDEX />} />
+          <Route path="/testnet" element={<Testnet />} />
         </Routes>
       </main>
       <Footer />
