@@ -36,6 +36,7 @@ function Header() {
     { to: "/layers", label: "7-Layer Tokens", icon: Layers },
     { to: "/micro-device", label: "Micro-Device", icon: Cpu },
     { to: "/network", label: "Network", icon: Radio },
+    { to: "/pidex", label: "PiDEX", icon: ArrowDownUp },
   ];
   return (
     <header className="border-b border-border bg-panel/60 backdrop-blur sticky top-0 z-30">
