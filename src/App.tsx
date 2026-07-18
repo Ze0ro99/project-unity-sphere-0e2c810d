@@ -22,6 +22,7 @@ export default function App() {
           <Route path="/layers" element={<Layers7 />} />
           <Route path="/micro-device" element={<MicroDevice />} />
           <Route path="/network" element={<Network />} />
+          <Route path="/pidex" element={<PiDEX />} />
         </Routes>
       </main>
       <Footer />
