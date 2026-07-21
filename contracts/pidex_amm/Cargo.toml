@@ -1,0 +1,24 @@
+[package]
+name = "pidex_amm"
+version = "1.0.0"
+edition = "2021"
+license = "PiOS"
+description = "PiDEX AMM — PiRC-101/207/215/227/251/800 compliant constant-product market maker"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = "22.0.11"
+
+[dev-dependencies]
+soroban-sdk = { version = "22.0.11", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = false
+strip = "symbols"
+panic = "abort"
+codegen-units = 1
+lto = true
