@@ -1,0 +1,58 @@
+name: Deploy PiDEX + BN254 Verifier to Stellar Testnet
+
+on:
+  workflow_dispatch:
+    inputs:
+      bn254_feature:
+        description: "Build BN254 verifier with on-chain pairing (only enable when target protocol supports it)"
+        required: false
+        default: "false"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install Stellar CLI
+        run: cargo install --locked stellar-cli --version 22.0.1 --features opt
+
+      - name: Fund deployer (friendbot)
+        run: |
+          stellar keys generate --network testnet deployer --fund
+          echo "DEPLOYER=$(stellar keys address deployer)" >> $GITHUB_ENV
+
+      - name: Build PiDEX AMM
+        run: cargo build --target wasm32-unknown-unknown --release -p pidex_amm
+
+      - name: Build BN254 Verifier
+        run: |
+          if [ "${{ inputs.bn254_feature }}" = "true" ]; then
+            cargo build --target wasm32-unknown-unknown --release -p bn254_verifier --features bn254
+          else
+            cargo build --target wasm32-unknown-unknown --release -p bn254_verifier
+          fi
+
+      - name: Optimize + deploy
+        run: |
+          set -e
+          for name in pidex_amm bn254_verifier; do
+            WASM=target/wasm32-unknown-unknown/release/${name}.wasm
+            stellar contract optimize --wasm "$WASM"
+            OPT="target/wasm32-unknown-unknown/release/${name}.optimized.wasm"
+            CID=$(stellar contract deploy --wasm "$OPT" --source deployer --network testnet)
+            echo "$name=$CID" >> deployment_logs/stellar_testnet.env
+            echo "✅ $name → $CID"
+          done
+
+      - name: Publish summary
+        run: |
+          echo "## Stellar Testnet Deployment" >> $GITHUB_STEP_SUMMARY
+          cat deployment_logs/stellar_testnet.env >> $GITHUB_STEP_SUMMARY

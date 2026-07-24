@@ -7,7 +7,7 @@ const STANDARDS = [
   { id: "PiRC-227", title: "Slippage & MEV Protection", desc: "min_out enforcement; commit-reveal ready.", icon: Gauge, status: "enforced" },
   { id: "PiRC-251", title: "Oracle Circuit Breaker", desc: "Admin pause on deviation; halts swaps/withdrawals.", icon: Shield, status: "enforced" },
   { id: "PiRC-260", title: "Keeper Protocol", desc: "Decentralized auto-execution bounties (subscriptions).", icon: FileCode2, status: "documented" },
-  { id: "PiRC-800", title: "Shielded Settlement (BN254 · Groth16)", desc: "Optional ZK verifier wired via set_zk_verifier.", icon: Lock, status: "wired" },
+  { id: "PiRC-800", title: "Shielded Settlement (BN254 · Groth16)", desc: "Verifier contract shipped (contracts/bn254_verifier). Commitment mode today; on-chain pairing via --features bn254 on v25+.", icon: Lock, status: "shipped" },
 ];
 
 const PROTOCOLS = [
