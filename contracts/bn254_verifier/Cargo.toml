@@ -1,0 +1,32 @@
+[package]
+name = "bn254_verifier"
+version = "1.0.0"
+edition = "2021"
+license = "PiOS"
+description = "PiRC-800 BN254 / Groth16 verifier — feature-gated for future Stellar/Pi protocol pairing host fns (v25–v28+)"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+# Off by default: contract compiles + deploys today and records verified
+# commitments. When Stellar/Pi enables BN254 pairing host functions (target
+# protocol v25+), rebuild with `--features bn254` to activate on-chain
+# Groth16 pairing verification. WASM interface is stable across both modes.
+default = []
+bn254 = []
+
+[dependencies]
+soroban-sdk = "22.0.11"
+
+[dev-dependencies]
+soroban-sdk = { version = "22.0.11", features = ["testutils"] }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = false
+strip = "symbols"
+panic = "abort"
+codegen-units = 1
+lto = true
