@@ -70,7 +70,7 @@ function Header() {
                 }`
               }
             >
-              <n.icon size={14} /> {n.label}
+              <n.icon size={14} /> {t(n.key)}
             </NavLink>
           ))}
         </nav>
@@ -78,8 +78,9 @@ function Header() {
           <span className="pulse-dot" />
           <span className="mono">MAINNET · api.mainnet.minepi.com</span>
         </div>
+        <LanguageSwitcher />
         <PiConnectButton />
-        <button className="p-2 rounded-md border border-border hover:bg-panel2">
+        <button className="p-2 rounded-md border border-border hover:bg-panel2" aria-label="Search">
           <Search size={16} />
         </button>
       </div>
