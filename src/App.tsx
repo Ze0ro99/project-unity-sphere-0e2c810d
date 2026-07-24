@@ -1,8 +1,10 @@
 import { useEffect } from "react";
 import { Routes, Route, NavLink, Link } from "react-router-dom";
-import { Activity, Layers, Radio, Cpu, Search, ArrowDownUp, FlaskConical, ShieldCheck } from "lucide-react";
+import { Activity, Layers, Radio, Cpu, Search, ArrowDownUp, FlaskConical, ShieldCheck, Lock } from "lucide-react";
 import { initPi } from "@/lib/piSdk";
 import PiConnectButton from "@/components/PiConnectButton";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useI18n } from "@/i18n";
 import Explorer from "./pages/Explorer";
 import Layers7 from "./pages/Layers7";
 import MicroDevice from "./pages/MicroDevice";
@@ -10,6 +12,7 @@ import Network from "./pages/Network";
 import PiDEX from "./pages/PiDEX";
 import Testnet from "./pages/Testnet";
 import Standards from "./pages/Standards";
+import Bn254 from "./pages/Bn254";
 
 export default function App() {
   useEffect(() => {
@@ -27,6 +30,7 @@ export default function App() {
           <Route path="/pidex" element={<PiDEX />} />
           <Route path="/testnet" element={<Testnet />} />
           <Route path="/standards" element={<Standards />} />
+          <Route path="/bn254" element={<Bn254 />} />
         </Routes>
       </main>
       <Footer />
@@ -35,14 +39,16 @@ export default function App() {
 }
 
 function Header() {
+  const { t } = useI18n();
   const nav = [
-    { to: "/", label: "Explorer", icon: Activity },
-    { to: "/layers", label: "7-Layer Tokens", icon: Layers },
-    { to: "/micro-device", label: "Micro-Device", icon: Cpu },
-    { to: "/network", label: "Network", icon: Radio },
-    { to: "/pidex", label: "PiDEX", icon: ArrowDownUp },
-    { to: "/standards", label: "Standards", icon: ShieldCheck },
-    { to: "/testnet", label: "Testnet", icon: FlaskConical },
+    { to: "/", key: "nav.explorer", icon: Activity },
+    { to: "/layers", key: "nav.layers", icon: Layers },
+    { to: "/micro-device", key: "nav.micro", icon: Cpu },
+    { to: "/network", key: "nav.network", icon: Radio },
+    { to: "/pidex", key: "nav.pidex", icon: ArrowDownUp },
+    { to: "/standards", key: "nav.standards", icon: ShieldCheck },
+    { to: "/bn254", key: "nav.bn254", icon: Lock },
+    { to: "/testnet", key: "nav.testnet", icon: FlaskConical },
   ];
   return (
     <header className="border-b border-border bg-panel/60 backdrop-blur sticky top-0 z-30">
@@ -64,7 +70,7 @@ function Header() {
                 }`
               }
             >
-              <n.icon size={14} /> {n.label}
+              <n.icon size={14} /> {t(n.key)}
             </NavLink>
           ))}
         </nav>
@@ -72,8 +78,9 @@ function Header() {
           <span className="pulse-dot" />
           <span className="mono">MAINNET · api.mainnet.minepi.com</span>
         </div>
+        <LanguageSwitcher />
         <PiConnectButton />
-        <button className="p-2 rounded-md border border-border hover:bg-panel2">
+        <button className="p-2 rounded-md border border-border hover:bg-panel2" aria-label="Search">
           <Search size={16} />
         </button>
       </div>
