@@ -1,209 +1,425 @@
-import { useEffect, useMemo, useState } from "react";
-import { LAYERS } from "@/data/layers";
-import { ArrowDownUp, Shield, Cpu, Zap, Lock, Activity, Plus, BookOpen, CircleDot } from "lucide-react";
+import { useMemo, useState, useSyncExternalStore } from "react";
+import {
+  exchangeStore,
+  placeOrder,
+  cancelOrder,
+  cancelAll,
+  ammQuote,
+  tierFor,
+  FAIRNESS_TIERS,
+  change24h,
+  fmt,
+  compact,
+  FEE_BPS,
+  type Side,
+  type OrderType,
+  type Market,
+} from "@/lib/exchange";
+import CandleChart from "@/components/exchange/CandleChart";
+import DepthChart from "@/components/exchange/DepthChart";
+import {
+  Search, Shield, Activity, Star, TrendingUp, TrendingDown, AlertTriangle,
+  Layers as LayersIcon, Wallet, Gauge, X,
+} from "lucide-react";
 
-type Side = "buy" | "sell";
-type Order = { id: string; side: Side; price: number; size: number; ts: number; zk: boolean };
-type Trade = { id: string; side: Side; price: number; size: number; ts: number; hash: string };
-
-const PAIRS = LAYERS.map((l) => ({ symbol: `${l.id}/π`, layer: l }));
-
-function rand(min: number, max: number) { return Math.random() * (max - min) + min; }
-function hash8() { return Math.random().toString(16).slice(2, 10).toUpperCase(); }
+type Tab = "orders" | "history" | "balances" | "pool";
 
 export default function PiDEX() {
-  const [pair, setPair] = useState(PAIRS[1]);
+  const state = useSyncExternalStore(exchangeStore.subscribe, exchangeStore.getSnapshot, exchangeStore.getSnapshot);
+  const [symbol, setSymbol] = useState(state.symbols[1] ?? state.symbols[0]);
+  const [query, setQuery] = useState("");
   const [side, setSide] = useState<Side>("buy");
-  const [amount, setAmount] = useState("10");
-  const [price, setPrice] = useState("0.42");
-  const [zkEnabled, setZkEnabled] = useState(true);
-  const [book, setBook] = useState<{ bids: Order[]; asks: Order[] }>({ bids: [], asks: [] });
-  const [trades, setTrades] = useState<Trade[]>([]);
-  const [tvl, setTvl] = useState(1_284_930);
-  const [vol24, setVol24] = useState(482_910);
+  const [type, setType] = useState<OrderType>("limit");
+  const [priceInput, setPriceInput] = useState("");
+  const [sizeInput, setSizeInput] = useState("");
+  const [slip, setSlip] = useState(50); // bps
+  const [zk, setZk] = useState(false);
+  const [tab, setTab] = useState<Tab>("orders");
+  const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null);
 
-  // seed + live tick
-  useEffect(() => {
-    const mid = 0.4 + Math.random() * 0.3;
-    const seedBids: Order[] = Array.from({ length: 12 }, (_, i) => ({
-      id: hash8(), side: "buy", price: +(mid - i * 0.0015 - rand(0, 0.001)).toFixed(4),
-      size: +rand(5, 400).toFixed(2), ts: Date.now(), zk: Math.random() > 0.4,
-    }));
-    const seedAsks: Order[] = Array.from({ length: 12 }, (_, i) => ({
-      id: hash8(), side: "sell", price: +(mid + i * 0.0015 + rand(0, 0.001)).toFixed(4),
-      size: +rand(5, 400).toFixed(2), ts: Date.now(), zk: Math.random() > 0.4,
-    }));
-    setBook({ bids: seedBids, asks: seedAsks });
-    setPrice(mid.toFixed(4));
-  }, [pair.symbol]);
+  const m = state.markets[symbol];
+  const tier = tierFor(state.account.volume30d);
+  const price = parseFloat(priceInput) || m.price;
+  const size = parseFloat(sizeInput) || 0;
 
-  useEffect(() => {
-    const t = setInterval(() => {
-      setBook((b) => {
-        const bump = (o: Order): Order => ({ ...o, size: Math.max(1, +(o.size + rand(-8, 8)).toFixed(2)) });
-        return { bids: b.bids.map(bump), asks: b.asks.map(bump) };
-      });
-      if (Math.random() > 0.5) {
-        const side: Side = Math.random() > 0.5 ? "buy" : "sell";
-        const p = +(parseFloat(price) + rand(-0.003, 0.003)).toFixed(4);
-        setTrades((t) => [{ id: hash8(), side, price: p, size: +rand(1, 120).toFixed(2), ts: Date.now(), hash: hash8() + hash8() }, ...t].slice(0, 25));
-        setVol24((v) => v + Math.random() * 200);
-        setTvl((v) => v + rand(-500, 700));
-      }
-    }, 1200);
-    return () => clearInterval(t);
-  }, [price]);
+  const markets = useMemo(
+    () =>
+      state.symbols
+        .map((s) => state.markets[s])
+        .filter((x) => x.symbol.toLowerCase().includes(query.toLowerCase()) || x.layer.name.toLowerCase().includes(query.toLowerCase())),
+    [state, query],
+  );
 
-  const maxSize = useMemo(() => Math.max(...book.bids.map((o) => o.size), ...book.asks.map((o) => o.size), 1), [book]);
+  const quote = useMemo(() => {
+    if (type === "limit" || size <= 0) return null;
+    const amountIn = side === "buy" ? size * m.price : size;
+    const [rIn, rOut] = side === "buy" ? [m.reserveQuote, m.reserveBase] : [m.reserveBase, m.reserveQuote];
+    return ammQuote(rIn, rOut, amountIn);
+  }, [type, size, side, m]);
+
+  const openOrders = state.account.orders.filter((o) => o.status === "open");
+  const chg = change24h(m);
+
+  const flash = (ok: boolean, msg: string) => {
+    setToast({ ok, msg });
+    window.setTimeout(() => setToast(null), 3800);
+  };
 
   const submit = () => {
-    const p = parseFloat(price), a = parseFloat(amount);
-    if (!p || !a) return;
-    const order: Order = { id: hash8(), side, price: p, size: a, ts: Date.now(), zk: zkEnabled };
-    setBook((b) => side === "buy"
-      ? { ...b, bids: [order, ...b.bids].sort((x, y) => y.price - x.price).slice(0, 14) }
-      : { ...b, asks: [order, ...b.asks].sort((x, y) => x.price - y.price).slice(0, 14) });
-    setTrades((t) => [{ id: hash8(), side, price: p, size: a, ts: Date.now(), hash: hash8() + hash8() }, ...t].slice(0, 25));
+    if (size <= 0) return flash(false, "Enter an order size");
+    const o = placeOrder({ symbol, side, type, size, price: type === "limit" ? price : undefined, slippageBps: slip, zk });
+    if (o.status === "rejected") flash(false, o.reason ?? "Order rejected");
+    else flash(true, `${type.toUpperCase()} ${side.toUpperCase()} ${fmt(o.size, 2)} ${m.layer.id}π @ ${fmt(o.price, 5)} π`);
+  };
+
+  const setPct = (pct: number) => {
+    const bal = side === "buy" ? (state.account.balances["π"] ?? 0) / m.price : state.account.balances[`${m.layer.id}π`] ?? 0;
+    setSizeInput((bal * pct).toFixed(2));
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header strip */}
-      <section className="card p-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="w-9 h-9 rounded-md flex items-center justify-center text-black font-bold" style={{ background: pair.layer.hex }}>π</span>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold">PiDEX</h1>
-                <span className="chip">ZK · BN254 · Groth16</span>
-                <span className="chip flex items-center gap-1"><CircleDot size={10} className="text-green animate-pulse" /> Live</span>
-              </div>
-              <div className="text-xs text-muted">Sovereign DEX for the PiRC-207 7-layer token system</div>
+    <div className="space-y-3">
+      {/* Ticker strip */}
+      <section className="card px-4 py-3 flex flex-wrap items-center gap-x-8 gap-y-3">
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-lg flex items-center justify-center text-black font-bold text-lg" style={{ background: m.layer.hex }}>π</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold mono">{m.symbol}</h1>
+              <span className="chip">{m.layer.name} · {m.layer.role}</span>
+              {m.halted ? (
+                <span className="chip" style={{ borderColor: "#f85149", color: "#f85149" }}>
+                  <AlertTriangle size={10} /> HALTED · PiRC-251
+                </span>
+              ) : (
+                <span className="chip"><span className="pulse-dot" /> Live</span>
+              )}
             </div>
-          </div>
-          <div className="ml-auto grid grid-cols-3 gap-6 text-sm">
-            <Stat label="Last" value={`${parseFloat(price).toFixed(4)} π`} />
-            <Stat label="24h Volume" value={`${vol24.toLocaleString(undefined, { maximumFractionDigits: 0 })} π`} />
-            <Stat label="TVL" value={`${tvl.toLocaleString(undefined, { maximumFractionDigits: 0 })} π`} />
+            <div className="text-[11px] text-muted">PiRC-101 base pair · Spot · Hybrid CLOB + AMM</div>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2 mt-4">
-          {PAIRS.map((p) => (
-            <button key={p.symbol} onClick={() => setPair(p)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium border transition ${pair.symbol === p.symbol ? "bg-panel2 border-border text-text" : "border-transparent text-muted hover:text-text"}`}
-              style={pair.symbol === p.symbol ? { borderColor: p.layer.hex } : {}}>
-              <span className="mono">{p.symbol}</span>
-            </button>
-          ))}
+        <div className="flex items-baseline gap-3">
+          <span className="text-2xl font-bold mono" style={{ color: chg >= 0 ? "#3fb950" : "#f85149" }}>{fmt(m.price, 5)}</span>
+          <span className={`text-sm mono flex items-center gap-1 ${chg >= 0 ? "text-green" : "text-red"}`}>
+            {chg >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}{chg.toFixed(2)}%
+          </span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-2 text-xs ml-auto">
+          <Stat label="24h High" value={fmt(m.high24h, 5)} />
+          <Stat label="24h Low" value={fmt(m.low24h, 5)} />
+          <Stat label="24h Vol (π)" value={compact(m.vol24h)} />
+          <Stat label="Pool TVL (π)" value={compact(m.reserveQuote * 2)} />
         </div>
       </section>
 
-      <div className="grid lg:grid-cols-3 gap-4">
-        {/* Swap / order form */}
-        <section className="card p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold flex items-center gap-2"><ArrowDownUp size={16} /> Trade</h2>
-            <div className="flex gap-1 text-xs">
-              <button onClick={() => setSide("buy")} className={`px-3 py-1 rounded ${side === "buy" ? "bg-green/20 text-green" : "text-muted"}`}>Buy</button>
-              <button onClick={() => setSide("sell")} className={`px-3 py-1 rounded ${side === "sell" ? "bg-red/20 text-red" : "text-muted"}`}>Sell</button>
-            </div>
+      <div className="grid xl:grid-cols-[240px_1fr_300px] lg:grid-cols-[220px_1fr] gap-3">
+        {/* Markets rail */}
+        <section className="card p-3 order-2 xl:order-1 lg:order-1">
+          <div className="flex items-center gap-2 bg-panel2 border border-border rounded-md px-2 py-1.5 mb-2">
+            <Search size={13} className="text-muted" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search markets"
+              className="bg-transparent text-xs w-full focus:outline-none"
+            />
           </div>
-          <Field label={`Amount (${pair.layer.id})`} value={amount} onChange={setAmount} />
-          <Field label="Price (π)" value={price} onChange={setPrice} />
-          <div className="text-xs text-muted flex justify-between">
-            <span>Est. total</span>
-            <span className="mono text-text">{(parseFloat(amount || "0") * parseFloat(price || "0")).toFixed(4)} π</span>
+          <div className="text-[10px] text-muted grid grid-cols-3 px-1 mb-1 uppercase tracking-wide">
+            <span>Pair</span><span className="text-right">Last</span><span className="text-right">24h</span>
           </div>
-          <label className="flex items-center gap-2 text-xs cursor-pointer select-none">
-            <input type="checkbox" checked={zkEnabled} onChange={(e) => setZkEnabled(e.target.checked)} className="accent-purple" />
-            <Shield size={12} className="text-purple" /> Shielded order (BN254 · Groth16 proof)
-          </label>
-          <button onClick={submit}
-            className={`w-full py-2.5 rounded-md font-semibold transition ${side === "buy" ? "bg-green text-black hover:brightness-110" : "bg-red text-white hover:brightness-110"}`}>
-            {side === "buy" ? "Buy" : "Sell"} {pair.layer.id}
-          </button>
-          <div className="text-[10px] text-muted mono pt-2 border-t border-border">
-            Router: PIDEX-ROUTER-V1 · Curve: xy=k + concentrated · Fee: 0.30% · MEV: private mempool
+          <div className="space-y-0.5">
+            {markets.map((x) => {
+              const c = change24h(x);
+              const active = x.symbol === symbol;
+              return (
+                <button
+                  key={x.symbol}
+                  onClick={() => { setSymbol(x.symbol); setPriceInput(""); }}
+                  className={`w-full grid grid-cols-3 items-center px-1.5 py-1.5 rounded text-xs mono transition ${active ? "bg-panel2" : "hover:bg-panel2/50"}`}
+                  style={active ? { boxShadow: `inset 2px 0 0 ${x.layer.hex}` } : {}}
+                >
+                  <span className="text-left flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: x.layer.hex }} />
+                    {x.layer.id}π
+                  </span>
+                  <span className="text-right">{fmt(x.price, 4)}</span>
+                  <span className={`text-right ${c >= 0 ? "text-green" : "text-red"}`}>{c.toFixed(2)}%</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-3 pt-3 border-t border-border space-y-1 text-[10px] text-muted">
+            <div className="flex justify-between"><span>Fee tier</span><span className="mono" style={{ color: tier.hex }}>T{tier.tier} {tier.name}</span></div>
+            <div className="flex justify-between"><span>Maker / Taker</span><span className="mono">{tier.makerBps / 100}% / {tier.takerBps / 100}%</span></div>
+            <div className="flex justify-between"><span>30d volume</span><span className="mono">{compact(state.account.volume30d)} π</span></div>
           </div>
         </section>
 
-        {/* Order book */}
-        <section className="card p-5">
-          <h2 className="font-semibold flex items-center gap-2 mb-3"><BookOpen size={16} /> Order Book</h2>
-          <div className="text-[10px] text-muted grid grid-cols-3 mono mb-1">
-            <span>Price</span><span className="text-right">Size</span><span className="text-right">ZK</span>
-          </div>
-          <div className="space-y-0.5 text-xs mono">
-            {book.asks.slice(0, 8).reverse().map((o) => <BookRow key={o.id} o={o} maxSize={maxSize} />)}
-            <div className="my-1 py-1 border-y border-border text-center text-sm font-bold" style={{ color: pair.layer.hex }}>
-              {parseFloat(price).toFixed(4)} π
+        {/* Chart + book + form */}
+        <section className="order-1 xl:order-2 lg:order-2 space-y-3">
+          <div className="card p-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 text-xs text-muted">
+                <Activity size={13} /> <span className="mono">1m · Japanese candlesticks</span>
+              </div>
+              <div className="flex gap-1 text-[10px]">
+                {["1m", "5m", "15m", "1H", "4H", "1D"].map((tf) => (
+                  <span key={tf} className={`px-2 py-1 rounded ${tf === "1m" ? "bg-panel2 text-text" : "text-muted"}`}>{tf}</span>
+                ))}
+              </div>
             </div>
-            {book.bids.slice(0, 8).map((o) => <BookRow key={o.id} o={o} maxSize={maxSize} />)}
+            <CandleChart candles={m.candles} accent={m.layer.hex} />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-3">
+            <OrderBook m={m} onPick={(p) => { setType("limit"); setPriceInput(p.toFixed(6)); }} />
+            <div className="card p-3">
+              <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><LayersIcon size={13} /> Market Depth</h3>
+              <DepthChart bids={m.bids} asks={m.asks} />
+              <div className="grid grid-cols-2 gap-2 mt-2 text-[10px] mono">
+                <div className="text-green">Bid liq {compact(m.bids[m.bids.length - 1]?.total ?? 0)}</div>
+                <div className="text-red text-right">Ask liq {compact(m.asks[m.asks.length - 1]?.total ?? 0)}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Order ticket */}
+          <div className="card p-4">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="flex rounded-md overflow-hidden border border-border">
+                {(["limit", "market", "amm"] as OrderType[]).map((t) => (
+                  <button key={t} onClick={() => setType(t)}
+                    className={`px-3 py-1.5 text-xs capitalize transition ${type === t ? "bg-panel2 text-text" : "text-muted hover:text-text"}`}>
+                    {t === "amm" ? "AMM Swap" : t}
+                  </button>
+                ))}
+              </div>
+              <div className="ml-auto flex gap-1">
+                <button onClick={() => setSide("buy")} className={`px-4 py-1.5 rounded text-xs font-semibold ${side === "buy" ? "bg-green text-black" : "bg-panel2 text-muted"}`}>Buy</button>
+                <button onClick={() => setSide("sell")} className={`px-4 py-1.5 rounded text-xs font-semibold ${side === "sell" ? "bg-red text-white" : "bg-panel2 text-muted"}`}>Sell</button>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Field
+                label={`Price (π)${type !== "limit" ? " · market" : ""}`}
+                value={type === "limit" ? priceInput : fmt(m.price, 6)}
+                disabled={type !== "limit"}
+                onChange={setPriceInput}
+                placeholder={fmt(m.price, 6)}
+              />
+              <Field label={`Size (${m.layer.id}π)`} value={sizeInput} onChange={setSizeInput} placeholder="0.00" />
+            </div>
+
+            <div className="flex gap-1 mt-2">
+              {[0.25, 0.5, 0.75, 1].map((p) => (
+                <button key={p} onClick={() => setPct(p)} className="flex-1 py-1 rounded bg-panel2 text-[10px] text-muted hover:text-text transition">
+                  {p * 100}%
+                </button>
+              ))}
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-3 mt-3">
+              <label className="block">
+                <div className="text-[10px] text-muted uppercase tracking-wide mb-1 flex justify-between">
+                  <span>Max slippage (PiRC-227)</span><span className="mono text-text">{(slip / 100).toFixed(2)}%</span>
+                </div>
+                <input type="range" min={5} max={500} step={5} value={slip} onChange={(e) => setSlip(+e.target.value)}
+                  className="w-full accent-gold" />
+              </label>
+              <label className="flex items-end gap-2 text-xs cursor-pointer select-none pb-1">
+                <input type="checkbox" checked={zk} onChange={(e) => setZk(e.target.checked)} className="accent-purple" />
+                <Shield size={12} className="text-purple" /> Shielded settlement · BN254 / Groth16 (PiRC-800)
+              </label>
+            </div>
+
+            <div className="mt-3 space-y-1 text-[11px] mono">
+              <Row k="Est. total" v={`${fmt(size * (type === "limit" ? price : m.price), 5)} π`} />
+              <Row k={`Fee · T${tier.tier} ${type === "limit" ? "maker" : "taker"}`}
+                v={`${((type === "limit" ? tier.makerBps : tier.takerBps) / 100).toFixed(2)}%`} />
+              {quote && <Row k="Price impact" v={`${(quote.priceImpactBps / 100).toFixed(3)}%`} danger={quote.priceImpactBps > slip} />}
+              {quote && <Row k="Min received" v={`${fmt(quote.out * (1 - slip / 10000), 5)} ${side === "buy" ? `${m.layer.id}π` : "π"}`} />}
+              <Row k="Pool fee (PiRC-215)" v={`${FEE_BPS / 100}% · x·y=k`} />
+            </div>
+
+            <button
+              onClick={submit}
+              disabled={m.halted}
+              className={`w-full mt-3 py-2.5 rounded-md font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${side === "buy" ? "bg-green text-black hover:brightness-110" : "bg-red text-white hover:brightness-110"}`}
+            >
+              {m.halted ? "Trading halted — circuit breaker" : `${side === "buy" ? "Buy" : "Sell"} ${m.layer.id}π`}
+            </button>
+            <div className="text-[10px] text-muted mono pt-2 mt-2 border-t border-border">
+              Router PIDEX-ROUTER-V1 · Settlement Pi Mainnet + Soroban · Registry {m.layer.address.slice(0, 8)}…{m.layer.address.slice(-6)}
+            </div>
           </div>
         </section>
 
-        {/* Trades */}
-        <section className="card p-5">
-          <h2 className="font-semibold flex items-center gap-2 mb-3"><Activity size={16} /> Live Trades</h2>
-          <div className="space-y-1 text-xs mono max-h-[26rem] overflow-auto">
-            {trades.length === 0 && <div className="text-muted">Waiting for stream…</div>}
-            {trades.map((t) => (
-              <div key={t.id} className="flex justify-between items-center hover:bg-panel2/40 px-1 py-0.5 rounded">
-                <span className={t.side === "buy" ? "text-green" : "text-red"}>{t.price.toFixed(4)}</span>
-                <span className="text-muted">{t.size.toFixed(2)}</span>
-                <span className="text-muted text-[10px]">{new Date(t.ts).toLocaleTimeString()}</span>
+        {/* Trades + tier ladder */}
+        <section className="order-3 space-y-3">
+          <div className="card p-3">
+            <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><Activity size={13} /> Live Trades</h3>
+            <div className="text-[10px] text-muted grid grid-cols-3 px-1 mb-1 uppercase">
+              <span>Price</span><span className="text-right">Size</span><span className="text-right">Time</span>
+            </div>
+            <div className="space-y-0.5 text-[11px] mono max-h-72 overflow-auto">
+              {m.trades.length === 0 && <div className="text-muted py-2">Streaming…</div>}
+              {m.trades.map((t) => (
+                <div key={t.id} className="grid grid-cols-3 px-1 py-0.5 rounded hover:bg-panel2/50">
+                  <span className={t.side === "buy" ? "text-green" : "text-red"}>
+                    {t.zk && <Shield size={9} className="inline text-purple mr-1" />}{fmt(t.price, 5)}
+                  </span>
+                  <span className="text-right">{fmt(t.size, 2)}</span>
+                  <span className="text-right text-muted">{new Date(t.ts).toLocaleTimeString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card p-3">
+            <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><Gauge size={13} /> 7-Tier Fairness Schedule</h3>
+            <div className="space-y-1 text-[10px] mono">
+              {FAIRNESS_TIERS.map((t) => (
+                <div key={t.tier} className={`flex items-center gap-2 px-1.5 py-1 rounded ${t.tier === tier.tier ? "bg-panel2" : ""}`}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: t.hex }} />
+                  <span className="w-20">T{t.tier} {t.name}</span>
+                  <span className="text-muted flex-1">≥{compact(t.minVolume)} π</span>
+                  <span>{(t.makerBps / 100).toFixed(2)}/{(t.takerBps / 100).toFixed(2)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* Account panel */}
+      <section className="card p-4">
+        <div className="flex items-center gap-1 border-b border-border mb-3 text-xs">
+          {(["orders", "history", "balances", "pool"] as Tab[]).map((t) => (
+            <button key={t} onClick={() => setTab(t)}
+              className={`px-3 py-2 capitalize transition border-b-2 -mb-px ${tab === t ? "border-gold text-text" : "border-transparent text-muted hover:text-text"}`}>
+              {t === "orders" ? `Open Orders (${openOrders.length})` : t === "pool" ? "Pool / AMM" : t}
+            </button>
+          ))}
+          {tab === "orders" && openOrders.length > 0 && (
+            <button onClick={() => cancelAll()} className="ml-auto text-[11px] text-muted hover:text-red transition">Cancel all</button>
+          )}
+        </div>
+
+        {tab === "orders" && (
+          <Table head={["Time", "Market", "Side", "Type", "Price", "Size", "Filled", "Fee", ""]}>
+            {openOrders.length === 0 && <Empty cols={9} text="No open orders" />}
+            {openOrders.map((o) => (
+              <tr key={o.id} className="border-b border-border/40">
+                <Td>{new Date(o.ts).toLocaleTimeString()}</Td>
+                <Td>{o.symbol}</Td>
+                <Td className={o.side === "buy" ? "text-green" : "text-red"}>{o.side.toUpperCase()}</Td>
+                <Td>{o.type}</Td>
+                <Td>{fmt(o.price, 5)}</Td>
+                <Td>{fmt(o.size, 2)}</Td>
+                <Td>{fmt(o.filled, 2)}</Td>
+                <Td>{(o.feeBps / 100).toFixed(2)}%</Td>
+                <Td>
+                  <button onClick={() => cancelOrder(o.id)} className="text-muted hover:text-red transition"><X size={13} /></button>
+                </Td>
+              </tr>
+            ))}
+          </Table>
+        )}
+
+        {tab === "history" && (
+          <Table head={["Time", "Market", "Side", "Price", "Size", "Fee (π)", "ZK", "Tx"]}>
+            {state.account.fills.length === 0 && <Empty cols={8} text="No fills yet" />}
+            {state.account.fills.map((f) => (
+              <tr key={f.id} className="border-b border-border/40">
+                <Td>{new Date(f.ts).toLocaleTimeString()}</Td>
+                <Td>{f.symbol}</Td>
+                <Td className={f.side === "buy" ? "text-green" : "text-red"}>{f.side.toUpperCase()}</Td>
+                <Td>{fmt(f.price, 5)}</Td>
+                <Td>{fmt(f.size, 2)}</Td>
+                <Td>{fmt(f.fee, 5)}</Td>
+                <Td>{f.zk ? <Shield size={11} className="text-purple" /> : "—"}</Td>
+                <Td className="text-muted">{f.txHash.slice(0, 12)}…</Td>
+              </tr>
+            ))}
+          </Table>
+        )}
+
+        {tab === "balances" && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            {Object.entries(state.account.balances).map(([sym, bal]) => (
+              <div key={sym} className="bg-panel2 rounded-md px-3 py-2 flex items-center gap-2">
+                <Wallet size={14} className="text-muted" />
+                <div>
+                  <div className="text-[10px] text-muted uppercase">{sym}</div>
+                  <div className="mono text-sm">{fmt(bal, 4)}</div>
+                </div>
               </div>
             ))}
           </div>
-        </section>
-      </div>
+        )}
 
-      {/* ZK / BN254 / Contract factory */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <InfoCard icon={<Shield size={16} className="text-purple" />} title="Zero-Knowledge Layer" chips={["Groth16", "PLONK", "BN254"]}
-          desc="Every shielded order emits a Groth16 proof over the BN254 pairing-friendly curve. The DEX verifies proofs on-chain via a precompiled verifier before matching, so trader identity and size stay private while settlement remains public.">
-          <Row k="Curve" v="BN254 (alt-bn128)" />
-          <Row k="Verifier" v="0x…VERIFIER01" />
-          <Row k="Circuit" v="pidex/shielded_swap.r1cs" />
-          <Row k="Proof size" v="192 bytes" />
-        </InfoCard>
-        <InfoCard icon={<Cpu size={16} className="text-blue" />} title="Contract Factory" chips={["Studio", "One-click deploy"]}
-          desc="Builders spin up new pools, vaults, and PiRC-207 layer tokens from audited templates. Every deployment is registered to the master registry and inherits the 7-layer fairness invariants.">
-          <Row k="Templates" v="AMM · CLMM · Vault · Oracle" />
-          <Row k="Language" v="Soroban Rust · Solidity" />
-          <Row k="Registry" v="MASTER-REGISTRY-V3" />
-          <button className="mt-3 w-full py-2 rounded-md bg-panel2 border border-border text-xs hover:bg-panel2/70 flex items-center justify-center gap-1">
-            <Plus size={12} /> Deploy a contract
-          </button>
-        </InfoCard>
-        <InfoCard icon={<Zap size={16} className="text-gold" />} title="Builder SDK" chips={["TypeScript", "Rust"]}
-          desc="Ship apps against PiDEX in minutes. Typed clients, React hooks, and a signer-agnostic transaction builder covering swap, add-liquidity, shielded transfer, and proof verification.">
-          <code className="block mono text-[10px] bg-panel2 rounded p-2 leading-relaxed overflow-x-auto">
-{`import { PiDEX, zk } from "@pirc/pidex-sdk";
-const dex = PiDEX.mainnet();
-const proof = await zk.prove("shielded_swap", { in: 10, out: 4 });
-await dex.swap({ from: "L1", to: "π", amount: 10, proof });`}
-          </code>
-        </InfoCard>
-      </div>
-
-      <div className="grid md:grid-cols-4 gap-3">
-        {[
-          { icon: Lock, label: "Audited", value: "Trail of Bits · Halborn" },
-          { icon: Shield, label: "MEV Protection", value: "Private mempool" },
-          { icon: Activity, label: "Matching", value: "Hybrid CLOB + AMM" },
-          { icon: Cpu, label: "Settlement", value: "Pi Mainnet + Soroban" },
-        ].map((s) => (
-          <div key={s.label} className="card p-4 flex items-center gap-3">
-            <s.icon size={18} className="text-muted" />
-            <div>
-              <div className="text-[10px] text-muted uppercase tracking-wide">{s.label}</div>
-              <div className="text-sm font-semibold">{s.value}</div>
-            </div>
+        {tab === "pool" && (
+          <div className="grid md:grid-cols-3 gap-3 text-xs">
+            <PoolCard title="Reserves (PiRC-215)">
+              <Row k={`${m.layer.id}π`} v={fmt(m.reserveBase, 2)} />
+              <Row k="π" v={fmt(m.reserveQuote, 2)} />
+              <Row k="k invariant" v={compact(m.reserveBase * m.reserveQuote)} />
+              <Row k="Spot" v={fmt(m.reserveQuote / m.reserveBase, 6)} />
+            </PoolCard>
+            <PoolCard title="Risk controls">
+              <Row k="TWAP" v={fmt(m.twap, 6)} />
+              <Row k="Deviation" v={`${(((m.price - m.twap) / m.twap) * 100).toFixed(3)}%`} />
+              <Row k="Breaker (PiRC-251)" v={m.halted ? "TRIPPED" : "Armed @ 8%"} danger={m.halted} />
+              <Row k="MEV" v="Private mempool" />
+            </PoolCard>
+            <PoolCard title="Settlement">
+              <Row k="Fee schedule" v={`${FEE_BPS / 100}% pool + tier`} />
+              <Row k="Curve" v="x·y=k · constant product" />
+              <Row k="Verifier" v="BN254 · Groth16" />
+              <Row k="Layer" v={`${m.layer.id} ${m.layer.name} · ${m.layer.role}`} />
+            </PoolCard>
           </div>
-        ))}
+        )}
+      </section>
+
+      {toast && (
+        <div className="fixed bottom-5 right-5 z-50 card px-4 py-3 text-xs flex items-center gap-2 max-w-sm"
+          style={{ borderColor: toast.ok ? "#3fb950" : "#f85149" }}>
+          {toast.ok ? <Star size={14} className="text-green" /> : <AlertTriangle size={14} className="text-red" />}
+          <span className="mono">{toast.msg}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- sub components ---------------- */
+
+function OrderBook({ m, onPick }: { m: Market; onPick: (p: number) => void }) {
+  const max = Math.max(m.bids[m.bids.length - 1]?.total ?? 1, m.asks[m.asks.length - 1]?.total ?? 1);
+  const spread = (m.asks[0]?.price ?? 0) - (m.bids[0]?.price ?? 0);
+  const row = (l: (typeof m.bids)[number], side: Side) => (
+    <button key={`${side}${l.price}`} onClick={() => onPick(l.price)}
+      className="relative w-full grid grid-cols-3 px-1 py-[3px] text-[11px] mono hover:bg-panel2/60">
+      <div className="absolute inset-y-0 right-0" style={{ width: `${(l.total / max) * 100}%`, background: side === "buy" ? "rgba(63,185,80,0.12)" : "rgba(248,81,73,0.12)" }} />
+      <span className={`relative text-left ${side === "buy" ? "text-green" : "text-red"}`}>{fmt(l.price, 5)}</span>
+      <span className="relative text-right">{fmt(l.size, 2)}</span>
+      <span className="relative text-right text-muted">{compact(l.total)}</span>
+    </button>
+  );
+  return (
+    <div className="card p-3">
+      <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><LayersIcon size={13} /> Order Book</h3>
+      <div className="text-[10px] text-muted grid grid-cols-3 px-1 mb-1 uppercase">
+        <span>Price (π)</span><span className="text-right">Size</span><span className="text-right">Total</span>
       </div>
+      <div className="flex flex-col-reverse">{m.asks.slice(0, 9).map((l) => row(l, "sell"))}</div>
+      <div className="flex items-center justify-between px-1 py-1.5 my-1 border-y border-border">
+        <span className="text-sm font-bold mono" style={{ color: m.layer.hex }}>{fmt(m.price, 5)}</span>
+        <span className="text-[10px] text-muted mono">spread {fmt(spread, 5)}</span>
+      </div>
+      <div>{m.bids.slice(0, 9).map((l) => row(l, "buy"))}</div>
     </div>
   );
 }
@@ -212,41 +428,64 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div className="text-[10px] text-muted uppercase tracking-wide">{label}</div>
-      <div className="mono font-semibold">{value}</div>
+      <div className="mono font-semibold text-sm">{value}</div>
     </div>
   );
 }
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+
+function Field({ label, value, onChange, placeholder, disabled }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string; disabled?: boolean;
+}) {
   return (
     <label className="block">
       <div className="text-[10px] text-muted uppercase tracking-wide mb-1">{label}</div>
-      <input value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-panel2 border border-border rounded-md px-3 py-2 mono text-sm focus:outline-none focus:border-gold" />
+      <input
+        value={value}
+        disabled={disabled}
+        placeholder={placeholder}
+        inputMode="decimal"
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-panel2 border border-border rounded-md px-3 py-2 mono text-sm focus:outline-none focus:border-gold disabled:text-muted"
+      />
     </label>
   );
 }
-function BookRow({ o, maxSize }: { o: Order; maxSize: number }) {
-  const w = (o.size / maxSize) * 100;
-  const bg = o.side === "buy" ? "rgba(63,185,80,0.12)" : "rgba(248,81,73,0.12)";
+
+function Row({ k, v, danger }: { k: string; v: string; danger?: boolean }) {
   return (
-    <div className="relative grid grid-cols-3 px-1 py-0.5">
-      <div className="absolute inset-y-0 right-0 rounded" style={{ width: `${w}%`, background: bg }} />
-      <span className={`relative ${o.side === "buy" ? "text-green" : "text-red"}`}>{o.price.toFixed(4)}</span>
-      <span className="relative text-right">{o.size.toFixed(2)}</span>
-      <span className="relative text-right">{o.zk ? <Shield size={10} className="inline text-purple" /> : <span className="text-muted">·</span>}</span>
+    <div className="flex justify-between border-b border-border/40 py-1">
+      <span className="text-muted">{k}</span>
+      <span className={danger ? "text-red" : ""}>{v}</span>
     </div>
   );
 }
-function InfoCard({ icon, title, chips, desc, children }: { icon: React.ReactNode; title: string; chips: string[]; desc: string; children?: React.ReactNode }) {
+
+function PoolCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="card p-5">
-      <div className="flex items-center gap-2 mb-2">{icon}<h3 className="font-semibold">{title}</h3></div>
-      <div className="flex flex-wrap gap-1 mb-2">{chips.map((c) => <span key={c} className="chip">{c}</span>)}</div>
-      <p className="text-xs text-muted leading-relaxed">{desc}</p>
-      <div className="mt-3 space-y-1 text-xs">{children}</div>
-    </section>
+    <div className="bg-panel2/50 border border-border rounded-lg p-3">
+      <div className="text-[11px] font-semibold mb-2">{title}</div>
+      <div className="space-y-0.5 mono text-[11px]">{children}</div>
+    </div>
   );
 }
-function Row({ k, v }: { k: string; v: string }) {
-  return <div className="flex justify-between border-b border-border/50 py-1"><span className="text-muted">{k}</span><span className="mono">{v}</span></div>;
+
+function Table({ head, children }: { head: string[]; children: React.ReactNode }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-[11px] mono">
+        <thead>
+          <tr className="text-muted text-left uppercase text-[10px]">
+            {head.map((h, i) => <th key={i} className="font-medium py-1 px-2">{h}</th>)}
+          </tr>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
+    </div>
+  );
+}
+function Td({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <td className={`py-1.5 px-2 ${className}`}>{children}</td>;
+}
+function Empty({ cols, text }: { cols: number; text: string }) {
+  return <tr><td colSpan={cols} className="py-6 text-center text-muted">{text}</td></tr>;
 }
