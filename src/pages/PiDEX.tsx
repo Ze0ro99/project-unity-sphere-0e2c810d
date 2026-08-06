@@ -11,15 +11,27 @@ import {
   fmt,
   compact,
   FEE_BPS,
+  TIMEFRAMES,
+  aggregate,
+  addLiquidity,
+  removeLiquidity,
+  quoteLiquidity,
+  deposit,
+  withdraw,
+  resetAccount,
+  portfolioEquity,
+  exportFillsCsv,
   type Side,
   type OrderType,
+  type TimeInForce,
+  type TimeframeId,
   type Market,
 } from "@/lib/exchange";
 import CandleChart from "@/components/exchange/CandleChart";
 import DepthChart from "@/components/exchange/DepthChart";
 import {
   Search, Shield, Activity, Star, TrendingUp, TrendingDown, AlertTriangle,
-  Layers as LayersIcon, Wallet, Gauge, X,
+  Layers as LayersIcon, Wallet, Gauge, X, Download, Droplets, RotateCcw,
 } from "lucide-react";
 
 type Tab = "orders" | "history" | "balances" | "pool";
@@ -32,15 +44,29 @@ export default function PiDEX() {
   const [type, setType] = useState<OrderType>("limit");
   const [priceInput, setPriceInput] = useState("");
   const [sizeInput, setSizeInput] = useState("");
+  const [triggerInput, setTriggerInput] = useState("");
+  const [tif, setTif] = useState<TimeInForce>("GTC");
+  const [postOnly, setPostOnly] = useState(false);
+  const [reduceOnly, setReduceOnly] = useState(false);
+  const [tf, setTf] = useState<TimeframeId>("1m");
   const [slip, setSlip] = useState(50); // bps
   const [zk, setZk] = useState(false);
   const [tab, setTab] = useState<Tab>("orders");
+  const [lpAmount, setLpAmount] = useState("");
+  const [treasuryAmount, setTreasuryAmount] = useState("");
+  const [treasuryAsset, setTreasuryAsset] = useState("π");
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const m = state.markets[symbol];
   const tier = tierFor(state.account.volume30d);
   const price = parseFloat(priceInput) || m.price;
   const size = parseFloat(sizeInput) || 0;
+  const equity = portfolioEquity(state);
+  const lpPos = state.account.lp[symbol];
+  const candles = useMemo(
+    () => aggregate(m.candles, TIMEFRAMES.find((x) => x.id === tf)?.minutes ?? 1),
+    [m.candles, tf],
+  );
 
   const markets = useMemo(
     () =>
