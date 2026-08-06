@@ -83,7 +83,7 @@ export default function PiDEX() {
     return ammQuote(rIn, rOut, amountIn);
   }, [type, size, side, m]);
 
-  const openOrders = state.account.orders.filter((o) => o.status === "open");
+  const openOrders = state.account.orders.filter((o) => o.status === "open" || o.status === "pending");
   const chg = change24h(m);
 
   const flash = (ok: boolean, msg: string) => {
@@ -93,8 +93,21 @@ export default function PiDEX() {
 
   const submit = () => {
     if (size <= 0) return flash(false, "Enter an order size");
-    const o = placeOrder({ symbol, side, type, size, price: type === "limit" ? price : undefined, slippageBps: slip, zk });
+    const o = placeOrder({
+      symbol,
+      side,
+      type,
+      size,
+      price: type === "limit" ? price : undefined,
+      trigger: type === "stop" ? parseFloat(triggerInput) || 0 : undefined,
+      slippageBps: slip,
+      zk,
+      tif,
+      postOnly,
+      reduceOnly,
+    });
     if (o.status === "rejected") flash(false, o.reason ?? "Order rejected");
+    else if (o.status === "pending") flash(true, `STOP ${side.toUpperCase()} armed @ ${fmt(o.trigger ?? 0, 5)} π`);
     else flash(true, `${type.toUpperCase()} ${side.toUpperCase()} ${fmt(o.size, 2)} ${m.layer.id}π @ ${fmt(o.price, 5)} π`);
   };
 
@@ -102,6 +115,23 @@ export default function PiDEX() {
     const bal = side === "buy" ? (state.account.balances["π"] ?? 0) / m.price : state.account.balances[`${m.layer.id}π`] ?? 0;
     setSizeInput((bal * pct).toFixed(2));
   };
+
+  const runLiquidity = (fn: () => { ok: boolean; message: string }) => {
+    const r = fn();
+    flash(r.ok, r.message);
+  };
+
+  const downloadCsv = () => {
+    const blob = new Blob([exportFillsCsv(state)], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `pidex-fills-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    flash(true, `Exported ${state.account.fills.length} fills`);
+  };
+
 
   return (
     <div className="space-y-3">
