@@ -249,10 +249,10 @@ export default function PiDEX() {
           <div className="card p-4">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <div className="flex rounded-md overflow-hidden border border-border">
-                {(["limit", "market", "amm"] as OrderType[]).map((t) => (
+                {(["limit", "market", "amm", "stop"] as OrderType[]).map((t) => (
                   <button key={t} onClick={() => setType(t)}
                     className={`px-3 py-1.5 text-xs capitalize transition ${type === t ? "bg-panel2 text-text" : "text-muted hover:text-text"}`}>
-                    {t === "amm" ? "AMM Swap" : t}
+                    {t === "amm" ? "AMM Swap" : t === "stop" ? "Stop / TP" : t}
                   </button>
                 ))}
               </div>
@@ -273,12 +273,43 @@ export default function PiDEX() {
               <Field label={`Size (${m.layer.id}π)`} value={sizeInput} onChange={setSizeInput} placeholder="0.00" />
             </div>
 
+            {type === "stop" && (
+              <div className="mt-3">
+                <Field
+                  label={`Trigger price (π) · ${side === "buy" ? "fires at or above" : "fires at or below"}`}
+                  value={triggerInput}
+                  onChange={setTriggerInput}
+                  placeholder={fmt(m.price, 6)}
+                />
+              </div>
+            )}
+
             <div className="flex gap-1 mt-2">
               {[0.25, 0.5, 0.75, 1].map((p) => (
                 <button key={p} onClick={() => setPct(p)} className="flex-1 py-1 rounded bg-panel2 text-[10px] text-muted hover:text-text transition">
                   {p * 100}%
                 </button>
               ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <span className="text-[10px] text-muted uppercase tracking-wide">Time in force</span>
+              <div className="flex rounded-md overflow-hidden border border-border">
+                {(["GTC", "IOC", "FOK"] as TimeInForce[]).map((t) => (
+                  <button key={t} onClick={() => setTif(t)}
+                    className={`px-2.5 py-1 text-[10px] mono transition ${tif === t ? "bg-panel2 text-text" : "text-muted hover:text-text"}`}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <label className="flex items-center gap-1.5 text-[11px] cursor-pointer select-none">
+                <input type="checkbox" checked={postOnly} onChange={(e) => setPostOnly(e.target.checked)} className="accent-gold" />
+                Post-only
+              </label>
+              <label className="flex items-center gap-1.5 text-[11px] cursor-pointer select-none">
+                <input type="checkbox" checked={reduceOnly} onChange={(e) => setReduceOnly(e.target.checked)} className="accent-gold" />
+                Reduce-only
+              </label>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3 mt-3">
@@ -294,6 +325,7 @@ export default function PiDEX() {
                 <Shield size={12} className="text-purple" /> Shielded settlement · BN254 / Groth16 (PiRC-800)
               </label>
             </div>
+
 
             <div className="mt-3 space-y-1 text-[11px] mono">
               <Row k="Est. total" v={`${fmt(size * (type === "limit" ? price : m.price), 5)} π`} />
