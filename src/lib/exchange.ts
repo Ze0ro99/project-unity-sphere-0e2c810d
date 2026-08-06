@@ -6,8 +6,8 @@
  *
  *   PiRC-101  Sovereign Monetary Standard  → π base pair discipline
  *   PiRC-207  7-Layer token registry       → market universe + fairness tiers
- *   PiRC-215  AMM invariant x*y=k          → 30 bps fee schedule
- *   PiRC-227  Slippage / MEV protection    → min_out + impact guard
+ *   PiRC-215  AMM invariant x*y=k          → 30 bps fee schedule + LP shares
+ *   PiRC-227  Slippage / MEV protection    → min_out + impact guard + TIF
  *   PiRC-251  Circuit breaker              → TWAP deviation halt
  *   PiRC-800  Shielded settlement          → BN254 / Groth16 flag
  *
@@ -23,8 +23,9 @@ export const MAX_IMPACT_BPS = 500; // PiRC-227 default guard: 5%
 export const BREAKER_BPS = 800; // PiRC-251: halt at 8% TWAP deviation
 
 export type Side = "buy" | "sell";
-export type OrderType = "limit" | "market" | "amm";
-export type OrderStatus = "open" | "filled" | "cancelled" | "rejected";
+export type OrderType = "limit" | "market" | "amm" | "stop";
+export type TimeInForce = "GTC" | "IOC" | "FOK";
+export type OrderStatus = "open" | "pending" | "filled" | "cancelled" | "rejected";
 
 export type Candle = { t: number; o: number; h: number; l: number; c: number; v: number };
 export type BookLevel = { price: number; size: number; total: number; zk: boolean };
@@ -42,6 +43,10 @@ export type Order = {
   ts: number;
   zk: boolean;
   feeBps: number;
+  tif: TimeInForce;
+  postOnly: boolean;
+  reduceOnly: boolean;
+  trigger?: number;
   reason?: string;
 };
 
@@ -56,6 +61,14 @@ export type Fill = {
   ts: number;
   zk: boolean;
   txHash: string;
+};
+
+export type LpPosition = {
+  symbol: string;
+  shares: number;
+  depositedBase: number;
+  depositedQuote: number;
+  feesEarned: number;
 };
 
 /* ---------------- PiRC-207 fairness tiers (7 tiers) ---------------- */
@@ -110,6 +123,7 @@ export type Market = {
   vol24h: number;
   reserveBase: number;
   reserveQuote: number;
+  lpShares: number;
   twap: number;
   halted: boolean;
   candles: Candle[];
@@ -123,6 +137,7 @@ export type Account = {
   balances: Record<string, number>;
   orders: Order[];
   fills: Fill[];
+  lp: Record<string, LpPosition>;
 };
 
 export type ExchangeState = {
@@ -133,6 +148,7 @@ export type ExchangeState = {
 };
 
 const CANDLE_MS = 60_000;
+const STORAGE_KEY = "pidex.account.v1";
 const rid = () => Math.random().toString(36).slice(2, 10);
 const hash = () => Array.from({ length: 4 }, () => Math.random().toString(16).slice(2, 10)).join("").toUpperCase();
 
@@ -141,7 +157,7 @@ function seedMarket(layer: Layer, i: number): Market {
   const now = Date.now();
   const candles: Candle[] = [];
   let p = base;
-  for (let k = 120; k > 0; k--) {
+  for (let k = 480; k > 0; k--) {
     const o = p;
     const drift = (Math.random() - 0.48) * base * 0.012;
     const c = Math.max(base * 0.4, o + drift);
@@ -161,6 +177,7 @@ function seedMarket(layer: Layer, i: number): Market {
     vol24h: candles.reduce((s, c) => s + c.v, 0),
     reserveQuote,
     reserveBase: reserveQuote / p,
+    lpShares: Math.sqrt(reserveQuote * (reserveQuote / p)),
     twap: p,
     halted: false,
     candles,
@@ -187,20 +204,51 @@ function rebuildBook(m: Market) {
   m.asks = mk("sell");
 }
 
+function defaultAccount(): Account {
+  const balances: Record<string, number> = { π: 25_000 };
+  LAYERS.forEach((l) => (balances[`${l.id}π`] = 1_000));
+  return { volume30d: 128_400, balances, orders: [], fills: [], lp: {} };
+}
+
+function loadAccount(): Account {
+  const base = defaultAccount();
+  if (typeof localStorage === "undefined") return base;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return base;
+    const parsed = JSON.parse(raw) as Partial<Account>;
+    return {
+      volume30d: typeof parsed.volume30d === "number" ? parsed.volume30d : base.volume30d,
+      balances: { ...base.balances, ...(parsed.balances ?? {}) },
+      orders: Array.isArray(parsed.orders) ? parsed.orders : [],
+      fills: Array.isArray(parsed.fills) ? parsed.fills : [],
+      lp: parsed.lp ?? {},
+    };
+  } catch {
+    return base;
+  }
+}
+
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+function persist() {
+  if (typeof localStorage === "undefined") return;
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.account));
+    } catch {
+      /* quota — non fatal */
+    }
+  }, 400);
+}
+
 function createState(): ExchangeState {
   const markets: Record<string, Market> = {};
   LAYERS.forEach((l, i) => {
     const m = seedMarket(l, i);
     markets[m.symbol] = m;
   });
-  const balances: Record<string, number> = { π: 25_000 };
-  LAYERS.forEach((l) => (balances[`${l.id}π`] = 1_000));
-  return {
-    markets,
-    symbols: Object.keys(markets),
-    account: { volume30d: 128_400, balances, orders: [], fills: [], },
-    tick: 0,
-  };
+  return { markets, symbols: Object.keys(markets), account: loadAccount(), tick: 0 };
 }
 
 /* ---------------- Store ---------------- */
@@ -209,6 +257,7 @@ let state: ExchangeState = createState();
 const listeners = new Set<() => void>();
 const emit = () => {
   state = { ...state, tick: state.tick + 1 };
+  persist();
   listeners.forEach((l) => l());
 };
 
@@ -262,6 +311,7 @@ function step() {
         m.reserveBase += sizeBase;
         m.reserveQuote -= q.out;
       }
+      accrueLpFees(m, (notional * FEE_BPS) / BPS);
       pushTrade(m, { id: rid(), side, price: +m.price.toFixed(6), size: +(notional / m.price).toFixed(2), ts: now, zk: Math.random() > 0.6 });
       m.vol24h += notional;
     }
@@ -269,7 +319,7 @@ function step() {
     // Candle aggregation
     const last = m.candles[m.candles.length - 1];
     if (now - last.t >= CANDLE_MS) {
-      m.candles = [...m.candles.slice(-239), { t: now, o: last.c, h: m.price, l: m.price, c: m.price, v: 0 }];
+      m.candles = [...m.candles.slice(-599), { t: now, o: last.c, h: m.price, l: m.price, c: m.price, v: 0 }];
     } else {
       last.h = Math.max(last.h, m.price);
       last.l = Math.min(last.l, m.price);
@@ -280,6 +330,7 @@ function step() {
     m.low24h = Math.min(m.low24h, m.price);
 
     rebuildBook(m);
+    triggerStops(m, now);
     matchResting(m, now);
   });
   emit();
@@ -287,6 +338,45 @@ function step() {
 
 function pushTrade(m: Market, t: PublicTrade) {
   m.trades = [t, ...m.trades].slice(0, 60);
+}
+
+/** LP fee accrual: our share of the pool fee stream (PiRC-215). */
+function accrueLpFees(m: Market, feeQuote: number) {
+  const pos = state.account.lp[m.symbol];
+  if (!pos || pos.shares <= 0 || m.lpShares <= 0) return;
+  pos.feesEarned += feeQuote * (pos.shares / m.lpShares);
+}
+
+/* ---------------- Timeframes ---------------- */
+
+export const TIMEFRAMES = [
+  { id: "1m", minutes: 1 },
+  { id: "5m", minutes: 5 },
+  { id: "15m", minutes: 15 },
+  { id: "1H", minutes: 60 },
+  { id: "4H", minutes: 240 },
+  { id: "1D", minutes: 1440 },
+] as const;
+
+export type TimeframeId = (typeof TIMEFRAMES)[number]["id"];
+
+export function aggregate(candles: Candle[], minutes: number): Candle[] {
+  if (minutes <= 1) return candles;
+  const bucketMs = minutes * CANDLE_MS;
+  const out: Candle[] = [];
+  for (const c of candles) {
+    const t = Math.floor(c.t / bucketMs) * bucketMs;
+    const last = out[out.length - 1];
+    if (last && last.t === t) {
+      last.h = Math.max(last.h, c.h);
+      last.l = Math.min(last.l, c.l);
+      last.c = c.c;
+      last.v += c.v;
+    } else {
+      out.push({ t, o: c.o, h: c.h, l: c.l, c: c.c, v: c.v });
+    }
+  }
+  return out;
 }
 
 /* ---------------- Order lifecycle ---------------- */
@@ -324,14 +414,30 @@ function matchResting(m: Market, now: number) {
   });
 }
 
+/** Stop / take-profit activation (PiRC-227 conditional flow). */
+function triggerStops(m: Market, now: number) {
+  state.account.orders.forEach((o) => {
+    if (o.status !== "pending" || o.symbol !== m.symbol || o.trigger == null) return;
+    const hit = o.side === "buy" ? m.price >= o.trigger : m.price <= o.trigger;
+    if (!hit) return;
+    o.status = "open";
+    o.price = m.price;
+    settle(m, o, m.price, o.size, now);
+  });
+}
+
 export type PlaceParams = {
   symbol: string;
   side: Side;
   type: OrderType;
   size: number; // base units (or π notional for market buy)
   price?: number;
+  trigger?: number;
   slippageBps?: number;
   zk?: boolean;
+  tif?: TimeInForce;
+  postOnly?: boolean;
+  reduceOnly?: boolean;
 };
 
 export function placeOrder(p: PlaceParams): Order {
@@ -343,13 +449,17 @@ export function placeOrder(p: PlaceParams): Order {
     symbol: p.symbol,
     side: p.side,
     type: p.type,
-    price: p.price ?? m.price,
+    price: p.price ?? m?.price ?? 0,
     size: p.size,
     filled: 0,
     status: "open",
     ts: now,
     zk: !!p.zk,
     feeBps: p.type === "limit" ? t.makerBps : t.takerBps,
+    tif: p.tif ?? "GTC",
+    postOnly: !!p.postOnly,
+    reduceOnly: !!p.reduceOnly,
+    trigger: p.trigger,
   };
 
   const reject = (reason: string) => {
@@ -369,10 +479,23 @@ export function placeOrder(p: PlaceParams): Order {
   const notional = order.price * order.size;
   if (p.side === "buy" && (b["π"] ?? 0) < notional) return reject("Insufficient π balance");
   if (p.side === "sell" && (b[baseSym] ?? 0) < order.size) return reject(`Insufficient ${baseSym} balance`);
+  if (order.reduceOnly && p.side === "sell" && (b[baseSym] ?? 0) <= 0) return reject("Reduce-only: no position to reduce");
+
+  if (p.type === "stop") {
+    if (!(order.trigger && order.trigger > 0)) return reject("Stop orders require a trigger price");
+    order.status = "pending";
+    state.account.orders = [order, ...state.account.orders].slice(0, 200);
+    emit();
+    return order;
+  }
 
   if (p.type === "limit") {
+    const wouldCross = p.side === "buy" ? order.price >= m.price : order.price <= m.price;
+    if (order.postOnly && wouldCross) return reject("Post-only order would cross the book");
+    if (order.tif === "FOK" && !wouldCross) return reject("FOK: not immediately fillable");
     state.account.orders = [order, ...state.account.orders].slice(0, 200);
     matchResting(m, now);
+    if (order.tif === "IOC" && order.status === "open" && order.filled < order.size) order.status = "cancelled";
     emit();
     return order;
   }
@@ -392,6 +515,7 @@ export function placeOrder(p: PlaceParams): Order {
     m.reserveBase += amountIn;
     m.reserveQuote -= q.out;
   }
+  accrueLpFees(m, p.side === "buy" ? q.fee : q.fee * execPrice);
   order.price = +execPrice.toFixed(8);
   order.size = p.side === "buy" ? q.out : order.size;
   state.account.orders = [order, ...state.account.orders].slice(0, 200);
@@ -402,15 +526,127 @@ export function placeOrder(p: PlaceParams): Order {
 
 export function cancelOrder(id: string) {
   const o = state.account.orders.find((x) => x.id === id);
-  if (o && o.status === "open") o.status = "cancelled";
+  if (o && (o.status === "open" || o.status === "pending")) o.status = "cancelled";
   emit();
 }
 
 export function cancelAll(symbol?: string) {
   state.account.orders.forEach((o) => {
-    if (o.status === "open" && (!symbol || o.symbol === symbol)) o.status = "cancelled";
+    if ((o.status === "open" || o.status === "pending") && (!symbol || o.symbol === symbol)) o.status = "cancelled";
   });
   emit();
+}
+
+/* ---------------- Liquidity provisioning (PiRC-215) ---------------- */
+
+export type LiquidityResult = { ok: boolean; message: string };
+
+export function quoteLiquidity(symbol: string, amountQuote: number) {
+  const m = state.markets[symbol];
+  if (!m || amountQuote <= 0) return { base: 0, quote: 0, shares: 0, poolPct: 0 };
+  const base = amountQuote / (m.reserveQuote / m.reserveBase);
+  const shares = (amountQuote / m.reserveQuote) * m.lpShares;
+  return { base, quote: amountQuote, shares, poolPct: (shares / (m.lpShares + shares)) * 100 };
+}
+
+export function addLiquidity(symbol: string, amountQuote: number): LiquidityResult {
+  const m = state.markets[symbol];
+  if (!m) return { ok: false, message: "Unknown market" };
+  if (!(amountQuote > 0)) return { ok: false, message: "Enter an amount" };
+  const { base, shares } = quoteLiquidity(symbol, amountQuote);
+  const b = state.account.balances;
+  const baseSym = `${m.layer.id}π`;
+  if ((b["π"] ?? 0) < amountQuote) return { ok: false, message: "Insufficient π balance" };
+  if ((b[baseSym] ?? 0) < base) return { ok: false, message: `Insufficient ${baseSym} balance` };
+
+  b["π"] -= amountQuote;
+  b[baseSym] -= base;
+  m.reserveQuote += amountQuote;
+  m.reserveBase += base;
+  m.lpShares += shares;
+
+  const pos = state.account.lp[symbol] ?? { symbol, shares: 0, depositedBase: 0, depositedQuote: 0, feesEarned: 0 };
+  pos.shares += shares;
+  pos.depositedBase += base;
+  pos.depositedQuote += amountQuote;
+  state.account.lp[symbol] = pos;
+  emit();
+  return { ok: true, message: `Added ${fmt(amountQuote, 2)} π + ${fmt(base, 2)} ${baseSym} · ${fmt(shares, 2)} LP shares` };
+}
+
+export function removeLiquidity(symbol: string, pct: number): LiquidityResult {
+  const m = state.markets[symbol];
+  const pos = state.account.lp[symbol];
+  if (!m || !pos || pos.shares <= 0) return { ok: false, message: "No LP position in this pool" };
+  const shares = pos.shares * Math.min(1, Math.max(0, pct));
+  if (shares <= 0) return { ok: false, message: "Nothing to withdraw" };
+
+  const outQuote = (shares / m.lpShares) * m.reserveQuote;
+  const outBase = (shares / m.lpShares) * m.reserveBase;
+  const baseSym = `${m.layer.id}π`;
+
+  m.reserveQuote -= outQuote;
+  m.reserveBase -= outBase;
+  m.lpShares -= shares;
+
+  const fees = pos.feesEarned * Math.min(1, Math.max(0, pct));
+  state.account.balances["π"] = (state.account.balances["π"] ?? 0) + outQuote + fees;
+  state.account.balances[baseSym] = (state.account.balances[baseSym] ?? 0) + outBase;
+
+  pos.shares -= shares;
+  pos.feesEarned -= fees;
+  pos.depositedQuote *= 1 - pct;
+  pos.depositedBase *= 1 - pct;
+  if (pos.shares <= 1e-9) delete state.account.lp[symbol];
+  emit();
+  return { ok: true, message: `Withdrew ${fmt(outQuote, 2)} π + ${fmt(outBase, 2)} ${baseSym} (fees ${fmt(fees, 4)} π)` };
+}
+
+/* ---------------- Treasury (deposit / withdraw) ---------------- */
+
+export function deposit(asset: string, amount: number): LiquidityResult {
+  if (!(amount > 0)) return { ok: false, message: "Enter an amount" };
+  state.account.balances[asset] = (state.account.balances[asset] ?? 0) + amount;
+  emit();
+  return { ok: true, message: `Credited ${fmt(amount, 4)} ${asset}` };
+}
+
+export function withdraw(asset: string, amount: number): LiquidityResult {
+  if (!(amount > 0)) return { ok: false, message: "Enter an amount" };
+  if ((state.account.balances[asset] ?? 0) < amount) return { ok: false, message: `Insufficient ${asset}` };
+  state.account.balances[asset] -= amount;
+  emit();
+  return { ok: true, message: `Withdrew ${fmt(amount, 4)} ${asset} to Pi wallet` };
+}
+
+export function resetAccount() {
+  state.account = defaultAccount();
+  emit();
+}
+
+/* ---------------- Portfolio analytics ---------------- */
+
+export function portfolioEquity(s: ExchangeState = state) {
+  let equity = s.account.balances["π"] ?? 0;
+  let lpValue = 0;
+  Object.values(s.markets).forEach((m) => {
+    const baseSym = `${m.layer.id}π`;
+    equity += (s.account.balances[baseSym] ?? 0) * m.price;
+    const pos = s.account.lp[m.symbol];
+    if (pos && m.lpShares > 0) {
+      lpValue += (pos.shares / m.lpShares) * m.reserveQuote * 2 + pos.feesEarned;
+    }
+  });
+  const feesPaid = s.account.fills.reduce((sum, f) => sum + f.fee, 0);
+  return { equity: equity + lpValue, spot: equity, lpValue, feesPaid, fills: s.account.fills.length };
+}
+
+export function exportFillsCsv(s: ExchangeState = state) {
+  const head = "time,symbol,side,price,size,fee_pi,zk,tx_hash";
+  const rows = s.account.fills.map(
+    (f) => `${new Date(f.ts).toISOString()},${f.symbol},${f.side},${f.price},${f.size},${f.fee},${f.zk},${f.txHash}`,
+  );
+  return [head, ...rows].join("\n");
 }
 
 /* ---------------- helpers ---------------- */
