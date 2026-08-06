@@ -401,18 +401,20 @@ export default function PiDEX() {
         </div>
 
         {tab === "orders" && (
-          <Table head={["Time", "Market", "Side", "Type", "Price", "Size", "Filled", "Fee", ""]}>
-            {openOrders.length === 0 && <Empty cols={9} text="No open orders" />}
+          <Table head={["Time", "Market", "Side", "Type", "TIF", "Price", "Trigger", "Size", "Filled", "Status", ""]}>
+            {openOrders.length === 0 && <Empty cols={11} text="No open orders" />}
             {openOrders.map((o) => (
               <tr key={o.id} className="border-b border-border/40">
                 <Td>{new Date(o.ts).toLocaleTimeString()}</Td>
                 <Td>{o.symbol}</Td>
                 <Td className={o.side === "buy" ? "text-green" : "text-red"}>{o.side.toUpperCase()}</Td>
-                <Td>{o.type}</Td>
+                <Td>{o.type}{o.postOnly ? " · PO" : ""}{o.reduceOnly ? " · RO" : ""}</Td>
+                <Td>{o.tif}</Td>
                 <Td>{fmt(o.price, 5)}</Td>
+                <Td>{o.trigger ? fmt(o.trigger, 5) : "—"}</Td>
                 <Td>{fmt(o.size, 2)}</Td>
                 <Td>{fmt(o.filled, 2)}</Td>
-                <Td>{(o.feeBps / 100).toFixed(2)}%</Td>
+                <Td className={o.status === "pending" ? "text-gold" : ""}>{o.status}</Td>
                 <Td>
                   <button onClick={() => cancelOrder(o.id)} className="text-muted hover:text-red transition"><X size={13} /></button>
                 </Td>
@@ -422,59 +424,154 @@ export default function PiDEX() {
         )}
 
         {tab === "history" && (
-          <Table head={["Time", "Market", "Side", "Price", "Size", "Fee (π)", "ZK", "Tx"]}>
-            {state.account.fills.length === 0 && <Empty cols={8} text="No fills yet" />}
-            {state.account.fills.map((f) => (
-              <tr key={f.id} className="border-b border-border/40">
-                <Td>{new Date(f.ts).toLocaleTimeString()}</Td>
-                <Td>{f.symbol}</Td>
-                <Td className={f.side === "buy" ? "text-green" : "text-red"}>{f.side.toUpperCase()}</Td>
-                <Td>{fmt(f.price, 5)}</Td>
-                <Td>{fmt(f.size, 2)}</Td>
-                <Td>{fmt(f.fee, 5)}</Td>
-                <Td>{f.zk ? <Shield size={11} className="text-purple" /> : "—"}</Td>
-                <Td className="text-muted">{f.txHash.slice(0, 12)}…</Td>
-              </tr>
-            ))}
-          </Table>
+          <>
+            <div className="flex justify-end mb-2">
+              <button onClick={downloadCsv} className="flex items-center gap-1.5 text-[11px] text-muted hover:text-text transition">
+                <Download size={12} /> Export CSV
+              </button>
+            </div>
+            <Table head={["Time", "Market", "Side", "Price", "Size", "Fee (π)", "ZK", "Tx"]}>
+              {state.account.fills.length === 0 && <Empty cols={8} text="No fills yet" />}
+              {state.account.fills.map((f) => (
+                <tr key={f.id} className="border-b border-border/40">
+                  <Td>{new Date(f.ts).toLocaleTimeString()}</Td>
+                  <Td>{f.symbol}</Td>
+                  <Td className={f.side === "buy" ? "text-green" : "text-red"}>{f.side.toUpperCase()}</Td>
+                  <Td>{fmt(f.price, 5)}</Td>
+                  <Td>{fmt(f.size, 2)}</Td>
+                  <Td>{fmt(f.fee, 5)}</Td>
+                  <Td>{f.zk ? <Shield size={11} className="text-purple" /> : "—"}</Td>
+                  <Td className="text-muted">{f.txHash.slice(0, 12)}…</Td>
+                </tr>
+              ))}
+            </Table>
+          </>
         )}
 
         {tab === "balances" && (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
-            {Object.entries(state.account.balances).map(([sym, bal]) => (
-              <div key={sym} className="bg-panel2 rounded-md px-3 py-2 flex items-center gap-2">
-                <Wallet size={14} className="text-muted" />
-                <div>
-                  <div className="text-[10px] text-muted uppercase">{sym}</div>
-                  <div className="mono text-sm">{fmt(bal, 4)}</div>
-                </div>
+          <div className="space-y-3">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              <Stat label="Portfolio equity (π)" value={fmt(equity.equity, 2)} />
+              <Stat label="Spot value (π)" value={fmt(equity.spot, 2)} />
+              <Stat label="LP value (π)" value={fmt(equity.lpValue, 2)} />
+              <Stat label="Fees paid (π)" value={fmt(equity.feesPaid, 4)} />
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              {Object.entries(state.account.balances).map(([sym, bal]) => (
+                <button
+                  key={sym}
+                  onClick={() => setTreasuryAsset(sym)}
+                  className={`bg-panel2 rounded-md px-3 py-2 flex items-center gap-2 text-left transition hover:brightness-125 ${treasuryAsset === sym ? "ring-1 ring-gold" : ""}`}
+                >
+                  <Wallet size={14} className="text-muted" />
+                  <div>
+                    <div className="text-[10px] text-muted uppercase">{sym}</div>
+                    <div className="mono text-sm">{fmt(bal, 4)}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-end gap-2 pt-2 border-t border-border">
+              <div className="w-40">
+                <Field label={`Amount (${treasuryAsset})`} value={treasuryAmount} onChange={setTreasuryAmount} placeholder="0.00" />
               </div>
-            ))}
+              <button
+                onClick={() => runLiquidity(() => deposit(treasuryAsset, parseFloat(treasuryAmount) || 0))}
+                className="px-4 py-2 rounded-md bg-green text-black text-xs font-semibold hover:brightness-110"
+              >
+                Deposit
+              </button>
+              <button
+                onClick={() => runLiquidity(() => withdraw(treasuryAsset, parseFloat(treasuryAmount) || 0))}
+                className="px-4 py-2 rounded-md bg-panel2 border border-border text-xs font-semibold hover:text-red"
+              >
+                Withdraw
+              </button>
+              <button
+                onClick={() => { resetAccount(); flash(true, "Account reset to sovereign defaults"); }}
+                className="ml-auto flex items-center gap-1.5 text-[11px] text-muted hover:text-text transition"
+              >
+                <RotateCcw size={12} /> Reset account
+              </button>
+            </div>
           </div>
         )}
 
         {tab === "pool" && (
-          <div className="grid md:grid-cols-3 gap-3 text-xs">
-            <PoolCard title="Reserves (PiRC-215)">
-              <Row k={`${m.layer.id}π`} v={fmt(m.reserveBase, 2)} />
-              <Row k="π" v={fmt(m.reserveQuote, 2)} />
-              <Row k="k invariant" v={compact(m.reserveBase * m.reserveQuote)} />
-              <Row k="Spot" v={fmt(m.reserveQuote / m.reserveBase, 6)} />
-            </PoolCard>
-            <PoolCard title="Risk controls">
-              <Row k="TWAP" v={fmt(m.twap, 6)} />
-              <Row k="Deviation" v={`${(((m.price - m.twap) / m.twap) * 100).toFixed(3)}%`} />
-              <Row k="Breaker (PiRC-251)" v={m.halted ? "TRIPPED" : "Armed @ 8%"} danger={m.halted} />
-              <Row k="MEV" v="Private mempool" />
-            </PoolCard>
-            <PoolCard title="Settlement">
-              <Row k="Fee schedule" v={`${FEE_BPS / 100}% pool + tier`} />
-              <Row k="Curve" v="x·y=k · constant product" />
-              <Row k="Verifier" v="BN254 · Groth16" />
-              <Row k="Layer" v={`${m.layer.id} ${m.layer.name} · ${m.layer.role}`} />
-            </PoolCard>
+          <div className="space-y-3">
+            <div className="grid md:grid-cols-3 gap-3 text-xs">
+              <PoolCard title="Reserves (PiRC-215)">
+                <Row k={`${m.layer.id}π`} v={fmt(m.reserveBase, 2)} />
+                <Row k="π" v={fmt(m.reserveQuote, 2)} />
+                <Row k="k invariant" v={compact(m.reserveBase * m.reserveQuote)} />
+                <Row k="Spot" v={fmt(m.reserveQuote / m.reserveBase, 6)} />
+              </PoolCard>
+              <PoolCard title="Risk controls">
+                <Row k="TWAP" v={fmt(m.twap, 6)} />
+                <Row k="Deviation" v={`${(((m.price - m.twap) / m.twap) * 100).toFixed(3)}%`} />
+                <Row k="Breaker (PiRC-251)" v={m.halted ? "TRIPPED" : "Armed @ 8%"} danger={m.halted} />
+                <Row k="MEV" v="Private mempool" />
+              </PoolCard>
+              <PoolCard title="Settlement">
+                <Row k="Fee schedule" v={`${FEE_BPS / 100}% pool + tier`} />
+                <Row k="Curve" v="x·y=k · constant product" />
+                <Row k="Verifier" v="BN254 · Groth16" />
+                <Row k="Layer" v={`${m.layer.id} ${m.layer.name} · ${m.layer.role}`} />
+              </PoolCard>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="bg-panel2/50 border border-border rounded-lg p-3">
+                <div className="text-[11px] font-semibold mb-2 flex items-center gap-2"><Droplets size={13} /> Provide liquidity</div>
+                <Field label="Amount (π) — paired automatically" value={lpAmount} onChange={setLpAmount} placeholder="0.00" />
+                {(() => {
+                  const q = quoteLiquidity(symbol, parseFloat(lpAmount) || 0);
+                  return (
+                    <div className="mt-2 space-y-0.5 mono text-[11px]">
+                      <Row k={`Pairs with ${m.layer.id}π`} v={fmt(q.base, 4)} />
+                      <Row k="LP shares minted" v={fmt(q.shares, 4)} />
+                      <Row k="Pool share" v={`${q.poolPct.toFixed(4)}%`} />
+                    </div>
+                  );
+                })()}
+                <button
+                  onClick={() => runLiquidity(() => addLiquidity(symbol, parseFloat(lpAmount) || 0))}
+                  className="w-full mt-3 py-2 rounded-md bg-gold text-black text-xs font-semibold hover:brightness-110"
+                >
+                  Add liquidity
+                </button>
+              </div>
+
+              <div className="bg-panel2/50 border border-border rounded-lg p-3">
+                <div className="text-[11px] font-semibold mb-2 flex items-center gap-2"><Droplets size={13} /> Your position</div>
+                {lpPos ? (
+                  <div className="space-y-0.5 mono text-[11px]">
+                    <Row k="LP shares" v={fmt(lpPos.shares, 4)} />
+                    <Row k="Pool share" v={`${((lpPos.shares / m.lpShares) * 100).toFixed(4)}%`} />
+                    <Row k="Redeemable π" v={fmt((lpPos.shares / m.lpShares) * m.reserveQuote, 4)} />
+                    <Row k={`Redeemable ${m.layer.id}π`} v={fmt((lpPos.shares / m.lpShares) * m.reserveBase, 4)} />
+                    <Row k="Fees earned (π)" v={fmt(lpPos.feesEarned, 6)} />
+                  </div>
+                ) : (
+                  <div className="text-muted text-[11px] py-6 text-center">No LP position in {m.symbol}</div>
+                )}
+                <div className="flex gap-1 mt-3">
+                  {[0.25, 0.5, 1].map((p) => (
+                    <button
+                      key={p}
+                      disabled={!lpPos}
+                      onClick={() => runLiquidity(() => removeLiquidity(symbol, p))}
+                      className="flex-1 py-2 rounded-md bg-panel2 border border-border text-[11px] hover:text-text disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      Remove {p * 100}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
+
       </section>
 
       {toast && (
