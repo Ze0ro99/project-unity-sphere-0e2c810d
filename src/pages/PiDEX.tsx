@@ -216,15 +216,21 @@ export default function PiDEX() {
           <div className="card p-3">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2 text-xs text-muted">
-                <Activity size={13} /> <span className="mono">1m · Japanese candlesticks</span>
+                <Activity size={13} /> <span className="mono">{tf} · Japanese candlesticks</span>
               </div>
               <div className="flex gap-1 text-[10px]">
-                {["1m", "5m", "15m", "1H", "4H", "1D"].map((tf) => (
-                  <span key={tf} className={`px-2 py-1 rounded ${tf === "1m" ? "bg-panel2 text-text" : "text-muted"}`}>{tf}</span>
+                {TIMEFRAMES.map((x) => (
+                  <button
+                    key={x.id}
+                    onClick={() => setTf(x.id)}
+                    className={`px-2 py-1 rounded transition ${x.id === tf ? "bg-panel2 text-text" : "text-muted hover:text-text"}`}
+                  >
+                    {x.id}
+                  </button>
                 ))}
               </div>
             </div>
-            <CandleChart candles={m.candles} accent={m.layer.hex} />
+            <CandleChart candles={candles} accent={m.layer.hex} />
           </div>
 
           <div className="grid md:grid-cols-2 gap-3">
