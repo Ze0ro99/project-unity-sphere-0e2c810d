@@ -1,25 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
 import { LAYERS, ISSUER, MASTER_REGISTRY } from "@/data/layers";
-import { shorten, fetchIssuedAssets, fetchAccount, HORIZON_MAINNET } from "@/lib/pi";
+import { shorten, fetchIssuedAssets, fetchAccount, isValidStrKey, HORIZON_MAINNET } from "@/lib/pi";
 import { Layers, RefreshCw } from "lucide-react";
 
 export default function Layers7() {
+  const issuerValid = isValidStrKey(ISSUER, "G");
+
   const assetsQ = useQuery({
     queryKey: ["issued-assets", ISSUER],
     queryFn: () => fetchIssuedAssets(ISSUER, HORIZON_MAINNET),
     refetchInterval: 30000,
     retry: 1,
+    enabled: issuerValid,
   });
   const issuerQ = useQuery({
     queryKey: ["issuer-account", ISSUER],
     queryFn: () => fetchAccount(ISSUER, HORIZON_MAINNET),
     refetchInterval: 30000,
     retry: 1,
+    enabled: issuerValid,
   });
 
   const byCode = new Map((assetsQ.data ?? []).map((a) => [a.asset_code.toUpperCase(), a]));
   const totalHolders = (assetsQ.data ?? []).reduce((a, x) => a + (x.num_accounts ?? 0), 0);
   const live = !assetsQ.error && !!assetsQ.data?.length;
+
 
   return (
     <div className="space-y-6">
