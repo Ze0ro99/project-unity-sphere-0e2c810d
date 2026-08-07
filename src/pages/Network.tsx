@@ -72,7 +72,7 @@ function NetCard({ nkey, title, endpoint }: { nkey: string; title: string; endpo
 
       <div className="grid grid-cols-2 gap-3 mt-4 text-sm">
         <Info k="Network" v={data?.network_passphrase ?? "—"} />
-        <Info k="Protocol" v={data?.protocol_version ? `v${data.protocol_version}` : "—"} />
+        <Info k="Protocol" v={data?.current_protocol_version ?? data?.protocol_version ? `v${data.current_protocol_version ?? data.protocol_version}` : "—"} />
         <Info k="Horizon" v={data?.horizon_version ?? "—"} />
         <Info k="Core" v={data?.core_version ?? "—"} />
         <Info k="Latest Ledger" v={data?.history_latest_ledger?.toLocaleString?.() ?? "—"} />
@@ -85,8 +85,8 @@ function NetCard({ nkey, title, endpoint }: { nkey: string; title: string; endpo
 
       <div className="text-[10px] uppercase text-muted mt-4 mb-2 tracking-wide">Live throughput</div>
       <div className="grid grid-cols-3 gap-3 text-sm">
-        <Info k="Close Time" v={mct ? `${mct.toFixed(1)}s` : "—"} />
-        <Info k="Ops / sec" v={rate ? rate.toFixed(2) : "—"} />
+        <Info k="Close Time" v={mct === null ? "—" : `${mct.toFixed(1)}s`} />
+        <Info k="Ops / sec" v={rate === null ? "—" : rate.toFixed(2)} />
         <Info k="Fail Rate" v={failRate === null ? "—" : `${failRate.toFixed(2)}%`} />
       </div>
     </div>
