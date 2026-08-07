@@ -112,3 +112,11 @@ export function tps(ledgers: Ledger[]) {
   const ops = ledgers.reduce((a, l) => a + (l.operation_count ?? 0), 0) / ledgers.length;
   return ops / mct;
 }
+
+const B32 = /^[A-Z2-7]+$/;
+/** Strkey shape check (Stellar base32 alphabet, no 0/1/8/9). */
+export function isValidStrKey(s: string, prefix: "G" | "C" = "G") {
+  if (!s) return false;
+  const len = prefix === "G" ? 56 : 56;
+  return s.length === len && s.startsWith(prefix) && B32.test(s);
+}
