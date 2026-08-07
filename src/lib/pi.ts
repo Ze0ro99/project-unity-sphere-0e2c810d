@@ -69,3 +69,46 @@ export function relTime(iso: string) {
   if (h < 24) return `${h}h ago`;
   return `${Math.floor(h / 24)}d ago`;
 }
+
+export const HORIZON_TESTNET2 = "https://api.testnet2.minepi.com";
+
+export type AccountInfo = {
+  id: string;
+  sequence: string;
+  subentry_count: number;
+  balances: { balance: string; asset_type: string; asset_code?: string; asset_issuer?: string }[];
+  flags?: Record<string, boolean>;
+  last_modified_ledger?: number;
+};
+
+export async function fetchAccount(id: string, base = HORIZON_MAINNET) {
+  return j<AccountInfo>(`${base}/accounts/${id}`);
+}
+
+/** Assets issued by an account — used for live PiRC-207 layer supply/holder metrics. */
+export async function fetchIssuedAssets(issuer: string, base = HORIZON_MAINNET) {
+  const data = await j<any>(`${base}/assets?asset_issuer=${issuer}&limit=200`);
+  return (data?._embedded?.records ?? []) as {
+    asset_code: string;
+    asset_issuer: string;
+    amount: string;
+    num_accounts: number;
+    flags?: Record<string, boolean>;
+  }[];
+}
+
+/** Mean seconds between ledger closes — network throughput indicator. */
+export function meanCloseTime(ledgers: Ledger[]) {
+  if (!ledgers || ledgers.length < 2) return null;
+  const ts = ledgers.map((l) => new Date(l.closed_at).getTime()).sort((a, b) => b - a);
+  const diffs: number[] = [];
+  for (let i = 0; i < ts.length - 1; i++) diffs.push((ts[i] - ts[i + 1]) / 1000);
+  return diffs.reduce((a, b) => a + b, 0) / diffs.length;
+}
+
+export function tps(ledgers: Ledger[]) {
+  const mct = meanCloseTime(ledgers);
+  if (!mct || !ledgers.length) return null;
+  const ops = ledgers.reduce((a, l) => a + (l.operation_count ?? 0), 0) / ledgers.length;
+  return ops / mct;
+}
