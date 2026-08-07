@@ -34,9 +34,16 @@ export default function Layers7() {
           <h1 className="text-2xl font-bold">7-Layer Token System</h1>
           <span className="chip">PiRC-207</span>
           <span className={`chip ${live ? "" : "text-muted"}`}>
-            <span className={`w-2 h-2 rounded-full ${live ? "bg-green" : assetsQ.isFetching ? "bg-gold" : "bg-red"}`} />
-            {live ? "live registry" : assetsQ.isFetching ? "syncing…" : "registry offline"}
+            <span className={`w-2 h-2 rounded-full ${live ? "bg-green" : !issuerValid ? "bg-gold" : assetsQ.isFetching ? "bg-gold" : "bg-red"}`} />
+            {live
+              ? "live registry"
+              : !issuerValid
+                ? "issuer not yet published on-chain"
+                : assetsQ.isFetching
+                  ? "syncing…"
+                  : "registry unreachable"}
           </span>
+
           <button
             onClick={() => { assetsQ.refetch(); issuerQ.refetch(); }}
             className="ml-auto chip hover:bg-panel2"
