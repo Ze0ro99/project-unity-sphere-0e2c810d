@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, NavLink, Link, useLocation } from "react-router-dom";
 import {
-  Activity, Layers, Radio, Cpu, ArrowDownUp, FlaskConical, ShieldCheck, Lock, Menu, X, Boxes,
+  Activity, Layers, Radio, Cpu, ArrowDownUp, FlaskConical, ShieldCheck, Lock, Menu, X, Boxes, GitBranch,
 } from "lucide-react";
 import { initPi } from "@/lib/piSdk";
 import PiConnectButton from "@/components/PiConnectButton";
@@ -16,6 +16,7 @@ import Testnet from "./pages/Testnet";
 import Standards from "./pages/Standards";
 import Bn254 from "./pages/Bn254";
 import Gateways from "./pages/Gateways";
+import Repository from "./pages/Repository";
 
 const NAV = [
   { to: "/", key: "nav.pidex", icon: ArrowDownUp },
@@ -27,6 +28,7 @@ const NAV = [
   { to: "/standards", key: "nav.standards", icon: ShieldCheck },
   { to: "/bn254", key: "nav.bn254", icon: Lock },
   { to: "/testnet", key: "nav.testnet", icon: FlaskConical },
+  { to: "/repository", key: "nav.repository", icon: GitBranch },
 ];
 
 export default function App() {
@@ -49,6 +51,7 @@ export default function App() {
           <Route path="/testnet" element={<Testnet />} />
           <Route path="/standards" element={<Standards />} />
           <Route path="/bn254" element={<Bn254 />} />
+          <Route path="/repository" element={<Repository />} />
         </Routes>
       </main>
       <Footer />

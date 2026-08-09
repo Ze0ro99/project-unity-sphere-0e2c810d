@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
+  GitBranch,
   ArrowDownUp, Activity, Layers, Cpu, Radio, ShieldCheck, Lock, FlaskConical,
   Wallet, LineChart, Droplets, Boxes, FileCode2, Gauge, Globe2, KeyRound,
 } from "lucide-react";
@@ -29,6 +30,7 @@ const GATES: Gate[] = [
   { to: "/standards", title: "Standards Compliance", desc: "300+ PiRC standards & v21–v28 protocol matrix", icon: ShieldCheck, group: "Standards" },
   { to: "/bn254", title: "BN254 / ZK Verifier", desc: "Groth16 proof verification, commitment & on-chain mode", icon: Lock, group: "Standards", tag: "PiRC-800" },
   { to: "/standards#contracts", title: "Contract Factory", desc: "Soroban AMM & verifier templates with deploy runbooks", icon: FileCode2, group: "Standards" },
+  { to: "/repository", title: "Repository Sync", desc: "Ze0ro99/PiRC branches, CI workflows & key verification", icon: GitBranch, group: "Standards", tag: "LIVE" },
 ];
 
 const GROUPS = ["Trading", "Blockchain", "Standards"];

@@ -69,6 +69,7 @@ const en: Dict = {
   "nav.testnet": "Testnet",
   "nav.gateways": "Gateways",
   "nav.bn254": "BN254 Verifier",
+  "nav.repository": "Repository",
 
   // BN254 page
   "bn.title": "BN254 · Groth16 Verifier",
@@ -174,6 +175,7 @@ const ar: Dict = {
   "nav.testnet": "شبكة الاختبار",
   "nav.gateways": "البوابات",
   "nav.bn254": "مُدقِّق BN254",
+  "nav.repository": "المستودع",
 
   "bn.title": "مُدقِّق BN254 · Groth16",
   "bn.subtitle":
@@ -278,6 +280,7 @@ const zh: Dict = {
   "nav.testnet": "测试网",
   "nav.gateways": "网关",
   "nav.bn254": "BN254 验证器",
+  "nav.repository": "代码仓库",
 
   "bn.title": "BN254 · Groth16 验证器",
   "bn.subtitle":
@@ -382,6 +385,7 @@ const id: Dict = {
   "nav.testnet": "Testnet",
   "nav.gateways": "Gerbang",
   "nav.bn254": "Verifikator BN254",
+  "nav.repository": "Repositori",
 
   "bn.title": "Verifikator BN254 · Groth16",
   "bn.subtitle":
