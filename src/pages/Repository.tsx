@@ -144,7 +144,7 @@ export default function Repository() {
                 <GitBranch size={13} className="text-muted shrink-0" />
                 <span className="mono truncate">{b.name}</span>
                 {b.protected && <span className="text-[10px] px-1.5 py-0.5 rounded bg-gold/15 text-gold">protected</span>}
-                <span className="ml-auto mono text-muted">{shorten(b.commit.sha, 7, 0)}</span>
+                <span className="ml-auto mono text-muted">{b.commit.sha.slice(0, 7)}</span>
               </button>
             ))}
           </div>
@@ -164,7 +164,7 @@ export default function Repository() {
               >
                 <div className="truncate">{c.commit.message.split("\n")[0]}</div>
                 <div className="mono text-[11px] text-muted">
-                  {shorten(c.sha, 7, 0)} · {c.commit.author?.name} · {relTime(c.commit.author?.date)}
+                  {c.sha.slice(0, 7)} · {c.commit.author?.name} · {relTime(c.commit.author?.date)}
                 </div>
               </a>
             ))}
