@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, NavLink, Link, useLocation } from "react-router-dom";
 import {
-  Activity, Layers, Radio, Cpu, ArrowDownUp, FlaskConical, ShieldCheck, Lock, Menu, X,
+  Activity, Layers, Radio, Cpu, ArrowDownUp, FlaskConical, ShieldCheck, Lock, Menu, X, Boxes,
 } from "lucide-react";
 import { initPi } from "@/lib/piSdk";
 import PiConnectButton from "@/components/PiConnectButton";
@@ -15,9 +15,11 @@ import PiDEX from "./pages/PiDEX";
 import Testnet from "./pages/Testnet";
 import Standards from "./pages/Standards";
 import Bn254 from "./pages/Bn254";
+import Gateways from "./pages/Gateways";
 
 const NAV = [
   { to: "/", key: "nav.pidex", icon: ArrowDownUp },
+  { to: "/gateways", key: "Gateways", icon: Boxes },
   { to: "/explorer", key: "nav.explorer", icon: Activity },
   { to: "/layers", key: "nav.layers", icon: Layers },
   { to: "/micro-device", key: "nav.micro", icon: Cpu },
