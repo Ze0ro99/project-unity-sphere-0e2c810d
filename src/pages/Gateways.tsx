@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   ArrowDownUp, Activity, Layers, Cpu, Radio, ShieldCheck, Lock, FlaskConical,
@@ -8,7 +9,7 @@ type Gate = {
   to: string;
   title: string;
   desc: string;
-  icon: React.ComponentType<{ size?: number | string; className?: string }>;
+  icon: LucideIcon;
   group: string;
   tag?: string;
 };
@@ -32,7 +33,7 @@ const GATES: Gate[] = [
 
 const GROUPS = ["Trading", "Blockchain", "Standards"];
 
-const GROUP_ICON: Record<string, React.ComponentType<{ size?: number }>> = {
+const GROUP_ICON: Record<string, LucideIcon> = {
   Trading: Gauge,
   Blockchain: Globe2,
   Standards: KeyRound,
