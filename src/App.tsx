@@ -40,7 +40,9 @@ export default function App() {
         <Routes>
           <Route path="/" element={<PiDEX />} />
           <Route path="/pidex" element={<PiDEX />} />
+          <Route path="/gateways" element={<Gateways />} />
           <Route path="/explorer" element={<Explorer />} />
+
           <Route path="/layers" element={<Layers7 />} />
           <Route path="/micro-device" element={<MicroDevice />} />
           <Route path="/network" element={<Network />} />
