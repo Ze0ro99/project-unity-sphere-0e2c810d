@@ -67,6 +67,7 @@ const en: Dict = {
   "nav.pidex": "PiDEX",
   "nav.standards": "Standards",
   "nav.testnet": "Testnet",
+  "nav.gateways": "Gateways",
   "nav.bn254": "BN254 Verifier",
 
   // BN254 page
@@ -171,6 +172,7 @@ const ar: Dict = {
   "nav.pidex": "PiDEX",
   "nav.standards": "المعايير",
   "nav.testnet": "شبكة الاختبار",
+  "nav.gateways": "البوابات",
   "nav.bn254": "مُدقِّق BN254",
 
   "bn.title": "مُدقِّق BN254 · Groth16",
@@ -274,6 +276,7 @@ const zh: Dict = {
   "nav.pidex": "PiDEX",
   "nav.standards": "标准",
   "nav.testnet": "测试网",
+  "nav.gateways": "网关",
   "nav.bn254": "BN254 验证器",
 
   "bn.title": "BN254 · Groth16 验证器",
@@ -377,6 +380,7 @@ const id: Dict = {
   "nav.pidex": "PiDEX",
   "nav.standards": "Standar",
   "nav.testnet": "Testnet",
+  "nav.gateways": "Gerbang",
   "nav.bn254": "Verifikator BN254",
 
   "bn.title": "Verifikator BN254 · Groth16",

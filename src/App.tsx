@@ -19,7 +19,7 @@ import Gateways from "./pages/Gateways";
 
 const NAV = [
   { to: "/", key: "nav.pidex", icon: ArrowDownUp },
-  { to: "/gateways", key: "Gateways", icon: Boxes },
+  { to: "/gateways", key: "nav.gateways", icon: Boxes },
   { to: "/explorer", key: "nav.explorer", icon: Activity },
   { to: "/layers", key: "nav.layers", icon: Layers },
   { to: "/micro-device", key: "nav.micro", icon: Cpu },
