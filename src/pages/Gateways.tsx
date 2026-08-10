@@ -4,6 +4,7 @@ import {
   GitBranch,
   ArrowDownUp, Activity, Layers, Cpu, Radio, ShieldCheck, Lock, FlaskConical,
   Wallet, LineChart, Droplets, Boxes, FileCode2, Gauge, Globe2, KeyRound,
+  Sigma, ArrowLeftRight, Landmark, ScanFace, Bot, AlertTriangle,
 } from "lucide-react";
 
 type Gate = {
@@ -21,6 +22,14 @@ const GATES: Gate[] = [
   { to: "/pidex#pool", title: "Liquidity Pools", desc: "Provide / remove liquidity, LP shares & fee accrual", icon: Droplets, group: "Trading", tag: "PiRC-215" },
   { to: "/pidex#account", title: "Treasury & Portfolio", desc: "Balances, deposits, withdrawals and fills export", icon: Wallet, group: "Trading" },
 
+  { to: "/sovereign", title: "Economic Core", desc: "Manifold routing, Φ solvency, WCF & efficiency factors", icon: Sigma, group: "Sovereign", tag: "core/math" },
+  { to: "/sovereign#risk", title: "Risk Analytics", desc: "VaR, expected shortfall, drawdown & depth scoring", icon: Gauge, group: "Sovereign", tag: "PiRC-211" },
+  { to: "/sovereign#anomaly", title: "Anomaly Detection", desc: "Robust-z dislocation, volume burst & book imbalance", icon: AlertTriangle, group: "Sovereign", tag: "PiRC-208" },
+  { to: "/sovereign#agent", title: "Autonomous Keeper", desc: "Policy loop emitting halt, throttle & seed actions", icon: Bot, group: "Sovereign", tag: "PiRC-212" },
+  { to: "/bridge", title: "Cross-Chain Bridge", desc: "Lock-and-mint corridors across Pi and Stellar networks", icon: ArrowLeftRight, group: "Sovereign", tag: "PiRC-210" },
+  { to: "/governance", title: "Governance & Treasury", desc: "Multisig keeper set, L6 voting and vault operations", icon: Landmark, group: "Sovereign", tag: "PiRC-207" },
+  { to: "/compliance", title: "Compliance Gateway", desc: "AML/KYC scoring and EU MiCAR alignment tracking", icon: ScanFace, group: "Sovereign", tag: "PiRC-211.5" },
+
   { to: "/explorer", title: "Chain Explorer", desc: "Ledgers, transactions and accounts on Pi Mainnet", icon: Activity, group: "Blockchain", tag: "LIVE" },
   { to: "/micro-device", title: "Micro-Device", desc: "High-frequency transaction stream & node telemetry", icon: Cpu, group: "Blockchain" },
   { to: "/network", title: "Network Health", desc: "Mainnet, Testnet 1 & 2 — TPS, close time, fail rate", icon: Radio, group: "Blockchain" },
@@ -33,10 +42,11 @@ const GATES: Gate[] = [
   { to: "/repository", title: "Repository Sync", desc: "Ze0ro99/PiRC branches, CI workflows & key verification", icon: GitBranch, group: "Standards", tag: "LIVE" },
 ];
 
-const GROUPS = ["Trading", "Blockchain", "Standards"];
+const GROUPS = ["Trading", "Sovereign", "Blockchain", "Standards"];
 
 const GROUP_ICON: Record<string, LucideIcon> = {
   Trading: Gauge,
+  Sovereign: Sigma,
   Blockchain: Globe2,
   Standards: KeyRound,
 };
