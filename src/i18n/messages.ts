@@ -60,6 +60,10 @@ const en: Dict = {
   "check.8": "Optional BN254/Groth16 verifier for shielded orders (PiRC-800)",
 
   // Nav
+  "nav.sovereign": "Economic Core",
+  "nav.bridge": "Bridge",
+  "nav.governance": "Governance",
+  "nav.compliance": "Compliance",
   "nav.explorer": "Explorer",
   "nav.layers": "7-Layer Tokens",
   "nav.micro": "Micro-Device",
@@ -166,6 +170,10 @@ const ar: Dict = {
   "check.7": "إنفاذ min_out قبل التحويل (انزلاق PiRC-227)",
   "check.8": "مُدقِّق BN254/Groth16 اختياري للأوامر المحجوبة (PiRC-800)",
 
+  "nav.sovereign": "النواة الاقتصادية",
+  "nav.bridge": "الجسر",
+  "nav.governance": "الحوكمة",
+  "nav.compliance": "الامتثال",
   "nav.explorer": "المستكشف",
   "nav.layers": "الرموز السبعية",
   "nav.micro": "الجهاز الدقيق",
