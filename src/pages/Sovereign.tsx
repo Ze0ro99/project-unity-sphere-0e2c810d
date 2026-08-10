@@ -44,8 +44,9 @@ export default function Sovereign() {
   const actions = useMemo(() => agentEvaluate(markets), [markets]);
 
   const tvl = markets.reduce((s, m) => s + m.reserveQuote * 2, 0);
-  const claims = markets.reduce((s, m) => s + m.reserveBase * m.price, 0);
-  const solvency = phiSolvency(markets.reduce((s, m) => s + m.reserveQuote, 0), claims, 1);
+  const claims = markets.reduce((s, m) => s + m.reserveBase, 0);
+  const quoteReserves = markets.reduce((s, m) => s + m.reserveQuote, 0);
+  const solvency = phiSolvency(quoteReserves, claims, claims > 0 ? quoteReserves / claims : 1);
   const weights = markets.map((m) => (tvl ? (m.reserveQuote * 2) / tvl : 0));
   const pVar = portfolioVar(risks, weights);
   const efficiency = systemEfficiency(38.4, 0.007, 5.2);
@@ -154,7 +155,7 @@ export default function Sovereign() {
               <div className="grid grid-cols-3 gap-2 text-xs">
                 <Stat label="Geodesic cost" value={route.cost.toFixed(5)} />
                 <Stat label="Hops" value={String(route.hops)} />
-                <Stat label="Friction removed" value={pct(route.friction)} tone="text-green" />
+                <Stat label="Geodesic gain" value={pct(route.friction)} tone="text-green" />
               </div>
             </div>
           ) : (
@@ -282,7 +283,7 @@ export default function Sovereign() {
             </thead>
             <tbody className="mono">
               {markets.map((m) => {
-                const s = phiSolvency(m.reserveQuote, m.reserveBase * m.price, m.price);
+                const s = phiSolvency(m.reserveQuote, m.reserveBase, m.price);
                 return (
                   <tr key={m.symbol} className="border-t border-border/60">
                     <td className="py-1.5">

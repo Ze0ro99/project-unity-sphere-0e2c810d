@@ -115,11 +115,25 @@ export function routeOrder(
     path.unshift(p);
   }
   const cost = dist.get(to) ?? 0;
+
+  // Flat (Euclidean) benchmark: same path priced with zero curvature warp.
+  let flat = 0;
+  for (let i = 0; i < path.length - 1; i++) {
+    const e = edges.find((x) => x.from === path[i] && x.to === path[i + 1]);
+    const n = byId.get(path[i + 1]);
+    if (e && n) flat += geodesicCost(e, size, 0, n.latency);
+  }
   const direct = edges.find((e) => e.from === from && e.to === to);
-  const directCost = direct
-    ? geodesicCost(direct, size, curvature(byId.get(to)!, refDensity), byId.get(to)!.latency)
-    : cost;
-  return { path, cost, hops: path.length - 1, friction: Math.max(0, 1 - cost / Math.max(cost, directCost)) };
+  const naive = direct && byId.get(to)
+    ? geodesicCost(direct, size, 0, byId.get(to)!.latency)
+    : flat;
+  const benchmark = Math.max(flat, naive);
+  return {
+    path,
+    cost,
+    hops: path.length - 1,
+    friction: benchmark > 0 ? Math.max(0, 1 - cost / benchmark) : 0,
+  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -135,13 +149,18 @@ export type SolvencyReport = {
 };
 
 /**
- * Φ-solvency: reserves must cover circulating claims by at least the golden
- * ratio. The floor price is the reserve-backed price divided by Φ.
+ * Φ-solvency (PiRC-101 justice engine).
+ *
+ * `reservesQuote` is the π backing held against `claimsBase` outstanding layer
+ * tokens, so the reserve-backed price is reservesQuote / claimsBase. The
+ * protected floor sits a golden-ratio discount below that backed price, and
+ * Φ measures how far spot trades above the floor. A pool with no external
+ * treasury sits exactly at Φ = 1.618; treasury backing lifts it further.
  */
-export function phiSolvency(reserves: number, claims: number, spot: number): SolvencyReport {
-  const phi = claims > 0 ? reserves / claims : Infinity;
-  const backed = claims > 0 ? reserves / claims : spot;
+export function phiSolvency(reservesQuote: number, claimsBase: number, spot: number): SolvencyReport {
+  const backed = claimsBase > 0 ? reservesQuote / claimsBase : spot;
   const floorPrice = backed / PHI;
+  const phi = floorPrice > 0 ? spot / floorPrice : Infinity;
   return {
     phi,
     solvent: phi >= PHI,
@@ -172,7 +191,7 @@ export function weightedContributionFactor(c: Contribution): number {
 /** System Efficiency Factor — throughput realised per unit of friction. */
 export function systemEfficiency(opsPerSec: number, failRate: number, meanCloseTime: number): number {
   const throughput = opsPerSec / Math.max(0.001, meanCloseTime);
-  return Math.max(0, Math.min(1, throughput * (1 - failRate) * 0.2));
+  return Math.max(0, Math.min(1, Math.tanh((throughput * (1 - failRate)) / 10)));
 }
 
 /** PiRC-260 sovereign credit expansion ceiling. */
@@ -343,7 +362,7 @@ export function agentEvaluate(markets: Market[]): AgentAction[] {
   markets.forEach((m, i) => {
     const br = quadraticBreaker(m.price, m.twap);
     const r = riskMetrics(m);
-    const sol = phiSolvency(m.reserveQuote, m.reserveBase * m.price, m.price);
+    const sol = phiSolvency(m.reserveQuote, m.reserveBase, m.price);
 
     if (br.level >= 3)
       acts.push({ id: `${i}-halt`, policy: "PiRC-251", action: "HALT_MARKET", target: m.symbol,
