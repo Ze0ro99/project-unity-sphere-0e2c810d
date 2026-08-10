@@ -60,6 +60,10 @@ const en: Dict = {
   "check.8": "Optional BN254/Groth16 verifier for shielded orders (PiRC-800)",
 
   // Nav
+  "nav.sovereign": "Economic Core",
+  "nav.bridge": "Bridge",
+  "nav.governance": "Governance",
+  "nav.compliance": "Compliance",
   "nav.explorer": "Explorer",
   "nav.layers": "7-Layer Tokens",
   "nav.micro": "Micro-Device",
@@ -166,6 +170,10 @@ const ar: Dict = {
   "check.7": "إنفاذ min_out قبل التحويل (انزلاق PiRC-227)",
   "check.8": "مُدقِّق BN254/Groth16 اختياري للأوامر المحجوبة (PiRC-800)",
 
+  "nav.sovereign": "النواة الاقتصادية",
+  "nav.bridge": "الجسر",
+  "nav.governance": "الحوكمة",
+  "nav.compliance": "الامتثال",
   "nav.explorer": "المستكشف",
   "nav.layers": "الرموز السبعية",
   "nav.micro": "الجهاز الدقيق",
@@ -271,6 +279,10 @@ const zh: Dict = {
   "check.7": "转账前强制 min_out(PiRC-227 滑点)",
   "check.8": "为隐私订单提供可选 BN254/Groth16 验证器 (PiRC-800)",
 
+  "nav.sovereign": "经济核心",
+  "nav.bridge": "跨链桥",
+  "nav.governance": "治理",
+  "nav.compliance": "合规",
   "nav.explorer": "浏览器",
   "nav.layers": "7 层代币",
   "nav.micro": "微设备",
@@ -376,6 +388,10 @@ const id: Dict = {
   "check.7": "min_out diberlakukan pra-transfer (slippage PiRC-227)",
   "check.8": "Verifikator BN254/Groth16 opsional untuk order terlindung (PiRC-800)",
 
+  "nav.sovereign": "Inti Ekonomi",
+  "nav.bridge": "Jembatan",
+  "nav.governance": "Tata Kelola",
+  "nav.compliance": "Kepatuhan",
   "nav.explorer": "Explorer",
   "nav.layers": "Token 7 Lapis",
   "nav.micro": "Perangkat Mikro",
