@@ -225,7 +225,7 @@ export function detectAnomalies(markets: Market[]): Anomaly[] {
     const closes = m.candles.slice(-120).map((c) => c.c);
     const vols = m.candles.slice(-120).map((c) => c.v);
     const rets = closes.slice(1).map((c, i) => (c - closes[i]) / closes[i]);
-    const lastRet = rets.at(-1) ?? 0;
+    const lastRet = rets.length ? rets[rets.length - 1] : 0;
 
     const zr = robustZ(rets.slice(0, -1), lastRet);
     if (Math.abs(zr) > 4) {
@@ -233,7 +233,7 @@ export function detectAnomalies(markets: Market[]): Anomaly[] {
         detail: `${(lastRet * 100).toFixed(2)}% tick, robust z ${zr.toFixed(1)}` });
     }
 
-    const zv = robustZ(vols.slice(0, -1), vols.at(-1) ?? 0);
+    const zv = robustZ(vols.slice(0, -1), vols.length ? vols[vols.length - 1] : 0);
     if (zv > 4) {
       out.push({ symbol: m.symbol, kind: "Volume burst", score: zv, ts,
         detail: `volume z ${zv.toFixed(1)} vs 120-bar median` });
