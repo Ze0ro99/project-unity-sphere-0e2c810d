@@ -163,7 +163,7 @@ export function phiSolvency(reservesQuote: number, claimsBase: number, spot: num
   const phi = floorPrice > 0 ? spot / floorPrice : Infinity;
   return {
     phi,
-    solvent: phi >= PHI,
+    solvent: phi >= PHI - 1e-4,
     floorPrice,
     breachedFloor: spot < floorPrice,
     headroom: floorPrice > 0 ? spot / floorPrice - 1 : 0,
