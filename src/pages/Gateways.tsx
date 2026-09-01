@@ -4,7 +4,7 @@ import {
   GitBranch,
   ArrowDownUp, Activity, Layers, Cpu, Radio, ShieldCheck, Lock, FlaskConical,
   Wallet, LineChart, Droplets, Boxes, FileCode2, Gauge, Globe2, KeyRound,
-  Sigma, ArrowLeftRight, Landmark, ScanFace, Bot, AlertTriangle,
+  Sigma, ArrowLeftRight, Landmark, ScanFace, Bot, AlertTriangle, Server, GitMerge,
 } from "lucide-react";
 
 type Gate = {
@@ -30,6 +30,9 @@ const GATES: Gate[] = [
   { to: "/governance", title: "Governance & Treasury", desc: "Multisig keeper set, L6 voting and vault operations", icon: Landmark, group: "Sovereign", tag: "PiRC-207" },
   { to: "/compliance", title: "Compliance Gateway", desc: "AML/KYC scoring and EU MiCAR alignment tracking", icon: ScanFace, group: "Sovereign", tag: "PiRC-211.5" },
 
+  { to: "/economics", title: "Economic Simulator", desc: "Reflexive Φ projections, collateral & minting scenarios", icon: LineChart, group: "Sovereign", tag: "PiRC-101" },
+  { to: "/infrastructure", title: "Edge Cache & CDN", desc: "SWR cache telemetry, TTL tiers and hit ratio", icon: Server, group: "Standards" },
+  { to: "/infrastructure#warehouse", title: "Contract Warehouse", desc: "Build matrix, runners and branch merge ledger", icon: GitMerge, group: "Standards" },
   { to: "/explorer", title: "Chain Explorer", desc: "Ledgers, transactions and accounts on Pi Mainnet", icon: Activity, group: "Blockchain", tag: "LIVE" },
   { to: "/micro-device", title: "Micro-Device", desc: "High-frequency transaction stream & node telemetry", icon: Cpu, group: "Blockchain" },
   { to: "/network", title: "Network Health", desc: "Mainnet, Testnet 1 & 2 — TPS, close time, fail rate", icon: Radio, group: "Blockchain" },

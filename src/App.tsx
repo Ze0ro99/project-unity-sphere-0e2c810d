@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route, NavLink, Link, useLocation } from "react-router-dom";
 import {
   Activity, Layers, Radio, Cpu, ArrowDownUp, FlaskConical, ShieldCheck, Lock, Menu, X, Boxes, GitBranch,
-  Sigma, ArrowLeftRight, Landmark, ScanFace,
+  Sigma, ArrowLeftRight, Landmark, ScanFace, LineChart, Server,
 } from "lucide-react";
 import { initPi } from "@/lib/piSdk";
 import PiConnectButton from "@/components/PiConnectButton";
@@ -22,6 +22,8 @@ import Sovereign from "./pages/Sovereign";
 import Bridge from "./pages/Bridge";
 import Governance from "./pages/Governance";
 import Compliance from "./pages/Compliance";
+import Economics from "./pages/Economics";
+import Infrastructure from "./pages/Infrastructure";
 
 const NAV = [
   { to: "/", key: "nav.pidex", icon: ArrowDownUp },
@@ -30,6 +32,8 @@ const NAV = [
   { to: "/bridge", key: "nav.bridge", icon: ArrowLeftRight },
   { to: "/governance", key: "nav.governance", icon: Landmark },
   { to: "/compliance", key: "nav.compliance", icon: ScanFace },
+  { to: "/economics", key: "nav.economics", icon: LineChart },
+  { to: "/infrastructure", key: "nav.infra", icon: Server },
   { to: "/explorer", key: "nav.explorer", icon: Activity },
   { to: "/layers", key: "nav.layers", icon: Layers },
   { to: "/micro-device", key: "nav.micro", icon: Cpu },
@@ -56,6 +60,8 @@ export default function App() {
           <Route path="/bridge" element={<Bridge />} />
           <Route path="/governance" element={<Governance />} />
           <Route path="/compliance" element={<Compliance />} />
+          <Route path="/economics" element={<Economics />} />
+          <Route path="/infrastructure" element={<Infrastructure />} />
           <Route path="/explorer" element={<Explorer />} />
 
           <Route path="/layers" element={<Layers7 />} />
