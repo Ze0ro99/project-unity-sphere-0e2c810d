@@ -1,17 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Radio, RefreshCw, ShieldCheck, AlertTriangle, Coins, Globe2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Radio, RefreshCw, ShieldCheck, AlertTriangle, Coins, Globe2, Activity } from "lucide-react";
 import {
   FEEDS,
   readAllFeeds,
-  fetchPiVenues,
-  aggregate,
   purchasingPower,
   piPurchasingPower,
   type FeedRound,
-  type VenueQuote,
-  type Aggregate,
   type PurchasingPower,
 } from "@/lib/oracle";
+import { useMarketIndex, refreshMarketIndex } from "@/lib/market-index";
 import { useI18n } from "@/i18n";
 
 const REFRESH_MS = 30_000;
