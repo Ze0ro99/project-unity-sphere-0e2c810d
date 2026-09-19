@@ -274,14 +274,80 @@ export const exchangeStore = {
 };
 
 let timer: ReturnType<typeof setInterval> | null = null;
+let unsubIndex: (() => void) | null = null;
+
+/* ---------------- Live market-index anchoring (PiRC-214) ---------------- *
+ * Every market is re-based on the real π/USD index medianised across OKX,
+ * MEXC, Bitget, Gate.io and KuCoin. Whenever the index moves, the same
+ * logarithmic return is applied to each layer market and its pool reserves,
+ * so on-screen prices, candles and purchasing power track the live market.   */
+
+export type IndexAnchor = {
+  piUsd: number;
+  changePct: number | null;
+  sources: number;
+  deviationBps: number;
+  trusted: boolean;
+  quoteVol24h: number;
+  baseVol24h: number;
+  trades24h: number;
+  high24h: number | null;
+  low24h: number | null;
+  ts: number;
+};
+
+let anchor: IndexAnchor | null = null;
+let lastIndexPrice = NaN;
+
+export const indexAnchor = () => anchor;
+
+function applyIndex(s: IndexSnapshot) {
+  const px = s.index?.price;
+  if (!(typeof px === "number" && px > 0)) return;
+  anchor = {
+    piUsd: px,
+    changePct: s.index?.changePct ?? null,
+    sources: s.index?.sources ?? 0,
+    deviationBps: s.index?.deviationBps ?? 0,
+    trusted: !!s.index?.trusted,
+    quoteVol24h: s.index?.quoteVol24h ?? 0,
+    baseVol24h: s.index?.baseVol24h ?? 0,
+    trades24h: s.index?.trades24h ?? 0,
+    high24h: s.index?.high24h ?? null,
+    low24h: s.index?.low24h ?? null,
+    ts: s.ts,
+  };
+  if (Number.isFinite(lastIndexPrice) && lastIndexPrice > 0) {
+    const ratio = px / lastIndexPrice;
+    if (Number.isFinite(ratio) && ratio > 0 && Math.abs(ratio - 1) > 1e-9) {
+      Object.values(state.markets).forEach((m) => {
+        m.price *= ratio;
+        m.twap *= ratio;
+        m.reserveQuote *= ratio;
+        const last = m.candles[m.candles.length - 1];
+        if (last) {
+          last.c = m.price;
+          last.h = Math.max(last.h, m.price);
+          last.l = Math.min(last.l, m.price);
+        }
+        rebuildBook(m);
+      });
+    }
+  }
+  lastIndexPrice = px;
+  emit();
+}
 
 function start() {
   if (timer) return;
   timer = setInterval(step, 1000);
+  unsubIndex = onIndex(applyIndex);
 }
 function stop() {
   if (timer) clearInterval(timer);
   timer = null;
+  unsubIndex?.();
+  unsubIndex = null;
 }
 
 function step() {
