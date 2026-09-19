@@ -16,6 +16,7 @@
  */
 
 import { LAYERS, Layer } from "@/data/layers";
+import { onIndex, type IndexSnapshot } from "@/lib/market-index";
 
 export const FEE_BPS = 30;
 export const BPS = 10_000;
