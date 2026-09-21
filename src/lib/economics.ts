@@ -87,13 +87,13 @@ function hash(s: string) {
 /** PiRC-208 circuit breaker: 15% deviation from the rolling median halts minting. */
 export const VOLATILITY_THRESHOLD = 0.15;
 
-export function simulate(scenario: SimulationScenario, seedSuffix = ""): ScenarioOutcome {
+export function simulate(scenario: SimulationScenario, seedSuffix = "", baseIppr = BASE_IPPR): ScenarioOutcome {
   const rand = rng(hash(scenario.id + seedSuffix));
   const series: MetricSnapshot[] = [];
   const n = Math.max(1, Math.round(scenario.durationEpochs));
 
   let qwf = BASE_QWF;
-  let ippr = BASE_IPPR;
+  let ippr = baseIppr > 0 ? baseIppr : BASE_IPPR;
   let peak = 0;
   let maxDrawdown = 0;
   let minCollateral = 1;
