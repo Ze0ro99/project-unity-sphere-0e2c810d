@@ -29,6 +29,8 @@ import {
 } from "@/lib/exchange";
 import CandleChart from "@/components/exchange/CandleChart";
 import DepthChart from "@/components/exchange/DepthChart";
+import { useMarketIndex } from "@/lib/market-index";
+import { ipprFromSpot, IPPR_SUPPLY_MULTIPLIER } from "@/lib/economics";
 import {
   Search, Shield, Activity, Star, TrendingUp, TrendingDown, AlertTriangle,
   Layers as LayersIcon, Wallet, Gauge, X, Download, Droplets, RotateCcw,
