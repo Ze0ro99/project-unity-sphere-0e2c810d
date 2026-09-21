@@ -159,6 +159,7 @@ export default function PiDEX() {
           <span className={`text-sm mono flex items-center gap-1 ${chg >= 0 ? "text-green" : "text-red"}`}>
             {chg >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}{chg.toFixed(2)}%
           </span>
+          {idxOk && <span className="text-xs mono text-muted">≈ ${(m.price * piUsd).toFixed(6)}</span>}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-2 text-xs ml-auto">
           <Stat label="24h High" value={fmt(m.high24h, 5)} />
@@ -167,6 +168,18 @@ export default function PiDEX() {
           <Stat label="Pool TVL (π)" value={compact(m.reserveQuote * 2)} />
         </div>
       </section>
+
+      <section className="card px-4 py-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-[11px] mono">
+        <span className={idxOk ? "text-green" : "text-red"}>
+          ● π/USD index {idxOk ? `$${piUsd.toFixed(6)}` : "unavailable"}
+        </span>
+        <span className="text-muted">{index?.sources ?? 0}/{index?.totalSources ?? 0} venues · dev {(index?.deviationBps ?? 0).toFixed(1)} bps</span>
+        <span className="text-muted">24h {index?.changePct != null ? `${index.changePct.toFixed(2)}%` : "—"}</span>
+        <span className="text-muted">IPPR ${ippr.toLocaleString("en-US", { maximumFractionDigits: 0 })}</span>
+        <span className="text-muted">π/USD × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")} (PiRC-214 · v27)</span>
+        <span className="text-muted ml-auto">synced {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
+      </section>
+
 
       <div className="grid xl:grid-cols-[240px_1fr_300px] lg:grid-cols-[220px_1fr] gap-3">
         {/* Markets rail */}
