@@ -170,8 +170,22 @@ export function downloadCSV(outcome: ScenarioOutcome) {
   URL.revokeObjectURL(url);
 }
 
-/** Live metrics equivalent of GET /api/simulator/metrics/live (no backend required). */
-export function liveSnapshot(tick: number): MetricSnapshot {
-  const s = simulate({ ...DEFAULT_SCENARIOS[3], durationEpochs: 96 }, `live-${Math.floor(tick / 96)}`);
-  return s.series[tick % 96];
+/**
+ * Live metrics. IPPR is re-based on every call from the live π/USD index, and Φ is
+ * recomputed against it, so the dashboard reflects real market purchasing power.
+ */
+export function liveSnapshot(tick: number, spot = NaN): MetricSnapshot {
+  const baseIppr = ipprFromSpot(spot);
+  const s = simulate({ ...DEFAULT_SCENARIOS[3], durationEpochs: 96 }, `live-${Math.floor(tick / 96)}`, baseIppr);
+  const snap = s.series[tick % 96];
+  // Anchor the reported epoch exactly to the live index (no residual drift).
+  const ippr = Math.round(baseIppr);
+  const phi = (snap.velocity * ippr) / BASE_QWF;
+  return {
+    ...snap,
+    ippr,
+    phi: +phi.toFixed(4),
+    collateralRatio: +Math.min(1, Math.max(0.5, phi)).toFixed(4),
+    mintingRate: +(phi >= 1 ? BASE_MINTING_RATE : Math.max(0, BASE_MINTING_RATE * phi)).toFixed(4),
+  };
 }
