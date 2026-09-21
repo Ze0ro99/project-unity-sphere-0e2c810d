@@ -110,7 +110,28 @@ export default function Oracle() {
             value={updated ? new Date(updated).toLocaleTimeString() : "—"}
           />
         </div>
+        <div className="mt-3 grid gap-3 sm:grid-cols-5">
+          <Stat
+            label="24h Δ"
+            value={
+              typeof market.index?.changePct === "number"
+                ? `${market.index.changePct >= 0 ? "+" : ""}${market.index.changePct.toFixed(2)}%`
+                : "—"
+            }
+          />
+          <Stat label="24h High" value={market.index?.high24h ? `$${fmt(market.index.high24h, 4)}` : "—"} />
+          <Stat label="24h Low" value={market.index?.low24h ? `$${fmt(market.index.low24h, 4)}` : "—"} />
+          <Stat
+            label="24h Vol (π)"
+            value={market.index?.baseVol24h ? market.index.baseVol24h.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}
+          />
+          <Stat
+            label="24h Turnover"
+            value={market.index?.quoteVol24h ? `$${market.index.quoteVol24h.toLocaleString("en-US", { maximumFractionDigits: 0 })}` : "—"}
+          />
+        </div>
       </section>
+
 
       <section className="rounded-xl border border-border bg-panel/60 overflow-hidden">
         <header className="px-4 py-3 border-b border-border flex items-center gap-2 text-sm mono uppercase tracking-widest text-muted">
