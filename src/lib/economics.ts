@@ -13,9 +13,18 @@
  */
 
 export const BASE_QWF = 10_000_000; // Quantified Work Force baseline
-export const BASE_IPPR = 2_248_000; // Internal Purchasing Power Reserve (USD)
+/**
+ * PiRC-214 · IPPR is NOT a constant. It is the live exchange index multiplied by
+ * the sovereign supply multiplier, so purchasing power moves tick-for-tick with
+ * the real market: IPPR = π/USD(index) · 10,000,000.
+ */
+export const IPPR_SUPPLY_MULTIPLIER = 10_000_000;
+export const BASE_IPPR = 2_248_000; // fallback only, used when no venue is reachable
+export const ipprFromSpot = (spot: number) =>
+  Number.isFinite(spot) && spot > 0 ? spot * IPPR_SUPPLY_MULTIPLIER : BASE_IPPR;
 export const BASE_MINTING_RATE = 0.02;
 export const BASE_VELOCITY = 0.5;
+
 
 export type SimulationScenario = {
   id: string;
