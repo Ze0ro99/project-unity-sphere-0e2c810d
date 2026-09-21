@@ -5,9 +5,13 @@ import {
   simulate,
   downloadCSV,
   liveSnapshot,
+  ipprFromSpot,
+  IPPR_SUPPLY_MULTIPLIER,
   type SimulationScenario,
   type ScenarioOutcome,
 } from "@/lib/economics";
+import { useMarketIndex } from "@/lib/market-index";
+
 
 const fmt = (n: number, d = 0) =>
   n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
