@@ -163,7 +163,7 @@ export default function Oracle() {
               <div key={v.venue} className="flex items-center justify-between text-sm mono">
                 <span className="text-muted">{v.venue}</span>
                 <span className="flex items-center gap-2">
-                  {v.ok ? `$${fmt(v.price, 4)}` : "—"}
+                  {v.ok && typeof v.price === "number" ? `$${fmt(v.price, 4)}` : "—"}
                   <Badge ok={v.ok} label={v.ok ? "OK" : t("oracle.down")} />
                 </span>
               </div>
