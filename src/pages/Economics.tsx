@@ -5,9 +5,13 @@ import {
   simulate,
   downloadCSV,
   liveSnapshot,
+  ipprFromSpot,
+  IPPR_SUPPLY_MULTIPLIER,
   type SimulationScenario,
   type ScenarioOutcome,
 } from "@/lib/economics";
+import { useMarketIndex } from "@/lib/market-index";
+
 
 const fmt = (n: number, d = 0) =>
   n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -36,17 +40,22 @@ export default function Economics() {
   const [horizon, setHorizon] = useState(365);
   const [tick, setTick] = useState(0);
 
+  const market = useMarketIndex();
+  const spot = market.index?.price ?? NaN;
+  const baseIppr = ipprFromSpot(spot);
+
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 3000);
     return () => clearInterval(id);
   }, []);
 
   const outcomes = useMemo(
-    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon })),
-    [scenarios, horizon],
+    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon }, "", baseIppr)),
+    [scenarios, horizon, baseIppr],
   );
   const active = outcomes.find((o) => o.scenario.id === selected) ?? outcomes[0];
-  const live = useMemo(() => liveSnapshot(tick), [tick]);
+  const live = useMemo(() => liveSnapshot(tick, spot), [tick, spot]);
+  const liveOk = Number.isFinite(spot) && spot > 0;
 
   return (
     <div className="space-y-4">
@@ -58,17 +67,26 @@ export default function Economics() {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Economic Simulation Dashboard</h1>
             <p className="text-sm text-muted">
-              Merged from <span className="mono">feat/economic-dashboard</span> — reflexive constraint Φ = (Lₙ · IPPR) / QWF,
-              scenario modelling and CSV export.
+              Reflexive constraint Φ = (Lₙ · IPPR) / QWF. IPPR is re-based every tick from the live
+              exchange index — IPPR = π/USD × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")}.
             </p>
           </div>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] mono text-muted">
+          <span className={liveOk ? "text-green" : "text-red"}>
+            ● π/USD index {liveOk ? `$${spot.toFixed(6)}` : "unavailable"}
+          </span>
+          <span>{market.index?.sources ?? 0}/{market.index?.totalSources ?? 0} venues</span>
+          <span>deviation {(market.index?.deviationBps ?? 0).toFixed(1)} bps</span>
+          <span>24h {market.index?.changePct != null ? `${market.index.changePct.toFixed(2)}%` : "—"}</span>
+          <span>synced {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
         </div>
       </section>
 
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
           { label: "QWF", value: fmt(live.qwf) },
-          { label: "IPPR (USD)", value: `$${fmt(live.ippr)}` },
+          { label: "IPPR (USD) · live", value: `$${fmt(live.ippr)}` },
           { label: "Network velocity", value: live.velocity.toFixed(4) },
           { label: "Φ reflexive", value: live.phi.toFixed(4) },
           { label: "Collateral ratio", value: `${(live.collateralRatio * 100).toFixed(1)}%` },
@@ -80,6 +98,7 @@ export default function Economics() {
           </div>
         ))}
       </section>
+
 
       <div className="grid lg:grid-cols-3 gap-4">
         <section className="rounded-xl border border-border bg-panel/60 p-4 space-y-3">

@@ -13,9 +13,18 @@
  */
 
 export const BASE_QWF = 10_000_000; // Quantified Work Force baseline
-export const BASE_IPPR = 2_248_000; // Internal Purchasing Power Reserve (USD)
+/**
+ * PiRC-214 · IPPR is NOT a constant. It is the live exchange index multiplied by
+ * the sovereign supply multiplier, so purchasing power moves tick-for-tick with
+ * the real market: IPPR = π/USD(index) · 10,000,000.
+ */
+export const IPPR_SUPPLY_MULTIPLIER = 10_000_000;
+export const BASE_IPPR = 2_248_000; // fallback only, used when no venue is reachable
+export const ipprFromSpot = (spot: number) =>
+  Number.isFinite(spot) && spot > 0 ? spot * IPPR_SUPPLY_MULTIPLIER : BASE_IPPR;
 export const BASE_MINTING_RATE = 0.02;
 export const BASE_VELOCITY = 0.5;
+
 
 export type SimulationScenario = {
   id: string;
@@ -78,13 +87,13 @@ function hash(s: string) {
 /** PiRC-208 circuit breaker: 15% deviation from the rolling median halts minting. */
 export const VOLATILITY_THRESHOLD = 0.15;
 
-export function simulate(scenario: SimulationScenario, seedSuffix = ""): ScenarioOutcome {
+export function simulate(scenario: SimulationScenario, seedSuffix = "", baseIppr = BASE_IPPR): ScenarioOutcome {
   const rand = rng(hash(scenario.id + seedSuffix));
   const series: MetricSnapshot[] = [];
   const n = Math.max(1, Math.round(scenario.durationEpochs));
 
   let qwf = BASE_QWF;
-  let ippr = BASE_IPPR;
+  let ippr = baseIppr > 0 ? baseIppr : BASE_IPPR;
   let peak = 0;
   let maxDrawdown = 0;
   let minCollateral = 1;
@@ -161,8 +170,22 @@ export function downloadCSV(outcome: ScenarioOutcome) {
   URL.revokeObjectURL(url);
 }
 
-/** Live metrics equivalent of GET /api/simulator/metrics/live (no backend required). */
-export function liveSnapshot(tick: number): MetricSnapshot {
-  const s = simulate({ ...DEFAULT_SCENARIOS[3], durationEpochs: 96 }, `live-${Math.floor(tick / 96)}`);
-  return s.series[tick % 96];
+/**
+ * Live metrics. IPPR is re-based on every call from the live π/USD index, and Φ is
+ * recomputed against it, so the dashboard reflects real market purchasing power.
+ */
+export function liveSnapshot(tick: number, spot = NaN): MetricSnapshot {
+  const baseIppr = ipprFromSpot(spot);
+  const s = simulate({ ...DEFAULT_SCENARIOS[3], durationEpochs: 96 }, `live-${Math.floor(tick / 96)}`, baseIppr);
+  const snap = s.series[tick % 96];
+  // Anchor the reported epoch exactly to the live index (no residual drift).
+  const ippr = Math.round(baseIppr);
+  const phi = (snap.velocity * ippr) / BASE_QWF;
+  return {
+    ...snap,
+    ippr,
+    phi: +phi.toFixed(4),
+    collateralRatio: +Math.min(1, Math.max(0.5, phi)).toFixed(4),
+    mintingRate: +(phi >= 1 ? BASE_MINTING_RATE : Math.max(0, BASE_MINTING_RATE * phi)).toFixed(4),
+  };
 }
