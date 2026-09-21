@@ -29,13 +29,23 @@ function age(sec: number) {
 
 export default function Oracle() {
   const { t } = useI18n();
+  const market = useMarketIndex();
   const [rounds, setRounds] = useState<FeedRound[]>([]);
-  const [venues, setVenues] = useState<VenueQuote[]>([]);
-  const [agg, setAgg] = useState<Aggregate | null>(null);
-  const [pp, setPp] = useState<PurchasingPower | null>(null);
   const [loading, setLoading] = useState(true);
   const [updated, setUpdated] = useState<number>(0);
   const abort = useRef<AbortController | null>(null);
+
+  const venues = market.venues;
+  const agg = useMemo(() => {
+    const idx = market.index;
+    if (!idx || typeof idx.price !== "number") return null;
+    return {
+      price: idx.price,
+      sources: idx.sources,
+      deviationBps: idx.deviationBps,
+      trusted: idx.trusted,
+    };
+  }, [market.index]);
 
   const load = useCallback(async () => {
     abort.current?.abort();
@@ -43,16 +53,9 @@ export default function Oracle() {
     abort.current = ctrl;
     setLoading(true);
     try {
-      const [r, v] = await Promise.all([
-        readAllFeeds(ctrl.signal),
-        fetchPiVenues(ctrl.signal).catch(() => [] as VenueQuote[]),
-      ]);
+      const [r] = await Promise.all([readAllFeeds(ctrl.signal), refreshMarketIndex()]);
       if (ctrl.signal.aborted) return;
-      const a = aggregate(v);
       setRounds(r);
-      setVenues(v);
-      setAgg(a);
-      setPp(purchasingPower(r, a.price));
       setUpdated(Date.now());
     } catch {
       /* transient network failure — retained last snapshot */
@@ -70,7 +73,14 @@ export default function Oracle() {
     };
   }, [load]);
 
+  // Purchasing power recomputes on every index tick so it tracks the live market.
+  const pp: PurchasingPower | null = useMemo(
+    () => (rounds.length && agg ? purchasingPower(rounds, agg.price) : null),
+    [rounds, agg],
+  );
+
   const liveFeeds = rounds.filter((r) => !r.error && !r.stale).length;
+
 
   return (
     <div className="space-y-6">
