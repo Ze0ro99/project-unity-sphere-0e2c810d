@@ -349,6 +349,7 @@ export default function PiDEX() {
 
             <div className="mt-3 space-y-1 text-[11px] mono">
               <Row k="Est. total" v={`${fmt(size * (type === "limit" ? price : m.price), 5)} π`} />
+              {idxOk && <Row k="Est. total (USD · live index)" v={`$${(size * (type === "limit" ? price : m.price) * piUsd).toFixed(4)}`} />}
               <Row k={`Fee · T${tier.tier} ${type === "limit" ? "maker" : "taker"}`}
                 v={`${((type === "limit" ? tier.makerBps : tier.takerBps) / 100).toFixed(2)}%`} />
               {quote && <Row k="Price impact" v={`${(quote.priceImpactBps / 100).toFixed(3)}%`} danger={quote.priceImpactBps > slip} />}
