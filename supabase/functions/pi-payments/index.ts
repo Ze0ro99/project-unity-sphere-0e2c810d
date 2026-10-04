@@ -1,120 +1,119 @@
-// Pi Network payment approve/complete + auth verification.
-// Requires authenticated Supabase user and ownership of the payment.
+// Pi Network auth verification + payment approve/complete.
+//
+// Identity comes from the Pi Network itself: the client sends the Pi access token
+// returned by Pi.authenticate(), we verify it against https://api.minepi.com/v2/me,
+// and every payment is checked against the Pi Platform API so a user can only
+// approve/complete payments that belong to them and to this app.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { z } from "npm:zod@3.23.8";
 
 const PI_API = "https://api.minepi.com/v2";
-const PI_API_KEY = Deno.env.get("PI_API_KEY") ?? "";
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const PI_API_KEY = (Deno.env.get("PI_API_KEY") || Deno.env.get("PI_NETWORK_API_KEY") || "").trim();
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...cors, "Content-Type": "application/json" },
-  });
-}
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
-async function pi(path: string, init: RequestInit = {}) {
+const Id = z.string().regex(/^[A-Za-z0-9_-]{4,128}$/);
+const Body = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("health") }),
+  z.object({ action: z.literal("auth"), accessToken: z.string().min(10).max(4096) }),
+  z.object({ action: z.literal("approve"), accessToken: z.string().min(10).max(4096), paymentId: Id }),
+  z.object({
+    action: z.literal("complete"),
+    accessToken: z.string().min(10).max(4096).optional(),
+    paymentId: Id,
+    txid: z.string().regex(/^[A-Za-z0-9]{4,128}$/),
+  }),
+]);
+
+async function piServer(path: string, init: RequestInit = {}) {
   if (!PI_API_KEY) throw new Error("PI_API_KEY not configured");
   const r = await fetch(`${PI_API}${path}`, {
     ...init,
-    headers: {
-      ...(init.headers ?? {}),
-      Authorization: `Key ${PI_API_KEY}`,
-      "Content-Type": "application/json",
-    },
+    headers: { ...(init.headers ?? {}), Authorization: `Key ${PI_API_KEY}`, "Content-Type": "application/json" },
   });
   const text = await r.text();
-  const data = text ? JSON.parse(text) : {};
   if (!r.ok) {
-    console.error("Pi API error", r.status, text);
+    console.error("Pi API error", path, r.status, text.slice(0, 300));
     throw new Error(`upstream_${r.status}`);
   }
-  return data;
+  return text ? JSON.parse(text) : {};
+}
+
+async function piUser(accessToken: string): Promise<{ uid: string; username: string } | null> {
+  const r = await fetch(`${PI_API}/me`, { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (!r.ok) return null;
+  const me = await r.json().catch(() => null);
+  return me?.uid ? { uid: me.uid, username: me.username } : null;
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+
+  const parsed = Body.safeParse(await req.json().catch(() => ({})));
+  if (!parsed.success) {
+    const missingToken = parsed.error.issues.some((i) => i.path[0] === "accessToken");
+    return missingToken
+      ? json({ error: "Unauthorized" }, 401)
+      : json({ error: "invalid_request", details: parsed.error.flatten().fieldErrors }, 400);
+  }
+  const body = parsed.data;
+
   try {
-    // Require authenticated Supabase user
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return json({ error: "Unauthorized" }, 401);
-    }
-    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
-    if (claimsErr || !claimsData?.claims) {
-      return json({ error: "Unauthorized" }, 401);
-    }
-    const userId = claimsData.claims.sub as string;
-
-    const body = await req.json().catch(() => ({}));
-    const { action, paymentId, txid, accessToken } = body ?? {};
-
-    if (action === "auth") {
-      if (typeof accessToken !== "string" || !accessToken) {
-        return json({ error: "invalid_request" }, 400);
+    if (body.action === "health") {
+      // Confirms the server API key is accepted by Pi Network (no secret is returned).
+      if (!PI_API_KEY) return json({ ok: false, key: "missing" });
+      try {
+        await piServer("/payments/incomplete_server_payments");
+        return json({ ok: true, key: "valid" });
+      } catch (e) {
+        return json({ ok: false, key: "rejected", detail: (e as Error).message });
       }
-      const me = await fetch(`${PI_API}/me`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }).then((r) => r.json());
+    }
+
+    if (body.action === "auth") {
+      const me = await piUser(body.accessToken);
+      if (!me) return json({ error: "Unauthorized" }, 401);
       return json({ authenticated: true, user: me });
     }
 
-    if (action !== "approve" && action !== "complete") {
-      return json({ error: "unknown action" }, 400);
-    }
+    const payment = await piServer(`/payments/${body.paymentId}`);
 
-    if (typeof paymentId !== "string" || !/^[A-Za-z0-9_-]{4,128}$/.test(paymentId)) {
-      return json({ error: "invalid_payment_id" }, 400);
-    }
-
-    // Verify caller owns an order tied to this paymentId (via txid or deposit_memo linkage).
-    // Use service role to bypass RLS for the ownership lookup.
-    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const { data: orders, error: orderErr } = await admin
-      .from("service_orders")
-      .select("id, user_uid, status, deposit_memo, txid")
-      .eq("user_uid", userId)
-      .or(`txid.eq.${paymentId},deposit_memo.eq.${paymentId}`)
-      .limit(1);
-
-    if (orderErr) {
-      console.error("order lookup error", orderErr);
-      return json({ error: "server_error" }, 500);
-    }
-    if (!orders || orders.length === 0) {
-      return json({ error: "forbidden" }, 403);
-    }
-
-    if (action === "approve") {
-      await pi(`/payments/${paymentId}/approve`, { method: "POST" });
+    if (body.action === "approve") {
+      const me = await piUser(body.accessToken);
+      if (!me) return json({ error: "Unauthorized" }, 401);
+      if (payment.user_uid !== me.uid) return json({ error: "forbidden" }, 403);
+      if (payment.status?.developer_approved) return json({ ok: true, already: true });
+      await piServer(`/payments/${body.paymentId}/approve`, { method: "POST" });
       return json({ ok: true });
     }
 
-    // complete
-    if (typeof txid !== "string" || !/^[A-Za-z0-9]{4,128}$/.test(txid)) {
-      return json({ error: "invalid_txid" }, 400);
+    // complete — allowed for the payer, or for an incomplete payment recovered at login
+    // as long as the on-chain txid matches the one Pi recorded for this payment.
+    if (body.accessToken) {
+      const me = await piUser(body.accessToken);
+      if (!me) return json({ error: "Unauthorized" }, 401);
+      if (payment.user_uid !== me.uid) return json({ error: "forbidden" }, 403);
+    } else if (!payment.transaction?.txid || payment.transaction.txid !== body.txid) {
+      return json({ error: "forbidden" }, 403);
     }
-    await pi(`/payments/${paymentId}/complete`, {
+    if (payment.status?.developer_completed) return json({ ok: true, already: true });
+    await piServer(`/payments/${body.paymentId}/complete`, {
       method: "POST",
-      body: JSON.stringify({ txid }),
+      body: JSON.stringify({ txid: body.txid }),
     });
     return json({ ok: true });
   } catch (e) {
     console.error("pi-payments error", e);
+    const msg = (e as Error).message ?? "";
+    if (msg.startsWith("upstream_404")) return json({ error: "payment_not_found" }, 404);
     return json({ error: "server_error" }, 500);
   }
 });
