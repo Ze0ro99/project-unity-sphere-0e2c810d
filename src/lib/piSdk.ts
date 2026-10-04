@@ -17,8 +17,24 @@ export type PaymentData = {
   metadata: Record<string, any>;
 };
 
-const SANDBOX =
-  (import.meta as any).env?.VITE_PI_SANDBOX !== "false"; // default true; set VITE_PI_SANDBOX=false for mainnet
+/**
+ * Sandbox mode is ONLY correct inside the Pi Developer sandbox (sandbox.minepi.com)
+ * or local/preview testing. Inside the real Pi Browser it must be false, otherwise
+ * authentication and payments silently fail. VITE_PI_SANDBOX overrides detection.
+ */
+function detectSandbox(): boolean {
+  const flag = (import.meta as any).env?.VITE_PI_SANDBOX;
+  if (flag === "true") return true;
+  if (flag === "false") return false;
+  if (typeof window === "undefined") return false;
+  const ancestors = Array.from((window.location as any).ancestorOrigins ?? []) as string[];
+  const ref = document.referrer || "";
+  if ([...ancestors, ref].some((o) => o.includes("sandbox.minepi.com"))) return true;
+  const host = window.location.hostname;
+  return host === "localhost" || host.startsWith("id-preview--");
+}
+
+export const SANDBOX = detectSandbox();
 
 let initPromise: Promise<void> | null = null;
 
@@ -44,9 +60,11 @@ export function initPi(): Promise<void> {
   return initPromise;
 }
 
+let piAccessToken: string | null = null;
+
 async function serverCall(action: string, body: Record<string, any>) {
   const { data, error } = await supabase.functions.invoke("pi-payments", {
-    body: { action, ...body },
+    body: { action, ...(piAccessToken ? { accessToken: piAccessToken } : {}), ...body },
   });
   if (error) throw error;
   return data;
@@ -78,6 +96,7 @@ export function usePiConnection() {
         ["username", "payments"],
         onIncompletePaymentFound
       );
+      piAccessToken = auth.accessToken;
       await serverCall("auth", { accessToken: auth.accessToken });
       setUser({ uid: auth.user.uid, username: auth.user.username });
       setConnected(true);
@@ -95,6 +114,7 @@ export function usePiPurchase(payment: PaymentData) {
   return useCallback(async () => {
     await initPi();
     if (!window.Pi) throw new Error("Pi SDK unavailable");
+    if (!piAccessToken) throw new Error("Connect your Pi account first");
     return window.Pi.createPayment(payment, {
       onReadyForServerApproval: async (paymentId: string) => {
         await serverCall("approve", { paymentId });
