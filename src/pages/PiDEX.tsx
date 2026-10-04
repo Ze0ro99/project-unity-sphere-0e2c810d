@@ -40,6 +40,11 @@ type Tab = "orders" | "history" | "balances" | "pool";
 
 export default function PiDEX() {
   const state = useSyncExternalStore(exchangeStore.subscribe, exchangeStore.getSnapshot, exchangeStore.getSnapshot);
+  const market = useMarketIndex();
+  const index = market.index;
+  const piUsd = index?.price ?? NaN;
+  const idxOk = Number.isFinite(piUsd) && piUsd > 0;
+  const ippr = ipprFromSpot(piUsd);
   const [symbol, setSymbol] = useState(state.symbols[1] ?? state.symbols[0]);
   const [query, setQuery] = useState("");
   const [side, setSide] = useState<Side>("buy");
