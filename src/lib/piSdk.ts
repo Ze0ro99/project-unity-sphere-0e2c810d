@@ -60,9 +60,11 @@ export function initPi(): Promise<void> {
   return initPromise;
 }
 
+let piAccessToken: string | null = null;
+
 async function serverCall(action: string, body: Record<string, any>) {
   const { data, error } = await supabase.functions.invoke("pi-payments", {
-    body: { action, ...body },
+    body: { action, ...(piAccessToken ? { accessToken: piAccessToken } : {}), ...body },
   });
   if (error) throw error;
   return data;
@@ -94,6 +96,7 @@ export function usePiConnection() {
         ["username", "payments"],
         onIncompletePaymentFound
       );
+      piAccessToken = auth.accessToken;
       await serverCall("auth", { accessToken: auth.accessToken });
       setUser({ uid: auth.user.uid, username: auth.user.username });
       setConnected(true);
@@ -111,6 +114,7 @@ export function usePiPurchase(payment: PaymentData) {
   return useCallback(async () => {
     await initPi();
     if (!window.Pi) throw new Error("Pi SDK unavailable");
+    if (!piAccessToken) throw new Error("Connect your Pi account first");
     return window.Pi.createPayment(payment, {
       onReadyForServerApproval: async (paymentId: string) => {
         await serverCall("approve", { paymentId });
