@@ -7,6 +7,7 @@ Status: implemented as a local read-only FastAPI router on the integration branc
 The FastAPI application mounts this router under `/v1`.
 
 - `GET /v1/health` — local registry health; does not imply RPC availability.
+- `GET /v1/networks/pi-testnet/health` — probes the configured Pi Testnet Horizon and Soroban RPC endpoints.
 - `GET /v1/assets` — seven proposal layers, the unmatched Gold record, and the OUSD test proposal.
 - `GET /v1/assets/{assetKey}` — legacy key, symbol or contract-ID lookup.
 - `GET /v1/assets/{assetKey}/logo` — provisional SVG badge.
@@ -14,7 +15,7 @@ The FastAPI application mounts this router under `/v1`.
 - `GET /v1/assets/{network}/{assetId}/logo` — network-scoped SVG badge.
 - `GET /v1/assets/{network}/{assetId}/verification` — explicit verification evidence state.
 
-Only `pi-testnet` is currently accepted as a registry network label. This does not prove that a Pi Testnet RPC is configured or reachable.
+Only `pi-testnet` is currently accepted as a registry network label. The configured endpoints are `https://api.testnet.minepi.com` (Horizon) and `https://rpc.testnet.minepi.com` (Soroban RPC), with the `Pi Testnet` passphrase. The network-health route probes reachability; it does not verify any individual contract.
 
 ## Asset identifiers
 
@@ -41,7 +42,7 @@ Errors use a typed `detail.code`:
 - `REGISTRY_UNAVAILABLE`: local registry is missing or invalid.
 - `LOGO_ASSET_UNAVAILABLE`: registered logo file is missing.
 
-A local metadata lookup is not a chain readback. Never turn an upstream 404 into a fabricated success.
+A local metadata lookup is not a chain readback. Never turn an upstream 404 into a fabricated success. The network-health route is a connectivity probe only; contract IDs still require contract-specific readback.
 
 ## Deployment
 
