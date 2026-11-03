@@ -5,8 +5,8 @@ type Dict = Record<string, string>;
 const en: Dict = {
   "nav.oracle": "Oracle",
   "oracle.title": "Oracle & Purchasing Power",
-  "oracle.subtitle": "Off-chain Ethereum Mainnet Chainlink reads + centralized-exchange Pi median; not a Pi/Soroban on-chain oracle."
-  "oracle.sourceNotice": "Off-chain public RPC and exchange API data. Freshness and quorum labels are heuristics, not blockchain consensus.",,
+  "oracle.subtitle": "Off-chain Ethereum Mainnet Chainlink reads + centralized-exchange Pi median; not a Pi/Soroban on-chain oracle.",
+  "oracle.sourceNotice": "Off-chain public RPC and exchange API data. Freshness and quorum labels are heuristics, not blockchain consensus.",
   "oracle.refresh": "Refresh",
   "oracle.feeds": "Ethereum Mainnet Chainlink feeds (off-chain reads)",
   "oracle.feedsLive": "Live feeds",
@@ -153,6 +153,7 @@ const ar: Dict = {
   "nav.oracle": "\u0627\u0644\u0623\u0648\u0631\u0627\u0643\u0644",
   "oracle.title": "\u0627\u0644\u0623\u0648\u0631\u0627\u0643\u0644 \u0648\u0627\u0644\u0642\u0648\u0629 \u0627\u0644\u0634\u0631\u0627\u0626\u064a\u0629",
   "oracle.subtitle": "\u062a\u063a\u0630\u064a\u0627\u062a Chainlink AggregatorV3 \u0648\u0648\u0633\u064a\u0637 \u0627\u0644\u0645\u0646\u0635\u0627\u062a \u0648\u0645\u0624\u0634\u0631 \u0633\u0644\u0629 PiRC-214.",
+  "oracle.sourceNotice": "البيانات تأتي من RPC عام وواجهات منصات تداول خارج السلسلة؛ مؤشرات الحداثة والنصاب قواعد تقديرية وليست إجماعاً على السلسلة.",
   "oracle.refresh": "\u062a\u062d\u062f\u064a\u062b",
   "oracle.feeds": "\u062a\u063a\u0630\u064a\u0627\u062a \u0628\u064a\u0627\u0646\u0627\u062a Chainlink",
   "oracle.feedsLive": "\u062a\u063a\u0630\u064a\u0627\u062a \u062d\u064a\u0629",
@@ -295,6 +296,7 @@ const zh: Dict = {
   "nav.oracle": "\u9884\u8a00\u673a",
   "oracle.title": "\u9884\u8a00\u673a\u4e0e\u8d2d\u4e70\u529b",
   "oracle.subtitle": "Chainlink AggregatorV3 \u6570\u636e\u6e90\u3001\u4ea4\u6613\u6240\u4e2d\u4f4d\u6570\u4e0e PiRC-214 \u4e00\u7bee\u5b50\u6307\u6570\u3002",
+  "oracle.sourceNotice": "数据来自链下公共 RPC 和交易所 API；新鲜度与法定数量标签是启发式规则，不是区块链共识。",
   "oracle.refresh": "\u5237\u65b0",
   "oracle.feeds": "Chainlink \u6570\u636e\u6e90",
   "oracle.feedsLive": "\u5728\u7ebf\u6570\u636e\u6e90",
@@ -436,8 +438,8 @@ const zh: Dict = {
 const id: Dict = {
   "nav.oracle": "Oracle",
   "oracle.title": "Oracle & Daya Beli",
-  "oracle.subtitle": "Pembacaan Chainlink off-chain dari Ethereum Mainnet dan median Pi dari bursa; bukan oracle on-chain Pi/Soroban."
-  "oracle.sourceNotice": "Data berasal dari RPC publik dan API bursa off-chain; label kesegaran dan kuorum adalah heuristik, bukan konsensus blockchain.",,
+  "oracle.subtitle": "Pembacaan Chainlink off-chain dari Ethereum Mainnet dan median Pi dari bursa; bukan oracle on-chain Pi/Soroban.",
+  "oracle.sourceNotice": "Data berasal dari RPC publik dan API bursa off-chain; label kesegaran dan kuorum adalah heuristik, bukan konsensus blockchain.",
   "oracle.refresh": "Segarkan",
   "oracle.feeds": "Feed Chainlink Ethereum Mainnet (pembacaan off-chain)",
   "oracle.feedsLive": "Feed aktif",
