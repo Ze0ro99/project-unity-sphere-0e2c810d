@@ -5,8 +5,13 @@ import subprocess
 import hmac
 
 from fastapi import FastAPI, Header, HTTPException
+from api.asset_registry import router as asset_registry_router
 
-app = FastAPI()
+app = FastAPI(title='PiRC Asset and RWA API', version='0.2.0')
+app.include_router(asset_registry_router, prefix='/v1')
+# Compatibility prefixes for serverless rewrites that preserve the function path.
+app.include_router(asset_registry_router, prefix='/api/v1', include_in_schema=False)
+app.include_router(asset_registry_router, prefix='/api/index.py/v1', include_in_schema=False)
 
 logger = logging.getLogger("rwa_verify")
 logger.setLevel(logging.INFO)
@@ -51,7 +56,11 @@ def _validate(data: dict) -> dict:
 
 @app.get("/")
 def root():
-    return {"status": "RWA Verification API LIVE"}
+    return {
+        "service": "PiRC Asset and RWA API",
+        "status": "available",
+        "mode": "repository metadata; live chain verification pending",
+    }
 
 
 @app.post("/verify")

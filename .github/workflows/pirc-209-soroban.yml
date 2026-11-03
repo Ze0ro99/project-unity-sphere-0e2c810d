@@ -1,0 +1,28 @@
+name: PiRC-209 Soroban identity checks
+
+on:
+  pull_request:
+    paths:
+      - 'contracts/soroban/**'
+      - '.github/workflows/pirc-209-soroban.yml'
+  push:
+    branches:
+      - integration/sovereign-hybrid-ecosystem
+
+permissions:
+  contents: read
+
+jobs:
+  soroban-identity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
+      - name: Format
+        run: cargo fmt --manifest-path contracts/soroban/Cargo.toml
+      - name: Test
+        run: cargo test --manifest-path contracts/soroban/Cargo.toml
+      - name: Build WASM
+        run: cargo build --manifest-path contracts/soroban/Cargo.toml --release --target wasm32v1-none

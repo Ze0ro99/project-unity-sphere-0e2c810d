@@ -3,16 +3,15 @@ name = "bn254_verifier"
 version = "1.0.0"
 edition = "2021"
 license = "PiOS"
-description = "PiRC-800 BN254 / Groth16 verifier — feature-gated for future Stellar/Pi protocol pairing host fns (v25–v28+)"
+description = "PiRC-800 attestor-backed commitment verifier; BN254 feature fails closed until a real host binding exists"
 
 [lib]
 crate-type = ["cdylib"]
 
 [features]
-# Off by default: contract compiles + deploys today and records verified
-# commitments. When Stellar/Pi enables BN254 pairing host functions (target
-# protocol v25+), rebuild with `--features bn254` to activate on-chain
-# Groth16 pairing verification. WASM interface is stable across both modes.
+# Off by default: attestor-backed commitment mode.
+# The bn254 feature is intentionally fail-closed until a real Soroban host
+# pairing binding and independent protocol tests are implemented.
 default = []
 bn254 = []
 

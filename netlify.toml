@@ -1,36 +1,22 @@
-# Netlify Configuration - Free Tier Optimized
-# Ensuring Continuous Deployment from GitHub
-
+# Netlify is a frontend preview/QA target for this repository.
+# The production FastAPI API is deployed with the Vercel project (vercel.json).
 [build]
-  # Public directory with index.html
-  publish = "."
-  
-  # Directory where netlify functions are located
-  functions = "netlify/functions"
+  command = "npm run build"
+  publish = "dist"
 
-# Proxy rules to shorten API paths
+[build.environment]
+  NODE_VERSION = "22"
+
+# SPA routing: let React Router handle client-side paths.
 [[redirects]]
-  from = "/api/prices"
-  to = "/.netlify/functions/prices"
+  from = "/*"
+  to = "/index.html"
   status = 200
 
-[[redirects]]
-  from = "/api/trades"
-  to = "/.netlify/functions/trades"
-  status = 200
-
-[[redirects]]
-  from = "/api/orderbook"
-  to = "/.netlify/functions/orderbook"
-  status = 200
-
-# Security Headers
+# Baseline browser security headers.
 [[headers]]
   for = "/*"
   [headers.values]
-    # Restrict frame loading for anti-phishing
-    X-Frame-Options = "DENY"
-    # Basic CORS policy for conceptual functions
-    Access-Control-Allow-Origin = "*"
-    # Strict Origin Policy
+    X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"

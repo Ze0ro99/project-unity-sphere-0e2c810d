@@ -92,6 +92,7 @@ export default function Oracle() {
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("oracle.title")}</h1>
             <p className="text-sm text-muted">{t("oracle.subtitle")}</p>
+            <p className="mt-1 text-[11px] text-amber-400">{t("oracle.sourceNotice")}</p>
           </div>
           <button
             onClick={load}
@@ -218,7 +219,7 @@ export default function Oracle() {
               <Stat label="π → EUR" value={fmt(pp.eur, 4)} />
               <Stat label="π → JPY" value={fmt(pp.jpy, 2)} />
               <Stat label="π → CNY" value={fmt(pp.cny, 4)} />
-              <Stat label={t("oracle.realYield")} value={`${fmt(pp.realYieldBps, 1)} bps`} />
+              <Stat label={t("oracle.realYield")} value={`${fmt(pp.basketChangeBps, 1)} bps`} />
               <Stat label={t("oracle.coverage")} value={`${(pp.coverage * 100).toFixed(0)}%`} />
               <Stat label={t("oracle.piPower")} value={fmt(piPurchasingPower(pp), 4)} />
             </div>

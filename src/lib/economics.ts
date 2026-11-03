@@ -14,14 +14,13 @@
 
 export const BASE_QWF = 10_000_000; // Quantified Work Force baseline
 /**
- * PiRC-214 · IPPR is NOT a constant. It is the live exchange index multiplied by
- * the sovereign supply multiplier, so purchasing power moves tick-for-tick with
- * the real market: IPPR = π/USD(index) · 10,000,000.
+ * IPPR is a model calibration index, not a USD price or a live market quote.
+ * The venue market index is displayed separately and must not be multiplied by
+ * the atomic-unit scale: CEX PI/USD quotes are per PI unless the venue metadata
+ * explicitly documents another base unit.
  */
-export const IPPR_SUPPLY_MULTIPLIER = 10_000_000;
-export const BASE_IPPR = 2_248_000; // fallback only, used when no venue is reachable
-export const ipprFromSpot = (spot: number) =>
-  Number.isFinite(spot) && spot > 0 ? spot * IPPR_SUPPLY_MULTIPLIER : BASE_IPPR;
+export const BASE_IPPR = 2_248_000; // scenario calibration only; not a market price
+
 export const BASE_MINTING_RATE = 0.02;
 export const BASE_VELOCITY = 0.5;
 
@@ -110,8 +109,6 @@ export function simulate(scenario: SimulationScenario, seedSuffix = "", baseIppr
 
     const phi = (velocity * ippr) / qwf;
     const collateralRatio = Math.min(1, Math.max(0.5, phi));
-    const mintingRate = phi >= 1 ? BASE_MINTING_RATE : Math.max(0, BASE_MINTING_RATE * phi);
-
     window.push(velocity);
     if (window.length > 7) window.shift();
     const sorted = [...window].sort((a, b) => a - b);
@@ -119,6 +116,7 @@ export function simulate(scenario: SimulationScenario, seedSuffix = "", baseIppr
     const deviation = median > 0 ? Math.abs(velocity - median) / median : 0;
     const breaker = deviation > VOLATILITY_THRESHOLD;
     if (breaker) breakerEpochs++;
+    const mintingRate = breaker ? 0 : phi >= 1 ? BASE_MINTING_RATE : Math.max(0, BASE_MINTING_RATE * phi);
 
     peak = Math.max(peak, ippr);
     maxDrawdown = Math.max(maxDrawdown, peak > 0 ? (peak - ippr) / peak : 0);
@@ -153,7 +151,7 @@ export function simulate(scenario: SimulationScenario, seedSuffix = "", baseIppr
 }
 
 export function toCSV(outcome: ScenarioOutcome): string {
-  const head = "epoch,qwf,ippr_usd,network_velocity,phi,collateral_ratio,minting_rate,circuit_breaker";
+  const head = "epoch,qwf,ippr_model_index,network_velocity,phi,modeled_collateral_ratio,modeled_emission_rate,circuit_breaker";
   const rows = outcome.series.map((s) =>
     [s.epoch, s.qwf, s.ippr, s.velocity, s.phi, s.collateralRatio, s.mintingRate, s.breaker ? 1 : 0].join(","),
   );
@@ -171,21 +169,15 @@ export function downloadCSV(outcome: ScenarioOutcome) {
 }
 
 /**
- * Live metrics. IPPR is re-based on every call from the live π/USD index, and Φ is
- * recomputed against it, so the dashboard reflects real market purchasing power.
+ * Rolling model snapshot. This is a deterministic simulation tick, not a live
+ * network issuance, reserve, collateral, or solvency measurement.
  */
-export function liveSnapshot(tick: number, spot = NaN): MetricSnapshot {
-  const baseIppr = ipprFromSpot(spot);
-  const s = simulate({ ...DEFAULT_SCENARIOS[3], durationEpochs: 96 }, `live-${Math.floor(tick / 96)}`, baseIppr);
+export function liveSnapshot(tick: number): MetricSnapshot {
+  const s = simulate(
+    { ...DEFAULT_SCENARIOS[3], durationEpochs: 96 },
+    `model-${Math.floor(tick / 96)}`,
+    BASE_IPPR,
+  );
   const snap = s.series[tick % 96];
-  // Anchor the reported epoch exactly to the live index (no residual drift).
-  const ippr = Math.round(baseIppr);
-  const phi = (snap.velocity * ippr) / BASE_QWF;
-  return {
-    ...snap,
-    ippr,
-    phi: +phi.toFixed(4),
-    collateralRatio: +Math.min(1, Math.max(0.5, phi)).toFixed(4),
-    mintingRate: +(phi >= 1 ? BASE_MINTING_RATE : Math.max(0, BASE_MINTING_RATE * phi)).toFixed(4),
-  };
+  return snap;
 }
