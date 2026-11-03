@@ -20,6 +20,8 @@ Do not infer asset legitimacy from logo, ticker, address shape or an arbitrary r
 ## PiDEX execution modes
 The current inspected `src/lib/exchange.ts` seeds pseudo-random local candles and client-side exchange state. Until wallet authorization, transaction signing, network submission, finality tracking, settlement reconciliation and indexer evidence are implemented, this is SIMULATION mode. Simulated orders, fills, balances and transaction hashes must never be presented as live trades.
 
+The RWA `POST /verify` route is also fail-closed: it returns `503 UNSUPPORTED_CAPABILITY` until a supported network-pinned Soroban RPC client and secure signer/relayer are provisioned and reviewed. It must not shell out to a CLI or use a developer profile such as `alice`.
+
 ## Market data
 The UI invokes Supabase Edge Function `market-index`. Live mode requires a deployed function, configured venue adapters, credentials stored server-side, source timestamps, quote normalization, outlier rejection, quorum, freshness and observability. If no trusted result exists, render unavailable rather than a stale or seeded price.
 

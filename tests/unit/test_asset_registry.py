@@ -116,3 +116,18 @@ def test_contract_verification_uses_readback_for_registered_contract(monkeypatch
     assert payload["checks"]["network_readback"] == "CONTRACT_INSTANCE_PRESENT"
     assert payload["checks"]["contract_instance_probe"] == expected
     assert payload["checks"]["deployed_code_hash"] == "NOT_VERIFIED"
+
+def test_rwa_verify_fails_closed_without_supported_signer(monkeypatch):
+    monkeypatch.setenv("RWA_API_KEY", "test-only-api-key")
+    response = serverless_client.post(
+        "/verify",
+        headers={"x-api-key": "test-only-api-key"},
+        json={
+            "pid": "a" * 64,
+            "issuer_pubkey": "b" * 64,
+            "signature": "c" * 128,
+            "chip_uid": "d" * 64,
+        },
+    )
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "UNSUPPORTED_CAPABILITY"
