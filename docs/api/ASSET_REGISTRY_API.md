@@ -1,8 +1,11 @@
 # Asset Registry API Contract (Proposed)
 
-Status: SPECIFIED / NOT IMPLEMENTED. No live base URL is claimed.
+Status: IMPLEMENTED as a local read-only FastAPI router on the integration branch. Deployment URL and live chain verification are not claimed.
 
 ## Canonical endpoints
+
+Mounted by `api/main.py` under `/v1`. Configure `window.PI_ASSET_REGISTRY_API_BASE` in the frontend when the API is hosted on a separate origin. The registry returns eight records (seven proposal layers plus the unmatched Gold registry entry). Known logo routes return clearly marked provisional SVG badges; they are not issuer-approved logos.
+
 
 - `GET /v1/health` — service and upstream dependency health.
 - `GET /v1/assets?network={network}&status={status}` — paginated asset list.
