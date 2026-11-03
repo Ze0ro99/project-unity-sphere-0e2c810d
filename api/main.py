@@ -9,6 +9,9 @@ from api.asset_registry import router as asset_registry_router
 
 app = FastAPI(title='PiRC Asset and RWA API', version='0.2.0')
 app.include_router(asset_registry_router, prefix='/v1')
+# Compatibility prefixes for serverless rewrites that preserve the function path.
+app.include_router(asset_registry_router, prefix='/api/v1', include_in_schema=False)
+app.include_router(asset_registry_router, prefix='/api/index.py/v1', include_in_schema=False)
 
 logger = logging.getLogger("rwa_verify")
 logger.setLevel(logging.INFO)
