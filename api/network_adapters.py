@@ -68,3 +68,44 @@ def check_pi_testnet() -> dict[str, Any]:
         "contract_verification": "NOT_PERFORMED",
         "notice": "Endpoint reachability is not contract deployment, issuer, code-hash, reserve or audit verification.",
     }
+
+
+def verify_contract_instance(contract_id: str) -> dict[str, Any]:
+    """Check whether a Soroban contract-instance ledger entry exists on Pi Testnet.
+
+    A present instance is deployment evidence only; it does not establish the
+    contract's source, issuer authority, audit status, economic claims or safety.
+    """
+    import re
+
+    if not re.fullmatch(r"C[A-Z2-7]{55}", contract_id or ""):
+        return {
+            "probe_status": "INVALID_CONTRACT_ID",
+            "contract_instance_present": None,
+            "error": "Identifier is not a valid-format Soroban contract address.",
+        }
+
+    try:
+        from stellar_sdk import SorobanServer, xdr
+        from stellar_sdk.soroban_server import Durability
+
+        server = SorobanServer(SOROBAN_RPC_URL)
+        try:
+            key = xdr.SCVal(type=xdr.SCValType.SCV_LEDGER_KEY_CONTRACT_INSTANCE)
+            entry = server.get_contract_data(contract_id, key, Durability.PERSISTENT)
+        finally:
+            server.close()
+
+        present = entry is not None
+        return {
+            "probe_status": "FOUND" if present else "NOT_FOUND",
+            "contract_instance_present": present,
+            "rpc_url": SOROBAN_RPC_URL,
+        }
+    except Exception as exc:
+        return {
+            "probe_status": "RPC_UNAVAILABLE",
+            "contract_instance_present": None,
+            "rpc_url": SOROBAN_RPC_URL,
+            "error": str(exc)[:300],
+        }
