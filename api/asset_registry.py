@@ -7,6 +7,8 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
+from api.network_adapters import check_pi_testnet
+
 router = APIRouter(tags=["asset-registry"])
 
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -138,9 +140,14 @@ def asset_registry_health() -> dict[str, Any]:
         "service": "asset-registry",
         "status": "available",
         "registry_status": "repository-sourced; chain verification pending",
-        "network_adapters": {"pi-testnet": "NOT_CONFIGURED_FOR_LIVE_READBACK"},
+        "network_adapters": {"pi-testnet": "configured; use /v1/networks/pi-testnet/health for reachability"},
         "verification_status": "UNVERIFIED",
     }
+
+
+@router.get("/networks/pi-testnet/health")
+def pi_testnet_network_health() -> dict[str, Any]:
+    return check_pi_testnet()
 
 
 @router.get("/assets")
