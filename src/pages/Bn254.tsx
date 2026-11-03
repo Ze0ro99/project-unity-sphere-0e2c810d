@@ -1,20 +1,46 @@
-import { useMemo, useState } from "react";
-import { Lock, ShieldCheck, CheckCircle2, XCircle, Cpu, KeyRound } from "lucide-react";
+import { useState } from "react";
+import { Lock, ShieldCheck, Cpu, Hash } from "lucide-react";
 import { useI18n } from "@/i18n";
 
-type Result = { ok: boolean; reason?: string; hash?: string } | null;
+type Result = { hash: string } | { error: string } | null;
 
-function sha256Hex(input: string): Promise<string> {
-  const enc = new TextEncoder().encode(input);
-  return crypto.subtle.digest("SHA-256", enc).then((buf) =>
-    Array.from(new Uint8Array(buf))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("")
-  );
+function parseHexBytes(value: string): Uint8Array {
+  const clean = value.replace(/^0x/i, "").replace(/\s+/g, "");
+  if (!clean || clean.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(clean)) {
+    throw new Error("Enter non-empty, even-length hexadecimal bytes.");
+  }
+  const out = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = Number.parseInt(clean.slice(i * 2, i * 2 + 2), 16);
+  return out;
 }
 
-const HEX_RE = /^[0-9a-fA-F\s]+$/;
+function encodeU32(value: number): Uint8Array {
+  if (!Number.isSafeInteger(value) || value < 0 || value > 0xffffffff) {
+    throw new Error("Input is too large for the commitment encoding.");
+  }
+  return new Uint8Array([(value >>> 24) & 255, (value >>> 16) & 255, (value >>> 8) & 255, value & 255]);
+}
 
+function concatBytes(parts: Uint8Array[]): Uint8Array {
+  const total = parts.reduce((sum, part) => sum + part.length, 0);
+  const result = new Uint8Array(total);
+  let offset = 0;
+  for (const part of parts) {
+    result.set(part, offset);
+    offset += part.length;
+  }
+  return result;
+}
+
+async function sha256HexBytes(input: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", input);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Computes the same domain-separated commitment encoding as the Soroban
+ * reference contract. This is a local preview only; it does not verify a proof.
+ */
 export default function Bn254() {
   const { t, lang } = useI18n();
   const [proof, setProof] = useState("");
@@ -22,29 +48,21 @@ export default function Bn254() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Result>(null);
 
-  const vk = useMemo(
-    () => ({
-      hash: "0x8a5f…c9b2e01d",
-      inputs: 4,
-      initialized: true,
-    }),
-    []
-  );
-
-  async function onVerify(e: React.FormEvent) {
-    e.preventDefault();
+  async function onPreview(event: React.FormEvent) {
+    event.preventDefault();
     setResult(null);
-    const clean = proof.replace(/\s+/g, "");
-    if (!clean) return setResult({ ok: false, reason: t("bn.err.emptyProof") });
-    if (!HEX_RE.test(proof)) return setResult({ ok: false, reason: t("bn.err.badHex") });
-    if (!inputs.trim()) return setResult({ ok: false, reason: t("bn.err.emptyInputs") });
-
     setBusy(true);
     try {
-      const hash = await sha256Hex(clean + "|" + inputs.trim());
-      // Deterministic demo: accept when the proof hex length is a multiple of 64 (G1+G2+G1 packing hint).
-      const ok = clean.length % 64 === 0 && clean.length >= 64 * 3;
-      setResult(ok ? { ok: true, hash } : { ok: false, hash, reason: "e(a,b)·e(vk_x,γ)⁻¹·e(c,δ)⁻¹ ≠ e(α,β)" });
+      const proofBytes = parseHexBytes(proof);
+      const inputBytes = inputs.split(",").map((part) => parseHexBytes(part.trim()));
+      if (inputBytes.length === 0) throw new Error("At least one public input is required.");
+      const domain = new TextEncoder().encode("PiRC-800:COMMITMENT:v1");
+      const parts: Uint8Array[] = [domain, encodeU32(proofBytes.length), proofBytes];
+      for (const input of inputBytes) parts.push(encodeU32(input.length), input);
+      const hash = await sha256HexBytes(concatBytes(parts));
+      setResult({ hash });
+    } catch (error) {
+      setResult({ error: error instanceof Error ? error.message : "Unable to compute commitment preview." });
     } finally {
       setBusy(false);
     }
@@ -55,12 +73,12 @@ export default function Bn254() {
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Lock size={22} className="text-emerald-400" /> {t("bn.title")}
+            <Lock size={22} className="text-amber-400" /> {t("bn.title")}
           </h1>
           <p className="text-sm text-muted mt-1 max-w-3xl">{t("bn.subtitle")}</p>
         </div>
         <a
-          href="https://github.com/Ze0ro99/PiRC/blob/main/contracts/bn254_verifier/DEPLOY.md"
+          href="https://github.com/Ze0ro99/project-unity-sphere-0e2c810d/blob/integration/sovereign-hybrid-ecosystem/contracts/bn254_verifier/DEPLOY.md"
           target="_blank"
           rel="noreferrer"
           className="px-3 py-2 rounded-md border border-border text-sm hover:bg-panel2 mono"
@@ -71,17 +89,17 @@ export default function Bn254() {
 
       <section className="grid md:grid-cols-2 gap-3">
         <ModeCard
-          icon={<ShieldCheck size={18} className="text-emerald-400" />}
+          icon={<ShieldCheck size={18} className="text-amber-400" />}
           title={t("bn.mode.commit.title")}
           badge={t("bn.mode.commit.badge")}
-          badgeTone="emerald"
+          badgeTone="amber"
           body={t("bn.mode.commit.body")}
         />
         <ModeCard
-          icon={<Cpu size={18} className="text-sky-400" />}
+          icon={<Cpu size={18} className="text-rose-400" />}
           title={t("bn.mode.bn254.title")}
           badge={t("bn.mode.bn254.badge")}
-          badgeTone="sky"
+          badgeTone="rose"
           body={t("bn.mode.bn254.body")}
         />
       </section>
@@ -89,47 +107,39 @@ export default function Bn254() {
       <section className="grid md:grid-cols-3 gap-3">
         <div className="p-4 rounded-lg border border-border bg-panel/60 md:col-span-1">
           <div className="flex items-center gap-2 mb-3">
-            <KeyRound size={16} />
-            <h2 className="font-semibold">{t("bn.vk.title")}</h2>
+            <Lock size={16} />
+            <h2 className="font-semibold">{t("bn.deployment.title")}</h2>
           </div>
           <dl className="text-sm space-y-2">
-            <Row label={t("bn.vk.hash")} value={<span className="mono text-xs">{vk.hash}</span>} />
-            <Row label={t("bn.vk.publicInputs")} value={<span className="mono">{vk.inputs}</span>} />
-            <Row
-              label={t("bn.vk.status")}
-              value={
-                <span
-                  className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                    vk.initialized ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"
-                  }`}
-                >
-                  {vk.initialized ? t("bn.vk.set") : t("bn.vk.pending")}
-                </span>
-              }
-            />
+            <Row label={t("bn.deployment.status")} value={<span className="text-amber-400 text-xs uppercase">{t("common.status.unverified")}</span>} />
+            <Row label={t("bn.deployment.value")} value={<span className="text-xs text-muted">{t("bn.deployment.notice")}</span>} />
           </dl>
         </div>
 
-        <form onSubmit={onVerify} className="p-4 rounded-lg border border-border bg-panel/60 md:col-span-2 space-y-3">
-          <h2 className="font-semibold">{t("bn.verify.title")}</h2>
+        <form onSubmit={onPreview} className="p-4 rounded-lg border border-border bg-panel/60 md:col-span-2 space-y-3">
+          <div className="flex items-center gap-2">
+            <Hash size={16} />
+            <h2 className="font-semibold">{t("bn.preview.title")}</h2>
+          </div>
+          <p className="text-xs text-amber-400">{t("bn.preview.notice")}</p>
           <div>
-            <label className="text-xs text-muted block mb-1">{t("bn.verify.proofLabel")}</label>
+            <label className="text-xs text-muted block mb-1">{t("bn.preview.proofLabel")}</label>
             <textarea
               value={proof}
-              onChange={(e) => setProof(e.target.value)}
-              rows={4}
+              onChange={(event) => setProof(event.target.value)}
+              rows={3}
               spellCheck={false}
               className="w-full bg-panel2/60 border border-border rounded-md p-2 mono text-xs outline-none focus:border-gold"
-              placeholder="0x…"
+              placeholder="0x..."
             />
           </div>
           <div>
-            <label className="text-xs text-muted block mb-1">{t("bn.verify.inputsLabel")}</label>
+            <label className="text-xs text-muted block mb-1">{t("bn.preview.inputsLabel")}</label>
             <input
               value={inputs}
-              onChange={(e) => setInputs(e.target.value)}
+              onChange={(event) => setInputs(event.target.value)}
               className="w-full bg-panel2/60 border border-border rounded-md p-2 mono text-xs outline-none focus:border-gold"
-              placeholder="0x01, 0x02, 0x03, 0x04"
+              placeholder="0x01, 0x02, 0x03"
             />
           </div>
           <div className="flex items-center gap-3 flex-wrap">
@@ -138,24 +148,18 @@ export default function Bn254() {
               disabled={busy}
               className="px-3 py-2 rounded-md bg-gold text-black text-sm font-medium disabled:opacity-60"
             >
-              {busy ? t("bn.verify.verifying") : t("bn.verify.submit")}
+              {busy ? t("bn.preview.computing") : t("bn.preview.compute")}
             </button>
             {result && (
-              <div
-                className={`flex items-center gap-2 text-sm ${
-                  result.ok ? "text-emerald-400" : "text-rose-400"
-                }`}
-                role="status"
-                aria-live="polite"
-              >
-                {result.ok ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
-                <span>{result.ok ? t("bn.verify.ok") : t("bn.verify.fail")}</span>
-                {!result.ok && result.reason && (
-                  <span className="text-muted mono text-xs">
-                    · {t("bn.verify.reason")}: {result.reason}
-                  </span>
+              <div className="text-sm min-w-0" role="status" aria-live="polite">
+                {"error" in result ? (
+                  <span className="text-rose-400">{result.error}</span>
+                ) : (
+                  <div className="space-y-1">
+                    <span className="text-amber-400 block">{t("bn.preview.hashLabel")}</span>
+                    <code className="text-xs mono break-all text-muted">{result.hash}</code>
+                  </div>
                 )}
-                {result.hash && <span className="text-muted mono text-xs">· {result.hash.slice(0, 18)}…</span>}
               </div>
             )}
           </div>
@@ -166,9 +170,7 @@ export default function Bn254() {
         <h2 className="font-semibold mb-3">{t("bn.pipeline.title")}</h2>
         <ol className="grid md:grid-cols-2 gap-2 text-sm list-decimal ltr:pl-5 rtl:pr-5">
           {[1, 2, 3, 4].map((i) => (
-            <li key={i} className="text-muted">
-              <span className="text-text">{t(`bn.pipeline.${i}`)}</span>
-            </li>
+            <li key={i} className="text-muted"><span className="text-text">{t(`bn.pipeline.${i}`)}</span></li>
           ))}
         </ol>
       </section>
@@ -191,11 +193,12 @@ function ModeCard({
   icon: React.ReactNode;
   title: string;
   badge: string;
-  badgeTone: "emerald" | "sky";
+  badgeTone: "amber" | "rose";
   body: string;
 }) {
-  const tone =
-    badgeTone === "emerald" ? "bg-emerald-500/10 text-emerald-400" : "bg-sky-500/10 text-sky-400";
+  const tone = badgeTone === "amber"
+    ? "bg-amber-500/10 text-amber-400"
+    : "bg-rose-500/10 text-rose-400";
   return (
     <div className="p-4 rounded-lg border border-border bg-panel/60">
       <div className="flex items-center gap-3">
@@ -214,7 +217,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-2">
       <dt className="text-muted text-xs">{label}</dt>
-      <dd>{value}</dd>
+      <dd className="text-right">{value}</dd>
     </div>
   );
 }
