@@ -1,7 +1,5 @@
-import logging
 import os
 import re
-import subprocess
 import hmac
 
 from fastapi import FastAPI, Header, HTTPException
@@ -12,11 +10,6 @@ app.include_router(asset_registry_router, prefix='/v1')
 # Compatibility prefixes for serverless rewrites that preserve the function path.
 app.include_router(asset_registry_router, prefix='/api/v1', include_in_schema=False)
 app.include_router(asset_registry_router, prefix='/api/index.py/v1', include_in_schema=False)
-
-logger = logging.getLogger("rwa_verify")
-logger.setLevel(logging.INFO)
-
-CONTRACT_ID = os.environ.get("CONTRACT_ID", "")
 
 _HEX32 = re.compile(r"^[0-9a-fA-F]{64}$")
 _HEX_ANY = re.compile(r"^[0-9a-fA-F]{2,512}$")
@@ -68,22 +61,16 @@ def verify(data: dict, x_api_key: str | None = Header(default=None)):
     _require_api_key(x_api_key)
     cleaned = _validate(data)
 
-    cmd = [
-        "soroban", "contract", "invoke",
-        "--id", CONTRACT_ID,
-        "--network", "testnet",
-        "--source", "alice",
-        "--",
-        "verify",
-        "--pid", cleaned["pid"],
-        "--issuer_pubkey", cleaned["issuer_pubkey"],
-        "--signature", cleaned["signature"],
-        "--chip_uid", cleaned["chip_uid"],
-    ]
-
-    try:
-        result = subprocess.check_output(cmd, timeout=30).decode()
-        return {"status": "success", "onchain_result": result}
-    except Exception:
-        logger.exception("verify failed")
-        raise HTTPException(status_code=500, detail="Verification failed")
+    # Fail closed: the deployed function does not provision a Soroban CLI,
+    # network-pinned RPC client, or secure signer/relayer. Never invoke a
+    # developer identity (for example, the local `alice` testnet profile).
+    raise HTTPException(
+        status_code=503,
+        detail={
+            "code": "UNSUPPORTED_CAPABILITY",
+            "message": (
+                "Live contract verification is disabled until a supported "
+                "network-pinned RPC client and secure signer/relayer are configured."
+            ),
+        },
+    )
