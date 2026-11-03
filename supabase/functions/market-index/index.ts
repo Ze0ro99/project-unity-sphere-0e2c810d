@@ -207,12 +207,13 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         ts: Date.now(),
+        aggregation: { method: "median", minSources: 3, maxDeviationBps: 300, source: "centralized-exchange public APIs" },
         index: {
           price: Number.isFinite(price) ? price : null,
           sources: live.length,
           totalSources: venuesSettled.length,
           deviationBps,
-          trusted: live.length >= 2 && deviationBps <= 300,
+          trusted: live.length >= 3 && deviationBps <= 300,
           changePct: avgOf("changePct"),
           high24h: live.length ? Math.max(...live.map((v) => v.high24h ?? -Infinity).filter(Number.isFinite)) : null,
           low24h: live.length ? Math.min(...live.map((v) => v.low24h ?? Infinity).filter(Number.isFinite)) : null,
