@@ -1,0 +1,25 @@
+name: PiRC layer math tests
+
+on:
+  pull_request:
+    paths:
+      - 'assets/js/pirc207-layer-math.mjs'
+      - 'tests/unit/pirc207-layer-math.test.mjs'
+      - '.github/workflows/pirc-layer-math.yml'
+  push:
+    branches:
+      - integration/sovereign-hybrid-ecosystem
+
+permissions:
+  contents: read
+
+jobs:
+  node-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run exact-arithmetic tests
+        run: node --test tests/unit/pirc207-layer-math.test.mjs
