@@ -1,39 +1,55 @@
-# Asset Registry API Contract (Proposed)
+# Asset Registry API Contract
 
-Status: IMPLEMENTED as a local read-only FastAPI router on the integration branch. Deployment URL and live chain verification are not claimed.
+Status: implemented as a local read-only FastAPI router on the integration branch. A deployed URL and live Pi Testnet verification are not claimed until deployment and readback checks pass.
 
-## Canonical endpoints
+## Canonical routes
 
-Mounted by `api/main.py` under `/v1`. Configure `window.PI_ASSET_REGISTRY_API_BASE` in the frontend when the API is hosted on a separate origin. The registry returns eight records (seven proposal layers plus the unmatched Gold registry entry). Known logo routes return clearly marked provisional SVG badges; they are not issuer-approved logos.
+The FastAPI application mounts this router under `/v1`.
 
+- `GET /v1/health` — local registry health; does not imply RPC availability.
+- `GET /v1/assets` — seven proposal layers, the unmatched Gold record, and the OUSD test proposal.
+- `GET /v1/assets/{assetKey}` — legacy key, symbol or contract-ID lookup.
+- `GET /v1/assets/{assetKey}/logo` — provisional SVG badge.
+- `GET /v1/assets/{network}/{assetId}` — network-scoped lookup.
+- `GET /v1/assets/{network}/{assetId}/logo` — network-scoped SVG badge.
+- `GET /v1/assets/{network}/{assetId}/verification` — explicit verification evidence state.
 
-- `GET /v1/health` — service and upstream dependency health.
-- `GET /v1/assets?network={network}&status={status}` — paginated asset list.
-- `GET /v1/assets/{network}/{assetId}` — canonical asset metadata and verification record.
-- `GET /v1/assets/{network}/{assetId}/logo` — logo metadata or binary asset after issuer review.
-- `GET /v1/assets/{network}/{assetId}/verification` — deployment and readback evidence.
+Only `pi-testnet` is currently accepted as a registry network label. This does not prove that a Pi Testnet RPC is configured or reachable.
 
-## Asset response
+## Asset identifiers
 
-Required fields: `schema_version`, `asset_id`, `asset_type`, `network_id`, `issuer`, `contract_id`, `symbol`, `name`, `decimals`, `logo_uri`, `metadata_hash`, `deployment_tx`, `deployed_code_hash`, `verification_status`, `verified_at`, `source`, `updated_at`.
+Lookup accepts the registry key (for example `heart`), a known symbol (for example `OUSD`), or an exact repository contract ID. Unknown IDs remain 404; no address is fabricated or silently reassigned.
 
-Missing evidence must be null and status must be UNVERIFIED. A logo must not be treated as proof of issuer identity.
+## Seven-layer mapping
+
+The source UI has seven layer colors, while the contract CSV lists Purple, Gold, Yellow, Orange, Blue, Green and Red. The source Chakra proposal uses Indigo instead of Gold. This mismatch remains explicit: Gold is retained as `gold-unmapped`, Indigo remains without a contract ID, and no mapping is silently changed.
+
+## Logo policy
+
+Served SVG files are provisional color badges for interface continuity. They are not issuer-approved logos, asset authentication, contract deployment evidence or endorsement. PiDEX must show verification state separately from the logo.
+
+## OUSD
+
+OUSD is a `TEST_STABLE_ASSET_PROPOSAL` record only. Contract ID, issuer, decimals, supply, reserves, custody, redemption terms and market price are null. Minting, transfer, trading and redemption remain disabled. No USD peg, reserve backing or redeemability is claimed.
 
 ## Error model
 
-Use JSON errors with `code`, `message`, `request_id`, `network_id` and `retryable`.
+Errors use a typed `detail.code`:
 
-- `ASSET_NOT_FOUND` — valid endpoint, no asset record.
-- `ENDPOINT_NOT_FOUND` — route is not implemented or wrong base URL.
-- `NETWORK_UNSUPPORTED` — requested network is not configured.
-- `INVALID_ASSET_ID` — identifier type/format does not match the selected network.
-- `UPSTREAM_UNAVAILABLE` — RPC/Horizon dependency failed.
-- `UPSTREAM_RESOURCE_NOT_FOUND` — upstream returned a resource-level 404.
-- `UNVERIFIED_ASSET` — record exists but deployment/issuer evidence is incomplete.
-- `STALE_VERIFICATION` — evidence exceeds the configured freshness window.
+- `ASSET_NOT_FOUND` / `LOGO_NOT_FOUND`: no matching local record or logo.
+- `NETWORK_UNSUPPORTED`: network is not configured.
+- `REGISTRY_UNAVAILABLE`: local registry is missing or invalid.
+- `LOGO_ASSET_UNAVAILABLE`: registered logo file is missing.
 
-Never turn an HTTP 404 into a fabricated success response or a hard-coded ACTIVE status.
+A local metadata lookup is not a chain readback. Never turn an upstream 404 into a fabricated success.
 
-## Network separation
+## Deployment
 
-Pi Horizon, Pi Soroban RPC, Stellar Horizon and Stellar Soroban RPC are distinct adapters. Store network passphrase, endpoint, address type and contract ID per environment. Do not use an account endpoint to validate a Soroban contract ID. No endpoint should be considered active until a health/readback test has been run against it.
+The frontend uses Vite and the API uses FastAPI. `api/index.py` exposes the ASGI application for serverless hosting, root `requirements.txt` declares the runtime dependency, and `vercel.json` routes `/v1/*` to the Python function. Verify the actual Vercel deployment after pushing this branch; configuration alone does not prove that hosted routes are available.
+
+## PiDEX requirements
+
+1. Load token metadata and logos from the network-scoped routes.
+2. Display `UNVERIFIED` until network-specific contract readback, issuer/admin and code-hash evidence are recorded.
+3. Keep simulated order books and local demo balances clearly labeled.
+4. Do not enable swaps, deposits, withdrawals or mint/burn based only on registry metadata.
