@@ -5,8 +5,6 @@ import {
   simulate,
   downloadCSV,
   liveSnapshot,
-  ipprFromSpot,
-  IPPR_SUPPLY_MULTIPLIER,
   type SimulationScenario,
   type ScenarioOutcome,
 } from "@/lib/economics";
@@ -42,19 +40,17 @@ export default function Economics() {
 
   const market = useMarketIndex();
   const spot = market.index?.price ?? NaN;
-  const baseIppr = ipprFromSpot(spot);
-
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 3000);
     return () => clearInterval(id);
   }, []);
 
   const outcomes = useMemo(
-    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon }, "", baseIppr)),
-    [scenarios, horizon, baseIppr],
+    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon })),
+    [scenarios, horizon],
   );
   const active = outcomes.find((o) => o.scenario.id === selected) ?? outcomes[0];
-  const live = useMemo(() => liveSnapshot(tick, spot), [tick, spot]);
+  const live = useMemo(() => liveSnapshot(tick), [tick]);
   const liveOk = Number.isFinite(spot) && spot > 0;
 
   return (
@@ -67,8 +63,8 @@ export default function Economics() {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Economic Simulation Dashboard</h1>
             <p className="text-sm text-muted">
-              Reflexive constraint Φ = (Lₙ · IPPR) / QWF. IPPR is re-based every tick from the live
-              exchange index — IPPR = π/USD × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")}.
+              Reflexive scenario model Φ = (Lₙ · IPPR) / QWF. The model index is calibrated independently;
+              the observed π/USD venue quote is displayed separately and is not a reserve or collateral proof.
             </p>
           </div>
         </div>
@@ -86,7 +82,7 @@ export default function Economics() {
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
           { label: "QWF", value: fmt(live.qwf) },
-          { label: "IPPR (USD) · live", value: `$${fmt(live.ippr)}` },
+          { label: "IPPR model index", value: fmt(live.ippr) },
           { label: "Network velocity", value: live.velocity.toFixed(4) },
           { label: "Φ reflexive", value: live.phi.toFixed(4) },
           { label: "Collateral ratio", value: `${(live.collateralRatio * 100).toFixed(1)}%` },
@@ -146,7 +142,7 @@ export default function Economics() {
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted mb-1">IPPR (USD)</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted mb-1">IPPR model index</div>
               <Spark outcome={active} field="ippr" color="#3ec98c" />
             </div>
             <div>
@@ -161,7 +157,7 @@ export default function Economics() {
         <table className="w-full text-sm">
           <thead className="text-[11px] uppercase tracking-wider text-muted">
             <tr className="border-b border-border">
-              {["Scenario", "Final Φ", "Final IPPR", "Min collateral", "Max drawdown", "Breaker epochs", "Verdict"].map((h) => (
+              {["Scenario", "Final Φ", "Final model index", "Min collateral", "Max drawdown", "Breaker epochs", "Verdict"].map((h) => (
                 <th key={h} className="text-left font-medium px-4 py-2 whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -178,7 +174,7 @@ export default function Economics() {
                   <td className="px-4 py-2">{(o.maxDrawdown * 100).toFixed(1)}%</td>
                   <td className="px-4 py-2">{o.breakerEpochs}</td>
                   <td className={`px-4 py-2 ${safe ? "text-green" : "text-red"}`}>
-                    {safe ? "SOLVENT" : "MITIGATION REQUIRED"}
+                    {safe ? "MODEL THRESHOLD MET" : "MITIGATION REQUIRED"}
                   </td>
                 </tr>
               );
@@ -190,8 +186,10 @@ export default function Economics() {
       <section className="rounded-xl border border-border bg-panel/60 p-4 text-xs text-muted flex gap-2">
         <AlertTriangle size={14} className="text-yellow shrink-0 mt-0.5" />
         <p>
-          Projections are deterministic (seeded PRNG) so exported CSVs reproduce the charts exactly. PiRC-208 marks an epoch as
-          breached when velocity deviates more than 15% from its 7-epoch median; minting is throttled proportionally to Φ below parity.
+          SIMULATION ONLY — not a live monetary policy, minting controller, reserve ratio, solvency certificate, or price guarantee.
+          Projections are deterministic (seeded PRNG) so exported CSVs reproduce the charts exactly. A 15% deviation
+          from the 7-epoch velocity median sets the simulation circuit breaker and zeroes the modeled emission rate.
+          These are model outputs only: no actual minting, collateral, solvency, reserves, or settlement are controlled or verified here.
         </p>
       </section>
     </div>
