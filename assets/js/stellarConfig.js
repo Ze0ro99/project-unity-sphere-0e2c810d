@@ -16,9 +16,9 @@ export const NETWORK_PROFILES = Object.freeze({
   piTestnet: {
     networkId: "pi-testnet",
     passphrase: "Pi Testnet",
-    horizonUrl: null,
-    sorobanRpcUrl: null,
-    status: "ENDPOINTS_REQUIRE_VERIFICATION"
+    horizonUrl: "https://api.testnet.minepi.com",
+    sorobanRpcUrl: "https://rpc.testnet.minepi.com",
+    status: "OFFICIAL_TESTNET_ENDPOINTS_CONFIGURED"
   },
   stellarTestnet: {
     networkId: "stellar-testnet",
@@ -48,7 +48,8 @@ const LAYER_KEY_BY_ALIAS = Object.freeze({
   thirdeye: "thirdEye",
   purple: "crown",
   crown: "crown",
-  gold: "gold-unmapped"
+  gold: "gold-unmapped",
+  ousd: "ousd"
 });
 
 function resolveLayerKey(layer) {
