@@ -19,7 +19,9 @@ The source proposal in `assets/js/token_layers.js` defines Root/Red Governance, 
 - [Machine-readable PiRC-207 registry](assets/registry/pirc207-layer-registry.json)
 - [Exact integer unit helpers](assets/js/pirc207-layer-math.mjs)
 - [Unit tests](tests/unit/pirc207-layer-math.test.mjs)
-- [Proposed Asset Registry API](docs/api/ASSET_REGISTRY_API.md)
+- [Asset Registry API](docs/api/ASSET_REGISTRY_API.md) — local read-only FastAPI routes under `/v1`.
+- [PiRC standards coverage matrix](docs/PI_RC_STANDARDS_COVERAGE_MATRIX.md)
+- Known layer logos are provisional `DRAFT` badges; no issuer logo has been verified.
 
 Contract IDs sourced from repository files are marked UNVERIFIED until network-specific deployment transaction, code hash, issuer/admin and readback evidence are attached. Missing logos remain null rather than being fabricated.
 
