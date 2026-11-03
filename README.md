@@ -98,3 +98,9 @@ See `docs/api/ASSET_REGISTRY_API.md`, `assets/registry/pirc207-layer-registry.js
 - [Economic User and Operations Flows](docs/architecture/ECONOMIC_USER_AND_OPERATIONS_FLOWS.md)
 
 The maps distinguish external quotes, internal references, simulated values, reserve evidence and redeemable liabilities. They describe proposed application behavior and do not imply live exchange, payment, custody or banking capability.
+
+## Omni Developer Studio and Physical Economy
+- [Omni Developer Studio, PiDEX and Physical Economy Architecture](docs/architecture/OMNI_DEVELOPER_STUDIO_PIDEX_AND_PHYSICAL_ECONOMY.md)
+- [Omni Capability Registry and Branch Intake](docs/integration/OMNI_CAPABILITY_REGISTRY_AND_BRANCH_INTAKE.md)
+
+These documents define governed feature generation, RAW evidence, physical asset lifecycle, internal basket valuation, CEX/DEX market data, PiDEX arithmetic, OUSD role, oracle trust and cryptographic migration. The legacy floating-point PiDEX engine is simulation-only; do not use it for settlement.
