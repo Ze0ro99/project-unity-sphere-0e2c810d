@@ -7,7 +7,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 
-from api.network_adapters import check_pi_testnet
+from api.network_adapters import check_pi_testnet, verify_contract_instance
 
 router = APIRouter(tags=["asset-registry"])
 
@@ -234,19 +234,41 @@ def get_asset_verification(network: str, asset_id: str) -> dict[str, Any]:
             "network_id": network_id,
             "retryable": False,
         })
+    contract_id = record.get("contract_id")
+    if contract_id:
+        probe = verify_contract_instance(str(contract_id))
+        probe_status = probe.get("probe_status", "RPC_UNAVAILABLE")
+        if probe_status == "FOUND":
+            verification_status = "DEPLOYED_UNVERIFIED"
+            network_readback = "CONTRACT_INSTANCE_PRESENT"
+        elif probe_status == "NOT_FOUND":
+            verification_status = "UNVERIFIED"
+            network_readback = "CONTRACT_INSTANCE_NOT_FOUND"
+        elif probe_status == "INVALID_CONTRACT_ID":
+            verification_status = "UNVERIFIED"
+            network_readback = "INVALID_CONTRACT_ID"
+        else:
+            verification_status = "UNVERIFIED"
+            network_readback = "RPC_UNAVAILABLE"
+    else:
+        probe = {"probe_status": "NOT_DEPLOYED", "contract_instance_present": None}
+        verification_status = "UNVERIFIED"
+        network_readback = "NOT_APPLICABLE_NOT_DEPLOYED"
+
     return {
         "asset_key": record.get("asset_key"),
         "network_id": network_id,
-        "contract_id": record.get("contract_id"),
-        "verification_status": "UNVERIFIED",
+        "contract_id": contract_id,
+        "verification_status": verification_status,
         "deployment_tx": None,
         "deployed_code_hash": None,
         "verified_at": None,
         "checks": {
             "registry_record": "PRESENT",
-            "network_readback": "NOT_RUN",
+            "network_readback": network_readback,
+            "contract_instance_probe": probe,
             "issuer_authorization": "NOT_VERIFIED",
             "deployed_code_hash": "NOT_VERIFIED",
         },
-        "notice": "No live chain verification is performed by this endpoint yet.",
+        "notice": "Contract-instance presence is not an audit, issuer verification, code-hash attestation or financial claim.",
     }
