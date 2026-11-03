@@ -154,8 +154,8 @@ impl Bn254Verifier {
     #[cfg(not(feature = "bn254"))]
     fn run_verify(
         env: &Env,
-        proof: &Bytes,
-        public_inputs: &Vec<Bytes>,
+        _proof: &Bytes,
+        _public_inputs: &Vec<Bytes>,
         attestation: &Bytes,
         commitment: &BytesN<32>,
     ) -> Result<(), Error> {
@@ -178,7 +178,7 @@ impl Bn254Verifier {
             .try_into()
             .map_err(|_| Error::BadAttestation)?;
         env.crypto()
-            .ed25519_verify(&attestor, &digest.to_bytes(), &sig);
+            .ed25519_verify(&attestor, &digest, &sig);
         Ok(())
     }
 }
