@@ -84,3 +84,10 @@ See `docs/api/ASSET_REGISTRY_API.md`, `assets/registry/pirc207-layer-registry.js
 ## Integration governance
 
 - [Branch Intake and Risk Review](docs/integration/BRANCH_INTAKE_AND_RISK_REVIEW_2026-11-03.md)
+
+## Economic settlement API boundary
+
+- Request contract: [`schemas/v1/economic-settlement-request.schema.json`](schemas/v1/economic-settlement-request.schema.json)
+- Security and response semantics: [`docs/integration/ECONOMIC_ENGINE_API_CONTRACT.md`](docs/integration/ECONOMIC_ENGINE_API_CONTRACT.md)
+
+The API contract is a design gate. It does not claim that settlement submission or on-chain confirmation is implemented. The server must fail closed when network or contract configuration is absent.
