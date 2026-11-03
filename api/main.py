@@ -56,7 +56,11 @@ def _validate(data: dict) -> dict:
 
 @app.get("/")
 def root():
-    return {"status": "RWA Verification API LIVE"}
+    return {
+        "service": "PiRC Asset and RWA API",
+        "status": "available",
+        "mode": "repository metadata; live chain verification pending",
+    }
 
 
 @app.post("/verify")
