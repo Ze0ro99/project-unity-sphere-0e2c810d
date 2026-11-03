@@ -84,3 +84,11 @@ See `docs/api/ASSET_REGISTRY_API.md`, `assets/registry/pirc207-layer-registry.js
 ## Integration governance
 
 - [Branch Intake and Risk Review](docs/integration/BRANCH_INTAKE_AND_RISK_REVIEW_2026-11-03.md)
+
+## Economic API and release evidence
+- [Economic settlement API contract](docs/integration/ECONOMIC_ENGINE_API_CONTRACT.md)
+- [Soroban settlement adapter mapping](docs/integration/SOROBAN_SETTLEMENT_ADAPTER_MAPPING.md)
+- [API/contract traceability matrix](docs/integration/API_CONTRACT_TRACEABILITY.md)
+- [Settlement request schema](schemas/v1/economic-settlement-request.schema.json)
+- [Pi Testnet1 verification runbook](docs/operations/TESTNET1_VERIFICATION_RUNBOOK.md)
+- [Release evidence template](docs/operations/RELEASE_EVIDENCE_TEMPLATE.md)
