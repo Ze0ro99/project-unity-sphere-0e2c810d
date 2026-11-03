@@ -1,0 +1,3 @@
+# Replit workspace configuration
+run = "npm run dev"
+entrypoint = "src/main.tsx"
