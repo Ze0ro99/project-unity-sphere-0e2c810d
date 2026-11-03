@@ -103,3 +103,9 @@ Canonical JSON must use UTF-8, lexicographically sorted object keys, no insignif
 - Independent contract and API security review completed.
 
 No deployment, custody, Pi redemption, market-price guarantee, reserve backing or Pi Core Team endorsement is implied.
+
+## ABI stability gate (2026-11-03)
+
+The SmartContracts follow-up currently designates `contracts/pirc_economic_settlement` as the canonical crate, but its workspace also discovers an overlapping `contracts/economic_settlement` crate with a different method signature and state representation. Therefore this adapter mapping remains provisional. Before implementation, pin the canonical crate name, generated client ABI, argument ordering, asset identifier representation, period state enum, and event payloads to a reviewed contract commit. Do not bind a live transaction adapter to an assumed ABI while the duplicate-crate decision is unresolved.
+
+The contract test source was wired into the canonical crate after the initial mapping was drafted. Hosted Rust validation was queued/pending at the latest observation; this document does not claim that the contract compiles or that any Testnet transaction has been executed.
