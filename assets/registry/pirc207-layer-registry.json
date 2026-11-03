@@ -22,8 +22,9 @@
       "registry_layer": "L6",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": null,
-      "conversion_status": "UNSPECIFIED"
+      "logo_uri": "/v1/assets/root/logo",
+      "conversion_status": "UNSPECIFIED",
+      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
     },
     {
       "key": "sacral",
@@ -37,8 +38,9 @@
       "registry_layer": "L3",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": null,
-      "conversion_status": "UNSPECIFIED"
+      "logo_uri": "/v1/assets/sacral/logo",
+      "conversion_status": "UNSPECIFIED",
+      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
     },
     {
       "key": "solar",
@@ -52,8 +54,9 @@
       "registry_layer": "L2",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": null,
-      "conversion_status": "UNSPECIFIED"
+      "logo_uri": "/v1/assets/solar/logo",
+      "conversion_status": "UNSPECIFIED",
+      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
     },
     {
       "key": "heart",
@@ -67,8 +70,9 @@
       "registry_layer": "L5",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": null,
-      "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI"
+      "logo_uri": "/v1/assets/heart/logo",
+      "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI",
+      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
     },
     {
       "key": "throat",
@@ -82,8 +86,9 @@
       "registry_layer": "L4",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": null,
-      "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI"
+      "logo_uri": "/v1/assets/throat/logo",
+      "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI",
+      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
     },
     {
       "key": "thirdEye",
@@ -97,8 +102,9 @@
       "registry_layer": null,
       "repository_claim_status": "NO_MATCHING_CONTRACT_IN_LIVE_MATRIX_REGISTRY",
       "verification_status": "UNVERIFIED",
-      "logo_uri": null,
-      "conversion_status": "UNSPECIFIED"
+      "logo_uri": "/v1/assets/thirdEye/logo",
+      "conversion_status": "UNSPECIFIED",
+      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
     },
     {
       "key": "crown",
@@ -112,8 +118,9 @@
       "registry_layer": "L0",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": null,
-      "conversion_status": "SOURCE_DEFINED_10000000_MICRO_PER_PI"
+      "logo_uri": "/v1/assets/crown/logo",
+      "conversion_status": "SOURCE_DEFINED_10000000_MICRO_PER_PI",
+      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
     }
   ],
   "unmapped_registry_entries": [
@@ -121,7 +128,10 @@
       "color": "gold",
       "contract_id": "CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG",
       "registry_layer": "L1",
-      "reason": "Gold contract exists in the CSV but no Gold chakra/token layer is defined in token_layers.js."
+      "reason": "Gold contract exists in the CSV but no Gold chakra/token layer is defined in token_layers.js.",
+      "logo_uri": "/v1/assets/gold-unmapped/logo",
+      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
     }
-  ]
+  ],
+  "logo_policy": "All logo responses are provisional color badges. They are not official issuer logos, asset verification or proof of token legitimacy."
 }
