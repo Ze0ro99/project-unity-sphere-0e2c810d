@@ -159,6 +159,7 @@ export default function PiDEX() {
               )}
             </div>
             <div className="text-[11px] text-muted">PiRC-101 base pair · Spot · Hybrid CLOB + AMM</div>
+            <div role="status" className="mt-1 inline-flex items-center gap-1 rounded border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold tracking-wide text-amber-300">SIMULATION MODE — orders, balances and fills are local demo data; no on-chain trade is executed.</div>
           </div>
         </div>
         <div className="flex items-baseline gap-3">
