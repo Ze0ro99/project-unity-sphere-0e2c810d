@@ -1,16 +1,36 @@
-# 🌌 PiDEX Sovereign Matrix & PiRC Ecosystem Hub
-[![Network](https://img.shields.io/badge/Network-Pi%20Testnet-f4b41a.svg?style=for-the-badge)](https://minepi.com)
-[![PiRC-2](https://img.shields.io/badge/Standard-PiRC--2%20Subscriptions-9333ea.svg?style=for-the-badge)](https://github.com/PiNetwork/PiRC/blob/main/PiRC2)
+# PiDEX Sovereign Matrix & PiRC Ecosystem Hub
 
-Welcome to the **Official Master Repository** for the PiDEX Sovereign Matrix. This project unifies 7 Asset Layers (PiRC-101) with the fully automated PiRC-2 Subscription Contracts developed by the Ze0ro99.
+This repository contains application, API, integration, UI, deployment and reference-contract work associated with the proposed PiRC ecosystem. It is a community research and engineering repository; it is not an official Pi Network product or endorsement.
 
-## 🎯 The Massive Breakthrough: Keeper Protocol (PiRC-260)
-We integrated the **PiRC-260 Keeper Protocol**. It incentivizes decentralized nodes to execute the `process()` renewal batches automatically, ensuring 100% uptime for PiRC-2 subscriptions.
+## Cross-repository integration
 
-## 🔗 Official On-Chain Signatures (Pi Testnet)
-*   **PiDEX Master Core:** `GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6`
-*   **PiRC-2 Subscription (Official):** `CCUF75B6W3HRJTJD6O7OXNI72HGJ7DERZ5MUNOMFMSK23ME5GUIKPFYV`
+The `integration/sovereign-hybrid-ecosystem` branch is the review target for the proposed integration architecture.
 
-## Sovereign Hybrid Ecosystem Integration
+- [PiRC](https://github.com/Ze0ro99/PiRC): normative standards, proposals, economic definitions and governance.
+- [SmartContracts](https://github.com/Ze0ro99/SmartContracts): Soroban contract implementations, interfaces and contract tests.
+- Unity Sphere: applications, APIs, network adapters, asset metadata, UI and operations.
 
-See [Master Integration Map](docs/architecture/MASTER_INTEGRATION_MAP.md) and [Seven-Layer UI and Service Map](docs/architecture/SEVEN_LAYER_UI_AND_SERVICE_MAP.md). Pi Cash and Pi Bank are proposed application modules, not official Pi services or licensed banking products. Asset logos and API responses must never imply verification without evidence.
+## Seven-layer model
+
+The source proposal in `assets/js/token_layers.js` defines Root/Red Governance, Sacral/Orange 3141, Solar/Yellow 31140, Heart/Green PiCash 3.14, Throat/Blue Banking 314, Third Eye/Indigo 314159 and Crown/Purple mined Pi. The existing `LIVE_MATRIX_REGISTRY.csv` instead lists Purple, Gold, Yellow, Orange, Blue, Green and Red contract IDs. This mismatch is documented in [Seven-Layer Source Mapping](docs/SEVEN_LAYER_SOURCE_MAPPING.md) and must be resolved through a versioned mapping proposal before the registry is treated as canonical.
+
+## Asset registry and calculations
+
+- [Machine-readable PiRC-207 registry](assets/registry/pirc207-layer-registry.json)
+- [Exact integer unit helpers](assets/js/pirc207-layer-math.mjs)
+- [Unit tests](tests/unit/pirc207-layer-math.test.mjs)
+- [Proposed Asset Registry API](docs/api/ASSET_REGISTRY_API.md)
+
+Contract IDs sourced from repository files are marked UNVERIFIED until network-specific deployment transaction, code hash, issuer/admin and readback evidence are attached. Missing logos remain null rather than being fabricated.
+
+## Verification and financial boundaries
+
+A repository entry, logo, address string, deployment workflow or “ACTIVE” label is not independent proof of on-chain deployment. Pi Cash and Pi Bank are proposed software modules, not official Pi services or licensed banking products. No deposit, insurance, yield or redemption claim is made. OUSD is not represented as USD-backed or redeemable without an identified issuer, enforceable redemption terms, verified reserves, custody evidence, independent attestations and legal review.
+
+## Security
+
+The default-branch tree contains tracked `.env`-style files. Treat any real credential ever committed publicly as compromised: rotate it, review provider logs, remove it from Git history under an approved procedure, and store replacements in a secret manager. The integration branch adds ignore rules and a Gitleaks workflow; these do not by themselves remove existing tracked files or erase history. See [Security Remediation](docs/security/SECURITY_REMEDIATION.md).
+
+## Contribution status vocabulary
+
+Use PROPOSED, SPECIFIED, IMPLEMENTED, TESTED, TESTNET_VERIFIED, AUDITED and MAINNET_VERIFIED. Every transition requires linked evidence. Do not use “official”, “live”, “complete” or “mainnet-ready” without verifiable evidence.
