@@ -25,6 +25,7 @@ Keep one production domain and one authoritative production deployment. Netlify 
 3. Set the project root to the repository root.
 4. Framework preset: Vite (or Other if the dashboard does not detect Vite).
 5. Build command: `npm run build`.
+6. Node.js: 22.x (the Vite 8 toolchain requires Node.js 20.19+ or 22.12+; use 22.x consistently).
 6. Output directory: `dist`.
 7. Install command: `npm install`.
 8. Keep the checked-in `vercel.json`; it routes `/v1/*` to the FastAPI function at `api/index.py`.
@@ -40,6 +41,7 @@ The health route confirms local API availability only. The network health route 
 3. Base directory: repository root.
 4. Build command: `npm run build`.
 5. Publish directory: `dist`.
+6. Node.js: 22.x.
 6. Use Netlify for static frontend preview and browser QA. The current repository has no implemented Netlify Functions; the old placeholder redirects to non-existent functions have therefore been removed.
 7. If the frontend requires the API during a Netlify preview, configure the frontend to call the verified Vercel Preview API origin through an explicitly supported public build variable. Do not assume that a Netlify frontend preview also hosts the FastAPI backend.
 
