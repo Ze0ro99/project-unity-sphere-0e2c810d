@@ -54,3 +54,10 @@ The frontend uses Vite and the API uses FastAPI. `api/index.py` exposes the ASGI
 2. Display `UNVERIFIED` until network-specific contract readback, issuer/admin and code-hash evidence are recorded.
 3. Keep simulated order books and local demo balances clearly labeled.
 4. Do not enable swaps, deposits, withdrawals or mint/burn based only on registry metadata.
+
+## Official Pi Testnet endpoint references
+
+- Pi Network RPC server announcement: https://minepi.com/blog/rpc-server/ (documents `https://rpc.testnet.minepi.com` and the `getHealth` JSON-RPC probe).
+- Pi Developer Docs — Tokens: https://developers.minepi.com/docs/use-native-features/Tokens (documents `https://api.testnet.minepi.com` as the Pi Testnet Horizon endpoint and the `Pi Testnet` passphrase).
+
+These official references establish the endpoint configuration only. They do not establish that any contract ID in this community repository is deployed or approved.
