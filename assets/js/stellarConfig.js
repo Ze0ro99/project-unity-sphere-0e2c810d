@@ -29,6 +29,8 @@ export const NETWORK_PROFILES = Object.freeze({
   }
 });
 
+const ASSET_REGISTRY_API_BASE = (typeof window !== "undefined" && window.PI_ASSET_REGISTRY_API_BASE) || "";
+
 const LAYER_KEY_BY_ALIAS = Object.freeze({
   red: "root",
   root: "root",
@@ -64,7 +66,7 @@ export async function getTokenAttributes(tokenId, layer, fetchImpl = fetch) {
     return { status: "INVALID_LAYER", verification_status: "UNVERIFIED" };
   }
   try {
-    const response = await fetchImpl(`/v1/assets/${encodeURIComponent(assetKey)}`, {
+    const response = await fetchImpl(`${ASSET_REGISTRY_API_BASE}/v1/assets/${encodeURIComponent(assetKey)}`, {
       headers: { Accept: "application/json" }
     });
     if (response.status === 404) {
@@ -107,7 +109,7 @@ export async function getTokenAttributes(tokenId, layer, fetchImpl = fetch) {
 
 export function getTokenLogoUrl(layer) {
   const assetKey = resolveLayerKey(layer);
-  return assetKey ? `/v1/assets/${encodeURIComponent(assetKey)}/logo` : null;
+  return assetKey ? `${ASSET_REGISTRY_API_BASE}/v1/assets/${encodeURIComponent(assetKey)}/logo` : null;
 }
 
 if (typeof window !== "undefined") {
