@@ -5,8 +5,10 @@ import subprocess
 import hmac
 
 from fastapi import FastAPI, Header, HTTPException
+from api.asset_registry import router as asset_registry_router
 
-app = FastAPI()
+app = FastAPI(title='PiRC Asset and RWA API', version='0.2.0')
+app.include_router(asset_registry_router, prefix='/v1')
 
 logger = logging.getLogger("rwa_verify")
 logger.setLevel(logging.INFO)
