@@ -1,38 +1,39 @@
-# PiDEX AMM — Deploy & Verification Runbook
+# PiDEX AMM — Build, Test and Deployment Runbook
 
-Standards: PiRC-101, PiRC-207, PiRC-215, PiRC-227, PiRC-251, PiRC-800.
-Protocols: Soroban SDK 22.x — compatible with Stellar protocol v21–v23 and
-forward-compatible with v25–v28 (no protocol-gated host functions used).
+## Scope and protocol context
 
-## 1. Build
+This is a Soroban constant-product AMM reference contract with a 30 bps fee, ratio-matched liquidity deposits, proportional withdrawals, checked arithmetic, pause control and minimum-output protection.
+
+Stellar CAP-38 (Protocol 18) introduced native constant-product liquidity-pool ledger entries and operations. The 30 bps value in this contract is its own configured AMM fee; it must not be confused with a protocol-wide fee or a Pi Network velocity setting.
+
+## Build and test
+
 ```bash
 rustup target add wasm32-unknown-unknown
-cargo build --target wasm32-unknown-unknown --release -p pidex_amm
-```
-Artifact: `target/wasm32-unknown-unknown/release/pidex_amm.wasm`.
-
-## 2. Deploy (Stellar Testnet — canonical Soroban target)
-```bash
-stellar keys generate --global deployer --network testnet --fund
-WASM_HASH=$(stellar contract install --network testnet --source deployer \
-  --wasm target/wasm32-unknown-unknown/release/pidex_amm.wasm)
-CID=$(stellar contract deploy --network testnet --source deployer --wasm-hash $WASM_HASH)
-stellar contract invoke --id $CID --source deployer --network testnet -- \
-  initialize --admin $(stellar keys address deployer) \
-             --token_a <PiRC207_LAYER_ID> --token_b <BASE_PI_SAC>
+cargo test --manifest-path contracts/pidex_amm/Cargo.toml
+cargo build --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
 ```
 
-## 3. Pi Network compatibility
-Pi Mainnet / Testnet / Testnet 2 run Stellar-Core Horizon and do **not** yet
-expose Soroban RPC. Once Pi enables Soroban (tracked by PiRC-260), re-run
-step 2 against Pi's RPC endpoint — the WASM is byte-identical.
+## Testnet deployment gates
 
-## 4. ZK / BN254 (PiRC-800)
-Attach a Groth16 verifier contract (bn254 pairing) via
-`set_zk_verifier(<verifier_cid>)`. Verifier is deployed separately from the
-`bn254_verifier` crate and shares the same protocol matrix.
+1. Verify the target network's Soroban RPC endpoint, network passphrase and supported protocol version.
+2. Deploy the token contracts and verify their issuer/admin and decimals.
+3. Deploy the AMM WASM and record the WASM hash and contract ID.
+4. Initialize with two distinct, verified token contract addresses.
+5. Test deposits at matching and mismatching ratios; excess amounts must remain with the provider.
+6. Test swaps with min_out success and failure cases.
+7. Test proportional withdrawal, pause/unpause and invariant preservation.
+8. If proof-gated swaps are used, deploy the verifier, configure its address and verify that unknown commitments are rejected.
+9. Publish transaction IDs, code hashes, network identity and test results.
 
-## 5. Post-deploy checks
-- `get_reserves` returns `(0, 0, 0)`.
-- `deposit` then `swap` with `min_out` enforced; invariant `k' >= k` holds.
-- `pause(true)` blocks swaps (PiRC-251 circuit breaker).
+## Protocol compatibility status
+
+The source deployment notes previously declared SDK 22.x compatibility with protocol v21–v23 and forward compatibility with v25–v28. This branch does not contain runtime evidence proving those claims. Treat v21–v23 as documented compatibility targets and v25–v28 as unverified until the exact WASM is built and exercised against each target runtime.
+
+Pi Mainnet/Testnet deployment is not assumed. A network must expose the required Soroban RPC and host functions before this contract can be deployed there.
+
+## Proof-gated swap semantics
+
+`swap_with_verified_commitment` checks that the configured verifier has recorded a commitment before executing a normal transparent swap. It does not conceal asset addresses, amounts, balances, events or transfers. It is not shielded settlement or a privacy guarantee.
+
+The BN254 verifier's on-chain pairing feature currently fails closed and is not production-ready.

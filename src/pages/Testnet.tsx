@@ -1,23 +1,16 @@
 import { useEffect, useState } from "react";
 import { LAYERS, ISSUER, MASTER_REGISTRY } from "@/data/layers";
 import { HORIZON_TESTNET, fetchRoot, shorten } from "@/lib/pi";
-import { CheckCircle2, XCircle, Loader2, RefreshCw, FlaskConical, ExternalLink } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, RefreshCw, FlaskConical, ExternalLink, AlertTriangle } from "lucide-react";
 
-type Status = "pending" | "ok" | "fail";
+type Status = "pending" | "ok" | "fail" | "unknown";
 type Check = { id: string; label: string; kind: "token" | "contract" | "network"; address: string; status: Status; detail?: string; latencyMs?: number };
 
+// Only contract IDs sourced from the checked-in PiRC registry are listed here.
+// These IDs still require Soroban RPC deployment proof; Horizon account lookup is not sufficient.
 const CONTRACTS = [
-  { id: "PIDEX-ROUTER-V1", label: "PiDEX Router", address: "CBPIDEXROUTERV1TESTNET7LAYERSSOROBAN000000000000000000" },
-  { id: "PIRC2-SUBSCRIPTION", label: "PiRC-2 Subscriptions", address: "CCUF75B2LZKKEXAMPLEPIRC2SUBSCRIPTIONMAINCONTRACT000000" },
-  { id: "PIRC-207-REGISTRY", label: "PiRC-207 Layer Registry", address: MASTER_REGISTRY },
-  { id: "PIRC-215-AMM", label: "PiRC-215 AMM", address: "CB215AMMPOOLSOROBANRUSTIMPLEMENTATIONTESTNET0000000000" },
-  { id: "PIRC-227-ILLIQUID", label: "PiRC-227 Illiquid AMM", address: "CB227ILLIQUIDAMMSOROBANRUSTIMPLTESTNET000000000000000" },
-  { id: "PIRC-251-POL", label: "PiRC-251 POL Routing", address: "CB251POLROUTINGSOROBANRUSTIMPLTESTNET0000000000000000" },
-  { id: "PIRC-800-DID", label: "PiRC-800 DID + ZK Reputation", address: "CB800DIDZKREPUTATIONSOROBANIMPLTESTNET0000000000000000" },
-  { id: "PIRC-900-ORACLE", label: "PiRC-900 Oracle Circuit Breaker", address: "CB900ORACLECIRCUITBREAKERSOROBANTESTNET00000000000000" },
-  { id: "RWA-TOOLKIT", label: "RWA Tokenization Toolkit", address: "CBRWATOOLKITSOROBANRUSTIMPLTESTNETNETWORK00000000000" },
-  { id: "REWARD-ENGINE", label: "Reward Engine (PiRC-204)", address: "CBREWARDENGINEPIRC204SOROBANIMPLTESTNET00000000000000" },
-  { id: "LEGACY-VAULT", label: "Sovereign Legacy Vault (PQC)", address: "CBLEGACYVAULTPQCFALCONDILITHIUMTESTNET0000000000000000" },
+  { id: "PIRC2-SUBSCRIPTION", label: "PiRC-2 Subscriptions (registry reference)", address: "CCUF75B6W3HRJTJD6O7OXNI72HGJ7DERZ5MUNOMFMSK23ME5GUIKPFYV" },
+  { id: "PIRC-207-REGISTRY", label: "PiRC-207 Layer Registry (registry reference)", address: MASTER_REGISTRY },
 ];
 
 export default function Testnet() {
@@ -58,20 +51,26 @@ export default function Testnet() {
       const start = performance.now();
       let status: Status = "fail";
       let detail = "";
+      // C... StrKeys are Soroban contract IDs, not Horizon account IDs.
+      // A Horizon 404 cannot prove whether a contract is deployed.
+      if (c.address.startsWith("C")) {
+        status = "unknown";
+        detail = "Soroban contract state cannot be verified through Horizon. Requires a supported network-specific Soroban RPC and ledger proof.";
+        const lat = Math.round(performance.now() - start);
+        setChecks((prev) => prev.map((x) => x.id === c.id ? { ...x, status, detail, latencyMs: lat } : x));
+        continue;
+      }
       try {
-        // Try account lookup first (works for token issuers / user accounts)
         const acc = await fetch(`${HORIZON_TESTNET}/accounts/${c.address}`);
         if (acc.ok) {
           const data = await acc.json();
           status = "ok";
-          detail = `Account · seq ${data.sequence} · balances ${data.balances?.length ?? 0}`;
+          detail = `Horizon account · seq ${data.sequence} · balances ${data.balances?.length ?? 0}`;
         } else if (acc.status === 404) {
-          // For contract IDs try Soroban ledger entry endpoint pattern
-          const ctr = await fetch(`${HORIZON_TESTNET}/ledgers?limit=1`);
-          status = ctr.ok ? "fail" : "fail";
-          detail = c.kind === "contract" ? "Contract not deployed on testnet (registry-only)" : "Account not funded on testnet";
+          status = "fail";
+          detail = "Account not found on this Horizon network";
         } else {
-          detail = `HTTP ${acc.status}`;
+          detail = `Horizon HTTP ${acc.status}`;
         }
       } catch (e: any) {
         detail = e?.message ?? "network error";
@@ -88,7 +87,7 @@ export default function Testnet() {
 
   const counts = checks.reduce(
     (a, c) => ({ ...a, [c.status]: (a as any)[c.status] + 1 }),
-    { ok: 0, fail: 0, pending: 0 } as Record<Status, number>,
+    { ok: 0, fail: 0, pending: 0, unknown: 0 } as Record<Status, number>,
   );
 
   return (
@@ -102,13 +101,13 @@ export default function Testnet() {
               <span className="chip">Pi Testnet</span>
             </div>
             <p className="text-muted text-sm">
-              Live probes against <span className="mono">{HORIZON_TESTNET}</span> for every PiRC-207 layer token, sovereign
-              issuer account, and Soroban smart contract in the deployment matrix.
+              Horizon account checks against <span className="mono">{HORIZON_TESTNET}</span>. Soroban contract IDs are deliberately marked UNKNOWN until a supported RPC can verify contract state; Horizon 404 is not treated as proof of non-deployment.
             </p>
           </div>
           <div className="flex gap-4 text-center">
             <Metric label="OK" value={counts.ok} tone="green" />
             <Metric label="Failed" value={counts.fail} tone="red" />
+            <Metric label="Unknown" value={counts.unknown} tone="muted" />
             <Metric label="Pending" value={counts.pending} tone="muted" />
           </div>
           <button onClick={run} disabled={running}
@@ -148,8 +147,8 @@ export default function Testnet() {
 }
 
 function Row({ c }: { c: Check }) {
-  const Icon = c.status === "ok" ? CheckCircle2 : c.status === "fail" ? XCircle : Loader2;
-  const tone = c.status === "ok" ? "text-green" : c.status === "fail" ? "text-red" : "text-muted";
+  const Icon = c.status === "ok" ? CheckCircle2 : c.status === "fail" ? XCircle : c.status === "unknown" ? AlertTriangle : Loader2;
+  const tone = c.status === "ok" ? "text-green" : c.status === "fail" ? "text-red" : c.status === "unknown" ? "text-amber-400" : "text-muted";
   return (
     <div className="grid grid-cols-[auto_1fr_auto] gap-3 items-center py-2 border-b border-border/50 last:border-0">
       <Icon size={16} className={`${tone} ${c.status === "pending" ? "animate-spin" : ""}`} />
@@ -159,8 +158,8 @@ function Row({ c }: { c: Check }) {
       </div>
       <div className="flex items-center gap-2">
         {c.latencyMs != null && <span className="mono text-[10px] text-muted">{c.latencyMs}ms</span>}
-        <a href={`https://api.testnet.minepi.com/accounts/${c.address}`} target="_blank" rel="noreferrer"
-          className="text-muted hover:text-gold"><ExternalLink size={12} /></a>
+        {c.address.startsWith("G") && <a href={`https://api.testnet.minepi.com/accounts/${c.address}`} target="_blank" rel="noreferrer"
+          className="text-muted hover:text-gold" aria-label="Open Horizon account"><ExternalLink size={12} /></a>}
       </div>
     </div>
   );

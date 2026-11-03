@@ -1,30 +1,16 @@
 #![no_std]
 //! PiRC-800 — BN254 / Groth16 Verifier (feature-gated)
 //!
-//! Design goals:
-//!   • Deployable **today** on Stellar Testnet / Soroban v22 (protocol v21–v23).
-//!   • **Forward-compatible** with Stellar/Pi protocol upgrades v25, v26, v27,
-//!     v28 and beyond. When the runtime exposes BN254 pairing host functions,
-//!     rebuild with `--features bn254` — the ABI, storage layout, and WASM
-//!     entrypoints are byte-stable, so the same deployed contract address can
-//!     be upgraded in place via `update_current_contract_wasm`.
-//!   • **No unsafe. No panics.** All arithmetic is checked; every error
-//!     surfaces through `Error`.
+//! PiRC-800 reference verifier. This source does not claim deployment or audit status.
 //!
-//! Modes
-//! -----
-//! * **Commitment mode** (default): the caller submits a Groth16 proof
-//!   verified off-chain (e.g. snarkjs / arkworks in the browser or in a
-//!   trusted verifier service). The contract records the verified
-//!   `commitment` (BLAKE-style hash of public inputs + proof) and emits a
-//!   `verified` event. Consumers (PiDEX AMM, RWA vaults) trust the
-//!   commitment set, not the raw proof.
-//! * **On-chain mode** (`--features bn254`): the contract performs the full
-//!   Groth16 pairing check inside the host. Activated the moment the target
-//!   protocol enables BN254 pairing.
+//! Default mode verifies an Ed25519 attestation from one configured trusted
+//! signer over a domain-separated SHA-256 commitment. The contract stores that
+//! commitment and the ledger sequence. This is not decentralized verification,
+//! does not perform Groth16 pairing on-chain, and does not make transactions private.
 //!
-//! Both modes expose the same `verify` entrypoint. Callers do not need to
-//! know which mode is active.
+//! The optional `bn254` feature deliberately fails closed with
+//! `HostFunctionUnavailable` until a real Soroban host-function binding and
+//! protocol-specific integration tests are implemented.
 
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, Address, Bytes, BytesN, Env, Symbol, Vec,
@@ -57,6 +43,7 @@ pub enum Error {
     Replay = 7,
     AttestorMissing = 8,
     BadAttestation = 9,
+    HostFunctionUnavailable = 10,
 }
 
 #[contract]
@@ -64,9 +51,8 @@ pub struct Bn254Verifier;
 
 #[contractimpl]
 impl Bn254Verifier {
-    /// One-shot init. `attestor` is the ed25519 pubkey of the trusted
-    /// off-chain Groth16 verifier used in commitment mode; ignored (but
-    /// stored for audit) once on-chain mode is active.
+    /// One-shot init. `attestor` is the Ed25519 public key of the trusted
+    /// off-chain verifier used by the default commitment mode.
     pub fn initialize(env: Env, admin: Address, attestor: BytesN<32>) -> Result<(), Error> {
         if env.storage().instance().has(&DataKey::Admin) {
             return Err(Error::AlreadyInitialized);
@@ -78,7 +64,7 @@ impl Bn254Verifier {
         Ok(())
     }
 
-    /// Admin: set/rotate the Groth16 verification key.
+    /// Admin: set/rotate a verification key for a future native BN254 implementation.
     pub fn set_vk(env: Env, vk: Bytes) -> Result<(), Error> {
         Self::only_admin(&env)?;
         env.storage().instance().set(&DataKey::Vk, &vk);
@@ -94,10 +80,9 @@ impl Bn254Verifier {
 
     /// Verify a Groth16 proof for `public_inputs`.
     ///
-    /// * On-chain mode: performs BN254 pairing verification via host fns.
-    /// * Commitment mode: verifies the ed25519 `attestation` signed by the
-    ///   trusted attestor over `sha256(proof || public_inputs)`, then
-    ///   records the commitment. Idempotency prevents replay.
+    /// * Default mode: verifies the Ed25519 attestation over the domain-separated
+    ///   commitment hash, then records that commitment. Replay is rejected.
+    /// * The `bn254` feature currently fails closed; no pairing is performed.
     ///
     /// Returns the 32-byte commitment (proof hash) on success.
     pub fn verify(
@@ -106,6 +91,7 @@ impl Bn254Verifier {
         public_inputs: Vec<Bytes>,
         attestation: Bytes,
     ) -> Result<BytesN<32>, Error> {
+        #[cfg(feature = "bn254")]
         if !env.storage().instance().has(&DataKey::Vk) {
             return Err(Error::VkNotSet);
         }
@@ -154,51 +140,36 @@ impl Bn254Verifier {
 
     #[cfg(feature = "bn254")]
     fn run_verify(
-        env: &Env,
-        proof: &Bytes,
-        public_inputs: &Vec<Bytes>,
+        _env: &Env,
+        _proof: &Bytes,
+        _public_inputs: &Vec<Bytes>,
         _attestation: &Bytes,
         _commitment: &BytesN<32>,
     ) -> Result<(), Error> {
-        // On-chain Groth16 pairing check using BN254 host functions exposed
-        // by target protocol (v25+). Interface is finalized upstream — this
-        // block is compiled only when the runtime supports it.
-        let vk: Bytes = env
-            .storage()
-            .instance()
-            .get(&DataKey::Vk)
-            .ok_or(Error::VkNotSet)?;
-        if !groth16_bn254_verify(env, &vk, proof, public_inputs) {
-            return Err(Error::InvalidProof);
-        }
-        Ok(())
+        // Fail closed: this repository does not yet bind a real Soroban
+        // BN254 pairing host function. Never return success from a stub.
+        Err(Error::HostFunctionUnavailable)
     }
 
     #[cfg(not(feature = "bn254"))]
     fn run_verify(
         env: &Env,
-        proof: &Bytes,
-        public_inputs: &Vec<Bytes>,
+        _proof: &Bytes,
+        _public_inputs: &Vec<Bytes>,
         attestation: &Bytes,
-        _commitment: &BytesN<32>,
+        commitment: &BytesN<32>,
     ) -> Result<(), Error> {
-        // Commitment mode: trust the off-chain verifier's ed25519 signature
-        // over sha256(proof || public_inputs).
+        // Commitment mode: trust the off-chain verifier's Ed25519 signature
+        // over the exact domain-separated commitment returned to consumers.
         let attestor: BytesN<32> = env
             .storage()
             .instance()
             .get(&DataKey::Attestor)
             .ok_or(Error::AttestorMissing)?;
 
-        let mut msg = Bytes::new(env);
-        msg.append(proof);
-        for input in public_inputs.iter() {
-            msg.append(&input);
-        }
-        let digest = env.crypto().sha256(&msg);
+        let digest = commitment.to_bytes();
 
-        // ed25519 host fn: panics on failure, so guard via panic-to-error
-        // is not needed — but we surface via BadAttestation on invalid len.
+        // Reject malformed signatures before invoking the cryptographic host function.
         if attestation.len() != 64 {
             return Err(Error::BadAttestation);
         }
@@ -207,15 +178,20 @@ impl Bn254Verifier {
             .try_into()
             .map_err(|_| Error::BadAttestation)?;
         env.crypto()
-            .ed25519_verify(&attestor, &digest.to_bytes(), &sig);
+            .ed25519_verify(&attestor, &digest, &sig);
         Ok(())
     }
 }
 
 fn commitment_hash(env: &Env, proof: &Bytes, public_inputs: &Vec<Bytes>) -> BytesN<32> {
-    let mut buf = Bytes::new(env);
+    // Domain separation and length prefixes prevent ambiguous concatenations.
+    let mut buf = Bytes::from_slice(env, b"PiRC-800:COMMITMENT:v1");
+    let proof_len = proof.len().to_be_bytes();
+    buf.append(&Bytes::from_slice(env, &proof_len));
     buf.append(proof);
     for input in public_inputs.iter() {
+        let input_len = input.len().to_be_bytes();
+        buf.append(&Bytes::from_slice(env, &input_len));
         buf.append(&input);
     }
     env.crypto().sha256(&buf).to_bytes()
@@ -223,16 +199,48 @@ fn commitment_hash(env: &Env, proof: &Bytes, public_inputs: &Vec<Bytes>) -> Byte
 
 fn mode_tag(env: &Env) -> Symbol {
     #[cfg(feature = "bn254")]
-    { Symbol::new(env, "onchain_bn254") }
+    { Symbol::new(env, "bn254_unavailable") }
     #[cfg(not(feature = "bn254"))]
     { Symbol::new(env, "commitment") }
 }
 
-// Placeholder for the pairing host-fn call. When the target protocol
-// finalizes the BN254 interface, replace the body with the concrete host
-// invocation. Kept in one place so activation is a single-line change.
-#[cfg(feature = "bn254")]
-fn groth16_bn254_verify(_env: &Env, _vk: &Bytes, _proof: &Bytes, _public_inputs: &Vec<Bytes>) -> bool {
-    // env.crypto().bn254_pairing_check(...) — bind at activation.
-    true
+
+
+#[cfg(test)]
+mod test {
+    use super::{Bn254Verifier, Bn254VerifierClient, Error};
+    use soroban_sdk::{testutils::Address as _, Address, Bytes, BytesN, Env, Vec};
+
+    #[test]
+    fn commitment_mode_rejects_missing_attestation_without_requiring_vk() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let id = env.register(Bn254Verifier, ());
+        let client = Bn254VerifierClient::new(&env, &id);
+        let admin = Address::generate(&env);
+        let attestor = BytesN::from_array(&env, &[6u8; 32]);
+        client.initialize(&admin, &attestor).unwrap();
+        let proof = Bytes::from_slice(&env, b"proof");
+        let mut inputs = Vec::new(&env);
+        inputs.push_back(Bytes::from_slice(&env, b"public-input"));
+        let empty_attestation = Bytes::new(&env);
+        assert_eq!(client.verify(&proof, &inputs, &empty_attestation), Err(Error::BadAttestation));
+    }
+
+    #[cfg(feature = "bn254")]
+    #[test]
+    fn bn254_feature_fails_closed_until_host_function_is_implemented() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let id = env.register(Bn254Verifier, ());
+        let client = Bn254VerifierClient::new(&env, &id);
+        let admin = Address::generate(&env);
+        let attestor = BytesN::from_array(&env, &[7u8; 32]);
+        client.initialize(&admin, &attestor).unwrap();
+        client.set_vk(&Bytes::from_slice(&env, b"verification-key")).unwrap();
+        let proof = Bytes::from_slice(&env, b"proof");
+        let mut inputs = Vec::new(&env);
+        inputs.push_back(Bytes::from_slice(&env, b"public-input"));
+        assert_eq!(client.verify(&proof, &inputs, &Bytes::new(&env)), Err(Error::HostFunctionUnavailable));
+    }
 }

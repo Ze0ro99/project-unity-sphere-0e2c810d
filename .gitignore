@@ -1,2 +1,18 @@
 # Local Netlify folder
 .netlify
+
+# Local environment files and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Private key and credential material
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+secrets/
+credentials/
+.secrets/

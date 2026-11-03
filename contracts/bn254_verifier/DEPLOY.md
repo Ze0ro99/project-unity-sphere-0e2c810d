@@ -1,64 +1,44 @@
-# BN254 / Groth16 Verifier — Deploy & Activation Runbook
+# PiRC-800 Verifier — Deployment and Verification Status
 
-Standard: **PiRC-800**. Protocols: Soroban v22 (Stellar v21–v23) with a
-byte-stable ABI forward to **v25, v26, v27, v28**.
+## Current implementation status
 
-## Modes
+The default build implements an **attestor-backed commitment mode**. A trusted Ed25519 attestor signs a domain-separated digest of the submitted proof and length-prefixed public inputs. The contract verifies that signature, records the commitment hash and ledger sequence, and emits a verification event.
 
-| Mode           | Build flag         | When to use                                        |
-| -------------- | ------------------ | -------------------------------------------------- |
-| Commitment     | *(default)*        | Today, on any protocol. Off-chain Groth16 + ed25519 attestation. |
-| On-chain BN254 | `--features bn254` | The moment target protocol enables BN254 pairing host fns. |
+This is not on-chain Groth16 verification. It is a single-trusted-attestor design and its security depends on the off-chain verifier, key custody, and attestor rotation/revocation procedures. It does not make PiDEX swaps private.
 
-## 1. Build
+The `bn254` feature is deliberately **fail-closed** in this revision. It returns `HostFunctionUnavailable` because this repository does not contain a real Soroban BN254 pairing host-function binding. Do not enable it for production or describe it as an active verifier.
+
+## Build
 
 ```bash
-cargo build --target wasm32-unknown-unknown --release -p bn254_verifier
-# or, once BN254 host fns are live:
-cargo build --target wasm32-unknown-unknown --release -p bn254_verifier --features bn254
+rustup target add wasm32-unknown-unknown
+cargo test --manifest-path contracts/bn254_verifier/Cargo.toml
+cargo build --manifest-path contracts/bn254_verifier/Cargo.toml --target wasm32-unknown-unknown --release
 ```
 
-## 2. Deploy to Stellar Testnet (Pi Testnet when Soroban ships)
+The feature-gated fail-closed path can be tested with:
 
 ```bash
-stellar keys generate --network testnet deployer --fund
-WASM=target/wasm32-unknown-unknown/release/bn254_verifier.wasm
-stellar contract optimize --wasm "$WASM"
-CID=$(stellar contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/bn254_verifier.optimized.wasm \
-  --source deployer --network testnet)
-
-stellar contract invoke --id $CID --source deployer --network testnet -- \
-  initialize --admin $(stellar keys address deployer) \
-             --attestor <ATTESTOR_ED25519_PUBKEY_HEX>
-stellar contract invoke --id $CID --source deployer --network testnet -- \
-  set_vk --vk <SERIALIZED_GROTH16_VK_HEX>
+cargo test --manifest-path contracts/bn254_verifier/Cargo.toml --features bn254
 ```
 
-## 3. Wire into PiDEX AMM
+## Deployment gates
 
-```bash
-stellar contract invoke --id <PIDEX_CID> --source deployer --network testnet -- \
-  set_zk_verifier --verifier $CID
-```
+Before any deployment:
+1. Verify the exact network, passphrase, RPC endpoint and protocol version.
+2. Deploy the default commitment-mode WASM only to an explicitly approved test network.
+3. Initialize with a dedicated admin and attestor public key.
+4. Rotate and custody the attestor private key outside source control.
+5. Test invalid signatures, malformed inputs, replay attempts and key rotation.
+6. Publish contract ID, transaction ID, WASM hash and test evidence.
+7. Obtain an independent cryptographic and contract security review.
 
-## 4. In-place upgrade to on-chain BN254 (protocol v25+)
+## Not implemented
 
-The WASM ABI, storage keys, and entrypoints are stable across modes, so
-activation is a redeploy of the new WASM under the same contract address:
+- Native on-chain BN254 pairing.
+- Decentralized or multi-attestor quorum.
+- Proof system setup / trusted setup governance.
+- Private or shielded AMM settlement.
+- Automatic activation on protocol upgrade.
 
-```bash
-stellar contract invoke --id $CID --source deployer --network testnet -- \
-  update_current_contract_wasm --hash $(stellar contract install \
-    --wasm target/wasm32-unknown-unknown/release/bn254_verifier.optimized.wasm \
-    --network testnet --source deployer)
-```
-
-No storage migration, no re-init, no client redeploy — commitment history
-is preserved.
-
-## 5. GitHub Actions
-
-`.github/workflows/deploy-stellar-testnet.yml` builds + deploys both
-PiDEX AMM and this verifier with a single manual dispatch. Flip the
-`bn254_feature` input to `true` when protocol upgrades enable BN254.
+A protocol version number alone does not activate a host function or prove compatibility.

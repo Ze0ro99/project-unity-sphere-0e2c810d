@@ -145,7 +145,10 @@ export default function PiDEX() {
       {/* Ticker strip */}
       <section className="card px-4 py-3 flex flex-wrap items-center gap-x-8 gap-y-3">
         <div className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-lg flex items-center justify-center text-black font-bold text-lg" style={{ background: m.layer.hex }}>π</span>
+          <span className="relative w-10 h-10 rounded-lg flex items-center justify-center text-black font-bold text-lg overflow-hidden" style={{ background: m.layer.hex }}>
+            π
+            <img src={m.layer.logoUri} alt="" className="absolute inset-0 w-full h-full object-contain p-1" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+          </span>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold mono">{m.symbol}</h1>
@@ -159,6 +162,7 @@ export default function PiDEX() {
               )}
             </div>
             <div className="text-[11px] text-muted">PiRC-101 base pair · Spot · Hybrid CLOB + AMM</div>
+            <div role="status" className="mt-1 inline-flex items-center gap-1 rounded border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold tracking-wide text-amber-300">SIMULATION MODE — orders, balances and fills are local demo data; no on-chain trade is executed.</div>
           </div>
         </div>
         <div className="flex items-baseline gap-3">
@@ -174,6 +178,11 @@ export default function PiDEX() {
           <Stat label="24h Vol (π)" value={compact(m.vol24h)} />
           <Stat label="Pool TVL (π)" value={compact(m.reserveQuote * 2)} />
         </div>
+      </section>
+
+      <section className="card px-4 py-2 flex flex-wrap items-center gap-3 border border-sky-500/30 bg-sky-500/5">
+        <span className="rounded px-2 py-1 text-[10px] font-bold tracking-wider bg-sky-500/15 text-sky-300">OUSD · TEST ONLY</span>
+        <span className="text-xs text-muted">Reference asset profile is registered for interface and contract testing only. No deployed contract, USD peg, reserve backing or redemption is claimed; OUSD trading and mint/redeem actions are disabled.</span>
       </section>
 
       <section className="card px-4 py-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-[11px] mono">
@@ -215,7 +224,10 @@ export default function PiDEX() {
                   style={active ? { boxShadow: `inset 2px 0 0 ${x.layer.hex}` } : {}}
                 >
                   <span className="text-left flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: x.layer.hex }} />
+                    <span className="relative w-5 h-5 rounded-full overflow-hidden inline-flex items-center justify-center text-[9px] font-bold" style={{ background: x.layer.hex }}>
+                      π
+                      <img src={x.layer.logoUri} alt="" className="absolute inset-0 w-full h-full object-contain" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                    </span>
                     {x.layer.id}π
                   </span>
                   <span className="text-right">{fmt(x.price, 4)}</span>

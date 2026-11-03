@@ -1,11 +1,10 @@
 /**
  * PiRC-214 — Live Market Index client
  * -----------------------------------------------------------------------------
- * Single source of truth for the real-time π spot index. Data is aggregated
- * server-side (edge function `market-index`) from OKX / MEXC / Bitget / Gate.io
- * / KuCoin, medianised with a deviation quorum, and streamed to every module
- * (exchange terminal, oracle, purchasing power) so no screen ever shows a
- * frozen or hardcoded price.
+ * Off-chain Pi spot estimate. The Supabase Edge Function reads public CEX
+ * APIs (OKX / MEXC / Bitget / Gate.io / KuCoin), computes a median and applies
+ * a 3-source / 300-bps heuristic. This is not an on-chain oracle consensus,
+ * guaranteed execution price, or proof of available liquidity.
  */
 
 import { supabase } from "@/integrations/supabase/client";

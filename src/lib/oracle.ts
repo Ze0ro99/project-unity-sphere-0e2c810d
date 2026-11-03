@@ -1,11 +1,10 @@
 /**
  * PiRC-214 — Oracle & Purchasing-Power Layer
  * -----------------------------------------------------------------------------
- * Live Chainlink Data Feeds read directly on-chain via JSON-RPC `eth_call`
- * against the canonical AggregatorV3Interface proxies (Ethereum mainnet), plus
- * off-chain CEX medianisation. Feeds are aggregated with a robust median and
- * staleness (heartbeat) enforcement identical to the on-chain consumer
- * contracts in `contracts/chainlink_consumer` and `contracts/pirc_oracle`.
+ * Off-chain dashboard reader: Chainlink AggregatorV3 calls are made to
+ * Ethereum Mainnet through public JSON-RPC endpoints; Pi spot is aggregated
+ * by a Supabase Edge Function from centralized exchange APIs. These are not
+ * Pi/Soroban on-chain oracle reads and are not a decentralized oracle quorum.
  */
 
 export const RPC_ENDPOINTS = [
@@ -101,11 +100,11 @@ export async function readDecimals(address: string, signal?: AbortSignal): Promi
   try {
     const raw = await ethCall(address, SEL_DECIMALS, signal);
     const d = Number(word(raw, 0));
-    const safe = Number.isFinite(d) && d >= 0 && d <= 30 ? d : 8;
-    decimalsCache.set(address, safe);
-    return safe;
-  } catch {
-    return 8;
+    if (!Number.isInteger(d) || d < 0 || d > 30) throw new Error("invalid Chainlink feed decimals");
+    decimalsCache.set(address, d);
+    return d;
+  } catch (error) {
+    throw error instanceof Error ? error : new Error("unable to read Chainlink feed decimals");
   }
 }
 
@@ -119,7 +118,12 @@ export async function readFeed(def: FeedDef, signal?: AbortSignal): Promise<Feed
     const roundId = word(raw, 0);
     const answerRaw = toInt256(word(raw, 1));
     const updatedAt = Number(word(raw, 3));
+    const answeredInRound = word(raw, 4);
+    if (roundId === 0n || answeredInRound < roundId) throw new Error("incomplete Chainlink round");
+    if (!Number.isSafeInteger(updatedAt) || updatedAt <= 0 || updatedAt > now + 60) throw new Error("invalid Chainlink update timestamp");
+    if (answerRaw <= 0n) throw new Error("non-positive Chainlink answer");
     const answer = Number(answerRaw) / 10 ** decimals;
+    if (!Number.isFinite(answer) || answer <= 0) throw new Error("invalid normalized Chainlink answer");
     const ageSec = Math.max(0, now - updatedAt);
     return {
       def,
@@ -235,7 +239,7 @@ export type PurchasingPower = {
   eur: number;
   jpy: number;
   cny: number;
-  realYieldBps: number;
+  basketChangeBps: number;
   coverage: number; // share of basket legs sourced from live oracles
 };
 
@@ -278,8 +282,10 @@ export function purchasingPower(rounds: FeedRound[], piUsd: number): PurchasingP
   ].filter(([r]) => Number.isFinite(r) && r > 0) as Array<[number, number]>;
 
   const wsum = ratios.reduce((s, [, w]) => s + w, 0) || 1;
-  const ppi = ratios.reduce((s, [r, w]) => s + r * w, 0) / wsum;
-  const basketUsd = BASKET_BASELINE * ppi;
+  const ppi = coverage >= 0.5 && ratios.length > 0
+    ? ratios.reduce((s, [r, w]) => s + r * w, 0) / wsum
+    : NaN;
+  const basketUsd = Number.isFinite(ppi) ? BASKET_BASELINE * ppi : NaN;
 
   const px = Number.isFinite(piUsd) ? piUsd : NaN;
   return {
@@ -292,12 +298,12 @@ export function purchasingPower(rounds: FeedRound[], piUsd: number): PurchasingP
     eur: Number.isFinite(eur) ? px / eur : NaN,
     jpy: Number.isFinite(jpy) ? px / jpy : NaN,
     cny: Number.isFinite(cny) ? px / cny : NaN,
-    realYieldBps: Number.isFinite(ppi) ? -(ppi - 1) * 10_000 : NaN,
+    basketChangeBps: Number.isFinite(ppi) ? -(ppi - 1) * 10_000 : NaN,
     coverage,
   };
 }
 
-/** Purchasing power of 1 Pi expressed in the reference basket. */
+/** Model proxy: Pi market quote divided by the reference-basket index. */
 export function piPurchasingPower(pp: PurchasingPower): number {
   return Number.isFinite(pp.piUsd) && pp.ppi > 0 ? pp.piUsd / pp.ppi : NaN;
 }
