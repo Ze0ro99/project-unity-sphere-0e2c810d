@@ -59,7 +59,7 @@ def root():
 @app.post("/verify")
 def verify(data: dict, x_api_key: str | None = Header(default=None)):
     _require_api_key(x_api_key)
-    cleaned = _validate(data)
+    _validate(data)
 
     # Fail closed: the deployed function does not provision a Soroban CLI,
     # network-pinned RPC client, or secure signer/relayer. Never invoke a
