@@ -1,6 +1,6 @@
 // PiRC-207 7-Layer Token System (mainnet-ready registry addresses).
 // Sourced from schemas/pirc207_layers.json in the PiRC monorepo.
-export const ISSUER = "GA3ECRFJ6S05BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6";
+export const ISSUER = "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6";
 export const MASTER_REGISTRY = "CAEUNHEUXACISTVHICFNISFRTRVSK5IALA3H5MUT7P4JKU5L3IPSKG4B";
 
 export type Layer = {
