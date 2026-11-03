@@ -2,25 +2,26 @@ import { Shield, CheckCircle2, FileCode2, Scale, Lock, Activity, Gauge, Layers }
 import { useI18n } from "@/i18n";
 
 type Status = "enforced" | "wired" | "documented" | "shipped";
+type ProtocolStatus = "documented" | "unverified";
 
 const STANDARDS: { id: string; icon: any; status: Status }[] = [
-  { id: "PiRC-101", icon: Scale, status: "enforced" },
-  { id: "PiRC-207", icon: Layers, status: "enforced" },
-  { id: "PiRC-215", icon: Activity, status: "enforced" },
-  { id: "PiRC-227", icon: Gauge, status: "enforced" },
-  { id: "PiRC-251", icon: Shield, status: "enforced" },
+  { id: "PiRC-101", icon: Scale, status: "documented" },
+  { id: "PiRC-207", icon: Layers, status: "documented" },
+  { id: "PiRC-215", icon: Activity, status: "wired" },
+  { id: "PiRC-227", icon: Gauge, status: "wired" },
+  { id: "PiRC-251", icon: Shield, status: "documented" },
   { id: "PiRC-260", icon: FileCode2, status: "documented" },
-  { id: "PiRC-800", icon: Lock, status: "shipped" },
+  { id: "PiRC-800", icon: Lock, status: "wired" },
 ];
 
-const PROTOCOLS: { v: string; state: "supported" | "forward-compatible" }[] = [
-  { v: "v21", state: "supported" },
-  { v: "v22", state: "supported" },
-  { v: "v23", state: "supported" },
-  { v: "v25", state: "forward-compatible" },
-  { v: "v26", state: "forward-compatible" },
-  { v: "v27", state: "forward-compatible" },
-  { v: "v28", state: "forward-compatible" },
+const PROTOCOLS: { v: string; state: ProtocolStatus }[] = [
+  { v: "v21", state: "documented" },
+  { v: "v22", state: "documented" },
+  { v: "v23", state: "documented" },
+  { v: "v25", state: "unverified" },
+  { v: "v26", state: "unverified" },
+  { v: "v27", state: "unverified" },
+  { v: "v28", state: "unverified" },
 ];
 
 const CHECK_IDS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
@@ -82,8 +83,8 @@ export default function Standards() {
           {PROTOCOLS.map((p) => (
             <div key={p.v} className="p-2 rounded border border-border bg-panel2/40">
               <div className="text-base font-bold">{p.v}</div>
-              <div className={`text-[10px] uppercase ${p.state === "supported" ? "text-emerald-400" : "text-sky-400"}`}>
-                {t(p.state === "supported" ? "common.status.supported" : "common.status.forward")}
+              <div className={`text-[10px] uppercase ${p.state === "documented" ? "text-amber-400" : "text-rose-400"}`}>
+                {t(`common.status.${p.state}`)}
               </div>
               <div className="text-muted mt-1">{t(`proto.${p.v}`)}</div>
             </div>
