@@ -24,6 +24,6 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install test dependencies
-        run: python -m pip install --upgrade pip fastapi httpx pytest
+        run: python -m pip install --upgrade pip -r requirements-dev.txt
       - name: Run registry API tests
         run: python -m pytest -q tests/unit/test_asset_registry.py
