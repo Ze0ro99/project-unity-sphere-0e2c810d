@@ -69,7 +69,7 @@ def test_verification_route_never_claims_success_without_readback():
     assert response.status_code == 200
     payload = response.json()
     assert payload["verification_status"] == "UNVERIFIED"
-    assert payload["checks"]["network_readback"] == "NOT_RUN"
+    assert payload["checks"]["network_readback"] == "NOT_APPLICABLE_NOT_DEPLOYED"
 
 
 def test_unknown_asset_returns_typed_404():
@@ -104,3 +104,15 @@ def test_network_health_endpoint_reports_real_probe_result(monkeypatch):
     response = client.get("/v1/networks/pi-testnet/health")
     assert response.status_code == 200
     assert response.json() == expected
+
+
+def test_contract_verification_uses_readback_for_registered_contract(monkeypatch):
+    expected = {"probe_status": "FOUND", "contract_instance_present": True, "rpc_url": "https://rpc.testnet.minepi.com"}
+    monkeypatch.setattr(asset_registry, "verify_contract_instance", lambda contract_id: expected)
+    response = client.get("/v1/assets/pi-testnet/heart/verification")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["verification_status"] == "DEPLOYED_UNVERIFIED"
+    assert payload["checks"]["network_readback"] == "CONTRACT_INSTANCE_PRESENT"
+    assert payload["checks"]["contract_instance_probe"] == expected
+    assert payload["checks"]["deployed_code_hash"] == "NOT_VERIFIED"
