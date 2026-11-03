@@ -52,7 +52,7 @@ const LAYER_KEY_BY_ALIAS = Object.freeze({
 });
 
 function resolveLayerKey(layer) {
-  const normalized = String(layer ?? "").replace(/[\\s_-]/g, "").toLowerCase();
+  const normalized = String(layer ?? "").replace(/[\s_-]/g, "").toLowerCase();
   return LAYER_KEY_BY_ALIAS[normalized] ?? normalized;
 }
 
