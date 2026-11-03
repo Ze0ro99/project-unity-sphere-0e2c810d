@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "source_documents": [
     "assets/js/token_layers.js",
     "docs/audit/PiRC-207-Token-Layer-Color-System-and-Calculation-Mechanism.md",
@@ -22,9 +22,9 @@
       "registry_layer": "L6",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": "/v1/assets/root/logo",
+      "logo_uri": "/v1/assets/pi-testnet/root/logo",
       "conversion_status": "UNSPECIFIED",
-      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
+      "logo_status": "PROVISIONAL_BADGE"
     },
     {
       "key": "sacral",
@@ -38,9 +38,9 @@
       "registry_layer": "L3",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": "/v1/assets/sacral/logo",
+      "logo_uri": "/v1/assets/pi-testnet/sacral/logo",
       "conversion_status": "UNSPECIFIED",
-      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
+      "logo_status": "PROVISIONAL_BADGE"
     },
     {
       "key": "solar",
@@ -54,9 +54,9 @@
       "registry_layer": "L2",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": "/v1/assets/solar/logo",
+      "logo_uri": "/v1/assets/pi-testnet/solar/logo",
       "conversion_status": "UNSPECIFIED",
-      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
+      "logo_status": "PROVISIONAL_BADGE"
     },
     {
       "key": "heart",
@@ -70,9 +70,9 @@
       "registry_layer": "L5",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": "/v1/assets/heart/logo",
+      "logo_uri": "/v1/assets/pi-testnet/heart/logo",
       "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI",
-      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
+      "logo_status": "PROVISIONAL_BADGE"
     },
     {
       "key": "throat",
@@ -86,9 +86,9 @@
       "registry_layer": "L4",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": "/v1/assets/throat/logo",
+      "logo_uri": "/v1/assets/pi-testnet/throat/logo",
       "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI",
-      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
+      "logo_status": "PROVISIONAL_BADGE"
     },
     {
       "key": "thirdEye",
@@ -102,9 +102,9 @@
       "registry_layer": null,
       "repository_claim_status": "NO_MATCHING_CONTRACT_IN_LIVE_MATRIX_REGISTRY",
       "verification_status": "UNVERIFIED",
-      "logo_uri": "/v1/assets/thirdEye/logo",
+      "logo_uri": "/v1/assets/pi-testnet/thirdeye/logo",
       "conversion_status": "UNSPECIFIED",
-      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
+      "logo_status": "PROVISIONAL_BADGE"
     },
     {
       "key": "crown",
@@ -118,9 +118,9 @@
       "registry_layer": "L0",
       "repository_claim_status": "ACTIVE",
       "verification_status": "UNVERIFIED",
-      "logo_uri": "/v1/assets/crown/logo",
+      "logo_uri": "/v1/assets/pi-testnet/crown/logo",
       "conversion_status": "SOURCE_DEFINED_10000000_MICRO_PER_PI",
-      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
+      "logo_status": "PROVISIONAL_BADGE"
     }
   ],
   "unmapped_registry_entries": [
@@ -129,9 +129,32 @@
       "contract_id": "CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG",
       "registry_layer": "L1",
       "reason": "Gold contract exists in the CSV but no Gold chakra/token layer is defined in token_layers.js.",
-      "logo_uri": "/v1/assets/gold-unmapped/logo",
-      "logo_status": "PLACEHOLDER_NOT_ISSUER_VERIFIED"
+      "logo_uri": "/v1/assets/pi-testnet/gold-unmapped/logo",
+      "logo_status": "PROVISIONAL_BADGE"
     }
   ],
-  "logo_policy": "All logo responses are provisional color badges. They are not official issuer logos, asset verification or proof of token legitimacy."
+  "additional_assets": [
+    {
+      "key": "ousd",
+      "symbol": "OUSD",
+      "name": "OUSD Test Stable-Asset Proposal",
+      "asset_type": "TEST_STABLE_ASSET_PROPOSAL",
+      "network_id": "pi-testnet",
+      "contract_id": null,
+      "issuer": null,
+      "decimals": null,
+      "supply": null,
+      "market_price": null,
+      "reserve_value": null,
+      "redeemable_value": null,
+      "redemption_enabled": false,
+      "mint_enabled": false,
+      "transfer_enabled": false,
+      "verification_status": "UNVERIFIED",
+      "logo_uri": "/v1/assets/pi-testnet/ousd/logo",
+      "status": "PROPOSED_TEST_ONLY",
+      "description": "Interface/schema test record only. No issuer, deployed contract, USD peg, reserve backing or redemption claim."
+    }
+  ],
+  "logo_policy": "All served SVGs are provisional UI badges. They are not official issuer logos, proof of asset legitimacy or proof of contract deployment."
 }
