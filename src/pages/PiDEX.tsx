@@ -145,7 +145,10 @@ export default function PiDEX() {
       {/* Ticker strip */}
       <section className="card px-4 py-3 flex flex-wrap items-center gap-x-8 gap-y-3">
         <div className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-lg flex items-center justify-center text-black font-bold text-lg" style={{ background: m.layer.hex }}>π</span>
+          <span className="relative w-10 h-10 rounded-lg flex items-center justify-center text-black font-bold text-lg overflow-hidden" style={{ background: m.layer.hex }}>
+            π
+            <img src={m.layer.logoUri} alt="" className="absolute inset-0 w-full h-full object-contain p-1" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+          </span>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold mono">{m.symbol}</h1>
@@ -216,7 +219,10 @@ export default function PiDEX() {
                   style={active ? { boxShadow: `inset 2px 0 0 ${x.layer.hex}` } : {}}
                 >
                   <span className="text-left flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: x.layer.hex }} />
+                    <span className="relative w-5 h-5 rounded-full overflow-hidden inline-flex items-center justify-center text-[9px] font-bold" style={{ background: x.layer.hex }}>
+                      π
+                      <img src={x.layer.logoUri} alt="" className="absolute inset-0 w-full h-full object-contain" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                    </span>
                     {x.layer.id}π
                   </span>
                   <span className="text-right">{fmt(x.price, 4)}</span>
