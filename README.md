@@ -31,6 +31,7 @@ These are proposal/UI semantics, not official Pi Network token classes, guarante
 The local read-only FastAPI router is mounted under `/v1`:
 
 - `GET /v1/health`
+- `GET /v1/networks/pi-testnet/health` — probes the configured Testnet Horizon and Soroban RPC endpoints.
 - `GET /v1/assets`
 - `GET /v1/assets/{assetKey}`
 - `GET /v1/assets/{assetKey}/logo`
@@ -38,7 +39,7 @@ The local read-only FastAPI router is mounted under `/v1`:
 - `GET /v1/assets/{network}/{assetId}/logo`
 - `GET /v1/assets/{network}/{assetId}/verification`
 
-The network-scoped registry currently recognizes `pi-testnet` as a repository configuration label only. Live Pi Testnet RPC connectivity and contract readback are not claimed. Logos are provisional color badges, not issuer-approved marks. All unknown evidence remains null or `UNVERIFIED`.
+The network-scoped registry recognizes `pi-testnet` and configures the documented Testnet endpoints (`https://api.testnet.minepi.com` for Horizon and `https://rpc.testnet.minepi.com` for Soroban RPC). The network-health route probes reachability at request time; this does not prove a specific contract is deployed or verified. Logos are provisional color badges, not issuer-approved marks. All unknown evidence remains null or `UNVERIFIED`.
 
 ## OUSD status
 
