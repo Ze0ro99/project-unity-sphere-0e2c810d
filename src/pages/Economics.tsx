@@ -85,8 +85,8 @@ export default function Economics() {
           { label: "IPPR model index", value: fmt(live.ippr) },
           { label: "Network velocity", value: live.velocity.toFixed(4) },
           { label: "Φ reflexive", value: live.phi.toFixed(4) },
-          { label: "Collateral ratio", value: `${(live.collateralRatio * 100).toFixed(1)}%` },
-          { label: "Minting rate", value: `${(live.mintingRate * 100).toFixed(2)}%` },
+          { label: "Modeled collateral proxy", value: `${(live.collateralRatio * 100).toFixed(1)}%` },
+          { label: "Modeled emission rate", value: `${(live.mintingRate * 100).toFixed(2)}%` },
         ].map((m) => (
           <div key={m.label} className="rounded-xl border border-border bg-panel/60 p-4">
             <div className="text-[11px] uppercase tracking-wider text-muted">{m.label}</div>
@@ -146,7 +146,7 @@ export default function Economics() {
               <Spark outcome={active} field="ippr" color="#3ec98c" />
             </div>
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted mb-1">Collateral ratio</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted mb-1">Modeled collateral proxy</div>
               <Spark outcome={active} field="collateralRatio" color="#4d8ff5" />
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function Economics() {
         <table className="w-full text-sm">
           <thead className="text-[11px] uppercase tracking-wider text-muted">
             <tr className="border-b border-border">
-              {["Scenario", "Final Φ", "Final model index", "Min collateral", "Max drawdown", "Breaker epochs", "Verdict"].map((h) => (
+              {["Scenario", "Final Φ", "Final model index", "Min modeled collateral", "Max drawdown", "Breaker epochs", "Verdict"].map((h) => (
                 <th key={h} className="text-left font-medium px-4 py-2 whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -169,12 +169,12 @@ export default function Economics() {
                 <tr key={o.scenario.id} className="border-b border-border/60 last:border-0">
                   <td className="px-4 py-2 whitespace-nowrap">{o.scenario.name}</td>
                   <td className="px-4 py-2">{o.final.phi.toFixed(4)}</td>
-                  <td className="px-4 py-2">${fmt(o.final.ippr)}</td>
+                  <td className="px-4 py-2">{fmt(o.final.ippr)}</td>
                   <td className="px-4 py-2">{(o.minCollateral * 100).toFixed(1)}%</td>
                   <td className="px-4 py-2">{(o.maxDrawdown * 100).toFixed(1)}%</td>
                   <td className="px-4 py-2">{o.breakerEpochs}</td>
                   <td className={`px-4 py-2 ${safe ? "text-green" : "text-red"}`}>
-                    {safe ? "MODEL THRESHOLD MET" : "MITIGATION REQUIRED"}
+                    {safe ? "MODEL THRESHOLD MET" : "MODEL THRESHOLD NOT MET"}
                   </td>
                 </tr>
               );
