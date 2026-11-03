@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 
 from api.asset_registry import router
 from api.main import app as serverless_app
+import api.asset_registry as asset_registry
 
 app = FastAPI()
 app.include_router(router, prefix="/v1")
@@ -87,3 +88,19 @@ def test_serverless_route_prefix_compatibility():
     for path in ("/v1/health", "/api/v1/health", "/api/index.py/v1/health"):
         response = serverless_client.get(path)
         assert response.status_code == 200, path
+
+
+def test_network_health_endpoint_reports_real_probe_result(monkeypatch):
+    expected = {
+        "network_id": "pi-testnet",
+        "network_passphrase": "Pi Testnet",
+        "status": "reachable",
+        "horizon": {"url": "https://api.testnet.minepi.com", "reachable": True, "http_status": 200},
+        "soroban_rpc": {"url": "https://rpc.testnet.minepi.com", "reachable": True, "health": {"ok": True}, "latest_ledger": {"sequence": 123}},
+        "contract_verification": "NOT_PERFORMED",
+        "notice": "Endpoint reachability is not contract deployment, issuer, code-hash, reserve or audit verification.",
+    }
+    monkeypatch.setattr(asset_registry, "check_pi_testnet", lambda: expected)
+    response = client.get("/v1/networks/pi-testnet/health")
+    assert response.status_code == 200
+    assert response.json() == expected
