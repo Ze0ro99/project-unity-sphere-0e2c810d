@@ -180,6 +180,11 @@ export default function PiDEX() {
         </div>
       </section>
 
+      <section className="card px-4 py-2 flex flex-wrap items-center gap-3 border border-sky-500/30 bg-sky-500/5">
+        <span className="rounded px-2 py-1 text-[10px] font-bold tracking-wider bg-sky-500/15 text-sky-300">OUSD · TEST ONLY</span>
+        <span className="text-xs text-muted">Reference asset profile is registered for interface and contract testing only. No deployed contract, USD peg, reserve backing or redemption is claimed; OUSD trading and mint/redeem actions are disabled.</span>
+      </section>
+
       <section className="card px-4 py-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-[11px] mono">
         <span className={idxOk ? "text-green" : "text-red"}>
           ● π/USD index {idxOk ? `$${piUsd.toFixed(6)}` : "unavailable"}
