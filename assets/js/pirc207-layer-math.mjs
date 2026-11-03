@@ -19,7 +19,7 @@ function unsignedInteger(value, name = "amount") {
 
 export function piDecimalToMicros(value) {
   const text = String(value);
-  const match = /^(0|[1-9][0-9]*)(?:\\.([0-9]{1,7}))?$/.exec(text);
+  const match = /^(0|[1-9][0-9]*)(?:\.([0-9]{1,7}))?$/.exec(text);
   if (!match) throw new TypeError("Pi amount must be a non-negative decimal with at most 7 fractional digits");
   const fraction = (match[2] ?? "").padEnd(7, "0");
   return BigInt(match[1]) * MICRO_PER_PI + BigInt(fraction || "0");
