@@ -13,7 +13,7 @@ The FastAPI application mounts this router under `/v1`.
 - `GET /v1/assets/{assetKey}/logo` — provisional SVG badge.
 - `GET /v1/assets/{network}/{assetId}` — network-scoped lookup.
 - `GET /v1/assets/{network}/{assetId}/logo` — network-scoped SVG badge.
-- `GET /v1/assets/{network}/{assetId}/verification` — explicit verification evidence state.
+- `GET /v1/assets/{network}/{assetId}/verification` — checks the Soroban contract-instance ledger entry when a contract ID exists.
 
 Only `pi-testnet` is currently accepted as a registry network label. The configured endpoints are `https://api.testnet.minepi.com` (Horizon) and `https://rpc.testnet.minepi.com` (Soroban RPC), with the `Pi Testnet` passphrase. The network-health route probes reachability; it does not verify any individual contract.
 
@@ -42,7 +42,7 @@ Errors use a typed `detail.code`:
 - `REGISTRY_UNAVAILABLE`: local registry is missing or invalid.
 - `LOGO_ASSET_UNAVAILABLE`: registered logo file is missing.
 
-A local metadata lookup is not a chain readback. Never turn an upstream 404 into a fabricated success. The network-health route is a connectivity probe only; contract IDs still require contract-specific readback.
+A local metadata lookup is not a chain readback. Never turn an upstream 404 into a fabricated success. The network-health route is a connectivity probe only. The verification route checks the contract-instance ledger entry through Soroban RPC; a present entry is only deployment evidence and does not establish the source code, code hash, issuer authority, audit status or financial claims.
 
 ## Deployment
 
