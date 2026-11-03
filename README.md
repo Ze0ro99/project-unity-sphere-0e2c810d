@@ -92,3 +92,9 @@ See `docs/api/ASSET_REGISTRY_API.md`, `assets/registry/pirc207-layer-registry.js
 - [Settlement request schema](schemas/v1/economic-settlement-request.schema.json)
 - [Pi Testnet1 verification runbook](docs/operations/TESTNET1_VERIFICATION_RUNBOOK.md)
 - [Release evidence template](docs/operations/RELEASE_EVIDENCE_TEMPLATE.md)
+
+## Integrated economic application architecture
+- [Sovereign Economic Application Map](docs/architecture/SOVEREIGN_ECONOMIC_APPLICATION_MAP.md)
+- [Economic User and Operations Flows](docs/architecture/ECONOMIC_USER_AND_OPERATIONS_FLOWS.md)
+
+The maps distinguish external quotes, internal references, simulated values, reserve evidence and redeemable liabilities. They describe proposed application behavior and do not imply live exchange, payment, custody or banking capability.
