@@ -25,12 +25,12 @@ Keep one production domain and one authoritative production deployment. Netlify 
 3. Set the project root to the repository root.
 4. Framework preset: Vite (or Other if the dashboard does not detect Vite).
 5. Build command: `npm run build`.
-6. Node.js: 22.x (the Vite 8 toolchain requires Node.js 20.19+ or 22.12+; use 22.x consistently).
 6. Output directory: `dist`.
-7. Install command: `npm install`.
-8. Keep the checked-in `vercel.json`; it routes `/v1/*` to the FastAPI function at `api/index.py`.
-9. Add only the required environment variables in the Vercel project dashboard. Use environment-specific values for Preview and Production. Never commit credentials.
-10. Deploy a Preview first. Verify `/`, `/v1/health`, `/v1/assets`, and `/v1/networks/pi-testnet/health` before promoting a Production deployment.
+7. Node.js runtime: 22.x (the repository requires Node.js 22.12 or newer).
+8. Install command: `npm install`.
+9. Keep the checked-in `vercel.json`; it routes `/v1/*` to the FastAPI function at `api/index.py`.
+10. Add only the required environment variables in the Vercel project dashboard. Use environment-specific values for Preview and Production. Never commit credentials.
+11. Deploy a Preview first. Verify `/`, `/v1/health`, `/v1/assets`, and `/v1/networks/pi-testnet/health` before promoting a Production deployment.
 
 The health route confirms local API availability only. The network health route is a reachability probe. A successful deployment does not prove that any asset or contract is deployed, verified, audited, backed or redeemable.
 
@@ -43,15 +43,16 @@ The health route confirms local API availability only. The network health route 
 5. Publish directory: `dist`.
 6. Node.js: 22.x.
 6. Use Netlify for static frontend preview and browser QA. The current repository has no implemented Netlify Functions; the old placeholder redirects to non-existent functions have therefore been removed.
-7. If the frontend requires the API during a Netlify preview, configure the frontend to call the verified Vercel Preview API origin through an explicitly supported public build variable. Do not assume that a Netlify frontend preview also hosts the FastAPI backend.
+8. If the frontend requires the API during a Netlify preview, configure the frontend to call the verified Vercel Preview API origin through an explicitly supported public build variable. Do not assume that a Netlify frontend preview also hosts the FastAPI backend.
 
 ## Replit workspace setup
 
 1. Import the GitHub repository into Replit.
-2. Use the checked-in `.replit` run command: `npm run dev`.
+2. Use Node.js 22.12 or newer, matching the `engines.node` requirement in `package.json`.
 3. Install dependencies with `npm install`.
-4. Use Replit for development and preview validation. Do not add production secrets to a shared workspace or publish an unreviewed development deployment.
-5. The FastAPI service can be run separately with `python -m pip install -r requirements.txt` followed by `uvicorn api.main:app --host 0.0.0.0 --port 8000`.
+4. Use the checked-in `.replit` run command: `npm run dev`; Vite binds to `0.0.0.0:8080` for the workspace preview.
+5. Use Replit for development and preview validation. Do not add production secrets to a shared workspace or publish an unreviewed development deployment.
+6. The FastAPI service can be run separately with `python -m pip install -r requirements.txt` followed by `uvicorn api.main:app --host 0.0.0.0 --port 8000`.
 
 ## Environment variable policy
 
