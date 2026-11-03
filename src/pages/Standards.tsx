@@ -46,7 +46,7 @@ export default function Standards() {
           <p className="text-sm text-muted mt-1">{t("standards.subtitle")}</p>
         </div>
         <a
-          href="https://github.com/Ze0ro99/PiRC/blob/main/contracts/pidex_amm/DEPLOY.md"
+          href="https://github.com/Ze0ro99/project-unity-sphere-0e2c810d/blob/integration/sovereign-hybrid-ecosystem/contracts/pidex_amm/DEPLOY.md"
           target="_blank"
           rel="noreferrer"
           className="px-3 py-2 rounded-md border border-border text-sm hover:bg-panel2 mono"
