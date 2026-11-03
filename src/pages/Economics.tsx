@@ -83,8 +83,8 @@ export default function Economics() {
         {[
           { label: "QWF", value: fmt(live.qwf) },
           { label: "IPPR model index", value: fmt(live.ippr) },
-          { label: "Network velocity", value: live.velocity.toFixed(4) },
-          { label: "Φ reflexive", value: live.phi.toFixed(4) },
+          { label: "Modeled velocity", value: live.velocity.toFixed(4) },
+          { label: "Modeled Φ", value: live.phi.toFixed(4) },
           { label: "Modeled collateral proxy", value: `${(live.collateralRatio * 100).toFixed(1)}%` },
           { label: "Modeled emission rate", value: `${(live.mintingRate * 100).toFixed(2)}%` },
         ].map((m) => (
@@ -137,7 +137,7 @@ export default function Economics() {
             <span className="text-[11px] mono text-muted">95% CI Φ [{active.ci95[0]}, {active.ci95[1]}]</span>
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-muted mb-1">Φ reflexive constraint</div>
+            <div className="text-[11px] uppercase tracking-wider text-muted mb-1">Modeled Φ reflexive constraint</div>
             <Spark outcome={active} field="phi" color="#e0b23c" />
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -157,7 +157,7 @@ export default function Economics() {
         <table className="w-full text-sm">
           <thead className="text-[11px] uppercase tracking-wider text-muted">
             <tr className="border-b border-border">
-              {["Scenario", "Final Φ", "Final model index", "Min modeled collateral", "Max drawdown", "Breaker epochs", "Verdict"].map((h) => (
+              {["Scenario", "Final modeled Φ", "Final model index", "Min modeled collateral", "Max model drawdown", "Breaker epochs", "Verdict"].map((h) => (
                 <th key={h} className="text-left font-medium px-4 py-2 whitespace-nowrap">{h}</th>
               ))}
             </tr>
