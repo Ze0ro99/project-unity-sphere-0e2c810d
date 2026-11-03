@@ -27,7 +27,7 @@ Status: source-code assessment for the integration branch. This document does no
 
 ## Vercel API limitation
 
-The current `api/main.py` verification route shells out to `soroban contract invoke`. The checked-in Vercel Python function configuration does not install or provision the Soroban CLI or a secure signer. Therefore this endpoint must not be treated as production-ready merely because the FastAPI function deploys. Replace it with a server-side RPC client and secure signer/relayer design, or keep the route disabled until that work is reviewed.
+The `api/main.py` `POST /verify` route is deliberately disabled and returns `503 UNSUPPORTED_CAPABILITY`. The earlier implementation attempted to shell out to `soroban contract invoke` using the developer profile `alice`, but the checked-in Vercel function does not provision the Soroban CLI, network-pinned RPC client, or secure signer. The unsafe subprocess path has been removed. Do not re-enable this route until a reviewed server-side RPC client, secure signer/relayer, explicit network selection, authorization policy, and integration tests are in place.
 
 ## Financial and banking boundary
 
@@ -45,3 +45,11 @@ No bank, custodian, payment institution, fiat settlement rail, reserve account, 
 - [ ] Production deployment is explicitly approved; no testnet ID is reused as a production ID.
 - [ ] API verification no longer depends on an unavailable CLI or a hard-coded development identity.
 - [ ] UI labels clearly distinguish simulated, off-chain, testnet, and verified mainnet data.
+
+
+## Follow-up security change (2026-11-03)
+
+- Removed the subprocess invocation and the implicit `alice` developer identity from `api/main.py`.
+- The route validates the API key and request shape, then fails closed with a stable `UNSUPPORTED_CAPABILITY` response (HTTP 503).
+- Added a regression test asserting that a validly shaped request cannot receive a false verification success when the secure signing capability is absent.
+- This change is proposed in a follow-up pull request; it is not considered deployed or validated until CI completes.
