@@ -79,3 +79,8 @@ Vercel deployment configuration is provided in `vercel.json`. Confirm the actual
 Use explicit lifecycle states: PROPOSED → SPECIFIED → IMPLEMENTED → TESTED → TESTNET_VERIFIED → AUDITED → MAINNET_VERIFIED. Every transition requires reproducible evidence. Never mark an asset ACTIVE or verified solely because its contract ID appears in a repository file.
 
 See `docs/api/ASSET_REGISTRY_API.md`, `assets/registry/pirc207-layer-registry.json` and the cross-repository PiRC/SmartContracts audit documents.
+
+
+## Integration governance
+
+- [Branch Intake and Risk Review](docs/integration/BRANCH_INTAKE_AND_RISK_REVIEW_2026-11-03.md)
