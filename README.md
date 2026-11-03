@@ -10,3 +10,7 @@ We integrated the **PiRC-260 Keeper Protocol**. It incentivizes decentralized no
 ## 🔗 Official On-Chain Signatures (Pi Testnet)
 *   **PiDEX Master Core:** `GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6`
 *   **PiRC-2 Subscription (Official):** `CCUF75B6W3HRJTJD6O7OXNI72HGJ7DERZ5MUNOMFMSK23ME5GUIKPFYV`
+
+## Sovereign Hybrid Ecosystem Integration
+
+See [Master Integration Map](docs/architecture/MASTER_INTEGRATION_MAP.md) and [Seven-Layer UI and Service Map](docs/architecture/SEVEN_LAYER_UI_AND_SERVICE_MAP.md). Pi Cash and Pi Bank are proposed application modules, not official Pi services or licensed banking products. Asset logos and API responses must never imply verification without evidence.
