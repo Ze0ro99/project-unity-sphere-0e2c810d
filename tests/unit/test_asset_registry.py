@@ -26,9 +26,10 @@ def test_known_layer_metadata_is_returned():
 def test_network_scoped_lookup_accepts_key_symbol_and_contract_id():
     assert client.get("/v1/assets/pi-testnet/heart").status_code == 200
     assert client.get("/v1/assets/pi-testnet/OUSD").status_code == 200
-    assert client.get(
-        "/v1/assets/pi-testnet/CCPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4"
-    ).status_code in (200, 404)  # exact contract id is checked by the registry data test below
+    response = client.get(
+        "/v1/assets/pi-testnet/CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4"
+    )
+    assert response.status_code == 200
 
 
 def test_known_layer_logo_returns_provisional_svg():
