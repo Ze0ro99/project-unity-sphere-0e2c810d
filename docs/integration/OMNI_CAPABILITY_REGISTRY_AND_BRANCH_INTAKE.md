@@ -41,7 +41,7 @@ AI agents may discover missing features, draft specifications, generate code and
 
 ## 3. Branch intake findings
 
-The point-in-time GitHub discovery on 2026-11-03 found 164 branches in PiRC, 281 in SmartContracts and 149 in Unity Sphere. The three repositories also contain copied/nested repository snapshots and generated/vendor material. A branch name is not a capability status; same-name branches across repositories are not assumed synchronized.
+Paginated GitHub branch enumeration on 2026-11-04 found 165 branches in PiRC, 283 in SmartContracts and 150 in Unity Sphere. This updates branch-ref counts only; it does not mean every branch diff or file has been semantically reviewed. The three repositories also contain copied/nested repository snapshots and generated/vendor material. A branch name is not a capability status; same-name branches across repositories are not assumed synchronized.
 
 Priority isolated work areas include:
 - PiRC and Unity Sphere `Raw` snapshots;
