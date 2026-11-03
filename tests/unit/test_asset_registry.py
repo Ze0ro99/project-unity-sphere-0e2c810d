@@ -2,10 +2,12 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from api.asset_registry import router
+from api.main import app as serverless_app
 
 app = FastAPI()
 app.include_router(router, prefix="/v1")
 client = TestClient(app)
+serverless_client = TestClient(serverless_app)
 
 
 def test_registry_lists_all_source_records_as_unverified():
@@ -79,3 +81,9 @@ def test_unknown_logo_returns_typed_404():
     response = client.get("/v1/assets/not-a-real-layer/logo")
     assert response.status_code == 404
     assert response.json()["detail"]["code"] == "LOGO_NOT_FOUND"
+
+
+def test_serverless_route_prefix_compatibility():
+    for path in ("/v1/health", "/api/v1/health", "/api/index.py/v1/health"):
+        response = serverless_client.get(path)
+        assert response.status_code == 200, path
