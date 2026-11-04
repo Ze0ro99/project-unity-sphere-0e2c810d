@@ -176,6 +176,18 @@ def get_asset(asset_key: str) -> dict[str, Any]:
 
 
 # Network-scoped canonical route documented for PiDEX and external clients.
+@router.get("/assets/{asset_key}/logo")
+def get_asset_logo(asset_key: str) -> FileResponse:
+    record = _find_asset(asset_key)
+    if record is None:
+        raise HTTPException(status_code=404, detail={
+            "code": "LOGO_NOT_FOUND",
+            "message": "No logo is registered for this asset identifier.",
+            "retryable": False,
+        })
+    return _logo_response(str(record.get("asset_key", asset_key)))
+
+
 @router.get("/assets/{network}/{asset_id}")
 def get_network_asset(network: str, asset_id: str) -> dict[str, Any]:
     network_id = _validate_network(network)
@@ -195,18 +207,6 @@ def get_network_asset(network: str, asset_id: str) -> dict[str, Any]:
             "retryable": False,
         })
     return record
-
-
-@router.get("/assets/{asset_key}/logo")
-def get_asset_logo(asset_key: str) -> FileResponse:
-    record = _find_asset(asset_key)
-    if record is None:
-        raise HTTPException(status_code=404, detail={
-            "code": "LOGO_NOT_FOUND",
-            "message": "No logo is registered for this asset identifier.",
-            "retryable": False,
-        })
-    return _logo_response(str(record.get("asset_key", asset_key)))
 
 
 @router.get("/assets/{network}/{asset_id}/logo")
