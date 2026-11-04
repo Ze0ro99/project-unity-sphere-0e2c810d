@@ -56,6 +56,9 @@ export function initPi(): Promise<void> {
       setTimeout(tick, 150);
     };
     tick();
+  }).catch((error) => {
+    initPromise = null;
+    throw error;
   });
   return initPromise;
 }
