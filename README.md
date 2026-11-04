@@ -104,3 +104,60 @@ The maps distinguish external quotes, internal references, simulated values, res
 - [Omni Capability Registry and Branch Intake](docs/integration/OMNI_CAPABILITY_REGISTRY_AND_BRANCH_INTAKE.md)
 
 These documents define governed feature generation, RAW evidence, physical asset lifecycle, internal basket valuation, CEX/DEX market data, PiDEX arithmetic, OUSD role, oracle trust and cryptographic migration. The legacy floating-point PiDEX engine is simulation-only; do not use it for settlement.
+
+## Unified economic and execution workflows
+
+Unity Sphere is the application and integration plane. PiRC owns standards and economic policy; SmartContracts owns Soroban contract execution; Unity Sphere owns the Pi Developer Studio, APIs, RAW workflows, market-data adapters, PiDEX application, internal utility accounting, OUSD workflows and operations.
+
+### Application transaction path
+
+`User / Merchant / Agent → Identity + Policy → Typed Quote → Oracle / Registry Validation → User Approval → Network Adapter → Contract Execution → Finality Read-back → Merchant / Treasury Reconciliation → Evidence + Monitoring`
+
+The application must distinguish a submitted transaction from a finalized transaction. UI state changes to paid/settled only after network-specific finality and read-back evidence.
+
+### Pi Developer Studio and governed feature generation
+
+`Capability Discovery → Versioned Catalog → Schema Composer → Approved Template → Build + Tests + Fuzz + SBOM → Sandbox Simulation → Human / Governance Review → Testnet Deployment → Code Hash + State Read-back → Registry`
+
+Each capability carries a stable ID, semantic version, schema version, owning repository, supported network, asset scope, permissions, risk class, dependencies, evidence requirements, conformance tests and rollback plan. AI agents may discover, draft, generate from approved templates, test and open PRs. They cannot self-approve, merge protected branches, access production secrets or sign/deploy arbitrary production transactions.
+
+### RAW and physical-asset evidence
+
+The RAW workflow records asset identity, issuer, legal-right type, jurisdiction, title/custody references, inspection, valuation, device attestations, dispute status and evidence hashes. Physical-device claims must be signed by provisioned keys and verified against certificate/revocation state, nonce, expiry and replay policy. Hashes and QR/NFC identifiers are not proof of ownership or possession. A RAW factory is production-capable only after authorized template deployment, idempotent retry handling, registry authorization and contract code/state read-back.
+
+### Internal utility and external markets
+
+USD is a reporting numeraire, not an automatic redemption promise. Internal utility should use verified goods/services, fulfilment, inventory, quality and a versioned basket policy:
+`I_t = sum(w_i * (verified_offer_i,t / base_offer_i)) / sum(w_i)`
+`U_internal,t = U_0 * I_t`
+
+CEX observations require venue, pair, bid/ask depth and executable VWAP. DEX observations require verified pool, reserves, fee, route, ledger/block, price impact and slippage. Composite prices require independent sources, liquidity filters, freshness, outlier policy and confidence. Do not substitute a CEX last trade or DEX mid-price for an executable quote.
+
+### PiDEX integer settlement
+
+For a constant-product pool:
+`dx_net = floor(dx * (D-F) / D)`
+`dy = floor(dx_net * reserve_out / (reserve_in + dx_net))`
+
+All settlement uses integer atomic units, checked arithmetic, explicit rounding, minimum output, expiry, slippage limits and atomic state transitions. The legacy floating-point engine remains simulation-only until integer parity tests and network verification pass.
+
+### OUSD internal stability model
+
+OUSD must be explicitly classified as an internal unit of account, basket-backed utility credit or USD-redeemable liability. A governed basket unit can reduce exposure of internal goods/services prices to CEX volatility, but it does not create a USD peg or cash redemption right. A redeemable liability requires a legal issuer, segregated reserves, custody, daily reconciliation, independent attestations, disclosed redemption and insolvency treatment:
+`ReserveCoverage = eligible_reserves_after_haircuts / outstanding_redeemable_liabilities`
+
+The current OUSD reference remains test-only. Do not enable production issuance or redemption without verified issuer, reserve, custody, legal and security evidence.
+
+### Oracle and network adapters
+
+Each observation must bind asset pair, quote unit, integer value/scale, source, sequence, timestamp, expiry, key ID, signature and evidence hash. Verify signature, freshness, replay protection, source independence, quorum, deviation and liquidity policy. Chainlink availability is chain-specific; EVM feeds are not automatically callable from Soroban. A dedicated adapter/relayer must preserve signed evidence and be independently reviewed.
+
+### Value, provenance and decimal invariants
+
+Internal reference, merchant quote, external market price, accounting mark, collateral mark and redeemable liability are separate types. Do not use a generic `price` field or silently convert between them. Provenance classes such as MINED, MIGRATED, PURCHASED, EARNED, BRIDGED and ISSUED are evidence labels, not protocol-enforced properties of fungible balances.
+
+For `d` decimals, `atomic_amount = display_amount * 10^d`. Increasing decimal precision changes granularity only; it does not multiply purchasing power or economic value. Distribution may use `B_i = D_t * w_i / sum(w_j)`, where `D_t = max(0, collected_reconciled_revenue - verified_costs - required_reserves)`. Apply eligibility first and deterministic remainder allocation so atomic units are conserved.
+
+### Release and operational truth
+
+Use evidence-backed states: `PROPOSED → SPECIFIED → IMPLEMENTED → TESTED → TESTNET_VERIFIED → AUDITED → PRODUCTION_VERIFIED`. Pending, queued, skipped, cancelled and rate-limited checks are not successful. Preserve environment separation, least privilege, secrets scanning, protected branches, pause controls, idempotency, incident response and reproducible build evidence. Never change Vercel or Netlify configuration merely to bypass a rate limit or pending check without an approved change.
