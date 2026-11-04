@@ -2,11 +2,16 @@ name: RWA Extension CI (Safe & Clean)
 
 on:
   push:
+    branches: [main, develop]
     paths:
       - 'spec/**'
       - 'examples/**'
       - '.github/workflows/rust.yml'
   pull_request:
+    paths:
+      - 'spec/**'
+      - 'examples/**'
+      - '.github/workflows/rust.yml'
 
 jobs:
   validate:
