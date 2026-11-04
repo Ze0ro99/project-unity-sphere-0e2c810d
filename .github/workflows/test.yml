@@ -2,6 +2,7 @@ name: PiRC Focused Validation
 
 on:
   push:
+    branches: [main]
     paths:
       - 'src/lib/denomination.ts'
       - 'tests/denomination.test.mjs'
