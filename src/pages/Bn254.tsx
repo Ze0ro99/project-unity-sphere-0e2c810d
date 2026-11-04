@@ -33,7 +33,7 @@ function concatBytes(parts: Uint8Array[]): Uint8Array {
 }
 
 async function sha256HexBytes(input: Uint8Array): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", input);
+  const digest = await crypto.subtle.digest("SHA-256", new Uint8Array(input));
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 

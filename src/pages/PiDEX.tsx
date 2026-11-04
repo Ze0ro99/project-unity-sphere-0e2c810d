@@ -191,8 +191,8 @@ export default function PiDEX() {
         </span>
         <span className="text-muted">{index?.sources ?? 0}/{index?.totalSources ?? 0} venues · dev {(index?.deviationBps ?? 0).toFixed(1)} bps</span>
         <span className="text-muted">24h {index?.changePct != null ? `${index.changePct.toFixed(2)}%` : "—"}</span>
-        <span className="text-muted">IPPR ${ippr.toLocaleString("en-US", { maximumFractionDigits: 0 })}</span>
-        <span className="text-muted">π/USD × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")} (PiRC-214 · v27)</span>
+        <span className="text-muted">IPPR model {idxOk ? ippr.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</span>
+        <span className="text-muted">π/USD × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")} · scaled index, not an execution price</span>
         <span className="text-muted ml-auto">synced {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
       </section>
 

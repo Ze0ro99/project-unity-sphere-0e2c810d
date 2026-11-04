@@ -13,6 +13,13 @@
  */
 
 export const BASE_QWF = 10_000_000; // Quantified Work Force baseline
+/** Scaled purchasing-power model; never an atomic-unit or execution-price conversion. */
+export const IPPR_SUPPLY_MULTIPLIER = 10_000_000;
+
+export function ipprFromSpot(spot: number): number {
+  return Number.isFinite(spot) && spot > 0 ? spot * IPPR_SUPPLY_MULTIPLIER : NaN;
+}
+
 /**
  * IPPR is a model calibration index, not a USD price or a live market quote.
  * The venue market index is displayed separately and must not be multiplied by
