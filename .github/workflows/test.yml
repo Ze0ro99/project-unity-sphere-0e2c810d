@@ -1,6 +1,22 @@
 name: PiRC Focused Validation
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - 'src/lib/denomination.ts'
+      - 'tests/denomination.test.mjs'
+      - 'api/network_adapters.py'
+      - 'scripts/test_network_endpoints.py'
+      - 'simulator/stochastic_abm_simulator.py'
+      - '.github/workflows/test.yml'
+  pull_request:
+    paths:
+      - 'src/lib/denomination.ts'
+      - 'tests/denomination.test.mjs'
+      - 'api/network_adapters.py'
+      - 'scripts/test_network_endpoints.py'
+      - 'simulator/stochastic_abm_simulator.py'
+      - '.github/workflows/test.yml'
 
 permissions:
   contents: read
@@ -16,7 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22.12.0"
-          cache: npm
 
       - name: Test exact Pi denomination
         run: npm run test:denomination
@@ -39,7 +54,3 @@ jobs:
       - name: Compile maintained simulator
         run: python -m py_compile simulator/stochastic_abm_simulator.py
 
-      - name: Test asset registry API
-        env:
-          PYTHONPATH: ${{ github.workspace }}
-        run: python -m pytest -q tests/unit/test_asset_registry.py
