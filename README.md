@@ -161,3 +161,8 @@ For `d` decimals, `atomic_amount = display_amount * 10^d`. Increasing decimal pr
 ### Release and operational truth
 
 Use evidence-backed states: `PROPOSED → SPECIFIED → IMPLEMENTED → TESTED → TESTNET_VERIFIED → AUDITED → PRODUCTION_VERIFIED`. Pending, queued, skipped, cancelled and rate-limited checks are not successful. Preserve environment separation, least privilege, secrets scanning, protected branches, pause controls, idempotency, incident response and reproducible build evidence. Never change Vercel or Netlify configuration merely to bypass a rate limit or pending check without an approved change.
+
+## Oracle Quorum V3 integration (experimental)
+
+- [PiRC-214 Oracle Quorum V3 application adapter contract](docs/integration/PIRC_214_ORACLE_QUORUM_V3_APPLICATION_ADAPTER.md)
+- Depends on SmartContracts Draft PR #1104. This is an integration specification only; no live oracle endpoint, Testnet contract or settlement adapter is claimed.
