@@ -30,16 +30,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: unity-sphere-pages
   cancel-in-progress: true
 
 jobs:
-  build-and-publish:
+  build:
+    name: Build and verify publish artifact
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - name: Checkout source without persistent Git credentials
         uses: actions/checkout@v4
@@ -73,8 +76,29 @@ jobs:
           fi
           touch dist/.nojekyll
 
+      - name: Upload verified static site
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-sphere-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    name: Publish verified dist to gh-pages
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download verified static site
+        uses: actions/download-artifact@v4
+        with:
+          name: unity-sphere-dist
+          path: dist/
+
       - name: Publish built site to gh-pages only
-        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
