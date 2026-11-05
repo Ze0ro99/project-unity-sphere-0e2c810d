@@ -54,7 +54,7 @@ jobs:
         run: |
           set -euo pipefail
           test -s dist/index.html
-          if find dist -type f \\( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name '*.pfx' \\) -print -quit | grep -q .; then
+          if find dist -type f \( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name '*.pfx' \) -print -quit | grep -q .; then
             echo "::error::Sensitive environment or key material found in dist; refusing to publish."
             exit 1
           fi
