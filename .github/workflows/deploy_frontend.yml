@@ -1,46 +1,69 @@
-name: 🌐 Deploy PiRC Live Terminal & Auto-Sync
+name: "Unity Sphere — Build and Publish Static Site Only"
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch: # Allow manual trigger
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "tsconfig*.json"
+      - "tailwind.config.*"
+      - "postcss.config.*"
+      - ".github/workflows/deploy_frontend.yml"
+  workflow_dispatch:
 
 permissions:
-  contents: write # Required to push changes back to the repository and deploy to gh-pages
+  contents: write
+
+concurrency:
+  group: unity-sphere-pages
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build-and-publish:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 20
     steps:
-      - name: 📥 Checkout Repository
+      - name: Checkout source without persistent Git credentials
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+          persist-credentials: false
 
-      - name: ⚙️ Make Sync Script Executable
-        run: chmod +x scripts/automation/sync_frontend.sh
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+          cache: npm
 
-      - name: 🔄 Run Universal Auto-Sync
-        run: ./scripts/automation/sync_frontend.sh
+      - name: Install locked dependencies
+        run: npm ci
 
-      - name: 💾 Commit and Push Changes to Main
+      - name: Run deterministic denomination tests
+        run: npm run test:denomination
+
+      - name: Build GitHub Pages application
+        run: npm run build -- --base=/project-unity-sphere-0e2c810d/
+
+      - name: Enforce publish-artifact boundary
+        shell: bash
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "🤖 Auto-Sync: Updated Master Contract ID"
-            git push origin main
-          else
-            echo "No changes to commit."
+          set -euo pipefail
+          test -s dist/index.html
+          if find dist -type f \\( -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name '*.pfx' \\) -print -quit | grep -q .; then
+            echo "::error::Sensitive environment or key material found in dist; refusing to publish."
+            exit 1
           fi
+          touch dist/.nojekyll
 
-      - name: 🚀 Deploy to GitHub Pages
+      - name: Publish built site to gh-pages only
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: ./dist
           publish_branch: gh-pages
-          commit_message: "🚀 Deploy Live PiRC Terminal to GitHub Pages"
+          commit_message: "deploy: publish verified Unity Sphere dist"
