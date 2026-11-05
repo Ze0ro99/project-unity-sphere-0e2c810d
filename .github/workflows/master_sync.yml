@@ -1,28 +1,30 @@
-name: PiRC Master Orchestrator Sync
+name: "PiRC Master Sync (Read-Only / Legacy Writer Disabled)"
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: pirc-master-sync-read-only
+  cancel-in-progress: true
+
 jobs:
-  sync-and-organize:
+  preflight:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Make Script Executable
-        run: chmod +x pirc_master_orchestrator.sh
-
-      - name: Run Master Synchronization Script
-        run: ./pirc_master_orchestrator.sh
-
-      - name: Commit and Push Changes
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify expected project files
+        shell: bash
         run: |
-          git config --global user.name "PiRC-Automator"
-          git config --global user.email "automator@pirc.network"
-          git add .
-          git diff --quiet && git diff --staged --quiet || git commit -m "chore(sync): Automated master synchronization and network configuration"
-          git push
+          set -euo pipefail
+          test -f README.md
+          test -f schemas/pirc207_layers.json
+          test -d src
+          echo "Read-only preflight passed."
+          echo "Legacy file rewriting and automatic pushes to main are disabled."
