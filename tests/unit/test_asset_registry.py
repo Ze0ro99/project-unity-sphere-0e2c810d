@@ -133,7 +133,7 @@ def test_rwa_verify_fails_closed_without_supported_signer(monkeypatch):
     assert response.json()["detail"]["code"] == "UNSUPPORTED_CAPABILITY"
 
 
-def test_all_seven_layer_contract_references_are_registered_for_readback():
+def test_all_seven_layer_contract_references_are_registered_for_readback(monkeypatch):
     # Keep this list aligned with src/data/layers.ts. These are Soroban C... IDs,
     # not issuer G... accounts. The endpoint must resolve every one by exact ID.
     layer_contract_ids = [
@@ -154,6 +154,13 @@ def test_all_seven_layer_contract_references_are_registered_for_readback():
     assert len(set(layer_contract_ids)) == 7
     assert set(layer_contract_ids).issubset(registered)
 
+    # Stub the network probe: unit tests must never depend on external RPC.
+    monkeypatch.setattr(
+        asset_registry,
+        "verify_contract_instance",
+        lambda contract_id: {"probe_status": "NOT_FOUND", "contract_instance_present": False},
+    )
+
     # Exercise the same network-scoped route the Testnet page calls.
     for contract_id in layer_contract_ids:
         response = client.get(
@@ -164,9 +171,4 @@ def test_all_seven_layer_contract_references_are_registered_for_readback():
         assert payload["contract_id"] == contract_id
         assert payload["network_id"] == "pi-testnet"
         assert payload["verification_status"] == "UNVERIFIED"
-        assert payload["checks"]["network_readback"] in {
-            "CONTRACT_INSTANCE_PRESENT",
-            "CONTRACT_INSTANCE_NOT_FOUND",
-            "INVALID_CONTRACT_ID",
-            "RPC_UNAVAILABLE",
-        }
+        assert payload["checks"]["network_readback"] == "CONTRACT_INSTANCE_NOT_FOUND"
