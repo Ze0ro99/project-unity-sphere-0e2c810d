@@ -172,3 +172,37 @@ def test_all_seven_layer_contract_references_are_registered_for_readback(monkeyp
         assert payload["network_id"] == "pi-testnet"
         assert payload["verification_status"] == "UNVERIFIED"
         assert payload["checks"]["network_readback"] == "CONTRACT_INSTANCE_NOT_FOUND"
+
+def test_issuer_account_is_not_accepted_as_a_soroban_contract_id():
+    # G... is a Stellar/Pi account address, not a Soroban C... contract address.
+    issuer_account = "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6"
+    response = client.get(
+        f"/v1/assets/pi-testnet/{issuer_account}/verification"
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"]["code"] == "ASSET_NOT_FOUND"
+
+
+def test_contract_verification_keeps_rpc_failure_unverified(monkeypatch):
+    expected = {
+        "probe_status": "RPC_UNAVAILABLE",
+        "contract_instance_present": None,
+        "error": "test RPC unavailable",
+    }
+    monkeypatch.setattr(
+        asset_registry,
+        "verify_contract_instance",
+        lambda contract_id: expected,
+    )
+    response = client.get("/v1/assets/pi-testnet/heart/verification")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["verification_status"] == "UNVERIFIED"
+    assert payload["checks"]["network_readback"] == "RPC_UNAVAILABLE"
+    assert payload["checks"]["contract_instance_probe"] == expected
+
+
+def test_network_scoped_verification_rejects_unsupported_network():
+    response = client.get("/v1/assets/pi-mainnet/heart/verification")
+    assert response.status_code == 400
+    assert response.json()["detail"]["code"] == "NETWORK_UNSUPPORTED"
