@@ -1,20 +1,24 @@
-name: PiRC Ultimate Sync
+name: "PiRC Ultimate Sync (Read-Only / Legacy Injector Disabled)"
 
 on:
-  workflow_dispatch: # This allows you to run it manually with a button click
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  sync-contracts:
+  deprecation-notice:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Required to allow the bot to push changes to your repo
-    
+    timeout-minutes: 2
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Make Script Executable
-        run: chmod +x scripts/automation/ultimate_sync.sh
-
-      - name: Run Ultimate Synchronizer
-        run: ./scripts/automation/ultimate_sync.sh
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Explain why legacy source injection is disabled
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "The legacy synchronizer injects unverified token identifiers into Solidity and Rust sources."
+          echo "It can modify hundreds of contracts and push directly to main; this path is disabled."
+          echo "Use versioned interfaces, contract-specific tests, and reviewed pull requests instead."
