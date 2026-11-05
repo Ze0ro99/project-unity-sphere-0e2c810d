@@ -1,6 +1,19 @@
 name: "Unity Sphere — Build and Publish Static Site Only"
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "tsconfig*.json"
+      - "tailwind.config.*"
+      - "postcss.config.*"
+      - ".github/workflows/deploy_frontend.yml"
   push:
     branches: [main]
     paths:
@@ -61,6 +74,7 @@ jobs:
           touch dist/.nojekyll
 
       - name: Publish built site to gh-pages only
+        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
