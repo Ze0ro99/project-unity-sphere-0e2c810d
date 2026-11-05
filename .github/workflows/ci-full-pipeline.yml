@@ -4,18 +4,12 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "src/**"
-      - "contracts/**"
+      - "contracts/soroban/**"
       - ".github/workflows/ci-full-pipeline.yml"
   push:
     branches: [main]
     paths:
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "src/**"
-      - "contracts/**"
+      - "contracts/soroban/**"
       - ".github/workflows/ci-full-pipeline.yml"
   workflow_dispatch:
 
@@ -23,12 +17,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: unity-rust-validation-${{ github.ref }}
+  group: unity-soroban-validation
   cancel-in-progress: true
 
 jobs:
   validate:
-    name: Format, compile and test (no deployment)
+    name: Validate Soroban workspace (no deployment)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -39,16 +33,13 @@ jobs:
         with:
           components: rustfmt
           targets: wasm32-unknown-unknown
-      - name: Cache Cargo
-        uses: Swatinem/rust-cache@v2
       - name: Check formatting
-        run: cargo fmt --all -- --check
-      - name: Check locked dependency graph
-        run: cargo check --locked
+        run: cargo fmt --manifest-path contracts/soroban/Cargo.toml -- --check
+      - name: Check locked dependencies
+        run: cargo check --manifest-path contracts/soroban/Cargo.toml --locked
       - name: Run tests
-        run: cargo test --locked
+        run: cargo test --manifest-path contracts/soroban/Cargo.toml --locked
       - name: Build release WASM
-        run: cargo build --locked --release --target wasm32-unknown-unknown
+        run: cargo build --manifest-path contracts/soroban/Cargo.toml --locked --release --target wasm32-unknown-unknown
 
-# This workflow is validation-only. Contract deployment and transaction signing
-# require a separate, explicitly approved environment workflow.
+# Validation only. No transaction signing or contract deployment.
