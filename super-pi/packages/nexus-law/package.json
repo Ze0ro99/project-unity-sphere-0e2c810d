@@ -1,7 +1,0 @@
-{
-  "name": "@super-pi/nexus-law",
-  "version": "3.1.0",
-  "description": "Super-Pi Nexus Law Local Module",
-  "main": "index.js",
-  "license": "MIT"
-}

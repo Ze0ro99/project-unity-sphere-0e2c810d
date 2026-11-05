@@ -1,2 +1,0 @@
-# Security Libraries
-cryptography==42.0.4

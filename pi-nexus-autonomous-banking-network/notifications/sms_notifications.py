@@ -1,3 +1,0 @@
-def send_sms(user, message):
-    """Send an SMS to the specified user with the given message."""
-    # Implementation here...

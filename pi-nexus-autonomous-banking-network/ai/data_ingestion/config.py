@@ -1,3 +1,0 @@
-class Config:
-    # Configuration variables for data ingestion service
-    ...

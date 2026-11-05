@@ -1,7 +1,0 @@
-# helm_chart/values.yaml
-image:
-  repository: <image-repo>
-  tag: latest
-
-database:
-  url: postgres://user:password@db:5432/database

@@ -1,1 +1,0 @@
-"""PiRC FastAPI service package."""

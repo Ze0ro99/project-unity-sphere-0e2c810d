@@ -1,8 +1,0 @@
-tensorflow
-transformers
-sklearn
-nltk
-qiskit
-pyar
-cryptography
-socket

@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: pi-nexus-config
-data:
-  DATABASE_URL: "postgresql://username:password@database:5432/dbname"

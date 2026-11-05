@@ -1,8 +1,0 @@
-requirements.txt
-*.py
-*.rs
-Cargo.toml
-Cargo.lock
-target/
-.venv/
-venv/
