@@ -1,12 +1,16 @@
-name: One-Click Testnet Deployment
+name: DISABLED - legacy one-click deployment
+
 on:
-  workflow_dispatch: # Manual trigger for Pi Core Team
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  deploy:
+  blocked:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy Protocol
-        run: bash deployment/one-click-deploy.sh
-
+      - name: Block unreviewed deployment script
+        run: |
+          echo "::error::This legacy one-click deployment is disabled until deployment/one-click-deploy.sh is reviewed, network-pinned, secret-safe, and protected by an explicit environment approval."
+          exit 1
