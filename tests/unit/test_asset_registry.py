@@ -131,3 +131,44 @@ def test_rwa_verify_fails_closed_without_supported_signer(monkeypatch):
     )
     assert response.status_code == 503
     assert response.json()["detail"]["code"] == "UNSUPPORTED_CAPABILITY"
+
+
+def test_all_seven_layer_contract_references_are_registered_for_readback(monkeypatch):
+    # Keep this list aligned with src/data/layers.ts. These are Soroban C... IDs,
+    # not issuer G... accounts. The endpoint must resolve every one by exact ID.
+    layer_contract_ids = [
+        "CCGEMIEAZFJSBTRL5VGJJAUGPJI3B7UQ3BTAB2OQGW73JMWLS57YVVA4",
+        "CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG",
+        "CANLSQUPUZYKE3S2HAIGXAHMOQWE4FVX5DS7GTL42BVKSNHLFVMQSDFF",
+        "CB7T6TDSZ5B2MQI7NI4EG6ZASYPRMJ3XVUWS6BON4Z64OBMUJ4ZD6GKF",
+        "CAMSQZTSCTF3MG4UEIAWKRZNSX7LLKGKXMVBEQO2ETVPGS3CINM7JBQD",
+        "CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4",
+        "CC6WMAHKOPWY6HW46VNKTAV4DZZLRTTNMYLDEKCAICQGMCWV5PZYNTBO",
+    ]
+    registered = {
+        str(record.get("contract_id", "")).upper()
+        for record in asset_registry._records()
+        if record.get("contract_id")
+    }
+    assert len(layer_contract_ids) == 7
+    assert len(set(layer_contract_ids)) == 7
+    assert set(layer_contract_ids).issubset(registered)
+
+    # Stub the network probe: unit tests must never depend on external RPC.
+    monkeypatch.setattr(
+        asset_registry,
+        "verify_contract_instance",
+        lambda contract_id: {"probe_status": "NOT_FOUND", "contract_instance_present": False},
+    )
+
+    # Exercise the same network-scoped route the Testnet page calls.
+    for contract_id in layer_contract_ids:
+        response = client.get(
+            f"/v1/assets/pi-testnet/{contract_id}/verification"
+        )
+        assert response.status_code == 200, contract_id
+        payload = response.json()
+        assert payload["contract_id"] == contract_id
+        assert payload["network_id"] == "pi-testnet"
+        assert payload["verification_status"] == "UNVERIFIED"
+        assert payload["checks"]["network_readback"] == "CONTRACT_INSTANCE_NOT_FOUND"

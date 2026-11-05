@@ -54,8 +54,34 @@ export default function Testnet() {
       // C... StrKeys are Soroban contract IDs, not Horizon account IDs.
       // A Horizon 404 cannot prove whether a contract is deployed.
       if (c.address.startsWith("C")) {
-        status = "unknown";
-        detail = "Soroban contract state cannot be verified through Horizon. Requires a supported network-specific Soroban RPC and ledger proof.";
+        try {
+          const response = await fetch(`/v1/assets/pi-testnet/${encodeURIComponent(c.address)}/verification`, {
+            headers: { Accept: "application/json" },
+          });
+          if (!response.ok) {
+            status = "unknown";
+            detail = `Soroban verification API unavailable (HTTP ${response.status})`;
+          } else {
+            const proof = await response.json();
+            const readback = proof?.checks?.network_readback;
+            if (readback === "CONTRACT_INSTANCE_PRESENT") {
+              status = "ok";
+              detail = "Soroban instance present; code hash and issuer authority remain unverified";
+            } else if (readback === "CONTRACT_INSTANCE_NOT_FOUND") {
+              status = "fail";
+              detail = "No contract instance found on configured Pi Testnet RPC";
+            } else if (readback === "INVALID_CONTRACT_ID") {
+              status = "fail";
+              detail = "Invalid Soroban contract identifier";
+            } else {
+              status = "unknown";
+              detail = "Pi Testnet Soroban RPC readback unavailable or inconclusive";
+            }
+          }
+        } catch (e: any) {
+          status = "unknown";
+          detail = e?.message ?? "Soroban verification API unavailable";
+        }
         const lat = Math.round(performance.now() - start);
         setChecks((prev) => prev.map((x) => x.id === c.id ? { ...x, status, detail, latencyMs: lat } : x));
         continue;
@@ -101,7 +127,7 @@ export default function Testnet() {
               <span className="chip">Pi Testnet</span>
             </div>
             <p className="text-muted text-sm">
-              Horizon account checks against <span className="mono">{HORIZON_TESTNET}</span>. Soroban contract IDs are deliberately marked UNKNOWN until a supported RPC can verify contract state; Horizon 404 is not treated as proof of non-deployment.
+              Read-only checks against <span className="mono">{HORIZON_TESTNET}</span>. G... identifiers use Horizon account reads; C... identifiers use the same-origin read-only Soroban verification API. Instance presence does not prove code hash, issuer authority or audit status.
             </p>
           </div>
           <div className="flex gap-4 text-center">
