@@ -1,27 +1,31 @@
-name: PiRC Auto-Upgrade & Build
+name: "PiRC Auto-Upgrade (Build-Only / Deprecated Writer Disabled)"
+
 on:
-  push:
-    branches: [ main, pirc_final_update.py ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pirc-auto-upgrade-build-only
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  deprecation-notice:
+    name: Explain the reviewed upgrade path
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Checkout without write credentials
+        uses: actions/checkout@v4
         with:
-          python-version: '3.9'
+          fetch-depth: 1
+          persist-credentials: false
 
-      - name: Run PiRC Master Upgrade Script
-        run: python pirc_final_update.py
-
-      - name: Commit Generated 7-Layer Structure
+      - name: Disable missing-script and automatic write-back path
+        shell: bash
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "PiRC-Bot"
-          git add .
-          git commit -m "💎 [AUTO] Integrated 7-Layer Colored Token System & Mathematical Parity" || echo "No changes to commit"
-          git push
+          set -euo pipefail
+          echo "The legacy pirc_final_update.py entry point is not present."
+          echo "Automatic generation, git commit, and git push are intentionally disabled."
+          echo "Use the dedicated frontend-build, asset-registry-api, and reviewed PR workflows."
