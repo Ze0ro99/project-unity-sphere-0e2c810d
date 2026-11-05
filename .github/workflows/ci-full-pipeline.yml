@@ -1,67 +1,54 @@
-name: PiRC-101 Full Production Pipeline (Safe Mode)
+name: Unity Sphere Rust Validation (Fail-Closed)
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "src/**"
+      - "contracts/**"
+      - ".github/workflows/ci-full-pipeline.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "src/**"
+      - "contracts/**"
+      - ".github/workflows/ci-full-pipeline.yml"
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unity-rust-validation-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-and-test:
+  validate:
+    name: Format, compile and test (no deployment)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    timeout-minutes: 30
     steps:
-      # 1. Checkout
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-
-      # 2. Setup Rust (FIXED)
-      - name: Setup Rust
+      - name: Install Rust toolchain and WASM target
         uses: dtolnay/rust-toolchain@stable
         with:
+          components: rustfmt
           targets: wasm32-unknown-unknown
-
-      # 3. Cache Cargo (biar cepat & stabil)
       - name: Cache Cargo
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        uses: Swatinem/rust-cache@v2
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Check locked dependency graph
+        run: cargo check --locked
+      - name: Run tests
+        run: cargo test --locked
+      - name: Build release WASM
+        run: cargo build --locked --release --target wasm32-unknown-unknown
 
-      # 4. Install Soroban CLI (safe)
-      - name: Install Soroban CLI
-        run: cargo install --locked soroban-cli || true
-
-      # 5. Build Contract (tidak bikin gagal total)
-      - name: Build Contracts
-        run: cargo build --target wasm32-unknown-unknown --release || true
-
-      # 6. Setup Python
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      # 7. Run Simulations (tidak bikin gagal)
-      - name: Run Economic Simulations
-        run: |
-          if [ -f simulations/pirc_agent_simulation_advanced.py ]; then
-            python3 simulations/pirc_agent_simulation_advanced.py
-          else
-            echo "Simulation file not found, skipping..."
-          fi
-
-          if [ -f economics/treasury_ai.py ]; then
-            python3 economics/treasury_ai.py
-          else
-            echo "Treasury AI file not found, skipping..."
-          fi
-
-      # 8. System Check (FIXED)
-      - name: Execute Full System Check
-        run: |
-          if [ -f scripts/full_system_check.sh ]; then
-            chmod +x scripts/full_system_check.sh
-            bash scripts/full_system_check.sh
-          else
-            echo "System check script not found, skipping..."
-          fi
+# This workflow is validation-only. Contract deployment and transaction signing
+# require a separate, explicitly approved environment workflow.
