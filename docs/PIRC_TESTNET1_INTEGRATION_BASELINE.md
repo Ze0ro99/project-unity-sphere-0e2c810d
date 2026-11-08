@@ -45,6 +45,29 @@ The updated `api/network_adapters.py` now:
 
 The adapter is not considered operationally verified until its tests pass and the deployed environment contains the required configuration. If Pi Testnet does not expose the configured Soroban RPC methods, the system must remain blocked rather than silently using Stellar public Testnet or Pi Mainnet.
 
+### Live read-only probe — 2026-11-08
+
+The PiRC focused validation workflow verified the configured Pi Testnet identity:
+- Horizon and Soroban RPC were reachable.
+- Both passphrase checks matched the explicit test value `Pi Testnet`.
+- Soroban RPC reported a healthy status and protocol 28.
+- Horizon reported supported protocol 29.
+- Latest ledger observed: `27,596,965`.
+
+The same read-only run queried the seven contract IDs currently listed by the Unity asset registry. Every one returned `NOT_FOUND` on this Pi Testnet profile:
+
+| Registry key | Contract ID | Readback |
+|---|---|---|
+| root | `CC6WMAHKOPWY6HW46VNKTAV4DZZLRTTNMYLDEKCAICQGMCWV5PZYNTBO` | NOT_FOUND |
+| sacral | `CB7T6TDSZ5B2MQI7NI4EG6ZASYPRMJ3XVUWS6BON4Z64OBMUJ4ZD6GKF` | NOT_FOUND |
+| solar | `CANLSQUPUZYKE3S2HAIGXAHMOQWE4FVX5DS7GTL42BVKSNHLFVMQSDFF` | NOT_FOUND |
+| heart | `CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4` | NOT_FOUND |
+| throat | `CAMSQZTSCTF3MG4UEIAWKRZNSX7LLKGKXMVBEQO2ETVPGS3CINM7JBQD` | NOT_FOUND |
+| crown | `CCGEMIEAZFJSBTRL5VGJJAUGPJI3B7UQ3BTAB2OQGW73JMWLS57YVVA4` | NOT_FOUND |
+| gold-unmapped | `CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG` | NOT_FOUND |
+
+This is direct evidence that these seven registry references are not deployed contract instances on the verified Pi Testnet at the time of the probe. They must not be shown as active token contracts, wallet balances, reserves or tradable assets. The registry must keep them UNVERIFIED until canonical contracts are deployed and read back. The probe does not establish that no other assets exist on the network.
+
 ## 3. Pi account and wallet connection
 
 The Pi SDK integration now requests `username` and `wallet_address` for normal connection. The browser sends only the access token to the backend; the Edge Function verifies it through Pi Platform `/me` and returns the server-verified UID, username and wallet address when present. It defers the `payments` scope until the user explicitly starts a payment. The connection state is shared between the global header and PiDEX so both surfaces display the same authenticated account and verified wallet address.
