@@ -216,6 +216,7 @@ async function startServer() {
       const payment = await callPiApi("GET", `/v2/payments/${paymentId}`);
       if (payment.user_uid !== user.uid) return res.status(403).json({ error: "forbidden" });
       if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
+      if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
       if (payment.status?.developer_completed) return res.json({ status: "success", already: true, data: payment });
       if (payment.status?.developer_approved) return res.json({ status: "success", already: true, data: payment });
       const result = await callPiApi("POST", `/v2/payments/${paymentId}/approve`);
@@ -236,6 +237,7 @@ async function startServer() {
       const user = await verifyPiUser(accessToken);
       const payment = await callPiApi("GET", `/v2/payments/${paymentId}`);
       if (payment.user_uid !== user.uid) return res.status(403).json({ error: "forbidden" });
+      if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
       if (payment.status?.developer_completed) return res.json({ status: "success", already: true, data: payment });
       if (!payment.status?.developer_approved) return res.status(409).json({ error: "payment_not_approved" });
       if (payment.transaction?.txid && payment.transaction.txid !== txid) return res.status(409).json({ error: "transaction_mismatch" });
@@ -243,8 +245,8 @@ async function startServer() {
       return res.json({ status: "success", data: result });
     } catch (error: any) {
       const message = error?.message || "";
-      const status = message === "unauthorized" ? 401 : message.startsWith("PI_UPSTREAM_404") ? 404 : message === "PI_API_KEY_NOT_CONFIGURED" ? 503 : 502;
-      return res.status(status).json({ error: status === 401 ? "Unauthorized" : status === 404 ? "payment_not_found" : status === 503 ? "payments_not_configured" : "pi_platform_error" });
+      const status = message === "unauthorized" ? 401 : message.startsWith("PI_UPSTREAM_404") ? 404 : (message === "PI_API_KEY_NOT_CONFIGURED" || message === "PI_PAYMENTS_DISABLED") ? 503 : 502;
+      return res.status(status).json({ error: status === 401 ? "Unauthorized" : status === 404 ? "payment_not_found" : status === 503 ? (message === "PI_PAYMENTS_DISABLED" ? "payments_disabled" : "payments_not_configured") : "pi_platform_error" });
     }
   });
 
@@ -257,6 +259,7 @@ async function startServer() {
       const user = await verifyPiUser(accessToken);
       const payment = await callPiApi("GET", `/v2/payments/${paymentId}`);
       if (payment.user_uid !== user.uid) return res.status(403).json({ error: "forbidden" });
+      if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
       if (payment.status?.developer_completed) return res.json({ status: "success", action: "already_completed", data: payment });
       const actualTxid = payment.transaction?.txid;
       if (actualTxid && !/^[a-fA-F0-9]{64}$/.test(actualTxid)) return res.status(409).json({ error: "invalid_transaction_id" });
