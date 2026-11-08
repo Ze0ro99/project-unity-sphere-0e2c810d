@@ -16,8 +16,17 @@ export const BASE_QWF = 10_000_000; // Quantified Work Force baseline
 /** Scaled purchasing-power model; never an atomic-unit or execution-price conversion. */
 export const IPPR_SUPPLY_MULTIPLIER = 10_000_000;
 
+/** Convert a live PI/USD quote to an exact nano-USD IPPR reference. */
+export function ipprNanoUsdFromSpot(spot: number): bigint | null {
+  if (!Number.isFinite(spot) || spot <= 0) return null;
+  const priceNanoUsd = BigInt(Math.round(spot * 1_000_000_000));
+  return priceNanoUsd * BigInt(IPPR_SUPPLY_MULTIPLIER);
+}
+
+/** Display helper. The exact integer reference remains available via ipprNanoUsdFromSpot. */
 export function ipprFromSpot(spot: number): number {
-  return Number.isFinite(spot) && spot > 0 ? spot * IPPR_SUPPLY_MULTIPLIER : NaN;
+  const nanoUsd = ipprNanoUsdFromSpot(spot);
+  return nanoUsd === null ? NaN : Number(nanoUsd) / 1_000_000_000;
 }
 
 /**
@@ -179,11 +188,14 @@ export function downloadCSV(outcome: ScenarioOutcome) {
  * Rolling model snapshot. This is a deterministic simulation tick, not a live
  * network issuance, reserve, collateral, or solvency measurement.
  */
-export function liveSnapshot(tick: number): MetricSnapshot {
+export function liveSnapshot(tick: number, marketLinkedIppr = BASE_IPPR): MetricSnapshot {
+  const base = Number.isFinite(marketLinkedIppr) && marketLinkedIppr > 0
+    ? marketLinkedIppr
+    : BASE_IPPR;
   const s = simulate(
     { ...DEFAULT_SCENARIOS[3], durationEpochs: 96 },
     `model-${Math.floor(tick / 96)}`,
-    BASE_IPPR,
+    base,
   );
   const snap = s.series[tick % 96];
   return snap;
