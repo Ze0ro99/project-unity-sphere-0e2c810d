@@ -31,7 +31,7 @@ class FakeClient:
         self.calls.append(("GET", url))
         return FakeResponse({
             "network_passphrase": "Pi Testnet",
-            "core_supported_protocol_version": 28,
+            "core_supported_protocol_version": 29,
         })
 
     def post(self, url: str, json: dict):
