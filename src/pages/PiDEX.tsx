@@ -48,7 +48,7 @@ export default function PiDEX() {
   const index = market.index;
   const piUsd = index?.price ?? NaN;
   const idxOk = index?.trusted === true && (index?.sources ?? 0) >= 3 && market.ts > 0 && Date.now() - market.ts <= 30_000 && Number.isFinite(piUsd) && piUsd > 0;
-  const ippr = ipprFromSpot(piUsd);
+  const scaledUsdtReference = ipprFromSpot(piUsd);
   const [symbol, setSymbol] = useState(state.symbols[1] ?? state.symbols[0]);
   const [query, setQuery] = useState("");
   const [side, setSide] = useState<Side>("buy");
@@ -250,8 +250,8 @@ export default function PiDEX() {
         </span>
         <span className="text-muted">{index?.sources ?? 0}/{index?.totalSources ?? 0} venues · dev {(index?.deviationBps ?? 0).toFixed(1)} bps</span>
         <span className="text-muted">24h {index?.changePct != null ? `${index.changePct.toFixed(2)}%` : "—"}</span>
-        <span className="text-muted">IPPR (USDT reference) {idxOk ? ippr.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</span>
-        <span className="text-muted">π/USDT × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")} · USDT reference index, not an execution price</span>
+        <span className="text-muted">Scaled PI/USDT reference {idxOk ? scaledUsdtReference.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</span>
+        <span className="text-muted">π/USDT × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")} · provisional USDT-scaled reference, not canonical USD IPPR or an execution price</span>
         <span className="text-muted ml-auto">synced {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
       </section>
 
