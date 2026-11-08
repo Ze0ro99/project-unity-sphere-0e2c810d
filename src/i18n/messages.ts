@@ -205,6 +205,7 @@ const en: Dict = {
   "gate.velocityLiquidity.desc": "Verified settled commerce velocity, turnover, PiDEX depth, spread and slippage.",
   "gate.solvencySettlement.title": "Solvency & Settlement Gateway",
   "gate.solvencySettlement.desc": "Testnet identity, contract read-back, reserve evidence and settlement-finality checks.",
+  "pidex.ipprLive": "IPPR live",
 };
 
 const ar: Dict = {
@@ -406,6 +407,7 @@ const ar: Dict = {
   "gate.velocityLiquidity.desc": "سرعة التجارة المسوّاة والموثقة، ودورانها، وعمق PiDEX، وفروق الأسعار والانزلاق.",
   "gate.solvencySettlement.title": "بوابة الملاءة والتسوية",
   "gate.solvencySettlement.desc": "هوية شبكة الاختبار، وقراءة العقود، وأدلة الاحتياطيات، والتحقق من نهائية التسوية.",
+  "pidex.ipprLive": "IPPR المباشر",
 };
 
 const zh: Dict = {
@@ -607,6 +609,7 @@ const zh: Dict = {
   "gate.velocityLiquidity.desc": "经验证的已结算商业速度、周转率、PiDEX 深度、价差和滑点。",
   "gate.solvencySettlement.title": "偿付能力与结算网关",
   "gate.solvencySettlement.desc": "测试网身份、合约回读、储备证明和结算最终性检查。",
+  "pidex.ipprLive": "实时 IPPR",
 };
 
 const id: Dict = {
@@ -808,6 +811,7 @@ const id: Dict = {
   "gate.velocityLiquidity.desc": "Kecepatan perdagangan terselesaikan terverifikasi, perputaran, kedalaman PiDEX, spread, dan slippage.",
   "gate.solvencySettlement.title": "Gateway Solvabilitas & Penyelesaian",
   "gate.solvencySettlement.desc": "Identitas Testnet, pembacaan ulang kontrak, bukti cadangan, dan pemeriksaan finalitas penyelesaian.",
+  "pidex.ipprLive": "IPPR langsung",
 };
 
 const fr: Dict = {
@@ -998,6 +1002,7 @@ const fr: Dict = {
   "gate.velocityLiquidity.desc": "Vélocité commerciale réglée et vérifiée, rotation, profondeur PiDEX, écart et glissement.",
   "gate.solvencySettlement.title": "Passerelle solvabilité et règlement",
   "gate.solvencySettlement.desc": "Identité Testnet, lecture des contrats, preuves de réserves et contrôles de finalité du règlement.",
+  "pidex.ipprLive": "IPPR en direct",
 };
 const es: Dict = {
   "pidex.walletTitle": "Billetera Pi",
