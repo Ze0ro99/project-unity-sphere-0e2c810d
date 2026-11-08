@@ -705,7 +705,7 @@ const fr: Dict = {
   "nav.standards": "Normes", "nav.testnet": "Réseau de test", "nav.gateways": "Portails", "nav.bn254": "Vérificateur BN254",
   "nav.repository": "Dépôt", "common.open": "Ouvrir", "common.copy": "Copier", "common.copied": "Copié",
   "common.loading": "Chargement…", "pi.connect": "Connecter Pi", "pi.connected": "Connecté : {username}",
-  "pi.connectFailed": "Échec de la connexion Pi"
+  "pi.connectFailed": "Échec de la connexion Pi",
 
   // Shared portal shell and compliance labels
   "gate.title": "Portails souverains",
@@ -741,7 +741,7 @@ const es: Dict = {
   "nav.standards": "Estándares", "nav.testnet": "Red de pruebas", "nav.gateways": "Portales", "nav.bn254": "Verificador BN254",
   "nav.repository": "Repositorio", "common.open": "Abrir", "common.copy": "Copiar", "common.copied": "Copiado",
   "common.loading": "Cargando…", "pi.connect": "Conectar Pi", "pi.connected": "Conectado: {username}",
-  "pi.connectFailed": "No se pudo conectar a Pi"
+  "pi.connectFailed": "No se pudo conectar a Pi",
 
   // Shared portal shell and compliance labels
   "gate.title": "Portales soberanos",
@@ -777,7 +777,7 @@ const de: Dict = {
   "nav.standards": "Standards", "nav.testnet": "Testnetz", "nav.gateways": "Gateways", "nav.bn254": "BN254-Prüfer",
   "nav.repository": "Repository", "common.open": "Öffnen", "common.copy": "Kopieren", "common.copied": "Kopiert",
   "common.loading": "Wird geladen…", "pi.connect": "Pi verbinden", "pi.connected": "Verbunden: {username}",
-  "pi.connectFailed": "Pi-Verbindung fehlgeschlagen"
+  "pi.connectFailed": "Pi-Verbindung fehlgeschlagen",
 
   // Shared portal shell and compliance labels
   "gate.title": "Souveräne Gateways",
@@ -813,7 +813,7 @@ const pt: Dict = {
   "nav.standards": "Padrões", "nav.testnet": "Rede de testes", "nav.gateways": "Portais", "nav.bn254": "Verificador BN254",
   "nav.repository": "Repositório", "common.open": "Abrir", "common.copy": "Copiar", "common.copied": "Copiado",
   "common.loading": "Carregando…", "pi.connect": "Conectar Pi", "pi.connected": "Conectado: {username}",
-  "pi.connectFailed": "Falha ao conectar ao Pi"
+  "pi.connectFailed": "Falha ao conectar ao Pi",
 
   // Shared portal shell and compliance labels
   "gate.title": "Portais soberanos",
