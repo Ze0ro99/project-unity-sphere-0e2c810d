@@ -53,3 +53,9 @@ body {
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: #243049; border-radius: 8px; }
+
+
+/* Keep numeric identifiers and hashes readable inside RTL pages. */
+html[dir="rtl"] .mono { direction: ltr; unicode-bidi: isolate; }
+html[dir="rtl"] body { text-align: start; }
+html[dir="rtl"] input, html[dir="rtl"] select, html[dir="rtl"] textarea { text-align: start; }

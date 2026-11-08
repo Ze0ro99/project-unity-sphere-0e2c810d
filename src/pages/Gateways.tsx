@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useI18n } from "@/i18n";
 import {
   GitBranch,
   ArrowDownUp, Activity, Layers, Cpu, Radio, ShieldCheck, Lock, FlaskConical,
@@ -56,6 +57,9 @@ const GROUP_ICON: Record<string, LucideIcon> = {
 };
 
 export default function Gateways() {
+  const { t } = useI18n();
+  const groupLabels: Record<string, string> = { Trading: t("gate.group.trading"), Sovereign: t("gate.group.sovereign"), Blockchain: t("gate.group.blockchain"), Standards: t("gate.group.standards") };
+  const titleLabels: Record<string, string> = { "Exchange Terminal": t("nav.pidex"), "Economic Core": t("nav.sovereign"), "Cross-Chain Bridge": t("nav.bridge"), "Governance & Treasury": t("nav.governance"), "Compliance Gateway": t("nav.compliance"), "Oracle & Purchasing Power": t("nav.oracle"), "Chain Explorer": t("nav.explorer"), "Network Health": t("nav.network"), "7-Layer Registry": t("nav.layers"), "Standards Compliance": t("nav.standards"), "Testnet Probe": t("nav.testnet"), "Repository Sync": t("nav.repository"), "BN254 / ZK Verifier": t("nav.bn254") };
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-border bg-panel/60 p-5 sm:p-7">
@@ -64,8 +68,8 @@ export default function Gateways() {
             <Boxes size={20} />
           </span>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Sovereign Gateways</h1>
-            <p className="text-sm text-muted">Every platform capability, one gateway per feature.</p>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("gate.title")}</h1>
+            <p className="text-sm text-muted">{t("gate.subtitle")}</p>
           </div>
         </div>
       </section>
@@ -75,7 +79,7 @@ export default function Gateways() {
         return (
           <section key={g} className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-muted mono uppercase tracking-widest">
-              <GIcon size={14} /> {g}
+              <GIcon size={14} /> {groupLabels[g] ?? g}
             </div>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {GATES.filter((x) => x.group === g).map((gate) => (
@@ -95,7 +99,7 @@ export default function Gateways() {
                     )}
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">{gate.title}</div>
+                    <div className="font-semibold text-sm">{titleLabels[gate.title] ?? gate.title}</div>
                     <div className="text-xs text-muted mt-1 leading-relaxed">{gate.desc}</div>
                   </div>
                 </Link>

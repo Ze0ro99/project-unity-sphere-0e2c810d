@@ -10,10 +10,12 @@ import {
 import { verifyStrKey } from "@/lib/strkey";
 import { ISSUER, MASTER_REGISTRY, LAYERS } from "@/data/layers";
 import { relTime, shorten } from "@/lib/pi";
+import { useI18n } from "@/i18n";
 
 type FileState = { path: string; status: "loading" | "ok" | "missing"; bytes?: number };
 
 export default function Repository() {
+  const { t } = useI18n();
   const [meta, setMeta] = useState<RepoMeta | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [branch, setBranch] = useState<string>("");
@@ -83,7 +85,7 @@ export default function Repository() {
     <div className="space-y-4">
       <header className="flex flex-wrap items-center gap-3">
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Repository Integration</h1>
+          <h1 className="text-xl font-bold tracking-tight">{t("nav.repository")}</h1>
           <p className="text-xs text-muted mono">
             {meta?.full_name ?? "Ze0ro99/PiRC"} · live via GitHub API
           </p>

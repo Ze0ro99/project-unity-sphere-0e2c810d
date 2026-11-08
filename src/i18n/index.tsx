@@ -10,57 +10,97 @@ type Ctx = {
 
 const I18nCtx = createContext<Ctx | null>(null);
 const STORAGE_KEY = "pirc.lang";
-const RTL: Lang[] = ["ar"];
+const RTL = new Set<Lang>(["ar"]);
+const SUPPORTED = new Set<string>(["en", "ar", "zh", "id", "fr", "es", "de", "pt"]);
+
+function safeStoredLanguage(): Lang | null {
+  try {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    return saved && SUPPORTED.has(saved) ? saved as Lang : null;
+  } catch {
+    return null;
+  }
+}
+
+function fromLocale(locale: string | undefined): Lang | null {
+  const code = (locale ?? "").toLowerCase().split(/[-_]/)[0];
+  return SUPPORTED.has(code) ? code as Lang : null;
+}
 
 function detect(): Lang {
   if (typeof window === "undefined") return "en";
-  const saved = window.localStorage.getItem(STORAGE_KEY) as Lang | null;
-  if (saved && saved in messages) return saved;
-  const nav = window.navigator.language.slice(0, 2).toLowerCase();
-  if (nav === "ar" || nav === "zh" || nav === "id") return nav as Lang;
+  const saved = safeStoredLanguage();
+  if (saved) return saved;
+  for (const locale of window.navigator.languages?.length
+    ? window.navigator.languages
+    : [window.navigator.language]) {
+    const detected = fromLocale(locale);
+    if (detected) return detected;
+  }
   return "en";
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>(() => detect());
 
   useEffect(() => {
-    setLangState(detect());
-  }, []);
-
-  useEffect(() => {
-    const dir = RTL.includes(lang) ? "rtl" : "ltr";
-    document.documentElement.setAttribute("lang", lang);
-    document.documentElement.setAttribute("dir", dir);
+    const apply = (next: Lang) => {
+      const dir = RTL.has(next) ? "rtl" : "ltr";
+      document.documentElement.lang = next;
+      document.documentElement.dir = dir;
+      document.documentElement.dataset.locale = next;
+      document.body?.setAttribute("dir", dir);
+    };
+    apply(lang);
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== STORAGE_KEY) return;
+      const next = fromLocale(event.newValue ?? undefined);
+      if (next) setLangState(next);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, [lang]);
 
   const value = useMemo<Ctx>(() => {
-    const setLang = (l: Lang) => {
-      window.localStorage.setItem(STORAGE_KEY, l);
-      setLangState(l);
+    const setLang = (next: Lang) => {
+      if (!SUPPORTED.has(next)) return;
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // Keep the in-memory selection when storage is blocked.
+      }
+      setLangState(next);
     };
     const dict = messages[lang] ?? messages.en;
     const fallback = messages.en;
     const t = (key: string, vars?: Record<string, string | number>) => {
-      let s = (dict as Record<string, string>)[key] ?? (fallback as Record<string, string>)[key] ?? key;
-      if (vars) for (const k of Object.keys(vars)) s = s.replace(new RegExp(`\\{${k}\\}`, "g"), String(vars[k]));
-      return s;
+      let value = dict[key] ?? fallback[key] ?? key;
+      if (vars) {
+        for (const [name, replacement] of Object.entries(vars)) {
+          value = value.replace(new RegExp(`\\{\\s*${name}\\s*\\}`, "g"), String(replacement));
+        }
+      }
+      return value;
     };
-    return { lang, setLang, t, dir: RTL.includes(lang) ? "rtl" : "ltr" };
+    return { lang, setLang, t, dir: RTL.has(lang) ? "rtl" : "ltr" };
   }, [lang]);
 
   return <I18nCtx.Provider value={value}>{children}</I18nCtx.Provider>;
 }
 
 export function useI18n(): Ctx {
-  const c = useContext(I18nCtx);
-  if (!c) throw new Error("useI18n outside I18nProvider");
-  return c;
+  const context = useContext(I18nCtx);
+  if (!context) throw new Error("useI18n outside I18nProvider");
+  return context;
 }
 
 export const LANGS: { code: Lang; label: string }[] = [
   { code: "en", label: "English" },
   { code: "ar", label: "العربية" },
+  { code: "fr", label: "Français" },
+  { code: "es", label: "Español" },
+  { code: "de", label: "Deutsch" },
+  { code: "pt", label: "Português" },
   { code: "zh", label: "中文" },
-  { code: "id", label: "Bahasa" },
+  { code: "id", label: "Bahasa Indonesia" },
 ];

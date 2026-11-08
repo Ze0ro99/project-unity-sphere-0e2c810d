@@ -1,5 +1,7 @@
-// Pi Network Horizon API client (mainnet).
-// Falls back to testnet if mainnet is unreachable.
+// Pi Network Horizon API client.
+// Network selection is explicit: the default is Pi Mainnet and callers must pass
+// HORIZON_TESTNET or HORIZON_TESTNET2 for test environments. Never silently
+// switch networks when a request fails.
 
 export const HORIZON_MAINNET = "https://api.mainnet.minepi.com";
 export const HORIZON_TESTNET = "https://api.testnet.minepi.com";

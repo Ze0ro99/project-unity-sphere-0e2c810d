@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ScanFace, FileCheck2, AlertOctagon, Globe } from "lucide-react";
 import { assessAml, num } from "@/lib/sovereign";
+import { useI18n } from "@/i18n";
 
 const JURISDICTIONS = [
   { code: "EU", label: "European Union (MiCAR)", sanctioned: false },
@@ -20,6 +21,7 @@ const MICAR = [
 ];
 
 export default function Compliance() {
+  const { t } = useI18n();
   const [notional, setNotional] = useState(1500);
   const [ageDays, setAgeDays] = useState(12);
   const [crossChain, setCrossChain] = useState(true);
@@ -51,9 +53,9 @@ export default function Compliance() {
             <ScanFace size={20} />
           </span>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Compliance Gateway</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("compliance.title")}</h1>
             <p className="text-sm text-muted">
-              PiRC-211.5 AML/KYC scoring applied to every order, bridge leg and payment, with EU MiCAR alignment tracking.
+              {t("compliance.subtitle")}
             </p>
           </div>
         </div>
@@ -61,25 +63,25 @@ export default function Compliance() {
 
       <div className="grid lg:grid-cols-2 gap-4">
         <section className="rounded-xl border border-border bg-panel/60 p-4 space-y-4">
-          <h2 className="text-sm font-semibold flex items-center gap-2"><AlertOctagon size={15} className="text-gold" /> Transaction screening</h2>
+          <h2 className="text-sm font-semibold flex items-center gap-2"><AlertOctagon size={15} className="text-gold" /> {t("compliance.screening")}</h2>
 
           <label className="block text-xs text-muted">
-            Notional · {num(notional)} π
+            {t("compliance.notional")} · {num(notional)} π
             <input type="range" min={1} max={10000} step={1} value={notional}
               onChange={(e) => setNotional(Number(e.target.value))} className="mt-2 w-full accent-gold" />
           </label>
           <label className="block text-xs text-muted">
-            Counterparty age · {ageDays} days
+            {t("compliance.age")} · {ageDays} days
             <input type="range" min={0} max={365} value={ageDays}
               onChange={(e) => setAgeDays(Number(e.target.value))} className="mt-2 w-full accent-gold" />
           </label>
           <label className="block text-xs text-muted">
-            24h velocity · {velocity} transfers
+            {t("compliance.velocity")} · {velocity} transfers
             <input type="range" min={0} max={80} value={velocity}
               onChange={(e) => setVelocity(Number(e.target.value))} className="mt-2 w-full accent-gold" />
           </label>
           <label className="block text-xs text-muted">
-            Jurisdiction
+            {t("compliance.jurisdiction")}
             <select value={jur} onChange={(e) => setJur(e.target.value)}
               className="mt-1 w-full bg-panel2 border border-border rounded-md px-2 py-2 text-sm text-text">
               {JURISDICTIONS.map((j) => <option key={j.code} value={j.code}>{j.label}</option>)}
@@ -88,25 +90,25 @@ export default function Compliance() {
           <div className="flex gap-4 text-xs">
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={crossChain} onChange={(e) => setCrossChain(e.target.checked)} className="accent-gold" />
-              Cross-chain leg
+              {t("compliance.crossChain")}
             </label>
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={shielded} onChange={(e) => setShielded(e.target.checked)} className="accent-gold" />
-              Shielded (ZK) order
+              {t("compliance.shielded")}
             </label>
           </div>
         </section>
 
         <section className="rounded-xl border border-border bg-panel/60 p-4">
-          <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><FileCheck2 size={15} className="text-gold" /> Assessment</h2>
+          <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><FileCheck2 size={15} className="text-gold" /> {t("compliance.assessment")}</h2>
           <div className="flex items-end gap-4 mb-3">
             <div>
-              <div className="text-[11px] uppercase text-muted">Risk score</div>
+              <div className="text-[11px] uppercase text-muted">{t("compliance.riskScore")}</div>
               <div className={`text-3xl font-bold mono ${bandTone}`}>{result.score}</div>
             </div>
             <div className="pb-1">
               <div className={`text-sm font-semibold uppercase mono ${bandTone}`}>{result.band}</div>
-              <div className="text-[11px] text-muted">{result.requiresEdd ? "Enhanced due diligence required" : "Standard due diligence"}</div>
+              <div className="text-[11px] text-muted">{result.requiresEdd ? t("compliance.edd") : t("compliance.standard")}</div>
             </div>
           </div>
           <div className="h-2 rounded-full bg-panel2 overflow-hidden mb-4">
@@ -125,7 +127,7 @@ export default function Compliance() {
 
           <p className="mt-4 pt-3 border-t border-border/60 text-xs text-muted">{result.micarArticle}</p>
           <div className={`mt-2 text-xs mono font-semibold ${result.band === "prohibited" ? "text-red" : "text-green"}`}>
-            {result.band === "prohibited" ? "SETTLEMENT BLOCKED" : "SETTLEMENT PERMITTED"}
+            {result.band === "prohibited" ? t("compliance.blocked") : t("compliance.permitted")}
           </div>
         </section>
       </div>
@@ -133,7 +135,7 @@ export default function Compliance() {
       <section className="rounded-xl border border-border bg-panel/60 overflow-hidden">
         <header className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-panel2/40">
           <Globe size={15} className="text-gold" />
-          <h2 className="text-sm font-semibold">EU MiCAR alignment</h2>
+          <h2 className="text-sm font-semibold">{t("compliance.micar")}</h2>
         </header>
         <table className="w-full text-xs">
           <tbody>

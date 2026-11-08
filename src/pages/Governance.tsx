@@ -3,6 +3,7 @@ import { Vote, Landmark, KeyRound, CheckCircle2, XCircle } from "lucide-react";
 import { LAYERS, ISSUER, MASTER_REGISTRY } from "@/data/layers";
 import { verifyStrKey } from "@/lib/strkey";
 import { num, pct, creditCeiling, PARITY } from "@/lib/sovereign";
+import { useI18n } from "@/i18n";
 
 type Proposal = {
   id: string;
@@ -33,6 +34,7 @@ const SIGNERS = [
 const THRESHOLD = 3;
 
 export default function Governance() {
+  const { t } = useI18n();
   const [proposals, setProposals] = useState(SEED);
   const [votes, setVotes] = useState<Record<string, "for" | "against">>({});
   const [signed, setSigned] = useState<string[]>([SIGNERS[0].name, SIGNERS[1].name]);
@@ -68,7 +70,7 @@ export default function Governance() {
             <Landmark size={20} />
           </span>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Governance & Treasury</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.governance")}</h1>
             <p className="text-sm text-muted">
               PiRC-207 multisig keeper set, L6 Red governance matrix voting, and sovereign treasury operations.
             </p>

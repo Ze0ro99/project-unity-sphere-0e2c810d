@@ -8,7 +8,8 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview --host 0.0.0.0 --port 8080",
-    "test:denomination": "node --experimental-strip-types --test tests/denomination.test.mjs"
+    "test:denomination": "node --experimental-strip-types --test tests/denomination.test.mjs",
+    "audit:i18n": "node scripts/audit-i18n.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

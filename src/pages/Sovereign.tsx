@@ -8,6 +8,7 @@ import {
   quadraticBreaker, riskMetrics, routeOrder, systemEfficiency, weightedContributionFactor,
   creditCeiling, PARITY, PHI, type ManifoldEdge, type ManifoldNode,
 } from "@/lib/sovereign";
+import { useI18n } from "@/i18n";
 
 function Panel({ title, icon: Icon, tag, children }: {
   title: string; icon: typeof Gauge; tag?: string; children: React.ReactNode;
@@ -35,6 +36,7 @@ function Stat({ label, value, sub, tone }: { label: string; value: string; sub?:
 }
 
 export default function Sovereign() {
+  const { t } = useI18n();
   const state = useSyncExternalStore(exchangeStore.subscribe, exchangeStore.getSnapshot);
   const markets = useMemo(() => state.symbols.map((s) => state.markets[s]), [state]);
   const [size, setSize] = useState(2500);
@@ -94,7 +96,7 @@ export default function Sovereign() {
             <Sigma size={20} />
           </span>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Omni-Sovereign Economic Core</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.sovereign")}</h1>
             <p className="text-sm text-muted">
               Differential-manifold routing, Φ justice solvency, reflexive rewards, risk analytics and the autonomous keeper — all evaluated live against the exchange state.
             </p>

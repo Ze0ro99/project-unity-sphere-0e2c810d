@@ -153,9 +153,10 @@ function Header() {
 }
 
 function Footer() {
+  const { t } = useI18n();
   return (
     <footer className="border-t border-border py-6 text-center text-xs text-muted">
-      PiScan · PiRC Sovereign Network Ecosystem · Data streaming live from Pi Network Horizon
+      {t("footer.tagline")}
     </footer>
   );
 }

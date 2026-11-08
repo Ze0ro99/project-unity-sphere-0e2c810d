@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchLatestLedgers, fetchLatestTx, HORIZON_MAINNET, relTime, shorten } from "@/lib/pi";
 import { Cpu, Wifi, Battery, HardDrive } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 export default function MicroDevice() {
+  const { t } = useI18n();
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
@@ -22,7 +24,7 @@ export default function MicroDevice() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Cpu size={18} className="text-blue" />
-        <h1 className="text-2xl font-bold">Micro-Device Live View</h1>
+        <h1 className="text-2xl font-bold">{t("nav.micro")}</h1>
         <span className="chip"><span className="pulse-dot" /> streaming</span>
       </div>
 

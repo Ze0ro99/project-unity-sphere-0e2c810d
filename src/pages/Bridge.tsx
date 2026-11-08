@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ArrowLeftRight, Link2, ShieldCheck, Timer } from "lucide-react";
 import { LAYERS } from "@/data/layers";
 import { num, pct, assessAml } from "@/lib/sovereign";
+import { useI18n } from "@/i18n";
 
 type Chain = { id: string; name: string; passphrase: string; horizon: string; finalitySec: number; confirmations: number };
 
@@ -17,6 +18,7 @@ const CORRIDOR_BPS = 8;
 const RELAYER_PI = 0.0003;
 
 export default function Bridge() {
+  const { t } = useI18n();
   const [from, setFrom] = useState("pi-mainnet");
   const [to, setTo] = useState("stellar-testnet");
   const [asset, setAsset] = useState("GOLD");
@@ -62,7 +64,7 @@ export default function Bridge() {
             <ArrowLeftRight size={20} />
           </span>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Cross-Chain Bridge</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.bridge")}</h1>
             <p className="text-sm text-muted">
               PiRC-210 lock-and-mint corridors between Pi and Stellar networks, screened by the PiRC-211.5 compliance gateway.
             </p>
