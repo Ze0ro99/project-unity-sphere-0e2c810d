@@ -113,10 +113,10 @@
     {
       "id": "soroban.events",
       "name": "Soroban event ingestion",
-      "status": "RAW_INGEST_ONLY",
+      "status": "RAW_INGEST_WITH_AUTHENTICATED_READ_FEED",
       "mode": "READ_ONLY_INGEST",
       "network": "pi-testnet1",
-      "description": "Bounded raw event ingestion is implemented in source; XDR decoding, finality, settlement projection and wallet reconciliation remain unavailable.",
+      "description": "Server-side bounded raw event ingestion plus a JWT-authenticated paginated read-only client feed. XDR decoding, finality and settlement projection remain unavailable.",
       "requires": [
         "Allowlisted contract IDs",
         "Network identity verification",
@@ -164,6 +164,29 @@
         "Arbitrary user-supplied WASM deployment",
         "Automatic approval",
         "Mainnet deployment"
+      ]
+    },
+    {
+      "id": "soroban.events.read",
+      "name": "Authenticated Testnet event feed for Lovable",
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_UNVERIFIED",
+      "mode": "AUTHENTICATED_READ_ONLY",
+      "network": "pi-testnet1",
+      "description": "Paginated read-only access to raw Soroban event observations. Does not prove finality or settlement.",
+      "endpoints": [
+        "GET /functions/v1/pirc-events-feed"
+      ],
+      "requires": [
+        "Valid Supabase user access token",
+        "Configured exact CORS origins",
+        "Service-role key kept server-side",
+        "Raw event inbox migration and ingestion function"
+      ],
+      "blocked_actions": [
+        "Direct table access",
+        "Settlement promotion",
+        "Balance or reserve claims",
+        "Signing or transaction submission"
       ]
     }
   ]
