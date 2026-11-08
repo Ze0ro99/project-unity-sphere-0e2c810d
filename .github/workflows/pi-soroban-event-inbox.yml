@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "supabase/functions/pirc-soroban-event-ingest/**"
+      - "supabase/functions/pirc-events-feed/**"
       - "supabase/functions/pi-payments/**"
       - "supabase/migrations/*pirc_soroban_event_inbox.sql"
       - "supabase/config.toml"
@@ -33,7 +34,7 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - name: Type check Pi wallet and Soroban Edge Functions
-        run: deno check --no-config supabase/functions/pirc-soroban-event-ingest/index.ts supabase/functions/pi-payments/index.ts
+      - name: Type check Pi wallet, Soroban ingestion and Lovable event-feed Edge Functions
+        run: deno check --no-config supabase/functions/pirc-soroban-event-ingest/index.ts supabase/functions/pirc-events-feed/index.ts supabase/functions/pi-payments/index.ts
       - name: Test Pi Testnet wallet balance reader
         run: deno test --no-config supabase/functions/pi-payments/pi-testnet-wallet.test.ts
