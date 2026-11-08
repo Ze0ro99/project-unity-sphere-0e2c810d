@@ -160,18 +160,23 @@ Before any contract is activated:
 
 ## 7. Event and asset synchronization
 
-The current `pirc-soroban-event-ingest` function is a bounded raw-event inbox. It stores events and advances a durable cursor; it does not decode XDR or prove settlement finality.
+The `pirc-soroban-event-ingest` function source has been updated in this integration branch to:
+- verify Horizon and Soroban RPC passphrases against the configured Pi Testnet passphrase;
+- check the explicit Soroban protocol target, RPC health and ledger-retention bounds before touching cursors;
+- reject non-HTTPS or non-allowlisted network endpoints and redirects;
+- process an explicit allowlist of up to 32 contract IDs with a separate durable cursor for each;
+- preserve raw event payloads and idempotently persist events before advancing each cursor.
 
-The next event pipeline must:
-1. validate the network identity and configured contract ID;
-2. preserve raw event payloads and source cursor;
-3. decode only the canonical contract ABI;
-4. quarantine unknown topics, malformed XDR and mismatched contract IDs;
-5. verify transaction status and successful finality;
-6. call the canonical contract read method;
-7. compare persisted state and settlement digest with event data;
-8. update a versioned projection idempotently;
-9. expose reconciliation status and lag metrics.
+This is a source-code change awaiting its focused Deno CI and deployment configuration. It is not evidence that the Supabase function is deployed or that any contract events are currently being ingested. The seven historical Unity layer contract IDs returned NOT_FOUND in the recorded read-only probe and must not be added to the ingestion allowlist.
+
+The remaining event pipeline must:
+1. decode only the pinned canonical contract ABI and preserve original XDR;
+2. quarantine unknown topics, malformed XDR and mismatched contract IDs;
+3. verify transaction status and successful finality;
+4. call the canonical contract read method;
+5. compare persisted state and settlement digest with event data;
+6. update a versioned projection idempotently;
+7. expose reconciliation status and lag metrics.
 
 Asset synchronization must be network-scoped. Each asset record needs the network ID, asset/contract ID, issuer, decimals, metadata hash, source transaction, ledger sequence, code hash where applicable, verification timestamp and evidence state. Repository registry metadata, logos, CEX prices and a Horizon account response must never be promoted to a verified token balance or reserve.
 
