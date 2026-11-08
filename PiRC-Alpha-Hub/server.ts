@@ -117,8 +117,8 @@ async function startServer() {
   app.post("/api/auth", async (req, res) => {
     try {
       const { accessToken } = req.body;
-      if (!accessToken) {
-        return res.status(400).json({ error: "Access token is required" });
+      if (typeof accessToken !== "string" || accessToken.length < 10 || accessToken.length > 4096) {
+        return res.status(400).json({ error: "invalid_request" });
       }
 
       // Validate access token against Pi Network API
@@ -139,7 +139,6 @@ async function startServer() {
       res.json({ 
         authenticated: true, 
         user: userData,
-        sessionId: Math.random().toString(36).substring(7)
       });
     } catch (error: any) {
       console.error("Pi Auth Error:", error.message);
@@ -165,6 +164,7 @@ async function startServer() {
 
   const callPiApi = async (method: string, endpoint: string, body?: unknown) => {
     if (!PI_NETWORK_API_KEY) throw new Error("PI_API_KEY_NOT_CONFIGURED");
+    if (process.env.PI_PAYMENTS_ENABLED !== "true") throw new Error("PI_PAYMENTS_DISABLED");
     const response = await fetch(`https://api.minepi.com${endpoint}`, {
       method,
       headers: {
@@ -207,8 +207,8 @@ async function startServer() {
       return res.json({ status: "success", data: result });
     } catch (error: any) {
       const message = error?.message || "";
-      const status = message === "unauthorized" ? 401 : message.startsWith("PI_UPSTREAM_404") ? 404 : message === "PI_API_KEY_NOT_CONFIGURED" ? 503 : 502;
-      return res.status(status).json({ error: status === 401 ? "Unauthorized" : status === 404 ? "payment_not_found" : status === 503 ? "payments_not_configured" : "pi_platform_error" });
+      const status = message === "unauthorized" ? 401 : message.startsWith("PI_UPSTREAM_404") ? 404 : (message === "PI_API_KEY_NOT_CONFIGURED" || message === "PI_PAYMENTS_DISABLED") ? 503 : 502;
+      return res.status(status).json({ error: status === 401 ? "Unauthorized" : status === 404 ? "payment_not_found" : status === 503 ? (message === "PI_PAYMENTS_DISABLED" ? "payments_disabled" : "payments_not_configured") : "pi_platform_error" });
     }
   });
 
