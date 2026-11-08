@@ -9,7 +9,8 @@ from typing import Any
 
 import httpx
 
-from api.network_adapters import check_pi_testnet
+from api.network_adapters import check_pi_testnet, verify_contract_instance
+from api.asset_registry import _records
 
 STELLAR_HORIZON = os.getenv("STELLAR_TESTNET_HORIZON_URL", "https://horizon-testnet.stellar.org").rstrip("/")
 STELLAR_RPC = os.getenv("STELLAR_TESTNET_RPC_URL", "https://soroban-testnet.stellar.org").rstrip("/")
@@ -58,13 +59,29 @@ def main() -> int:
             "soroban_rpc": rpc_probe(client, STELLAR_RPC),
         }
 
+    asset_contract_readback = []
+    if pi.get("identity_verified"):
+        for record in _records():
+            contract_id = record.get("contract_id")
+            if not contract_id:
+                continue
+            probe = verify_contract_instance(str(contract_id))
+            asset_contract_readback.append({
+                "asset_key": record.get("asset_key"),
+                "contract_id": contract_id,
+                "probe_status": probe.get("probe_status", "UNKNOWN"),
+                "contract_instance_present": probe.get("contract_instance_present"),
+            })
+
     report = {
         "pi_testnet": pi,
         "stellar_testnet": stellar,
-        "scope": "READ_ONLY_ENDPOINT_HEALTH_AND_LEDGER_READBACK",
+        "asset_contract_readback": asset_contract_readback,
+        "scope": "READ_ONLY_NETWORK_IDENTITY_LEDGER_AND_CONTRACT_INSTANCE_READBACK",
         "not_proven": [
             "contract deployment",
             "contract source or code-hash identity",
+            "token balances, issuer authority or asset reserve reconciliation",
             "issuer authorization",
             "audit completion",
             "token reserves or redemption",
