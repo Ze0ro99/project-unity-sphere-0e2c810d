@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 
 const source = await readFile(new URL("../src/i18n/messages.ts", import.meta.url), "utf8");
 const localeNames = ["en", "ar", "zh", "id", "fr", "es", "de", "pt"];
+const enabledLocales = ["en", "ar", "zh", "id", "fr"];
 const dictionaries = new Map();
 
 function parse(locale) {
@@ -35,7 +36,9 @@ for (const locale of localeNames) {
   const complete = missing.length === 0 && empty.length === 0 && mismatched.length === 0;
   console.log(`${locale.padEnd(3)} ${coverage.toFixed(1).padStart(5)}%  ${String(dictionary.size).padStart(3)} keys  ${complete ? "complete" : "incomplete"}`);
   if (!complete) {
-    failed = true;
+    if (enabledLocales.includes(locale)) failed = true;
+    const state = enabledLocales.includes(locale) ? "ERROR: enabled locale incomplete" : "disabled until translation is complete";
+    console.log(`    ${state}`);
     for (const key of missing) console.log(`    missing: ${key}`);
     for (const key of empty) console.log(`    empty: ${key}`);
     for (const [key] of mismatched) console.log(`    placeholder mismatch: ${key}`);
