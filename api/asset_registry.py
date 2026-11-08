@@ -150,6 +150,58 @@ def pi_testnet_network_health() -> dict[str, Any]:
     return check_pi_testnet()
 
 
+def _load_capability_catalog() -> dict[str, Any]:
+    catalog_file = _REPOSITORY_ROOT / "assets" / "registry" / "developer-capability-catalog.json"
+    try:
+        with catalog_file.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=503, detail={
+            "code": "CAPABILITY_CATALOG_UNAVAILABLE",
+            "message": "Developer capability catalog is unavailable or invalid.",
+            "retryable": True,
+        }) from exc
+    if not isinstance(payload, dict) or not isinstance(payload.get("capabilities"), list):
+        raise HTTPException(status_code=503, detail={
+            "code": "CAPABILITY_CATALOG_INVALID",
+            "message": "Developer capability catalog has an invalid schema.",
+            "retryable": False,
+        })
+    return payload
+
+
+@router.get("/developer/capabilities")
+def list_developer_capabilities() -> dict[str, Any]:
+    catalog = _load_capability_catalog()
+    return {
+        "schema_version": catalog.get("schema_version"),
+        "catalog_version": catalog.get("catalog_version"),
+        "network_profiles": catalog.get("network_profiles", []),
+        "app_access": catalog.get("app_access", {}),
+        "count": len(catalog["capabilities"]),
+        "items": catalog["capabilities"],
+        "notice": "Discovery metadata only. A catalog entry does not grant credentials, signing authority, deployment access or live economic execution.",
+    }
+
+
+@router.get("/developer/capabilities/{capability_id}")
+def get_developer_capability(capability_id: str) -> dict[str, Any]:
+    catalog = _load_capability_catalog()
+    for capability in catalog["capabilities"]:
+        if capability.get("id") == capability_id:
+            return {
+                "catalog_version": catalog.get("catalog_version"),
+                "item": capability,
+                "app_access": catalog.get("app_access", {}),
+                "notice": "Capability discovery only. Access must be separately authorized and implemented.",
+            }
+    raise HTTPException(status_code=404, detail={
+        "code": "CAPABILITY_NOT_FOUND",
+        "message": "No developer capability is registered with this identifier.",
+        "retryable": False,
+    })
+
+
 @router.get("/assets")
 def list_assets(verification_status: str | None = Query(default=None)) -> dict[str, Any]:
     records = _records()
