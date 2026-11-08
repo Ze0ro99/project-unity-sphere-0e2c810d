@@ -12,7 +12,7 @@ const I18nCtx = createContext<Ctx | null>(null);
 const STORAGE_KEY = "pirc.lang";
 const RTL = new Set<Lang>(["ar"]);
 // Only fully translated locales may be selected. Partial dictionaries stay visible as disabled options.
-const SUPPORTED = new Set<string>(["en"]);
+const SUPPORTED = new Set<string>(["en", "ar", "zh", "id", "fr"]);
 
 function safeStoredLanguage(): Lang | null {
   try {
