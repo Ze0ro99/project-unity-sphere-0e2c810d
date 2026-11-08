@@ -23,6 +23,7 @@ import Bridge from "./pages/Bridge";
 import Governance from "./pages/Governance";
 import Compliance from "./pages/Compliance";
 import Economics from "./pages/Economics";
+import EconomicGateways from "./pages/EconomicGateways";
 import Infrastructure from "./pages/Infrastructure";
 import Oracle from "./pages/Oracle";
 
@@ -34,6 +35,7 @@ const NAV = [
   { to: "/governance", key: "nav.governance", icon: Landmark },
   { to: "/compliance", key: "nav.compliance", icon: ScanFace },
   { to: "/economics", key: "nav.economics", icon: LineChart },
+  { to: "/economic-gates", key: "nav.economicGates", icon: Boxes },
   { to: "/infrastructure", key: "nav.infra", icon: Server },
   { to: "/oracle", key: "nav.oracle", icon: Satellite },
   { to: "/explorer", key: "nav.explorer", icon: Activity },
@@ -63,6 +65,7 @@ export default function App() {
           <Route path="/governance" element={<Governance />} />
           <Route path="/compliance" element={<Compliance />} />
           <Route path="/economics" element={<Economics />} />
+          <Route path="/economic-gates" element={<EconomicGateways />} />
           <Route path="/infrastructure" element={<Infrastructure />} />
           <Route path="/oracle" element={<Oracle />} />
           <Route path="/explorer" element={<Explorer />} />
