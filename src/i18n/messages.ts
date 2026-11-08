@@ -206,6 +206,7 @@ const en: Dict = {
   "gate.solvencySettlement.title": "Solvency & Settlement Gateway",
   "gate.solvencySettlement.desc": "Testnet identity, contract read-back, reserve evidence and settlement-finality checks.",
   "pidex.ipprLive": "IPPR live",
+  "app.networkMode": "PI TESTNET · api.testnet.minepi.com",
 };
 
 const ar: Dict = {
@@ -408,6 +409,7 @@ const ar: Dict = {
   "gate.solvencySettlement.title": "بوابة الملاءة والتسوية",
   "gate.solvencySettlement.desc": "هوية شبكة الاختبار، وقراءة العقود، وأدلة الاحتياطيات، والتحقق من نهائية التسوية.",
   "pidex.ipprLive": "IPPR المباشر",
+  "app.networkMode": "شبكة Pi التجريبية · api.testnet.minepi.com",
 };
 
 const zh: Dict = {
@@ -610,6 +612,7 @@ const zh: Dict = {
   "gate.solvencySettlement.title": "偿付能力与结算网关",
   "gate.solvencySettlement.desc": "测试网身份、合约回读、储备证明和结算最终性检查。",
   "pidex.ipprLive": "实时 IPPR",
+  "app.networkMode": "Pi 测试网 · api.testnet.minepi.com",
 };
 
 const id: Dict = {
@@ -812,6 +815,7 @@ const id: Dict = {
   "gate.solvencySettlement.title": "Gateway Solvabilitas & Penyelesaian",
   "gate.solvencySettlement.desc": "Identitas Testnet, pembacaan ulang kontrak, bukti cadangan, dan pemeriksaan finalitas penyelesaian.",
   "pidex.ipprLive": "IPPR langsung",
+  "app.networkMode": "Pi TESTNET · api.testnet.minepi.com",
 };
 
 const fr: Dict = {
@@ -1003,6 +1007,7 @@ const fr: Dict = {
   "gate.solvencySettlement.title": "Passerelle solvabilité et règlement",
   "gate.solvencySettlement.desc": "Identité Testnet, lecture des contrats, preuves de réserves et contrôles de finalité du règlement.",
   "pidex.ipprLive": "IPPR en direct",
+  "app.networkMode": "PI TESTNET · api.testnet.minepi.com",
 };
 const es: Dict = {
   "pidex.walletTitle": "Billetera Pi",
