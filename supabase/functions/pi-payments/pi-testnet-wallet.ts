@@ -35,7 +35,7 @@ export async function readPiTestnetNativeBalance(
 
   const accountResponse = await fetcher(
     HORIZON + "/accounts/" + encodeURIComponent(walletAddress),
-    { redirect: "error" },
+    { redirect: "error", signal: AbortSignal.timeout(8000) },
   );
   if (accountResponse.status === 404) {
     return {
