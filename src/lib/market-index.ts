@@ -1,9 +1,10 @@
 /**
  * PiRC-214 — Live Market Index client
  * -----------------------------------------------------------------------------
- * Off-chain Pi spot estimate. The Supabase Edge Function reads public CEX
+ * Off-chain PI/USDT spot reference. The Supabase Edge Function reads public CEX
  * APIs (OKX / MEXC / Bitget / Gate.io / KuCoin), computes a median and applies
- * a 3-source / 300-bps heuristic. This is not an on-chain oracle consensus,
+ * a 3-source / 300-bps heuristic. USDT/USD parity is not independently normalized;
+ * this is not an on-chain oracle consensus,
  * guaranteed execution price, or proof of available liquidity.
  */
 
@@ -26,6 +27,9 @@ export type IndexVenue = {
 export type IndexCandle = { t: number; o: number; h: number; l: number; c: number; v: number };
 
 export type MarketIndex = {
+  quoteAsset: "USDT";
+  priceUnit: "USDT_PER_PI";
+  usdParity: "NOT_NORMALIZED";
   price: number | null;
   sources: number;
   totalSources: number;
@@ -75,6 +79,9 @@ export async function refreshMarketIndex(): Promise<IndexSnapshot> {
     snapshot = {
       index: idx
         ? {
+            quoteAsset: "USDT",
+            priceUnit: "USDT_PER_PI",
+            usdParity: "NOT_NORMALIZED",
             price: typeof idx.price === "number" ? idx.price : null,
             sources: idx.sources ?? 0,
             totalSources: idx.totalSources ?? 0,
@@ -130,7 +137,7 @@ export function useMarketIndex(): IndexSnapshot {
   return useSyncExternalStore(marketIndexStore.subscribe, marketIndexStore.getSnapshot, marketIndexStore.getSnapshot);
 }
 
-/** Latest medianised π/USD spot, or NaN when no venue is reachable. */
+/** Latest medianised PI/USDT reference, or NaN when no venue is reachable. */
 export function piSpot(): number {
   const p = snapshot.index?.price;
   return typeof p === "number" && p > 0 ? p : NaN;
