@@ -13,6 +13,7 @@ import { useMarketIndex } from "@/lib/market-index";
 
 const fmt = (n: number, d = 0) =>
   n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+import { useI18n } from "@/i18n";
 
 function Spark({ outcome, field, color }: { outcome: ScenarioOutcome; field: "phi" | "ippr" | "collateralRatio"; color: string }) {
   const pts = outcome.series.map((s) => s[field] as number);
@@ -33,6 +34,7 @@ function Spark({ outcome, field, color }: { outcome: ScenarioOutcome; field: "ph
 }
 
 export default function Economics() {
+  const { t } = useI18n();
   const [scenarios] = useState<SimulationScenario[]>(DEFAULT_SCENARIOS);
   const [selected, setSelected] = useState(DEFAULT_SCENARIOS[0].id);
   const [horizon, setHorizon] = useState(365);
@@ -61,7 +63,7 @@ export default function Economics() {
             <LineChart size={20} />
           </span>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Economic Simulation Dashboard</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.economics")}</h1>
             <p className="text-sm text-muted">
               Reflexive scenario model Φ = (Lₙ · IPPR) / QWF. The model index is calibrated independently;
               the observed π/USD venue quote is displayed separately and is not a reserve or collateral proof.
