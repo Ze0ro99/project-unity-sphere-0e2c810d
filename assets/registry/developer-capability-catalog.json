@@ -1,0 +1,170 @@
+{
+  "schema_version": "1.0.0",
+  "catalog_version": "2026-11-08.1",
+  "network_profiles": [
+    {
+      "network_id": "pi-testnet1",
+      "display_name": "Pi Testnet",
+      "alias": "Testnet1",
+      "write_enabled": false,
+      "mainnet_enabled": false
+    }
+  ],
+  "app_access": {
+    "registration_status": "NOT_IMPLEMENTED",
+    "isolation": "No app credentials or tenant isolation are provisioned by this catalog endpoint.",
+    "rule": "Do not share deployer credentials. Each application must receive a separately authorized identity and capability grant before write access."
+  },
+  "capabilities": [
+    {
+      "id": "asset-registry.read",
+      "name": "Asset and layer registry discovery",
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_UNVERIFIED",
+      "mode": "READ_ONLY",
+      "network": "pi-testnet1",
+      "description": "Read repository-sourced asset metadata and verification status. Unverified entries must not be displayed as deployed or redeemable.",
+      "endpoints": [
+        "GET /v1/assets",
+        "GET /v1/assets/{network}/{asset_id}",
+        "GET /v1/assets/{network}/{asset_id}/verification"
+      ],
+      "requires": [
+        "No signer",
+        "Network identity verification before contract probing"
+      ],
+      "blocked_actions": [
+        "Mint",
+        "Transfer",
+        "Redeem"
+      ]
+    },
+    {
+      "id": "pi-wallet.identity",
+      "name": "Pi Platform identity and wallet binding",
+      "status": "IMPLEMENTED_TEST_REQUIRED",
+      "mode": "IDENTITY_READ_ONLY",
+      "network": "Pi Platform + pi-testnet1 balance read",
+      "description": "Authenticate in Pi Browser and bind the verified Pi Platform user to the returned wallet address. Native Test Pi balance is read-only.",
+      "requires": [
+        "Pi Browser or Pi Sandbox",
+        "Pi SDK v2.0",
+        "Server-side Pi Platform /me verification"
+      ],
+      "blocked_actions": [
+        "Soroban signing",
+        "Contract deployment",
+        "Live PiDEX execution"
+      ]
+    },
+    {
+      "id": "economics.simulation",
+      "name": "PiRC economic model simulation",
+      "status": "CLIENT_SIDE_SIMULATION_ONLY",
+      "mode": "SIMULATION",
+      "network": "OFF_CHAIN",
+      "description": "Run deterministic model scenarios for analysis. Outputs are not live prices, balances, reserves, collateral, issuance or settlement.",
+      "requires": [
+        "Versioned model parameters",
+        "Explicit simulation labeling"
+      ],
+      "blocked_actions": [
+        "Authoritative valuation",
+        "Minting",
+        "Settlement"
+      ]
+    },
+    {
+      "id": "pidex.amm",
+      "name": "PiDEX AMM quote and execution",
+      "status": "SOURCE_PRESENT_TESTS_PENDING_NOT_DEPLOYED",
+      "mode": "SIMULATION_ONLY",
+      "network": "pi-testnet1",
+      "description": "AMM contract source and integration adapters exist, but no verified pool contract, liquidity or live execution is established.",
+      "requires": [
+        "Passing contract CI",
+        "Verified AMM contract ID and code hash",
+        "Pool state readback",
+        "Supported wallet authorization"
+      ],
+      "blocked_actions": [
+        "Live swaps",
+        "LP deposits",
+        "Token transfers"
+      ]
+    },
+    {
+      "id": "soroban.settlement",
+      "name": "Economic settlement contract",
+      "status": "MANUAL_TESTNET_DEPLOYMENT_GATED",
+      "mode": "TESTNET_ONLY",
+      "network": "pi-testnet1",
+      "description": "A manual workflow can deploy and exercise the canonical settlement contract after protected Testnet signer configuration and explicit workflow approval.",
+      "requires": [
+        "Dedicated PI_TESTNET_DEPLOYER_SECRET in protected GitHub Environment",
+        "Passing workspace tests and WASM build",
+        "Manual deployment approval"
+      ],
+      "blocked_actions": [
+        "Mainnet deployment",
+        "Real-Pi redemption",
+        "Automatic settlement"
+      ]
+    },
+    {
+      "id": "soroban.events",
+      "name": "Soroban event ingestion",
+      "status": "RAW_INGEST_ONLY",
+      "mode": "READ_ONLY_INGEST",
+      "network": "pi-testnet1",
+      "description": "Bounded raw event ingestion is implemented in source; XDR decoding, finality, settlement projection and wallet reconciliation remain unavailable.",
+      "requires": [
+        "Allowlisted contract IDs",
+        "Network identity verification",
+        "Durable cursor storage"
+      ],
+      "blocked_actions": [
+        "Treating raw events as settled balances",
+        "Automatic asset activation"
+      ]
+    },
+    {
+      "id": "developer.app-registration",
+      "name": "Developer application registration and scoped credentials",
+      "status": "NOT_IMPLEMENTED",
+      "mode": "DISABLED",
+      "network": "OFF_CHAIN",
+      "description": "No production app-registration, tenant credential issuance, per-app quota enforcement or capability-grant service is currently deployed.",
+      "requires": [
+        "Persistent app registry",
+        "Verified owner identity",
+        "Per-app credentials and revocation",
+        "Rate limits and audit log"
+      ],
+      "blocked_actions": [
+        "Self-service API key issuance",
+        "Shared deployer keys",
+        "Unrestricted contract calls"
+      ]
+    },
+    {
+      "id": "raw.contract-factory",
+      "name": "RAW / smart-contract factory",
+      "status": "PROPOSED_SPECIFICATION_ONLY",
+      "mode": "DISABLED",
+      "network": "pi-testnet1",
+      "description": "Factory architecture and templates are documented; governed template execution, deployment allowlists and readback are not yet an enabled service.",
+      "requires": [
+        "Approved immutable templates",
+        "Static analysis and SBOM",
+        "Human/governance approval",
+        "Per-app deployment quotas",
+        "Testnet code-hash readback"
+      ],
+      "blocked_actions": [
+        "Arbitrary user-supplied WASM deployment",
+        "Automatic approval",
+        "Mainnet deployment"
+      ]
+    }
+  ]
+}
