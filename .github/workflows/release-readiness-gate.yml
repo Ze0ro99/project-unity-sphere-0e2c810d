@@ -14,6 +14,8 @@ jobs:
   release-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      PI_NETWORK_PASSPHRASE: ${{ secrets.PI_NETWORK_PASSPHRASE }}
     steps:
       - uses: actions/checkout@v4
         with:
