@@ -324,28 +324,29 @@
   },
   "source_pins": {
     "refreshed_at": "2026-11-08T14:01:19Z",
-    "policy": "Pin exact reviewed commits. Pull-request heads are proposed integration inputs, not merged release sources.",
+    "policy": "Pin exact reviewed commits for upstream repositories. Resolve the Unity Sphere integration head from PR #52 metadata at gate time; do not self-pin a commit inside its own manifest.",
     "repositories": {
       "pirc": {
         "main_sha": "20995e05775ae88568df214d6dd3863c938975fc",
         "integration_pr": 369,
         "integration_branch": "integration/testnet1-pidex-status-2026-11-08",
-        "integration_sha": "96e9cc89d1ec0f854f5dfa2bad02487ed2f72851",
+        "integration_sha": "e94627af767c6a7ba69bcb2cb779d05b0ff0f975",
         "integration_state": "OPEN_DRAFT"
       },
       "smartcontracts": {
         "main_sha": "ea61996c7defe47b7333c864c741c107eecd7626",
         "integration_pr": 1108,
         "integration_branch": "integration/pidex-amm-canonical-2026-11-08",
-        "integration_sha": "f75484c8dd901e5186033d44176a06693445e490",
+        "integration_sha": "8f361062c39c8502cdf0dcdf7c998b6ce9425433",
         "integration_state": "OPEN_DRAFT"
       },
       "unity_sphere": {
         "main_sha": "9b335ee08a9b349328c24cd33d92f35281fdaad2",
         "integration_pr": 52,
         "integration_branch": "integration/pirc-testnet1-wallet-pidex-2026-11-08",
-        "integration_sha": "77ada3f13c4f2a8ca34993fe21273d0855898201",
-        "integration_state": "OPEN_DRAFT"
+        "integration_sha": null,
+        "integration_state": "OPEN_DRAFT_HEAD_RESOLVED_FROM_PR_METADATA",
+        "integration_head_source": "https://github.com/Ze0ro99/project-unity-sphere-0e2c810d/pull/52"
       }
     }
   },
