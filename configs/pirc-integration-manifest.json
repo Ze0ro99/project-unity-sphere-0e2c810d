@@ -11,7 +11,17 @@
     "expected_protocol": 28,
     "passphrase_source": "PI_NETWORK_PASSPHRASE",
     "passphrase_value": null,
-    "mainnet_writes_enabled": false
+    "mainnet_writes_enabled": false,
+    "last_read_only_probe": {
+      "checked_at": "2026-11-08T13:45:06Z",
+      "identity_verified": true,
+      "network_passphrase": "Pi Testnet",
+      "soroban_rpc_protocol": 28,
+      "horizon_supported_protocol": 29,
+      "latest_ledger": 27596965,
+      "registered_layer_contract_instances_found": 0,
+      "registered_layer_contract_instances_checked": 7
+    }
   },
   "repositories": {
     "pirc": {
@@ -41,8 +51,13 @@
       "domain": "asset_registry_seven_layers",
       "spec": "PiRC schemas and registry",
       "implementation": "Unity Sphere registry and asset API",
-      "status": "BLOCKED_TAXONOMY_AND_CHAIN_VERIFICATION",
-      "network_evidence": null
+      "status": "BLOCKED_SEVEN_LAYER_CONTRACT_IDS_NOT_FOUND_ON_VERIFIED_PI_TESTNET",
+      "network_evidence": {
+        "checked_at": "2026-11-08T13:45:06Z",
+        "latest_ledger": 27596965,
+        "identity_verified": true,
+        "all_registered_layer_contracts": "NOT_FOUND"
+      }
     },
     {
       "id": "PIRC-208",
@@ -225,8 +240,12 @@
       "domain": "onchain_amm_execution",
       "spec": "PiRC-215_227",
       "implementation": "Unity Sphere contracts/pidex_amm",
-      "status": "SOURCE_PRESENT_DEPLOYMENT_AND_WALLET_SIGNING_REQUIRED",
-      "network_evidence": null
+      "status": "SOURCE_PRESENT_NOT_DEPLOYED_TOKEN_CONTRACTS_NOT_FOUND",
+      "network_evidence": {
+        "checked_at": "2026-11-08T13:45:06Z",
+        "latest_ledger": 27596965,
+        "amm_contract_id": null
+      }
     },
     {
       "id": "SOROBAN_EVENT_INGEST",
