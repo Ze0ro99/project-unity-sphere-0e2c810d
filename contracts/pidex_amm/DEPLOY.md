@@ -1,8 +1,8 @@
 # PiDEX AMM — Canonical Build and Testnet Deployment Runbook
 
-**Canonical source:** [Ze0ro99/SmartContracts/contracts/pidex_amm](https://github.com/Ze0ro99/SmartContracts/tree/main/contracts/pidex_amm)
+**Proposed canonical source:** [SmartContracts PR #1108 — PiDEX AMM crate](https://github.com/Ze0ro99/SmartContracts/pull/1108) (branch source: [contracts/pidex_amm](https://github.com/Ze0ro99/SmartContracts/tree/integration/pidex-amm-canonical-2026-11-08/contracts/pidex_amm)). The canonical path on main becomes authoritative only after PR #1108 is reviewed and merged.
 
-The Unity Sphere copy is retained as a historical application-repository mirror. Contract changes must be reviewed and merged in SmartContracts first. Unity Sphere adapters must pin the exact SmartContracts commit and generated contract specification.
+The Unity Sphere copy is retained as a historical application-repository mirror. Contract changes must be reviewed and merged in SmartContracts first; until PR #1108 merges, the source is proposed and not yet on main. Unity Sphere adapters must pin the exact SmartContracts commit and generated contract specification.
 
 ## Scope
 
