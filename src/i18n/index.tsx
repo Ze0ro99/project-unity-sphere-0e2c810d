@@ -97,11 +97,11 @@ export function useI18n(): Ctx {
 
 export const LANGS: { code: Lang; label: string; complete: boolean }[] = [
   { code: "en", label: "English", complete: true },
-  { code: "ar", label: "العربية", complete: false },
-  { code: "fr", label: "Français", complete: false },
+  { code: "ar", label: "العربية", complete: true },
+  { code: "fr", label: "Français", complete: true },
   { code: "es", label: "Español", complete: false },
   { code: "de", label: "Deutsch", complete: false },
   { code: "pt", label: "Português", complete: false },
-  { code: "zh", label: "中文", complete: false },
-  { code: "id", label: "Bahasa Indonesia", complete: false },
+  { code: "zh", label: "中文", complete: true },
+  { code: "id", label: "Bahasa Indonesia", complete: true },
 ];
