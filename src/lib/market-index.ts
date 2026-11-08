@@ -27,9 +27,9 @@ export type IndexVenue = {
 export type IndexCandle = { t: number; o: number; h: number; l: number; c: number; v: number };
 
 export type MarketIndex = {
-  quoteAsset: "USDT";
-  priceUnit: "USDT_PER_PI";
-  usdParity: "NOT_NORMALIZED";
+  quoteAsset: "USDT" | "USD";
+  priceUnit: "USDT_PER_PI" | "USD_PER_PI";
+  usdParity: "NOT_NORMALIZED" | "NORMALIZED";
   price: number | null;
   sources: number;
   totalSources: number;
