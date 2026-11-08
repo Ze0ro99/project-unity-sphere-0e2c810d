@@ -8,6 +8,7 @@ import {
   ipprFromSpot,
   BASE_IPPR,
   isFreshMarketIndex,
+  isCanonicalUsdQuote,
   type SimulationScenario,
   type ScenarioOutcome,
 } from "@/lib/economics";
@@ -50,7 +51,8 @@ export default function Economics() {
     return () => clearInterval(id);
   }, []);
 
-  const liveOk = market.index?.trusted === true
+  const liveOk = isCanonicalUsdQuote(market.index)
+    && market.index?.trusted === true
     && (market.index?.sources ?? 0) >= 3
     && isFreshMarketIndex(market.ts)
     && Number.isFinite(spot) && spot > 0;
@@ -94,7 +96,7 @@ export default function Economics() {
 
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
-          { label: t("economics.liveIppr"), value: liveOk ? `${fmt(ipprLive, 2)} USDT` : "UNAVAILABLE — ORACLE GATE" },
+          { label: t("economics.liveIppr"), value: liveOk ? `${fmt(ipprLive, 2)} USD reference` : t("economics.ipprPending") },
           { label: t("economics.simulationQwf"), value: fmt(simulation.qwf) },
           { label: t("economics.simulationVelocity"), value: simulation.velocity.toFixed(4) },
           { label: t("economics.simulationPhi"), value: Number.isFinite(phiSimulation) ? phiSimulation.toFixed(6) : "—" },
