@@ -240,7 +240,8 @@ async function ingestContract(contractId: string, oldestLedger: number) {
   }
 
   const nextCursor = typeof result.cursor === "string" ? result.cursor : cursor.paging_cursor;
-  const latestLedger = Number.isSafeInteger(result.latestLedger) ? result.latestLedger : null;
+  const latestLedgerValue = Number(result.latestLedger);
+  const latestLedger = Number.isSafeInteger(latestLedgerValue) ? latestLedgerValue : null;
   await db(
     "pirc_soroban_event_cursors?network_id=eq." + NETWORK_ID + "&contract_id=eq." + contractId,
     {
