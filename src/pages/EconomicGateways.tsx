@@ -1,4 +1,4 @@
-import { Activity, Boxes, CheckCircle2, CircleAlert, ShieldCheck } from "lucide-react";
+import { Boxes, CheckCircle2, CircleAlert, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/i18n";
 import { useMarketIndex } from "@/lib/market-index";
 
