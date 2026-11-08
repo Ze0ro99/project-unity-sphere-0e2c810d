@@ -12,7 +12,7 @@ function parse(locale) {
   if (end < 0) throw new Error(`Unterminated locale dictionary: ${locale}`);
   const block = source.slice(start, end);
   const entries = new Map();
-  const pattern = /^\\s*"([^"]+)"\\s*:\\s*(?:"((?:\\\\.|[^"\\\\])*)"|[\\r\\n]+\\s*"((?:\\\\.|[^"\\\\])*)")/gm;
+  const pattern = /^\s*"([^"]+)"\s*:\s*(?:"((?:\\.|[^"\\])*)"|[\r\n]+\s*"((?:\\.|[^"\\])*)")/gm;
   for (const match of block.matchAll(pattern)) {
     if (entries.has(match[1])) throw new Error(`Duplicate key ${match[1]} in ${locale}`);
     entries.set(match[1], match[2] ?? match[3] ?? "");
@@ -22,9 +22,9 @@ function parse(locale) {
 
 for (const locale of localeNames) dictionaries.set(locale, parse(locale));
 const baseline = dictionaries.get("en");
-const placeholders = (value) => [...value.matchAll(/\\{([a-zA-Z0-9_]+)\\}/g)].map((match) => match[1]).sort().join("|");
+const placeholders = (value) => [...value.matchAll(/\{([a-zA-Z0-9_]+)\}/g)].map((match) => match[1]).sort().join("|");
 let failed = false;
-console.log(`i18n baseline: ${baseline.size} English keys\\n`);
+console.log(\`i18n baseline: \${baseline.size} English keys\n\`);
 
 for (const locale of localeNames) {
   const dictionary = dictionaries.get(locale);
@@ -43,8 +43,8 @@ for (const locale of localeNames) {
 }
 
 if (process.argv.includes("--strict") && failed) {
-  console.error("\\nStrict locale audit failed.");
+  console.error("\nStrict locale audit failed.");
   process.exitCode = 1;
 } else if (failed) {
-  console.warn("\\nSome locales are incomplete and must remain disabled in the language selector.");
+  console.warn("\nSome locales are incomplete and must remain disabled in the language selector.");
 }
