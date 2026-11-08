@@ -136,7 +136,7 @@ def check_pi_testnet() -> dict[str, Any]:
             rpc_protocol is not None
             and horizon_protocol is not None
             and int(rpc_protocol) == expected_protocol
-            and int(horizon_protocol) == expected_protocol
+            and int(horizon_protocol) >= expected_protocol
         )
     except (TypeError, ValueError):
         expected_protocol = None
@@ -166,7 +166,7 @@ def check_pi_testnet() -> dict[str, Any]:
         "identity_verified": identity_verified,
         "expected_protocol": expected_protocol,
         "observed_protocol": {
-            "horizon": horizon_protocol,
+            "horizon_supported": horizon_protocol,
             "soroban_rpc": rpc_protocol,
         },
         "passphrase_checks": {
