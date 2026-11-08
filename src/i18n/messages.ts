@@ -206,6 +206,9 @@ const en: Dict = {
   "economics.velocityPending": "Network velocity awaits reconciled telemetry",
   "economics.phiPending": "Φ awaits verified QWF and Lₙ",
   "economics.liveFeedNote": "Live market data is separate from the illustrative simulation. QWF and Lₙ remain unavailable until verified Testnet telemetry is connected.",
+  "economics.formulaDescription": "Live IPPR is re-based on every accepted PI/USD market tick: IPPR = PI/USD × 10,000,000. Adaptive QWF and network velocity are separate inputs to Φ = (Lₙ × IPPR) / QWF.",
+  "economics.simulationQwf": "Simulation QWF",
+  "economics.simulationVelocity": "Simulation velocity",
 };
 
 const ar: Dict = {
@@ -408,6 +411,9 @@ const ar: Dict = {
   "economics.velocityPending": "سرعة الشبكة بانتظار بيانات تسوية موثقة",
   "economics.phiPending": "Φ بانتظار QWF و Lₙ موثقين",
   "economics.liveFeedNote": "بيانات السوق المباشرة منفصلة عن المحاكاة التوضيحية. لا تتوفر قيم QWF وLₙ حتى ربط بيانات Testnet موثقة.",
+  "economics.formulaDescription": "تُعاد معايرة IPPR مع كل تحديث مقبول لسعر PI/USD: ‏IPPR = PI/USD × 10,000,000. ويظل QWF التكيفي وسرعة الشبكة مدخلين مستقلين في Φ = (Lₙ × IPPR) / QWF.",
+  "economics.simulationQwf": "QWF في المحاكاة",
+  "economics.simulationVelocity": "السرعة في المحاكاة",
 };
 
 const zh: Dict = {
@@ -610,6 +616,9 @@ const zh: Dict = {
   "economics.velocityPending": "等待已对账的网络速度数据",
   "economics.phiPending": "等待已验证的 QWF 和 Lₙ",
   "economics.liveFeedNote": "实时市场数据与示例模拟分开显示。连接已验证的 Testnet 遥测前，QWF 和 Lₙ 不可用。",
+  "economics.formulaDescription": "每次接受 PI/USD 市场报价更新时都会重新计算 IPPR：IPPR = PI/USD × 10,000,000。自适应 QWF 和网络速度是 Φ = (Lₙ × IPPR) / QWF 的独立输入。",
+  "economics.simulationQwf": "模拟 QWF",
+  "economics.simulationVelocity": "模拟速度",
 };
 
 const id: Dict = {
@@ -812,6 +821,9 @@ const id: Dict = {
   "economics.velocityPending": "Kecepatan jaringan menunggu telemetri yang direkonsiliasi",
   "economics.phiPending": "Φ menunggu QWF dan Lₙ terverifikasi",
   "economics.liveFeedNote": "Data pasar langsung dipisahkan dari simulasi ilustratif. QWF dan Lₙ belum tersedia sampai telemetri Testnet terverifikasi terhubung.",
+  "economics.formulaDescription": "IPPR dihitung ulang pada setiap tick pasar PI/USD yang diterima: IPPR = PI/USD × 10.000.000. QWF adaptif dan kecepatan jaringan adalah input terpisah untuk Φ = (Lₙ × IPPR) / QWF.",
+  "economics.simulationQwf": "QWF Simulasi",
+  "economics.simulationVelocity": "Kecepatan Simulasi",
 };
 
 const fr: Dict = {
