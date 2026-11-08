@@ -184,6 +184,20 @@ async function startServer() {
   const validPaymentId = (value: unknown): value is string =>
     typeof value === "string" && /^[A-Za-z0-9_-]{4,128}$/.test(value);
 
+  const PRODUCT_CATALOG: Record<string, number> = {
+    pirc_premium: 1.0,
+    compiler_boost: 0.5,
+    node_boost: 0.2,
+    dev_tip: 0.1,
+  };
+
+  const validatePaymentProduct = (payment: any) => {
+    const productId = payment?.metadata?.productId;
+    const expectedAmount = PRODUCT_CATALOG[productId];
+    if (expectedAmount === undefined || !Number.isFinite(payment?.amount)) return false;
+    return Math.round(Number(payment.amount) * 10_000_000) === Math.round(expectedAmount * 10_000_000);
+  };
+
   app.get("/api/payments/config", (_req, res) => {
     res.json({
       configured: Boolean(PI_NETWORK_API_KEY),
@@ -201,6 +215,7 @@ async function startServer() {
       const user = await verifyPiUser(accessToken);
       const payment = await callPiApi("GET", `/v2/payments/${paymentId}`);
       if (payment.user_uid !== user.uid) return res.status(403).json({ error: "forbidden" });
+      if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
       if (payment.status?.developer_completed) return res.json({ status: "success", already: true, data: payment });
       if (payment.status?.developer_approved) return res.json({ status: "success", already: true, data: payment });
       const result = await callPiApi("POST", `/v2/payments/${paymentId}/approve`);
@@ -215,7 +230,7 @@ async function startServer() {
   app.post("/api/payments/complete", async (req, res) => {
     try {
       const { paymentId, txid, accessToken } = req.body ?? {};
-      if (!validPaymentId(paymentId) || typeof txid !== "string" || !/^[A-Za-z0-9]{4,128}$/.test(txid) || typeof accessToken !== "string") {
+      if (!validPaymentId(paymentId) || typeof txid !== "string" || !/^[a-fA-F0-9]{64}$/.test(txid) || typeof accessToken !== "string") {
         return res.status(400).json({ error: "invalid_request" });
       }
       const user = await verifyPiUser(accessToken);
@@ -244,6 +259,7 @@ async function startServer() {
       if (payment.user_uid !== user.uid) return res.status(403).json({ error: "forbidden" });
       if (payment.status?.developer_completed) return res.json({ status: "success", action: "already_completed", data: payment });
       const actualTxid = payment.transaction?.txid;
+      if (actualTxid && !/^[a-fA-F0-9]{64}$/.test(actualTxid)) return res.status(409).json({ error: "invalid_transaction_id" });
       if (txid && actualTxid && txid !== actualTxid) return res.status(409).json({ error: "transaction_mismatch" });
       if (!payment.status?.developer_approved) {
         await callPiApi("POST", `/v2/payments/${paymentId}/approve`);
