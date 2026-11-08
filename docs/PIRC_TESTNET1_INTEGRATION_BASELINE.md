@@ -74,7 +74,7 @@ The Pi SDK integration now requests `username` and `wallet_address` for normal c
 
 Important capability boundary:
 - A verified Pi Platform account and returned `wallet_address` bind a Pioneer to an address.
-- They do not expose the user's private key and do not authorize arbitrary Soroban transaction signing.
+- They do not expose the user's private key. The Pi SDK also documents a `Pi.Wallet` module for wallet transaction flows, but its documented submission path accepts a pre-signed Stellar XDR; the SDK does not build or sign that XDR. Therefore a connected address alone is not a complete signing path, and the application must not silently sign on the user's behalf.
 - Pi Platform payments use the separate `Pi.createPayment` and server approval/completion lifecycle.
 - The PiDEX UI therefore displays the connected address but continues to label order entry, balances, fills and liquidity as local simulation until a real wallet-signing and settlement adapter is independently implemented and verified.
 
