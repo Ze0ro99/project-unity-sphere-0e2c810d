@@ -4,7 +4,9 @@ import {
   DEFAULT_SCENARIOS,
   simulate,
   downloadCSV,
-  liveSnapshot,
+  simulationSnapshot,
+  ipprFromSpot,
+  BASE_IPPR,
   type SimulationScenario,
   type ScenarioOutcome,
 } from "@/lib/economics";
@@ -47,13 +49,20 @@ export default function Economics() {
     return () => clearInterval(id);
   }, []);
 
+  const liveOk = market.index?.trusted === true
+    && (market.index?.sources ?? 0) >= 3
+    && Number.isFinite(spot) && spot > 0;
+  const ipprLive = liveOk ? ipprFromSpot(spot) : NaN;
+  const scenarioBaseIppr = liveOk ? ipprLive : BASE_IPPR;
   const outcomes = useMemo(
-    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon })),
-    [scenarios, horizon],
+    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon }, "market-rebased", scenarioBaseIppr)),
+    [scenarios, horizon, scenarioBaseIppr],
   );
   const active = outcomes.find((o) => o.scenario.id === selected) ?? outcomes[0];
-  const live = useMemo(() => liveSnapshot(tick), [tick]);
-  const liveOk = Number.isFinite(spot) && spot > 0;
+  const simulation = useMemo(() => simulationSnapshot(tick), [tick]);
+  const phiSimulation = liveOk && simulation.qwf > 0
+    ? (simulation.velocity * ipprLive) / simulation.qwf
+    : NaN;
 
   return (
     <div className="space-y-4">
@@ -65,14 +74,13 @@ export default function Economics() {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.economics")}</h1>
             <p className="text-sm text-muted">
-              Reflexive scenario model Φ = (Lₙ · IPPR) / QWF. The model index is calibrated independently;
-              the observed π/USD venue quote is displayed separately and is not a reserve or collateral proof.
+              {t("economics.formulaDescription")}
             </p>
           </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] mono text-muted">
           <span className={liveOk ? "text-green" : "text-red"}>
-            ● π/USD index {liveOk ? `$${spot.toFixed(6)}` : "unavailable"}
+            ● π/USDT index {liveOk ? `${spot.toFixed(6)} USDT` : "unavailable"}
           </span>
           <span>{market.index?.sources ?? 0}/{market.index?.totalSources ?? 0} venues</span>
           <span>deviation {(market.index?.deviationBps ?? 0).toFixed(1)} bps</span>
@@ -83,12 +91,12 @@ export default function Economics() {
 
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
-          { label: "QWF", value: fmt(live.qwf) },
-          { label: "IPPR model index", value: fmt(live.ippr) },
-          { label: "Modeled velocity", value: live.velocity.toFixed(4) },
-          { label: "Modeled Φ", value: live.phi.toFixed(4) },
-          { label: "Modeled collateral proxy", value: `${(live.collateralRatio * 100).toFixed(1)}%` },
-          { label: "Modeled emission rate", value: `${(live.mintingRate * 100).toFixed(2)}%` },
+          { label: t("economics.liveIppr"), value: liveOk ? `${fmt(ipprLive, 2)} USDT` : "UNAVAILABLE — ORACLE GATE" },
+          { label: t("economics.simulationQwf"), value: fmt(simulation.qwf) },
+          { label: t("economics.simulationVelocity"), value: simulation.velocity.toFixed(4) },
+          { label: t("economics.simulationPhi"), value: Number.isFinite(phiSimulation) ? phiSimulation.toFixed(6) : "—" },
+          { label: t("economics.qwfPending"), value: "—" },
+          { label: t("economics.velocityPending"), value: "—" },
         ].map((m) => (
           <div key={m.label} className="rounded-xl border border-border bg-panel/60 p-4">
             <div className="text-[11px] uppercase tracking-wider text-muted">{m.label}</div>
@@ -97,6 +105,8 @@ export default function Economics() {
         ))}
       </section>
 
+
+      <p className="text-[11px] text-muted">{t("economics.liveFeedNote")}</p>
 
       <div className="grid lg:grid-cols-3 gap-4">
         <section className="rounded-xl border border-border bg-panel/60 p-4 space-y-3">

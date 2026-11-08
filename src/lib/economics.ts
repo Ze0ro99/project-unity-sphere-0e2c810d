@@ -179,7 +179,7 @@ export function downloadCSV(outcome: ScenarioOutcome) {
  * Rolling model snapshot. This is a deterministic simulation tick, not a live
  * network issuance, reserve, collateral, or solvency measurement.
  */
-export function liveSnapshot(tick: number): MetricSnapshot {
+export function simulationSnapshot(tick: number): MetricSnapshot {
   const s = simulate(
     { ...DEFAULT_SCENARIOS[3], durationEpochs: 96 },
     `model-${Math.floor(tick / 96)}`,

@@ -45,21 +45,27 @@ const GATES: Gate[] = [
   { to: "/bn254", title: "BN254 / ZK Verifier", desc: "Groth16 proof verification, commitment & on-chain mode", icon: Lock, group: "Standards", tag: "PiRC-800" },
   { to: "/standards#contracts", title: "Contract Factory", desc: "Soroban AMM & verifier templates with deploy runbooks", icon: FileCode2, group: "Standards" },
   { to: "/repository", title: "Repository Sync", desc: "Ze0ro99/PiRC branches, CI workflows & key verification", icon: GitBranch, group: "Standards", tag: "LIVE" },
+  { to: "/economic-gates#market-data", title: "Market Data Gateway", desc: "Validated PI/USD ticks, venue quorum, freshness and deviation.", icon: Satellite, group: "Economic", tag: "Gate 1" },
+  { to: "/economic-gates#utility-commerce", title: "Utility & Commerce Gateway", desc: "Verified merchants, goods, services, inventory and fulfilled orders.", icon: Boxes, group: "Economic", tag: "Gate 2" },
+  { to: "/economic-gates#velocity-liquidity", title: "Velocity & Liquidity Gateway", desc: "Reconciled commerce velocity, order-book depth, spread and slippage.", icon: Activity, group: "Economic", tag: "Gate 3" },
+  { to: "/economic-gates#solvency-settlement", title: "Solvency & Settlement Gateway", desc: "Verified reserves, liabilities, transaction finality and read-back.", icon: ShieldCheck, group: "Economic", tag: "Gate 4" },
 ];
 
-const GROUPS = ["Trading", "Sovereign", "Blockchain", "Standards"];
+const GROUPS = ["Trading", "Sovereign", "Blockchain", "Economic", "Standards"];
 
 const GROUP_ICON: Record<string, LucideIcon> = {
   Trading: Gauge,
   Sovereign: Sigma,
   Blockchain: Globe2,
   Standards: KeyRound,
+  Economic: Activity,
 };
 
 export default function Gateways() {
   const { t } = useI18n();
-  const groupLabels: Record<string, string> = { Trading: t("gate.group.trading"), Sovereign: t("gate.group.sovereign"), Blockchain: t("gate.group.blockchain"), Standards: t("gate.group.standards") };
-  const titleLabels: Record<string, string> = { "Exchange Terminal": t("nav.pidex"), "Economic Core": t("nav.sovereign"), "Cross-Chain Bridge": t("nav.bridge"), "Governance & Treasury": t("nav.governance"), "Compliance Gateway": t("nav.compliance"), "Oracle & Purchasing Power": t("nav.oracle"), "Chain Explorer": t("nav.explorer"), "Network Health": t("nav.network"), "7-Layer Registry": t("nav.layers"), "Standards Compliance": t("nav.standards"), "Testnet Probe": t("nav.testnet"), "Repository Sync": t("nav.repository"), "BN254 / ZK Verifier": t("nav.bn254") };
+  const groupLabels: Record<string, string> = { Trading: t("gate.group.trading"), Sovereign: t("gate.group.sovereign"), Blockchain: t("gate.group.blockchain"), Economic: t("nav.economicGates"), Standards: t("gate.group.standards") };
+  const titleLabels: Record<string, string> = { "Exchange Terminal": t("nav.pidex"), "Economic Core": t("nav.sovereign"), "Cross-Chain Bridge": t("nav.bridge"), "Governance & Treasury": t("nav.governance"), "Compliance Gateway": t("nav.compliance"), "Oracle & Purchasing Power": t("nav.oracle"), "Chain Explorer": t("nav.explorer"), "Network Health": t("nav.network"), "7-Layer Registry": t("nav.layers"), "Standards Compliance": t("nav.standards"), "Testnet Probe": t("nav.testnet"), "Repository Sync": t("nav.repository"), "BN254 / ZK Verifier": t("nav.bn254"), "Market Data Gateway": t("gate.marketData.title"), "Utility & Commerce Gateway": t("gate.utility.title"), "Velocity & Liquidity Gateway": t("gate.velocity.title"), "Solvency & Settlement Gateway": t("gate.solvency.title") };
+  const descLabels: Record<string, string> = { "Validated PI/USD ticks, venue quorum, freshness and deviation.": t("gate.marketData.desc"), "Verified merchants, goods, services, inventory and fulfilled orders.": t("gate.utility.desc"), "Reconciled commerce velocity, order-book depth, spread and slippage.": t("gate.velocity.desc"), "Verified reserves, liabilities, transaction finality and read-back.": t("gate.solvency.desc") };
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-border bg-panel/60 p-5 sm:p-7">
@@ -100,7 +106,7 @@ export default function Gateways() {
                   </div>
                   <div>
                     <div className="font-semibold text-sm">{titleLabels[gate.title] ?? gate.title}</div>
-                    <div className="text-xs text-muted mt-1 leading-relaxed">{gate.desc}</div>
+                    <div className="text-xs text-muted mt-1 leading-relaxed">{descLabels[gate.desc] ?? gate.desc}</div>
                   </div>
                 </Link>
               ))}

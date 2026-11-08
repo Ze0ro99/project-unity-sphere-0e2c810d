@@ -38,14 +38,14 @@ export default function Oracle() {
   const venues = market.venues;
   const agg = useMemo(() => {
     const idx = market.index;
-    if (!idx || typeof idx.price !== "number") return null;
+    if (!idx || typeof idx.price !== "number" || idx.trusted !== true || idx.sources < 3 || market.ts <= 0 || Date.now() - market.ts > 30_000) return null;
     return {
       price: idx.price,
       sources: idx.sources,
       deviationBps: idx.deviationBps,
       trusted: idx.trusted,
     };
-  }, [market.index]);
+  }, [market.index, market.ts]);
 
   const load = useCallback(async () => {
     abort.current?.abort();
@@ -104,7 +104,7 @@ export default function Oracle() {
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
           <Stat label={t("oracle.feedsLive")} value={`${liveFeeds} / ${FEEDS.length}`} />
-          <Stat label={t("oracle.piMedian")} value={agg ? `$${fmt(agg.price, 4)}` : "—"} />
+          <Stat label={t("oracle.piMedian")} value={agg ? `${fmt(agg.price, 4)} USDT` : "—"} />
           <Stat label={t("oracle.deviation")} value={agg ? `${agg.deviationBps.toFixed(1)} bps` : "—"} />
           <Stat
             label={t("oracle.updated")}
@@ -120,15 +120,15 @@ export default function Oracle() {
                 : "—"
             }
           />
-          <Stat label="24h High" value={market.index?.high24h ? `$${fmt(market.index.high24h, 4)}` : "—"} />
-          <Stat label="24h Low" value={market.index?.low24h ? `$${fmt(market.index.low24h, 4)}` : "—"} />
+          <Stat label="24h High (USDT)" value={market.index?.high24h ? `${fmt(market.index.high24h, 4)} USDT` : "—"} />
+          <Stat label="24h Low (USDT)" value={market.index?.low24h ? `${fmt(market.index.low24h, 4)} USDT` : "—"} />
           <Stat
             label="24h Vol (π)"
             value={market.index?.baseVol24h ? market.index.baseVol24h.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}
           />
           <Stat
             label="24h Turnover"
-            value={market.index?.quoteVol24h ? `$${market.index.quoteVol24h.toLocaleString("en-US", { maximumFractionDigits: 0 })}` : "—"}
+            value={market.index?.quoteVol24h ? `${market.index.quoteVol24h.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDT` : "—"}
           />
         </div>
       </section>
@@ -185,7 +185,7 @@ export default function Oracle() {
               <div key={v.venue} className="flex items-center justify-between text-sm mono">
                 <span className="text-muted">{v.venue}</span>
                 <span className="flex items-center gap-2">
-                  {v.ok && typeof v.price === "number" ? `$${fmt(v.price, 4)}` : "—"}
+                  {v.ok && typeof v.price === "number" ? `${fmt(v.price, 4)} USDT` : "—"}
                   <Badge ok={v.ok} label={v.ok ? "OK" : t("oracle.down")} />
                 </span>
               </div>
@@ -213,7 +213,7 @@ export default function Oracle() {
           {pp ? (
             <div className="grid grid-cols-2 gap-3 text-sm mono">
               <Stat label="PPI" value={fmt(pp.ppi, 4)} />
-              <Stat label={t("oracle.basket")} value={`$${fmt(pp.basketUsd, 2)}`} />
+              <Stat label={t("oracle.basket")} value={`${fmt(pp.basketUsd, 2)} USDT`} />
               <Stat label={t("oracle.goldGrams")} value={fmt(pp.goldGrams, 5)} />
               <Stat label={t("oracle.silverGrams")} value={fmt(pp.silverGrams, 4)} />
               <Stat label="π → EUR" value={fmt(pp.eur, 4)} />
