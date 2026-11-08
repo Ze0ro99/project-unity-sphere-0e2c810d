@@ -234,6 +234,29 @@ def get_asset_verification(network: str, asset_id: str) -> dict[str, Any]:
             "network_id": network_id,
             "retryable": False,
         })
+    # Never probe a contract until the configured Pi Testnet1 profile has
+    # verified its network identity and protocol.
+    network_probe = check_pi_testnet()
+    if not network_probe.get("identity_verified"):
+        return {
+            "asset_key": record.get("asset_key"),
+            "network_id": network_id,
+            "contract_id": record.get("contract_id"),
+            "verification_status": "UNVERIFIED",
+            "deployment_tx": None,
+            "deployed_code_hash": None,
+            "verified_at": None,
+            "checks": {
+                "registry_record": "PRESENT",
+                "network_readback": "NETWORK_IDENTITY_UNVERIFIED",
+                "network_probe": network_probe,
+                "contract_instance_probe": None,
+                "issuer_authorization": "NOT_VERIFIED",
+                "deployed_code_hash": "NOT_VERIFIED",
+            },
+            "notice": "Network identity is not verified; contract probes and asset activation are blocked.",
+        }
+
     contract_id = record.get("contract_id")
     if contract_id:
         probe = verify_contract_instance(str(contract_id))
@@ -266,6 +289,7 @@ def get_asset_verification(network: str, asset_id: str) -> dict[str, Any]:
         "checks": {
             "registry_record": "PRESENT",
             "network_readback": network_readback,
+            "network_probe": network_probe,
             "contract_instance_probe": probe,
             "issuer_authorization": "NOT_VERIFIED",
             "deployed_code_hash": "NOT_VERIFIED",
