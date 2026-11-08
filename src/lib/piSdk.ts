@@ -16,6 +16,18 @@ export type PiUser = {
   walletAddress?: string | null;
 };
 
+export type PiTestnetBalance = {
+  status: "read_only_verified" | "account_not_found" | "wallet_address_unavailable" | "unavailable";
+  network_id?: string;
+  network_alias?: string;
+  account_id?: string;
+  native_balance: string | null;
+  asset?: string;
+  sequence?: string | null;
+  ledger?: number | null;
+  notice?: string;
+};
+
 export type PaymentData = {
   amount: number;
   memo: string;
@@ -27,6 +39,7 @@ type PiConnectionSnapshot = {
   connected: boolean;
   loading: boolean;
   error: string | null;
+  testnetBalance: PiTestnetBalance | null;
 };
 
 const initialSnapshot: PiConnectionSnapshot = {
@@ -34,6 +47,7 @@ const initialSnapshot: PiConnectionSnapshot = {
   connected: false,
   loading: false,
   error: null,
+  testnetBalance: null,
 };
 
 let connectionSnapshot = initialSnapshot;
@@ -150,6 +164,17 @@ export function usePiConnection() {
       if (!verified?.authenticated || !verified?.user?.uid) {
         throw new Error("Pi Platform did not verify the authenticated user");
       }
+      let testnetBalance: PiTestnetBalance | null = null;
+      try {
+        testnetBalance = await serverCall("wallet_balance", { accessToken: auth.accessToken });
+      } catch (balanceError) {
+        console.warn("Pi Testnet balance read unavailable", balanceError);
+        testnetBalance = {
+          status: "unavailable",
+          native_balance: null,
+          notice: "Read-only Pi Testnet balance could not be verified.",
+        };
+      }
       publishConnection({
         user: {
           uid: verified.user.uid,
@@ -158,6 +183,7 @@ export function usePiConnection() {
         },
         connected: true,
         error: null,
+        testnetBalance,
       });
     } catch (error: any) {
       piAccessToken = null;
