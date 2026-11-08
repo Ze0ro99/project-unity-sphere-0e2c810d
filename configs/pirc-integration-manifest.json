@@ -1,0 +1,297 @@
+{
+  "schema_version": "1.0.0",
+  "project": "Unity Sphere / PiRC cross-repository integration",
+  "status": "INTEGRATION_IN_PROGRESS",
+  "target_network": {
+    "network_id": "pi-testnet1",
+    "canonical_network": "Pi Testnet",
+    "alias": "Testnet1",
+    "horizon_url": "https://api.testnet.minepi.com",
+    "soroban_rpc_url": "https://rpc.testnet.minepi.com",
+    "expected_protocol": 28,
+    "passphrase_source": "PI_NETWORK_PASSPHRASE",
+    "passphrase_value": null,
+    "mainnet_writes_enabled": false
+  },
+  "repositories": {
+    "pirc": {
+      "url": "https://github.com/Ze0ro99/PiRC",
+      "role": "normative_standards_economics_governance_schemas"
+    },
+    "smartcontracts": {
+      "url": "https://github.com/Ze0ro99/SmartContracts",
+      "role": "soroban_contracts_abi_storage_authorization_tests"
+    },
+    "unity_sphere": {
+      "url": "https://github.com/Ze0ro99/project-unity-sphere-0e2c810d",
+      "role": "portals_apis_wallet_adapters_pidex_asset_registry_monitoring"
+    }
+  },
+  "feature_status": [
+    {
+      "id": "PIRC-101",
+      "domain": "monetary_base_pair",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere economic adapters; SmartContracts integration pending",
+      "status": "PARTIAL",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-207",
+      "domain": "asset_registry_seven_layers",
+      "spec": "PiRC schemas and registry",
+      "implementation": "Unity Sphere registry and asset API",
+      "status": "BLOCKED_TAXONOMY_AND_CHAIN_VERIFICATION",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-208",
+      "domain": "ai_capability_anomaly",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere analytics/agent views",
+      "status": "PARTIAL_REVIEW_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-209",
+      "domain": "identity_credentials",
+      "spec": "PiRC",
+      "implementation": "SmartContracts reference identity crate",
+      "status": "REFERENCE_ONLY",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-210",
+      "domain": "cross_ledger_portability",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere bridge UI and reference code",
+      "status": "NOT_TESTNET_VERIFIED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-211",
+      "domain": "risk_analytics",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere risk views and contract references",
+      "status": "PARTIAL",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-211.5",
+      "domain": "compliance",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere compliance portal",
+      "status": "UI_PRESENT_POLICY_REVIEW_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-212",
+      "domain": "governance_execution",
+      "spec": "PiRC",
+      "implementation": "SmartContracts/Unity reference modules",
+      "status": "NOT_TESTNET_VERIFIED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-213_224",
+      "domain": "rwa_provenance",
+      "spec": "PiRC",
+      "implementation": "SmartContracts reference crates and Unity registry",
+      "status": "REFERENCE_ONLY",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-214",
+      "domain": "oracle_observations",
+      "spec": "PiRC",
+      "implementation": "SmartContracts oracle reference",
+      "status": "NOT_QUORUM_VERIFIED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-215_227",
+      "domain": "amm_liquidity_slippage",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere contracts/pidex_amm",
+      "status": "CONTRACT_SOURCE_PRESENT_DEPLOYMENT_UNVERIFIED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-216_238",
+      "domain": "risk_liquidation",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-218_240",
+      "domain": "yield_treasury",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-220_252",
+      "domain": "treasury_reserves",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "NO_CUSTODY_OR_RESERVE_PROOF",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-222_246",
+      "domain": "custody_escrow",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "SECURITY_REVIEW_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-225",
+      "domain": "proof_of_reserves",
+      "spec": "PiRC",
+      "implementation": "SmartContracts reference attestation crate",
+      "status": "ATTESTATION_ONLY_NOT_CUSTODY_PROOF",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-231_232",
+      "domain": "lending_liquidation",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-233_234",
+      "domain": "synthetic_assets",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-244_245",
+      "domain": "cbdc_settlement_batching",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-254_255",
+      "domain": "circuit_breaker_recovery",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-260",
+      "domain": "registry_keeper",
+      "spec": "PiRC",
+      "implementation": "SmartContracts/Unity references",
+      "status": "NOT_TESTNET_VERIFIED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-800",
+      "domain": "attestor_proof_verification",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere BN254/commitment path",
+      "status": "BN254_FAILS_CLOSED_ATTESTOR_ONLY",
+      "network_evidence": null
+    },
+    {
+      "id": "PI_WALLET",
+      "domain": "account_wallet_binding",
+      "spec": "Official Pi SDK wallet_address scope",
+      "implementation": "Shared Pi SDK connection store and PiDEX address panel",
+      "status": "IMPLEMENTED_TEST_REQUIRED_NO_SOROBAN_SIGNING",
+      "network_evidence": null
+    },
+    {
+      "id": "PIDEX_CORE",
+      "domain": "subscription_authorization",
+      "spec": "PiRC-2",
+      "implementation": "Unity Sphere contracts/pidex_core",
+      "status": "FAIL_CLOSED_UNTIL_CANONICAL_SUBSCRIPTION_CLIENT",
+      "network_evidence": null
+    },
+    {
+      "id": "PIDEX_AMM",
+      "domain": "onchain_amm_execution",
+      "spec": "PiRC-215_227",
+      "implementation": "Unity Sphere contracts/pidex_amm",
+      "status": "SOURCE_PRESENT_DEPLOYMENT_AND_WALLET_SIGNING_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "SOROBAN_EVENT_INGEST",
+      "domain": "event_sync",
+      "spec": "PiRC event and settlement schemas",
+      "implementation": "Supabase pirc-soroban-event-ingest",
+      "status": "RAW_INGEST_ONLY_NO_XDR_OR_SETTLEMENT_READBACK",
+      "network_evidence": null
+    },
+    {
+      "id": "OUSD_TEST",
+      "domain": "test_only_asset",
+      "spec": "PiRC OUSD test profile",
+      "implementation": "SmartContracts OUSD reference and Unity registry",
+      "status": "TEST_ONLY_NO_PEG_RESERVES_OR_REDEMPTION",
+      "network_evidence": null
+    }
+  ],
+  "unresolved_registry_conflicts": {
+    "canonical_pirc_color_order": [
+      "Red",
+      "Orange",
+      "Yellow",
+      "Green",
+      "Blue",
+      "Indigo",
+      "Purple"
+    ],
+    "unity_current_layer_ids": [
+      "L0",
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5",
+      "L6"
+    ],
+    "gold_registry_entry": "UNMAPPED",
+    "indigo_contract": "NONE_VERIFIED",
+    "migration_status": "BLOCKED_PENDING_VERSIONED_REGISTRY_MIGRATION"
+  },
+  "evidence_policy": {
+    "allowed_states": [
+      "PROPOSED",
+      "SPECIFIED",
+      "IMPLEMENTED",
+      "TESTED",
+      "TESTNET_VERIFIED",
+      "SECURITY_REVIEWED",
+      "MAINNET_VERIFIED",
+      "BLOCKED"
+    ],
+    "unknown_fields": "null_or_UNVERIFIED",
+    "required_testnet_evidence": [
+      "network_passphrase",
+      "protocol_version",
+      "contract_id",
+      "deployment_transaction",
+      "wasm_code_hash",
+      "initialized_state_readback",
+      "authorization_tests",
+      "event_readback",
+      "timestamp",
+      "reviewer"
+    ],
+    "never_infer_deployment_from_source_or_address": true
+  }
+}
