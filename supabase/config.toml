@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.pirc-soroban-event-ingest]
 verify_jwt = false
+
+[functions.pirc-events-feed]
+verify_jwt = true
