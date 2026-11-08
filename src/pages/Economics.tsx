@@ -60,6 +60,9 @@ export default function Economics() {
   );
   const active = outcomes.find((o) => o.scenario.id === selected) ?? outcomes[0];
   const simulation = useMemo(() => simulationSnapshot(tick), [tick]);
+  const phiSimulation = liveOk && simulation.qwf > 0
+    ? (simulation.velocity * ipprLive) / simulation.qwf
+    : NaN;
 
   return (
     <div className="space-y-4">
@@ -89,11 +92,11 @@ export default function Economics() {
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
           { label: t("economics.liveIppr"), value: liveOk ? `${fmt(ipprLive, 2)}` : "UNAVAILABLE — ORACLE GATE" },
-          { label: t("economics.qwfPending"), value: "—" },
-          { label: t("economics.velocityPending"), value: "—" },
-          { label: t("economics.phiPending"), value: "—" },
           { label: t("economics.simulationQwf"), value: fmt(simulation.qwf) },
           { label: t("economics.simulationVelocity"), value: simulation.velocity.toFixed(4) },
+          { label: t("economics.simulationPhi"), value: Number.isFinite(phiSimulation) ? phiSimulation.toFixed(6) : "—" },
+          { label: t("economics.qwfPending"), value: "—" },
+          { label: t("economics.velocityPending"), value: "—" },
         ].map((m) => (
           <div key={m.label} className="rounded-xl border border-border bg-panel/60 p-4">
             <div className="text-[11px] uppercase tracking-wider text-muted">{m.label}</div>
