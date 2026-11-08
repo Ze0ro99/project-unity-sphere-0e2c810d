@@ -71,8 +71,7 @@ export default function Economics() {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.economics")}</h1>
             <p className="text-sm text-muted">
-              Live IPPR is re-based on every accepted PI/USD market tick: IPPR = PI/USD × 10,000,000.
-              Adaptive QWF and network velocity are separate inputs to Φ = (Lₙ × IPPR) / QWF; simulated values are never presented as live chain measurements.
+              {t("economics.formulaDescription")}
             </p>
           </div>
         </div>
@@ -89,12 +88,12 @@ export default function Economics() {
 
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
-          { label: "IPPR (USD) LIVE", value: liveOk ? `${fmt(ipprLive, 2)}` : "UNAVAILABLE — ORACLE GATE" },
-          { label: "QWF (verified feed)", value: "NOT CONNECTED" },
-          { label: "Network velocity (verified)", value: "NOT CONNECTED" },
-          { label: "Reflexive Φ (live)", value: "WAITING FOR QWF + Lₙ" },
-          { label: "Simulation QWF", value: fmt(simulation.qwf) },
-          { label: "Simulation velocity", value: simulation.velocity.toFixed(4) },
+          { label: t("economics.liveIppr"), value: liveOk ? `${fmt(ipprLive, 2)}` : "UNAVAILABLE — ORACLE GATE" },
+          { label: t("economics.qwfPending"), value: "—" },
+          { label: t("economics.velocityPending"), value: "—" },
+          { label: t("economics.phiPending"), value: "—" },
+          { label: t("economics.simulationQwf"), value: fmt(simulation.qwf) },
+          { label: t("economics.simulationVelocity"), value: simulation.velocity.toFixed(4) },
         ].map((m) => (
           <div key={m.label} className="rounded-xl border border-border bg-panel/60 p-4">
             <div className="text-[11px] uppercase tracking-wider text-muted">{m.label}</div>
@@ -104,7 +103,7 @@ export default function Economics() {
       </section>
 
 
-      <p className="text-[11px] text-muted">Live market data is separate from the illustrative simulation. QWF and Lₙ remain unavailable here until a verified Testnet telemetry source supplies their values; no simulated value is promoted to a live protocol state.</p>
+      <p className="text-[11px] text-muted">{t("economics.liveFeedNote")}</p>
 
       <div className="grid lg:grid-cols-3 gap-4">
         <section className="rounded-xl border border-border bg-panel/60 p-4 space-y-3">
