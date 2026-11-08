@@ -17,10 +17,23 @@ QWF_new = clamp(
 )
 
 Current Base Value: 10,000,000 (10^7)
-​The IPPR Economic Layer
-​The Internal Purchasing Power Reference (IPPR) is currently calculated at ~$2,248,000 USD per 1 mined Pi.
-​Mechanics: The IPPR is not just a theoretical metric; it directly determines the exchange rate for minting the protocol's internal settlement asset: $REF (Reflexive Ecosystem Fiat).
-​Settlement: Merchants do not settle in volatile external Pi. They price goods in USD, and contracts settle in $REF units, which are fully collateralized by the Mined Pi locked in the Core Vault.
+## Live IPPR Reference (Corrected)
+
+The live Internal Purchasing Power Reference is re-based on every accepted PI/USD market-index tick:
+
+`IPPR_t = median(PI/USD_t) × 10,000,000`
+
+The fixed 10,000,000 value is the IPPR supply multiplier. It is **not** the adaptive QWF state. For example, a source quote of $0.0729555 produces an IPPR reference of $729,555 per Pi. A rounded display quote of $0.072956 would display $729,560; the calculation must retain the unrounded source precision.
+
+The historical ~$2,248,000 figure is a prior scenario calibration only and MUST NOT be used as a live constant, wallet balance, merchant charge, redemption promise, or collateral claim.
+
+QWF is a separate adaptive state. It may change only through a versioned, approved and bounded governance transition using verified velocity and TVL/liquidity evidence. The reflexive constraint is:
+
+`Φ = (L_n × IPPR) / QWF`
+
+A QWF change affects Φ and the governed expansion gate; it must never replace the fixed 10,000,000 IPPR supply multiplier. IPPR is a reference index, not a guaranteed USD redemption rate. Merchant checkout uses the exact merchant-accepted asset-denominated amount and a separately authorized payment intent.
+
+REF issuance or settlement is a separate liability-bearing operation. It requires independently verified reserves, real goods/services, eligible fulfilled commerce, same-window liquidity, transaction finality and reconciliation. No market-price tick may mint, burn, transfer, or alter a wallet balance by itself.
 ​⚙️ Justice Engine Architecture & Stability
 ​The "Justice Engine" acts as the algorithmic core of the protocol. To prevent runaway credit expansion or liquidity shocks, the engine employs a strict reflexive stabilizing control loop
 
