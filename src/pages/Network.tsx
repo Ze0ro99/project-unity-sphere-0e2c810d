@@ -10,6 +10,7 @@ import {
   type Ledger,
 } from "@/lib/pi";
 import { Radio } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 const NETWORKS = [
   { key: "mainnet", title: "Pi Mainnet", endpoint: HORIZON_MAINNET },
@@ -18,11 +19,12 @@ const NETWORKS = [
 ];
 
 export default function Network() {
+  const { t } = useI18n();
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Radio size={18} className="text-blue" />
-        <h1 className="text-2xl font-bold">Network Status</h1>
+        <h1 className="text-2xl font-bold">{t("nav.network")}</h1>
         <span className="chip"><span className="pulse-dot" /> live</span>
       </div>
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
