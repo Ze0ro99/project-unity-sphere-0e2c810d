@@ -312,5 +312,63 @@
       "reviewer"
     ],
     "never_infer_deployment_from_source_or_address": true
+  },
+  "source_pins": {
+    "refreshed_at": "2026-11-08T13:53:25Z",
+    "policy": "Pin exact reviewed commits. Pull-request heads are proposed integration inputs, not merged release sources.",
+    "repositories": {
+      "pirc": {
+        "main_sha": "20995e05775ae88568df214d6dd3863c938975fc",
+        "integration_pr": 369,
+        "integration_branch": "integration/testnet1-pidex-status-2026-11-08",
+        "integration_sha": "96e9cc89d1ec0f854f5dfa2bad02487ed2f72851",
+        "integration_state": "OPEN_DRAFT"
+      },
+      "smartcontracts": {
+        "main_sha": "ea61996c7defe47b7333c864c741c107eecd7626",
+        "integration_pr": 1108,
+        "integration_branch": "integration/pidex-amm-canonical-2026-11-08",
+        "integration_sha": "28bb84f4346c960660e0c0239a61d5db18ff5f92",
+        "integration_state": "OPEN_DRAFT"
+      },
+      "unity_sphere": {
+        "main_sha": "9b335ee08a9b349328c24cd33d92f35281fdaad2",
+        "integration_pr": 52,
+        "integration_branch": "integration/pirc-testnet1-wallet-pidex-2026-11-08",
+        "integration_sha": "20ff93f2665abeff1f6a29cab43c5b27729e668b",
+        "integration_state": "OPEN_DRAFT"
+      }
+    }
+  },
+  "wallet_capabilities": {
+    "pi_sdk_version": "2.0",
+    "requested_scopes": [
+      "username",
+      "wallet_address"
+    ],
+    "identity_verification": "SERVER_SIDE_PI_PLATFORM_ME",
+    "wallet_address_binding": "IMPLEMENTED_PENDING_PI_BROWSER_RUNTIME_TEST",
+    "soroban_signing": "NOT_ENABLED",
+    "pi_wallet_submission": "PRE_SIGNED_XDR_ONLY",
+    "signing_capability_note": "The official Pi Wallet documentation states that Wallet methods submit pre-signed XDR and the SDK does not build or sign transactions. wallet_address authentication is identity binding, not transaction-signing authorization.",
+    "live_pidex_execution": "DISABLED_UNTIL_SUPPORTED_SIGNER_AND_CONTRACT_DEPLOYMENTS"
+  },
+  "asset_synchronization": {
+    "registry_source": "PiRC-207 versioned registry",
+    "network_id": "pi-testnet1",
+    "contract_instances_verified_at_probe": 0,
+    "current_registry_contract_references_checked": 7,
+    "on_chain_balance_sync": "NOT_IMPLEMENTED",
+    "soroban_event_ingestion": "RAW_EVENT_INGESTION_ONLY",
+    "xdr_decoding": "NOT_IMPLEMENTED",
+    "finality_and_state_reconciliation": "NOT_IMPLEMENTED",
+    "live_asset_activation": "BLOCKED_UNTIL_CONTRACT_DEPLOYMENT_AND_READBACK"
+  },
+  "protocol_upgrade_policy": {
+    "expected_protocol_is_operator_configured": true,
+    "current_observed_soroban_protocol": 28,
+    "current_horizon_supported_protocol": 29,
+    "auto_upgrade": false,
+    "activation_rule": "Block contract writes and asset activation until RPC protocol, network passphrase, contract ABI, WASM compatibility and regression tests are re-verified for the target network."
   }
 }
