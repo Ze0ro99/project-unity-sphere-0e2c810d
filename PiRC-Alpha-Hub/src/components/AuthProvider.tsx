@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
 
       if (typeof window.Pi === "undefined") {
-        if (process.env.NODE_ENV !== "production") {
+        if (import.meta.env.DEV) {
           console.log("Pi SDK is not loaded. Mocking Pi Network Auth for development/sandbox environment.");
           setUser({ uid: "demo_user_12345", username: "pi_demo_user" });
           setIsPiReady(true);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsPiReady(true);
         } catch (e: any) {
           console.warn("Pi.init error:", e.message || e);
-          if (process.env.NODE_ENV !== "production") {
+          if (import.meta.env.DEV) {
             console.log("Mocking Pi Network Auth for development/sandbox environment.");
             setUser({ uid: "demo_user_12345", username: "pi_demo_user" });
             setIsPiReady(true);
@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(err.message || "Failed to authenticate with Pi Network");
       
       // Automatic attempt fallback for desktop/browser preview in development mode
-      if (process.env.NODE_ENV !== "production" && isAutoAttempt) {
+      if (import.meta.env.DEV && isAutoAttempt) {
         console.log("Auto-attempt failed, fallback to mock user in development mode.");
         setUser({ uid: "demo_user_12345", username: "pi_demo_user" });
       }
