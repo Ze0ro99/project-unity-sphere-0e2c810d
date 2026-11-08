@@ -1,6 +1,5 @@
 // Bounded raw Soroban event ingestion. No XDR decoding, settlement projection,
 // transaction signing, transaction submission, or Pi transfer is performed.
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const NETWORK_ID = "pi-testnet";
 const RPC_URL = (Deno.env.get("PI_TESTNET_SOROBAN_RPC_URL") || "https://rpc.testnet.minepi.com").replace(/\/$/, "");
 const CONTRACT_ID = (Deno.env.get("PI_TESTNET_CONTRACT_ID") || "").trim();
