@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "supabase/functions/pirc-soroban-event-ingest/**"
+      - "supabase/functions/pirc-events-feed/**"
       - "supabase/migrations/*pirc_soroban_event_inbox.sql"
       - "supabase/config.toml"
       - ".github/workflows/pi-soroban-event-inbox.yml"
