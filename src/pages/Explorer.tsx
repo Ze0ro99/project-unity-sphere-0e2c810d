@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchLatestLedgers, fetchLatestTx, fetchRoot, relTime, shorten, HORIZON_MAINNET } from "@/lib/pi";
 import { Activity, Blocks, Coins, GitBranch, Zap } from "lucide-react";
 import { LAYERS } from "@/data/layers";
+import { useI18n } from "@/i18n";
 
 export default function Explorer() {
+  const { t } = useI18n();
   const ledgersQ = useQuery({
     queryKey: ["ledgers"],
     queryFn: () => fetchLatestLedgers(HORIZON_MAINNET, 12),
@@ -39,7 +41,7 @@ export default function Explorer() {
             <div className="chip mb-3">
               <span className="pulse-dot" /> Live · Pi Mainnet
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold">PiRC Sovereign Network Explorer</h1>
+            <h1 className="text-2xl md:text-3xl font-bold">{t("nav.explorer")}</h1>
             <p className="text-muted text-sm mt-1">
               Real-time blocks, transactions, and 7-layer token telemetry — Piscan-grade.
             </p>
