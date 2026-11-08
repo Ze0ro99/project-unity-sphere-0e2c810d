@@ -47,7 +47,7 @@ The adapter is not considered operationally verified until its tests pass and th
 
 ## 3. Pi account and wallet connection
 
-The Pi SDK integration now requests `username` and `wallet_address` for normal connection. It defers the `payments` scope until the user explicitly starts a payment. The connection state is shared between the global header and PiDEX so both surfaces display the same authenticated account and returned wallet address.
+The Pi SDK integration now requests `username` and `wallet_address` for normal connection. The browser sends only the access token to the backend; the Edge Function verifies it through Pi Platform `/me` and returns the server-verified UID, username and wallet address when present. It defers the `payments` scope until the user explicitly starts a payment. The connection state is shared between the global header and PiDEX so both surfaces display the same authenticated account and verified wallet address.
 
 Important capability boundary:
 - A verified Pi Platform account and returned `wallet_address` bind a Pioneer to an address.
