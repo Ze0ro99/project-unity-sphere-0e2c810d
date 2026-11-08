@@ -138,11 +138,11 @@ Run locally:
 
 ```bash
 npm run audit:i18n -- --strict
-npm run gate:release
+PI_NETWORK_PASSPHRASE='<Pi Testnet passphrase from a protected secret store>' npm run gate:release
 npm run build
 ```
 
-The manually triggered GitHub Actions workflow `Unity Sphere Release Readiness Gate` runs the same fail-closed release gate. It is expected to fail until locale parity, deployment evidence, and all feature status requirements are satisfied. Do not weaken the gate to obtain a green badge.
+The manually triggered GitHub Actions workflow `Unity Sphere Release Readiness Gate` runs the same fail-closed release gate and reads `PI_NETWORK_PASSPHRASE` only from the protected repository Actions secret of the same name. Never put the passphrase in the manifest, source tree, client bundle, logs, or command history. It is expected to fail until locale parity, deployment evidence, and all feature status requirements are satisfied. Do not weaken the gate to obtain a green badge.
 
 ## 6. Current blockers and required evidence
 
