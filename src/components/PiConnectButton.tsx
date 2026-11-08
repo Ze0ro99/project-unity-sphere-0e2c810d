@@ -1,51 +1,36 @@
 import { useState } from "react";
-import { usePiConnection, usePiPurchase, type PaymentData } from "@/lib/piSdk";
+import { usePiConnection } from "@/lib/piSdk";
 import { Wallet } from "lucide-react";
+import { useI18n } from "@/i18n";
 
-const defaultPayment: PaymentData = {
-  amount: 1,
-  memo: "PiRC Governance Contribution",
-  metadata: { type: "pirc_proposal", proposalId: "PiRC-101" },
-};
-
-export default function PiConnectButton({
-  payment = defaultPayment,
-}: {
-  payment?: PaymentData;
-}) {
+export default function PiConnectButton() {
   const { connected, user, loading, error, connect } = usePiConnection();
-  const purchase = usePiPurchase(payment);
-  const [paying, setPaying] = useState(false);
-  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const { t } = useI18n();
+  const [showError, setShowError] = useState<string | null>(null);
 
-  const handleClick = async () => {
-    setPaymentError(null);
-    if (!connected) return connect();
-    setPaying(true);
+  const handleConnect = async () => {
+    setShowError(null);
+    if (connected) return;
     try {
-      await purchase();
-    } catch (e) {
-      setPaymentError(e instanceof Error ? e.message : "Payment failed. Please try again.");
-    } finally {
-      setPaying(false);
+      await connect();
+    } catch (cause) {
+      setShowError(cause instanceof Error ? cause.message : t("pi.connectFailed"));
     }
   };
 
   return (
     <div className="flex items-center gap-2">
       <button
-        onClick={handleClick}
-        disabled={loading || paying}
-        className="flex items-center gap-1.5 rounded-md bg-gradient-to-br from-gold to-orange px-3 py-1.5 text-xs font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
+        type="button"
+        onClick={handleConnect}
+        disabled={loading || connected}
+        aria-live="polite"
+        className="flex items-center gap-1.5 rounded-md bg-gradient-to-br from-gold to-orange px-3 py-1.5 text-xs font-semibold text-black transition hover:opacity-90 disabled:opacity-60"
       >
         <Wallet size={14} />
-        {loading || paying
-          ? "…"
-          : connected
-          ? `Pay ${payment.amount}π (${user?.username})`
-          : "Connect Pi"}
+        {loading ? t("common.loading") : connected ? t("pi.connected", { username: user?.username ?? "" }) : t("pi.connect")}
       </button>
-      {(error || paymentError) && <span role="alert" className="text-[10px] text-red">{error || paymentError}</span>}
+      {(error || showError) && <span role="alert" className="max-w-48 text-[10px] text-red">{error || showError}</span>}
     </div>
   );
 }
