@@ -47,7 +47,7 @@ export default function PiDEX() {
   const market = useMarketIndex();
   const index = market.index;
   const piUsd = index?.price ?? NaN;
-  const idxOk = Number.isFinite(piUsd) && piUsd > 0;
+  const idxOk = index?.trusted === true && (index?.sources ?? 0) >= 3 && market.ts > 0 && Date.now() - market.ts <= 30_000 && Number.isFinite(piUsd) && piUsd > 0;
   const ippr = ipprFromSpot(piUsd);
   const [symbol, setSymbol] = useState(state.symbols[1] ?? state.symbols[0]);
   const [query, setQuery] = useState("");
@@ -246,12 +246,12 @@ export default function PiDEX() {
 
       <section className="card px-4 py-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-[11px] mono">
         <span className={idxOk ? "text-green" : "text-red"}>
-          ● π/USD index {idxOk ? `$${piUsd.toFixed(6)}` : "unavailable"}
+          ● π/USDT index {idxOk ? `$${piUsd.toFixed(6)}` : "unavailable"}
         </span>
         <span className="text-muted">{index?.sources ?? 0}/{index?.totalSources ?? 0} venues · dev {(index?.deviationBps ?? 0).toFixed(1)} bps</span>
         <span className="text-muted">24h {index?.changePct != null ? `${index.changePct.toFixed(2)}%` : "—"}</span>
-        <span className="text-muted">IPPR model {idxOk ? ippr.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</span>
-        <span className="text-muted">π/USD × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")} · scaled index, not an execution price</span>
+        <span className="text-muted">IPPR (USDT reference) {idxOk ? ippr.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</span>
+        <span className="text-muted">π/USDT × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")} · USDT reference index, not an execution price</span>
         <span className="text-muted ml-auto">synced {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
       </section>
 
