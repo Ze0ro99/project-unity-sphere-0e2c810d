@@ -171,6 +171,12 @@ const en: Dict = {
   "compliance.micar": "EU MiCAR alignment",
   "compliance.blocked": "SETTLEMENT BLOCKED",
   "compliance.permitted": "SETTLEMENT PERMITTED",
+
+  // Wallet connection and global footer
+  "pi.connect": "Connect Pi",
+  "pi.connected": "Connected: {username}",
+  "pi.connectFailed": "Pi connection failed",
+  "footer.tagline": "PiScan · PiRC Sovereign Network Ecosystem · Data streamed from Pi Network Horizon",
 };
 
 const ar: Dict = {
@@ -338,6 +344,12 @@ const ar: Dict = {
   "compliance.micar": "مواءمة MiCAR الأوروبية",
   "compliance.blocked": "التسوية محظورة",
   "compliance.permitted": "التسوية مسموحة",
+
+  // Wallet connection and global footer
+  "pi.connect": "اتصال بمحفظة Pi",
+  "pi.connected": "متصل: {username}",
+  "pi.connectFailed": "تعذر الاتصال بشبكة Pi",
+  "footer.tagline": "PiScan · منظومة PiRC الاقتصادية السيادية · البيانات من Pi Network Horizon",
 };
 
 const zh: Dict = {
@@ -505,6 +517,12 @@ const zh: Dict = {
   "compliance.micar": "欧盟 MiCAR 对齐",
   "compliance.blocked": "结算已阻止",
   "compliance.permitted": "允许结算",
+
+  // Wallet connection and global footer
+  "pi.connect": "连接 Pi",
+  "pi.connected": "已连接：{username}",
+  "pi.connectFailed": "Pi 连接失败",
+  "footer.tagline": "PiScan · PiRC 主权网络生态 · 数据来自 Pi Network Horizon",
 };
 
 const id: Dict = {
@@ -672,6 +690,12 @@ const id: Dict = {
   "compliance.micar": "Keselarasan EU MiCAR",
   "compliance.blocked": "PENYELESAIAN DIBLOKIR",
   "compliance.permitted": "PENYELESAIAN DIIZINKAN",
+
+  // Wallet connection and global footer
+  "pi.connect": "Hubungkan Pi",
+  "pi.connected": "Terhubung: {username}",
+  "pi.connectFailed": "Koneksi Pi gagal",
+  "footer.tagline": "PiScan · Ekosistem Jaringan Berdaulat PiRC · Data dari Pi Network Horizon",
 };
 
 const fr: Dict = {
@@ -706,6 +730,9 @@ const fr: Dict = {
   "compliance.micar": "Alignement MiCAR de l’UE",
   "compliance.blocked": "RÈGLEMENT BLOQUÉ",
   "compliance.permitted": "RÈGLEMENT AUTORISÉ",
+
+  // Wallet connection and global footer
+  "footer.tagline": "PiScan · Écosystème du réseau souverain PiRC · Données issues de Pi Network Horizon",
 };
 const es: Dict = {
   "nav.language": "Idioma", "nav.sovereign": "Núcleo económico", "nav.bridge": "Puente", "nav.governance": "Gobernanza",
@@ -739,6 +766,9 @@ const es: Dict = {
   "compliance.micar": "Alineación con MiCAR de la UE",
   "compliance.blocked": "LIQUIDACIÓN BLOQUEADA",
   "compliance.permitted": "LIQUIDACIÓN PERMITIDA",
+
+  // Wallet connection and global footer
+  "footer.tagline": "PiScan · Ecosistema de red soberana PiRC · Datos de Pi Network Horizon",
 };
 const de: Dict = {
   "nav.language": "Sprache", "nav.sovereign": "Wirtschaftskern", "nav.bridge": "Brücke", "nav.governance": "Governance",
@@ -772,6 +802,9 @@ const de: Dict = {
   "compliance.micar": "EU-MiCAR-Ausrichtung",
   "compliance.blocked": "ABWICKLUNG BLOCKIERT",
   "compliance.permitted": "ABWICKLUNG ZULÄSSIG",
+
+  // Wallet connection and global footer
+  "footer.tagline": "PiScan · PiRC-Souveränes Netzwerkökosystem · Daten von Pi Network Horizon",
 };
 const pt: Dict = {
   "nav.language": "Idioma", "nav.sovereign": "Núcleo econômico", "nav.bridge": "Ponte", "nav.governance": "Governança",
@@ -805,6 +838,9 @@ const pt: Dict = {
   "compliance.micar": "Alinhamento com MiCAR da UE",
   "compliance.blocked": "LIQUIDAÇÃO BLOQUEADA",
   "compliance.permitted": "LIQUIDAÇÃO PERMITIDA",
+
+  // Wallet connection and global footer
+  "footer.tagline": "PiScan · Ecossistema de rede soberana PiRC · Dados da Pi Network Horizon",
 };
 
 export const messages: Record<Lang, Dict> = { en, ar, zh, id, fr, es, de, pt };
