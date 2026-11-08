@@ -39,7 +39,7 @@ The updated `api/network_adapters.py` now:
 - refuses non-Testnet configuration and non-approved endpoint hosts;
 - queries Horizon root plus Soroban `getNetwork`, `getHealth`, and `getLatestLedger`;
 - requires the configured passphrase to match both Horizon and Soroban RPC;
-- checks the configured protocol version on both endpoints;
+- checks the Soroban RPC runtime protocol against the exact target and requires Horizon's supported-protocol capability to be at least that target (Horizon's supported maximum is not treated as the active Soroban runtime version);
 - reports `reachable_unverified`, `identity_mismatch`, `degraded`, or `verified` rather than treating reachability as identity proof;
 - remains read-only and never signs, submits, deploys, mints, burns, or transfers.
 
