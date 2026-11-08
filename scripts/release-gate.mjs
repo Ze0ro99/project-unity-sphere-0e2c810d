@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 const failures = [];
 const manifest = JSON.parse(await readFile(new URL("../configs/pirc-integration-manifest.json", import.meta.url), "utf8"));
 const messages = await readFile(new URL("../src/i18n/messages.ts", import.meta.url), "utf8");
+const i18nProvider = await readFile(new URL("../src/i18n/index.tsx", import.meta.url), "utf8");
 const locales = ["en", "ar", "zh", "id", "fr", "es", "de", "pt"];
 const dictionaries = new Map();
 
@@ -15,6 +16,7 @@ function parseDictionary(locale) {
   const block = messages.slice(start, end);
   const entries = new Map();
   for (const match of block.matchAll(/^\s*"([^"]+)"\s*:\s*(?:"([^"\n]*)"|[\r\n]+\s*"([^"\n]*)")/gm)) {
+    if (entries.has(match[1])) failures.push(`Locale ${locale} contains duplicate key: ${match[1]}`);
     entries.set(match[1], match[2] ?? match[3] ?? "");
   }
   return entries;
@@ -33,10 +35,17 @@ for (const locale of locales) {
   const dictionary = dictionaries.get(locale);
   if (!dictionary) continue;
   const missing = [...english.keys()].filter((key) => !dictionary.has(key));
+  const empty = [...dictionary].filter(([, value]) => !value.trim()).map(([key]) => key);
   const mismatched = [...english.keys()].filter((key) => dictionary.has(key) && placeholders(english.get(key)) !== placeholders(dictionary.get(key)));
   if (missing.length) failures.push(`Locale ${locale} is missing ${missing.length}/${english.size} English baseline keys.`);
+  if (empty.length) failures.push(`Locale ${locale} has ${empty.length} empty translation values.`);
   if (mismatched.length) failures.push(`Locale ${locale} has ${mismatched.length} interpolation-placeholder mismatches.`);
 }
+
+const supportedMatch = i18nProvider.match(/const SUPPORTED = new Set<string>\(\[([^\]]*)\]\)/);
+if (!supportedMatch) failures.push("The shared i18n provider does not expose a parseable supported-locale allowlist.");
+const enabledLocales = supportedMatch ? [...supportedMatch[1].matchAll(/"([a-z]{2})"/g)].map((match) => match[1]) : [];
+if (enabledLocales.some((locale) => locale !== "en")) failures.push("Non-English locales cannot be enabled until all application routes have complete reviewed translations; partial selection causes mixed-language rendering.");
 
 const network = manifest.target_network ?? {};
 if (network.network_id !== "pi-testnet1" || network.canonical_network !== "Pi Testnet") failures.push("The release target must be the explicitly named Pi Testnet profile.");
