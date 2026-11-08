@@ -44,6 +44,6 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
       - name: Audit locale dictionary key coverage
-        run: npm run audit:i18n
+        run: npm run audit:i18n -- --strict
       - name: Build frontend
         run: npm run build
