@@ -207,8 +207,11 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         ts: Date.now(),
-        aggregation: { method: "median", minSources: 3, maxDeviationBps: 300, source: "centralized-exchange public APIs" },
+        aggregation: { method: "median", minSources: 3, maxDeviationBps: 300, source: "centralized-exchange public APIs", quoteAsset: "USDT", usdParity: "NOT_NORMALIZED" },
         index: {
+          quoteAsset: "USDT",
+          priceUnit: "USDT_PER_PI",
+          usdParity: "NOT_NORMALIZED",
           price: Number.isFinite(price) ? price : null,
           sources: live.length,
           totalSources: venuesSettled.length,
