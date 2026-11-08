@@ -28,6 +28,7 @@ test("rejects missing, future, and stale market timestamps", () => {
 test("computes PiRC-101 Phi only from valid same-domain inputs", () => {
   const expected = (0.5115 * 729_555) / 10_072_123;
   assert.equal(reflexiveConstraint(0.5115, 729_555, 10_072_123), expected);
+  assert.ok(Math.abs(expected - 0.0370495) < 0.00000005, "sample Φ must match the PiRC reference vector");
   assert.ok(Number.isNaN(reflexiveConstraint(0, 729_555, 10_072_123)));
   assert.ok(Number.isNaN(reflexiveConstraint(0.5115, 729_555, 0)));
   assert.ok(Number.isNaN(reflexiveConstraint(Number.NaN, 729_555, 10_072_123)));
