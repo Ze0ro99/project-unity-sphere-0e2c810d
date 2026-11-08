@@ -5,6 +5,8 @@ import {
   simulate,
   downloadCSV,
   liveSnapshot,
+  ipprFromSpot,
+  BASE_IPPR,
   type SimulationScenario,
   type ScenarioOutcome,
 } from "@/lib/economics";
@@ -47,13 +49,15 @@ export default function Economics() {
     return () => clearInterval(id);
   }, []);
 
+  const liveOk = Number.isFinite(spot) && spot > 0;
+  const marketLinkedIppr = liveOk ? ipprFromSpot(spot) : NaN;
+  const scenarioBaseIppr = liveOk ? marketLinkedIppr : BASE_IPPR;
   const outcomes = useMemo(
-    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon })),
-    [scenarios, horizon],
+    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon }, "market-linked", scenarioBaseIppr)),
+    [scenarios, horizon, scenarioBaseIppr],
   );
   const active = outcomes.find((o) => o.scenario.id === selected) ?? outcomes[0];
-  const live = useMemo(() => liveSnapshot(tick), [tick]);
-  const liveOk = Number.isFinite(spot) && spot > 0;
+  const live = useMemo(() => liveSnapshot(tick, scenarioBaseIppr), [tick, scenarioBaseIppr]);
 
   return (
     <div className="space-y-4">
@@ -65,8 +69,9 @@ export default function Economics() {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.economics")}</h1>
             <p className="text-sm text-muted">
-              Reflexive scenario model Φ = (Lₙ · IPPR) / QWF. The model index is calibrated independently;
-              the observed π/USD venue quote is displayed separately and is not a reserve or collateral proof.
+              Live IPPR is re-based from the accepted PI/USD market median × 10,000,000 on each market-index refresh.
+              QWF and velocity below remain scenario inputs until a signed, independently verified economic-state feed is connected.
+              Neither index nor scenario output is a reserve, collateral or redemption proof.
             </p>
           </div>
         </div>
@@ -83,8 +88,8 @@ export default function Economics() {
 
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
-          { label: "QWF", value: fmt(live.qwf) },
-          { label: "IPPR model index", value: fmt(live.ippr) },
+          { label: "QWF (scenario state)", value: fmt(live.qwf) },
+          { label: "IPPR live reference", value: liveOk ? fmt(marketLinkedIppr) : "Unavailable" },
           { label: "Modeled velocity", value: live.velocity.toFixed(4) },
           { label: "Modeled Φ", value: live.phi.toFixed(4) },
           { label: "Modeled collateral proxy", value: `${(live.collateralRatio * 100).toFixed(1)}%` },
@@ -188,7 +193,7 @@ export default function Economics() {
       <section className="rounded-xl border border-border bg-panel/60 p-4 text-xs text-muted flex gap-2">
         <AlertTriangle size={14} className="text-yellow shrink-0 mt-0.5" />
         <p>
-          SIMULATION ONLY — not a live monetary policy, minting controller, reserve ratio, solvency certificate, or price guarantee.
+          LIVE REFERENCE + SIMULATION — IPPR follows the latest accepted PI/USD market index × 10,000,000. QWF, velocity, Phi, collateral proxy and emission rate remain modeled scenario outputs, not a live monetary policy, minting controller, reserve ratio, solvency certificate or price guarantee.
           Projections are deterministic (seeded PRNG) so exported CSVs reproduce the charts exactly. A 15% deviation
           from the 7-epoch velocity median sets the simulation circuit breaker and zeroes the modeled emission rate.
           These are model outputs only: no actual minting, collateral, solvency, reserves, or settlement are controlled or verified here.
