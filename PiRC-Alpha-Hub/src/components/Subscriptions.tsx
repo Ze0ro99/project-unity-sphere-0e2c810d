@@ -111,6 +111,13 @@ export function Subscriptions() {
       addLog("BLOCKED: " + msg);
       return;
     }
+    if (isCustomProduct) {
+      const msg = "Custom Tester is preview-only. Real payments are restricted to server-allowlisted products and amounts.";
+      setErrorMessage(msg);
+      setPaymentStatus("error");
+      addLog("BLOCKED: " + msg);
+      return;
+    }
     setPaymentStatus("initializing");
     setLogs([]);
     addLog("Initiating Pi payment request...");
