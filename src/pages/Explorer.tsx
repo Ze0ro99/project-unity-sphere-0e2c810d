@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchLatestLedgers, fetchLatestTx, fetchRoot, relTime, shorten, HORIZON_MAINNET } from "@/lib/pi";
+import { fetchLatestLedgers, fetchLatestTx, fetchRoot, relTime, shorten, HORIZON_TESTNET } from "@/lib/pi";
 import { Activity, Blocks, Coins, GitBranch, Zap } from "lucide-react";
 import { LAYERS } from "@/data/layers";
 import { useI18n } from "@/i18n";
@@ -8,17 +8,17 @@ export default function Explorer() {
   const { t } = useI18n();
   const ledgersQ = useQuery({
     queryKey: ["ledgers"],
-    queryFn: () => fetchLatestLedgers(HORIZON_MAINNET, 12),
+    queryFn: () => fetchLatestLedgers(HORIZON_TESTNET, 12),
     refetchInterval: 5000,
   });
   const txQ = useQuery({
     queryKey: ["tx"],
-    queryFn: () => fetchLatestTx(HORIZON_MAINNET, 20),
+    queryFn: () => fetchLatestTx(HORIZON_TESTNET, 20),
     refetchInterval: 5000,
   });
   const rootQ = useQuery({
     queryKey: ["root"],
-    queryFn: () => fetchRoot(HORIZON_MAINNET),
+    queryFn: () => fetchRoot(HORIZON_TESTNET),
     refetchInterval: 15000,
   });
 
@@ -39,7 +39,7 @@ export default function Explorer() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="chip mb-3">
-              <span className="pulse-dot" /> Live · Pi Mainnet
+              <span className="pulse-dot" /> Live · Pi Testnet1
             </div>
             <h1 className="text-2xl md:text-3xl font-bold">{t("nav.explorer")}</h1>
             <p className="text-muted text-sm mt-1">
