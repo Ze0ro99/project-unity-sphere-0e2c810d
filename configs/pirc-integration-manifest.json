@@ -56,7 +56,40 @@
         "checked_at": "2026-11-08T13:45:06Z",
         "latest_ledger": 27596965,
         "identity_verified": true,
-        "all_registered_layer_contracts": "NOT_FOUND"
+        "all_registered_layer_contracts": "NOT_FOUND",
+        "source_registry": "PiRC 7-layer packet registry",
+        "registry_declared_contract_ids": [
+          {
+            "color": "RED",
+            "contract_id": "CC6WMAHKOPWY6HW46VNKTAV4DZZLRTTNMYLDEKCAICQGMCWV5PZYNTBO"
+          },
+          {
+            "color": "GREEN",
+            "contract_id": "CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4"
+          },
+          {
+            "color": "ORANGE",
+            "contract_id": "CB7T6TDSZ5B2MQI7NI4EG6ZASYPRMJ3XVUWS6BON4Z64OBMUJ4ZD6GKF"
+          },
+          {
+            "color": "YELLOW",
+            "contract_id": "CANLSQUPUZYKE3S2HAIGXAHMOQWE4FVX5DS7GTL42BVKSNHLFVMQSDFF"
+          },
+          {
+            "color": "BLUE",
+            "contract_id": "CAMSQZTSCTF3MG4UEIAWKRZNSX7LLKGKXMVBEQO2ETVPGS3CINM7JBQD"
+          },
+          {
+            "color": "PURPLE",
+            "contract_id": "CCGEMIEAZFJSBTRL5VGJJAUGPJI3B7UQ3BTAB2OQGW73JMWLS57YVVA4"
+          },
+          {
+            "color": "GOLD",
+            "contract_id": "CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG"
+          }
+        ],
+        "chain_readback": "0/7 found at recorded read-only probe",
+        "deployment_claim": "UNVERIFIED"
       }
     },
     {
@@ -409,11 +442,73 @@
       "strkey_type": "ed25519_public_key_account",
       "checksum": "CRC16-XModem verified",
       "network_id": "pi-testnet1",
-      "network_membership": "NOT_VERIFIED",
+      "registry_declared_role": "PiRC Master Issuer account for the seven colored Project Packets",
+      "registry_source": "Ze0ro99/PiRC:artifacts/pirc-wealth-core/public/data/full-repo/CONTRACTS_REGISTRY.json",
+      "registry_source_blob": "99f068086ce8b60e05985611e34964b26e1f0987",
+      "network_membership": "DECLARED_BY_PROJECT_REGISTRY_NOT_INDEPENDENTLY_VERIFIED",
       "account_readback": "PENDING",
       "contract_id": false,
       "deployer_authorization": "NOT_ESTABLISHED",
-      "note": "This is a valid Stellar StrKey account public address (G...), not a Soroban contract ID (C...). Do not assign deployer/admin authority or treat it as a deployed contract without independent Testnet readback and explicit role confirmation."
+      "note": "The supplied G... address is the registry-declared master issuer account, not a Soroban contract ID. This source claim does not prove account existence, signer control, admin authorization, or deployment state on Pi Testnet."
     }
+  },
+  "pirc_registry_import": {
+    "source": "Ze0ro99/PiRC:artifacts/pirc-wealth-core/public/data/full-repo/7_layer_packets.json",
+    "source_blob": "a6ac1ef3fd145eab9e71db59964cd7e0a8cb8c9a",
+    "schema": "pirc.7-layer-packets/v1",
+    "issuer_account": "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6",
+    "entries": [
+      {
+        "index": 6,
+        "color": "RED",
+        "role": "Governance",
+        "contract_id": "CC6WMAHKOPWY6HW46VNKTAV4DZZLRTTNMYLDEKCAICQGMCWV5PZYNTBO",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 5,
+        "color": "GREEN",
+        "role": "Pi Cash",
+        "contract_id": "CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 3,
+        "color": "ORANGE",
+        "role": "Register",
+        "contract_id": "CB7T6TDSZ5B2MQI7NI4EG6ZASYPRMJ3XVUWS6BON4Z64OBMUJ4ZD6GKF",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 2,
+        "color": "YELLOW",
+        "role": "Subscribe",
+        "contract_id": "CANLSQUPUZYKE3S2HAIGXAHMOQWE4FVX5DS7GTL42BVKSNHLFVMQSDFF",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 4,
+        "color": "BLUE",
+        "role": "Extend",
+        "contract_id": "CAMSQZTSCTF3MG4UEIAWKRZNSX7LLKGKXMVBEQO2ETVPGS3CINM7JBQD",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 0,
+        "color": "PURPLE",
+        "role": "Pay Upfront",
+        "contract_id": "CCGEMIEAZFJSBTRL5VGJJAUGPJI3B7UQ3BTAB2OQGW73JMWLS57YVVA4",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 1,
+        "color": "GOLD",
+        "role": "Status",
+        "contract_id": "CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      }
+    ],
+    "chain_readback_status": "0_OF_7_FOUND_AT_2026-11-08T13:45:06Z",
+    "migration_warning": "The PiRC packet registry uses PURPLE/GOLD/YELLOW/ORANGE/BLUE/GREEN/RED. The canonical Unity seven-layer proposal uses RED/ORANGE/YELLOW/GREEN/BLUE/INDIGO/PURPLE. Do not silently map GOLD to INDIGO or infer token equivalence; require a versioned, approved registry migration."
   }
 }
