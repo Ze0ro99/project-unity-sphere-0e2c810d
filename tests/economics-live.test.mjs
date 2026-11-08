@@ -4,6 +4,7 @@ import {
   IPPR_SUPPLY_MULTIPLIER,
   ipprFromSpot,
   isFreshMarketIndex,
+  isCanonicalUsdQuote,
   reflexiveConstraint,
 } from "../src/lib/economics.ts";
 
@@ -30,4 +31,10 @@ test("computes PiRC-101 Phi only from valid same-domain inputs", () => {
   assert.ok(Number.isNaN(reflexiveConstraint(0, 729_555, 10_072_123)));
   assert.ok(Number.isNaN(reflexiveConstraint(0.5115, 729_555, 0)));
   assert.ok(Number.isNaN(reflexiveConstraint(Number.NaN, 729_555, 10_072_123)));
+});
+
+test("does not promote PI/USDT into canonical USD IPPR without verified parity", () => {
+  assert.equal(isCanonicalUsdQuote({ quoteAsset: "USDT", priceUnit: "USDT_PER_PI", usdParity: "NOT_NORMALIZED" }), false);
+  assert.equal(isCanonicalUsdQuote({ quoteAsset: "USD", priceUnit: "USD_PER_PI", usdParity: "NORMALIZED" }), true);
+  assert.equal(isCanonicalUsdQuote(null), false);
 });
