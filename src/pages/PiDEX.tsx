@@ -43,7 +43,7 @@ type Tab = "orders" | "history" | "balances" | "pool";
 export default function PiDEX() {
   const state = useSyncExternalStore(exchangeStore.subscribe, exchangeStore.getSnapshot, exchangeStore.getSnapshot);
   const { t } = useI18n();
-  const { connected: piConnected, user: piUser, loading: piLoading, connect: connectPi, testnetBalance: piTestnetBalance } = usePiConnection();
+  const { connected: piConnected, user: piUser, loading: piLoading, connect: connectPi, testnetBalance: piTestnetBalance, refreshingBalance, refreshTestnetBalance } = usePiConnection();
   const market = useMarketIndex();
   const index = market.index;
   const piUsd = index?.price ?? NaN;
@@ -213,6 +213,16 @@ export default function PiDEX() {
             )}
             {piConnected && piTestnetBalance?.status === "unavailable" && (
               <div className="text-[10px] text-amber-400">{t("pidex.testnetBalanceUnavailable")}</div>
+            )}
+            {piConnected && (
+              <button
+                type="button"
+                onClick={refreshTestnetBalance}
+                disabled={refreshingBalance}
+                className="rounded-md border border-border px-2 py-1 text-[10px] disabled:opacity-50"
+              >
+                {refreshingBalance ? t("common.loading") : t("pidex.refreshTestnetBalance")}
+              </button>
             )}
           </div>
         </div>
