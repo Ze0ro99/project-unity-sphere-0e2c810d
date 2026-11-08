@@ -86,10 +86,18 @@ function detectSandbox(): boolean {
 }
 
 export const SANDBOX = detectSandbox();
+const PI_NETWORK = String((import.meta as any).env?.VITE_PI_NETWORK ?? "").trim().toLowerCase();
+const PI_TESTNET_MODE = PI_NETWORK === "testnet";
 
 let initPromise: Promise<void> | null = null;
 
 export function initPi(): Promise<void> {
+  if (!PI_TESTNET_MODE) {
+    return Promise.reject(new Error("Pi Testnet mode is not explicitly configured; Pi SDK actions are blocked."));
+  }
+  if (!SANDBOX) {
+    return Promise.reject(new Error("Pi Testnet sandbox mode is not enabled; Pi SDK actions are blocked."));
+  }
   if (initPromise) return initPromise;
   initPromise = new Promise((resolve, reject) => {
     const start = Date.now();
