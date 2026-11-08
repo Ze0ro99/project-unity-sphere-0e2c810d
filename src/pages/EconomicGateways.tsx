@@ -1,6 +1,7 @@
 import { Boxes, CheckCircle2, CircleAlert, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/i18n";
 import { useMarketIndex } from "@/lib/market-index";
+import { isCanonicalUsdQuote } from "@/lib/economics";
 
 type GateState = "PASS" | "STALE" | "UNVERIFIED";
 
@@ -33,10 +34,13 @@ export default function EconomicGateways() {
   const { t } = useI18n();
   const market = useMarketIndex();
   const fresh = market.ts > 0 && Date.now() - market.ts <= 30_000;
-  const marketPass = fresh && market.index?.trusted === true && (market.index?.sources ?? 0) >= 3;
-  const marketState: GateState = marketPass ? "PASS" : "STALE";
+  const sourceQuorum = fresh && market.index?.trusted === true && (market.index?.sources ?? 0) >= 3;
+  const marketPass = sourceQuorum && isCanonicalUsdQuote(market.index);
+  const marketState: GateState = marketPass ? "PASS" : sourceQuorum ? "UNVERIFIED" : "STALE";
   const marketEvidence = market.index
-    ? `${market.index.sources}/${market.index.totalSources} venues · ${market.index.deviationBps.toFixed(1)} bps · ${fresh ? "fresh snapshot" : "snapshot stale"}`
+    ? isCanonicalUsdQuote(market.index)
+      ? `${market.index.sources}/${market.index.totalSources} venues · ${market.index.deviationBps.toFixed(1)} bps · verified USD-normalized quote`
+      : `${market.index.sources}/${market.index.totalSources} venues · PI/USDT reference only · USD parity not normalized`
     : "No accepted market quote";
   return (
     <div className="space-y-5">

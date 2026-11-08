@@ -43,6 +43,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
+      - name: Test economic index and reflexive formula guards
+        run: npm run test:economics
       - name: Audit locale dictionary key coverage
         run: npm run audit:i18n
       - name: Build frontend

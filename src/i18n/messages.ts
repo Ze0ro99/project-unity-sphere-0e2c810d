@@ -201,15 +201,16 @@ const en: Dict = {
   "gate.velocity.desc": "Reconciled commerce velocity, same-asset depth, spread, slippage and concentration.",
   "gate.solvency.title": "Solvency & Settlement Gateway",
   "gate.solvency.desc": "Verified reserves, liabilities, transaction finality and canonical settlement read-back.",
-  "economics.liveIppr": "IPPR (USDT reference) LIVE",
+  "economics.liveIppr": "IPPR (USD-normalized) LIVE",
+  "economics.ipprPending": "UNAVAILABLE — verified USD parity required",
   "economics.qwfPending": "QWF awaits verified adaptive feed",
   "economics.velocityPending": "Network velocity awaits reconciled telemetry",
   "economics.phiPending": "Φ awaits verified QWF and Lₙ",
-  "economics.liveFeedNote": "The current CEX index uses PI/USDT pairs; USDT/USD parity is not independently normalized yet, so this is a USDT reference rather than a certified USD quote. QWF and Lₙ remain unavailable until verified Testnet telemetry is connected. Simulation values are separate.",
+  "economics.liveFeedNote": "The current CEX index uses PI/USDT pairs; USDT/USD parity is not independently normalized, so it is not eligible for canonical USD IPPR. QWF and Lₙ remain unavailable until verified Testnet telemetry is connected. Simulation values are separate.",
   "economics.formulaDescription": "Live IPPR is re-based on every accepted PI/USDT market tick: IPPR = PI/USDT × 10,000,000. USD parity is not yet independently normalized. Adaptive QWF and network velocity are separate inputs to Φ = (Lₙ × IPPR) / QWF.",
   "economics.simulationQwf": "Simulation QWF",
   "economics.simulationVelocity": "Simulation velocity",
-  "economics.simulationPhi": "Simulation Φ (live IPPR input)",
+  "economics.simulationPhi": "Simulation Φ",
 };
 
 const ar: Dict = {
@@ -407,15 +408,16 @@ const ar: Dict = {
   "gate.velocity.desc": "سرعة التجارة بعد التسوية وعمق السيولة وفروق الأسعار والانزلاق والتركيز.",
   "gate.solvency.title": "بوابة الملاءة والتسوية",
   "gate.solvency.desc": "الاحتياطيات والالتزامات المؤكدة ونهائية المعاملات والتحقق من حالة التسوية.",
-  "economics.liveIppr": "IPPR (مرجع USDT) مباشر",
+  "economics.liveIppr": "IPPR (مرجع USD موحّد)",
+  "economics.ipprPending": "غير متاح — يلزم توحيد تكافؤ USD والتحقق منه",
   "economics.qwfPending": "QWF بانتظار مصدر تكيفي موثوق",
   "economics.velocityPending": "سرعة الشبكة بانتظار بيانات تسوية موثقة",
   "economics.phiPending": "Φ بانتظار QWF و Lₙ موثقين",
-  "economics.liveFeedNote": "يستخدم مؤشر البورصات الحالي أزواج PI/USDT؛ ولم تتم معايرة تكافؤ USDT/USD بصورة مستقلة بعد، لذلك القيمة مرجع USDT وليست سعراً مؤكداً بالدولار. لا تتوفر قيم QWF وLₙ حتى ربط بيانات Testnet موثقة. قيم المحاكاة منفصلة.",
+  "economics.liveFeedNote": "يستخدم مؤشر البورصات الحالي أزواج PI/USDT؛ ولم تتم معايرة تكافؤ USDT/USD بصورة مستقلة، لذلك لا يصلح لحساب IPPR المرجعي بالدولار. لا تتوفر قيم QWF وLₙ حتى ربط بيانات Testnet موثقة. قيم المحاكاة منفصلة.",
   "economics.formulaDescription": "تُعاد معايرة IPPR مع كل تحديث مقبول لسعر PI/USDT: ‏IPPR = PI/USDT × 10,000,000. لم تتم بعد معايرة تكافؤ USDT/USD بصورة مستقلة. ويظل QWF التكيفي وسرعة الشبكة مدخلين مستقلين في Φ = (Lₙ × IPPR) / QWF.",
   "economics.simulationQwf": "QWF في المحاكاة",
   "economics.simulationVelocity": "السرعة في المحاكاة",
-  "economics.simulationPhi": "Φ في المحاكاة (باستخدام IPPR الحالي)",
+  "economics.simulationPhi": "Φ في المحاكاة",
 };
 
 const zh: Dict = {
@@ -613,15 +615,16 @@ const zh: Dict = {
   "gate.velocity.desc": "已对账的交易速度、同资产深度、价差、滑点和集中度。",
   "gate.solvency.title": "偿付能力与结算网关",
   "gate.solvency.desc": "已验证储备、负债、交易最终性和规范结算回读。",
-  "economics.liveIppr": "实时 IPPR（USDT 参考值）",
+  "economics.liveIppr": "实时 IPPR（USD 归一化）",
+  "economics.ipprPending": "暂不可用 — 需要经过验证的 USD 汇率归一化",
   "economics.qwfPending": "等待已验证的自适应 QWF 数据源",
   "economics.velocityPending": "等待已对账的网络速度数据",
   "economics.phiPending": "等待已验证的 QWF 和 Lₙ",
-  "economics.liveFeedNote": "当前交易所指数使用 PI/USDT 交易对；USDT/USD 尚未独立归一化，因此这是 USDT 参考值而非经认证的美元报价。连接已验证的 Testnet 遥测前，QWF 和 Lₙ 不可用。模拟数据单独显示。",
+  "economics.liveFeedNote": "当前交易所指数使用 PI/USDT 交易对；USDT/USD 尚未独立归一化，因此不能用于计算规范的 USD IPPR。连接已验证的 Testnet 遥测前，QWF 和 Lₙ 不可用。模拟数据单独显示。",
   "economics.formulaDescription": "每次接受 PI/USDT 市场报价更新时都会重新计算 IPPR：IPPR = PI/USDT × 10,000,000。USDT/USD 尚未独立归一化。自适应 QWF 和网络速度是 Φ = (Lₙ × IPPR) / QWF 的独立输入。",
   "economics.simulationQwf": "模拟 QWF",
   "economics.simulationVelocity": "模拟速度",
-  "economics.simulationPhi": "模拟 Φ（使用当前 IPPR）",
+  "economics.simulationPhi": "模拟 Φ",
 };
 
 const id: Dict = {
@@ -819,15 +822,16 @@ const id: Dict = {
   "gate.velocity.desc": "Kecepatan perdagangan yang direkonsiliasi, kedalaman aset yang sama, spread, slippage, dan konsentrasi.",
   "gate.solvency.title": "Gerbang Solvabilitas & Penyelesaian",
   "gate.solvency.desc": "Cadangan dan kewajiban terverifikasi, finalitas transaksi, serta pembacaan ulang penyelesaian kanonis.",
-  "economics.liveIppr": "IPPR (referensi USDT) LANGSUNG",
+  "economics.liveIppr": "IPPR (USD ternormalisasi) LANGSUNG",
+  "economics.ipprPending": "TIDAK TERSEDIA — perlu paritas USD terverifikasi",
   "economics.qwfPending": "QWF menunggu feed adaptif terverifikasi",
   "economics.velocityPending": "Kecepatan jaringan menunggu telemetri yang direkonsiliasi",
   "economics.phiPending": "Φ menunggu QWF dan Lₙ terverifikasi",
-  "economics.liveFeedNote": "Indeks CEX saat ini menggunakan pasangan PI/USDT; paritas USDT/USD belum dinormalisasi secara independen, sehingga ini adalah referensi USDT, bukan kuotasi USD tersertifikasi. QWF dan Lₙ belum tersedia sampai telemetri Testnet terverifikasi terhubung. Nilai simulasi ditampilkan terpisah.",
+  "economics.liveFeedNote": "Indeks CEX saat ini menggunakan pasangan PI/USDT; paritas USDT/USD belum dinormalisasi secara independen, sehingga belum memenuhi syarat untuk IPPR USD kanonis. QWF dan Lₙ belum tersedia sampai telemetri Testnet terverifikasi terhubung. Nilai simulasi ditampilkan terpisah.",
   "economics.formulaDescription": "IPPR dihitung ulang pada setiap tick pasar PI/USDT yang diterima: IPPR = PI/USDT × 10.000.000. Paritas USDT/USD belum dinormalisasi secara independen. QWF adaptif dan kecepatan jaringan adalah input terpisah untuk Φ = (Lₙ × IPPR) / QWF.",
   "economics.simulationQwf": "QWF Simulasi",
   "economics.simulationVelocity": "Kecepatan Simulasi",
-  "economics.simulationPhi": "Φ Simulasi (menggunakan IPPR terkini)",
+  "economics.simulationPhi": "Φ Simulasi",
 };
 
 const fr: Dict = {
