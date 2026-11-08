@@ -1,39 +1,43 @@
-# PiDEX AMM — Build, Test and Deployment Runbook
+# PiDEX AMM — Canonical Build and Testnet Deployment Runbook
 
-## Scope and protocol context
+**Canonical source:** [Ze0ro99/SmartContracts/contracts/pidex_amm](https://github.com/Ze0ro99/SmartContracts/tree/main/contracts/pidex_amm)
 
-This is a Soroban constant-product AMM reference contract with a 30 bps fee, ratio-matched liquidity deposits, proportional withdrawals, checked arithmetic, pause control and minimum-output protection.
+The Unity Sphere copy is retained as a historical application-repository mirror. Contract changes must be reviewed and merged in SmartContracts first. Unity Sphere adapters must pin the exact SmartContracts commit and generated contract specification.
 
-Stellar CAP-38 (Protocol 18) introduced native constant-product liquidity-pool ledger entries and operations. The 30 bps value in this contract is its own configured AMM fee; it must not be confused with a protocol-wide fee or a Pi Network velocity setting.
+## Scope
+
+The canonical Soroban contract is a transparent constant-product AMM reference with a 30 bps fee parameter, ratio-matched liquidity deposits, proportional withdrawals, checked arithmetic, pause control, and minimum-output slippage protection.
+
+Stellar CAP-38 / Protocol 18 introduced native constant-product liquidity-pool ledger functionality. It does not define a Pi velocity multiplier, and the AMM's 30 bps fee is a contract parameter rather than a network-wide protocol fee.
 
 ## Build and test
 
+From the SmartContracts repository root:
+
 ```bash
-rustup target add wasm32-unknown-unknown
-cargo test --manifest-path contracts/pidex_amm/Cargo.toml
-cargo build --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
+cargo test --locked --manifest-path contracts/pidex_amm/Cargo.toml
+cargo build --locked --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
+sha256sum target/wasm32-unknown-unknown/release/pidex_amm.wasm
 ```
 
 ## Testnet deployment gates
 
-1. Verify the target network's Soroban RPC endpoint, network passphrase and supported protocol version.
-2. Deploy the token contracts and verify their issuer/admin and decimals.
-3. Deploy the AMM WASM and record the WASM hash and contract ID.
-4. Initialize with two distinct, verified token contract addresses.
-5. Test deposits at matching and mismatching ratios; excess amounts must remain with the provider.
-6. Test swaps with min_out success and failure cases.
-7. Test proportional withdrawal, pause/unpause and invariant preservation.
-8. If proof-gated swaps are used, deploy the verifier, configure its address and verify that unknown commitments are rejected.
-9. Publish transaction IDs, code hashes, network identity and test results.
+1. Verify the PiRC Testnet1 network profile, exact network passphrase and supported protocol version.
+2. Deploy and verify the token contracts; record issuer, decimals and code hash.
+3. Build the canonical SmartContracts crate and record the WASM hash.
+4. Deploy the AMM through an isolated Testnet-only signer and record the transaction and contract ID.
+5. Read back the contract instance and code hash; compare with the reviewed WASM artifact.
+6. Initialize with two distinct verified token contract addresses.
+7. Test deposits at matching and mismatching ratios; excess amounts must remain with the provider.
+8. Test swaps with min_out success and failure cases.
+9. Test proportional withdrawal, pause/unpause and invariant preservation.
+10. If proof-gated swaps are used, deploy and configure the verifier; unknown commitments must be rejected.
+11. Publish transaction IDs, code hashes, network identity and test reports.
 
-## Protocol compatibility status
+## Compatibility and limitations
 
-The source deployment notes previously declared SDK 22.x compatibility with protocol v21–v23 and forward compatibility with v25–v28. This branch does not contain runtime evidence proving those claims. Treat v21–v23 as documented compatibility targets and v25–v28 as unverified until the exact WASM is built and exercised against each target runtime.
+The previous source notes declared compatibility targets, but runtime evidence for V25–V28 is not established by this repository alone. Treat V28 as UNVERIFIED until the exact WASM is tested against the intended Pi Testnet runtime and its host functions.
 
-Pi Mainnet/Testnet deployment is not assumed. A network must expose the required Soroban RPC and host functions before this contract can be deployed there.
+The BN254 pairing path fails closed until a real host binding and tests exist. The attestor-backed commitment mode is not decentralized proof verification and is not a privacy layer.
 
-## Proof-gated swap semantics
-
-`swap_with_verified_commitment` checks that the configured verifier has recorded a commitment before executing a normal transparent swap. It does not conceal asset addresses, amounts, balances, events or transfers. It is not shielded settlement or a privacy guarantee.
-
-The BN254 verifier's on-chain pairing feature currently fails closed and is not production-ready.
+No deployment, liquidity, audit, issuer authorization, wallet-signing capability or live trade execution is implied by this runbook.
