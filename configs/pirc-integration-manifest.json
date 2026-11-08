@@ -324,21 +324,21 @@
   },
   "source_pins": {
     "refreshed_at": "2026-11-08T14:01:19Z",
-    "policy": "Pin exact reviewed commits for upstream repositories. Resolve the Unity Sphere integration head from PR #52 metadata at gate time; do not self-pin a commit inside its own manifest.",
+    "policy": "Pin exact reviewed commits and merged main commits for upstream repositories. Resolve the Unity Sphere integration head from PR #52 metadata at gate time; do not self-pin a commit inside its own manifest.",
     "repositories": {
       "pirc": {
-        "main_sha": "20995e05775ae88568df214d6dd3863c938975fc",
+        "main_sha": "e8c2b2bf4f67b0f1fda29c34ead0804e66fb96ff",
         "integration_pr": 369,
         "integration_branch": "integration/testnet1-pidex-status-2026-11-08",
         "integration_sha": "e94627af767c6a7ba69bcb2cb779d05b0ff0f975",
-        "integration_state": "OPEN_DRAFT"
+        "integration_state": "MERGED"
       },
       "smartcontracts": {
-        "main_sha": "ea61996c7defe47b7333c864c741c107eecd7626",
+        "main_sha": "2bca4658f58dc097085f1956d87a5f7f3b756a05",
         "integration_pr": 1108,
         "integration_branch": "integration/pidex-amm-canonical-2026-11-08",
         "integration_sha": "4b35bf67f1459635e50c0672ed3a188e96abaad4",
-        "integration_state": "OPEN_DRAFT"
+        "integration_state": "MERGED"
       },
       "unity_sphere": {
         "main_sha": "9b335ee08a9b349328c24cd33d92f35281fdaad2",
