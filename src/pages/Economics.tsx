@@ -68,11 +68,7 @@ export default function Economics() {
           </span>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.economics")}</h1>
-            <p className="text-sm text-muted">
-              Live IPPR is re-based from the accepted PI/USD market median × 10,000,000 on each market-index refresh.
-              QWF and velocity below remain scenario inputs until a signed, independently verified economic-state feed is connected.
-              Neither index nor scenario output is a reserve, collateral or redemption proof.
-            </p>
+            <p className="text-sm text-muted">{t("econ.liveIntro")}</p>
           </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] mono text-muted">
@@ -88,12 +84,12 @@ export default function Economics() {
 
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
-          { label: "QWF (scenario state)", value: fmt(live.qwf) },
-          { label: "IPPR live reference", value: liveOk ? fmt(marketLinkedIppr) : "Unavailable" },
-          { label: "Modeled velocity", value: live.velocity.toFixed(4) },
-          { label: "Modeled Φ", value: live.phi.toFixed(4) },
-          { label: "Modeled collateral proxy", value: `${(live.collateralRatio * 100).toFixed(1)}%` },
-          { label: "Modeled emission rate", value: `${(live.mintingRate * 100).toFixed(2)}%` },
+          { label: t("econ.qwfScenario"), value: fmt(live.qwf) },
+          { label: t("econ.liveIppr"), value: liveOk ? fmt(marketLinkedIppr) : "—" },
+          { label: t("econ.modeledVelocity"), value: live.velocity.toFixed(4) },
+          { label: t("econ.modeledPhi"), value: live.phi.toFixed(4) },
+          { label: t("econ.modeledCollateral"), value: `${(live.collateralRatio * 100).toFixed(1)}%` },
+          { label: t("econ.modeledEmission"), value: `${(live.mintingRate * 100).toFixed(2)}%` },
         ].map((m) => (
           <div key={m.label} className="rounded-xl border border-border bg-panel/60 p-4">
             <div className="text-[11px] uppercase tracking-wider text-muted">{m.label}</div>
