@@ -115,9 +115,12 @@ def check_pi_testnet() -> dict[str, Any]:
     rpc_protocol = rpc_network_data.get("protocolVersion")
     horizon_protocol = (horizon_root or {}).get("core_supported_protocol_version")
 
+    health_data = rpc_health.get("result") or {}
+    health_status = str(health_data.get("status", "")).lower()
+    health_ok = rpc_health.get("ok", False) and health_status in {"healthy", "ok"}
     rpc_ok = (
         rpc_network.get("ok", False)
-        and rpc_health.get("ok", False)
+        and health_ok
         and latest_ledger.get("ok", False)
     )
     endpoints_reachable = horizon_ok and rpc_ok
