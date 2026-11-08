@@ -27,7 +27,7 @@ export async function readPiTestnetNativeBalance(
     };
   }
 
-  const rootResponse = await fetcher(HORIZON + "/", { redirect: "error" });
+  const rootResponse = await fetcher(HORIZON + "/", { redirect: "error", signal: AbortSignal.timeout(8000) });
   const root = await rootResponse.json().catch(() => null);
   if (!rootResponse.ok || root?.network_passphrase !== TESTNET_PASSPHRASE) {
     throw new Error("testnet_network_identity_unverified");
