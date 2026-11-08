@@ -401,5 +401,19 @@
     "current_horizon_supported_protocol": 29,
     "auto_upgrade": false,
     "activation_rule": "Block contract writes and asset activation until RPC protocol, network passphrase, contract ABI, WASM compatibility and regression tests are re-verified for the target network."
+  },
+  "provided_network_references": {
+    "user_supplied_address": {
+      "value": "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6",
+      "strkey_valid": true,
+      "strkey_type": "ed25519_public_key_account",
+      "checksum": "CRC16-XModem verified",
+      "network_id": "pi-testnet1",
+      "network_membership": "NOT_VERIFIED",
+      "account_readback": "PENDING",
+      "contract_id": false,
+      "deployer_authorization": "NOT_ESTABLISHED",
+      "note": "This is a valid Stellar StrKey account public address (G...), not a Soroban contract ID (C...). Do not assign deployer/admin authority or treat it as a deployed contract without independent Testnet readback and explicit role confirmation."
+    }
   }
 }
