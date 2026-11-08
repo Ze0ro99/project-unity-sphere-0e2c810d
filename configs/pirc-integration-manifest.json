@@ -362,7 +362,24 @@
     "soroban_event_ingestion": "RAW_EVENT_INGESTION_ONLY",
     "xdr_decoding": "NOT_IMPLEMENTED",
     "finality_and_state_reconciliation": "NOT_IMPLEMENTED",
-    "live_asset_activation": "BLOCKED_UNTIL_CONTRACT_DEPLOYMENT_AND_READBACK"
+    "live_asset_activation": "BLOCKED_UNTIL_CONTRACT_DEPLOYMENT_AND_READBACK",
+    "event_ingestion_source": "supabase/functions/pirc-soroban-event-ingest/index.ts",
+    "event_ingestion_status": "IDENTITY_GATED_MULTI_CONTRACT_RAW_INGESTION_SOURCE_CI_PENDING_NOT_DEPLOYED",
+    "network_identity_checks": [
+      "Horizon passphrase",
+      "Soroban RPC passphrase",
+      "Soroban RPC protocol",
+      "RPC health",
+      "ledger retention",
+      "allowlisted HTTPS hosts"
+    ],
+    "contract_allowlist_env": "PI_TESTNET_CONTRACT_IDS",
+    "durable_cursor": "one cursor per network and contract",
+    "idempotency": "unique network_id + contract_id + event_id",
+    "transaction_finality": "NOT_VERIFIED",
+    "settlement_projection": "NOT_IMPLEMENTED",
+    "wallet_balance_reconciliation": "NOT_IMPLEMENTED",
+    "on_chain_asset_activation": "BLOCKED_UNTIL_DEPLOYMENT_CODE_HASH_ISSUER_AND_BALANCE_READBACK"
   },
   "protocol_upgrade_policy": {
     "expected_protocol_is_operator_configured": true,
