@@ -1,4 +1,4 @@
-export type Lang = "en" | "ar" | "zh" | "id";
+export type Lang = "en" | "ar" | "zh" | "id" | "fr" | "es" | "de" | "pt";
 
 type Dict = Record<string, string>;
 
@@ -578,4 +578,41 @@ const id: Dict = {
   "bn.err.emptyInputs": "Berikan minimal satu input publik.",
 };
 
-export const messages: Record<Lang, Dict> = { en, ar, zh, id };
+const fr: Dict = {
+  "nav.language": "Langue", "nav.sovereign": "Noyau économique", "nav.bridge": "Pont", "nav.governance": "Gouvernance",
+  "nav.compliance": "Conformité", "nav.economics": "Économie", "nav.infra": "Infrastructure", "nav.explorer": "Explorateur",
+  "nav.layers": "Jetons à 7 couches", "nav.micro": "Micro-appareil", "nav.network": "Réseau", "nav.pidex": "PiDEX",
+  "nav.standards": "Normes", "nav.testnet": "Réseau de test", "nav.gateways": "Portails", "nav.bn254": "Vérificateur BN254",
+  "nav.repository": "Dépôt", "common.open": "Ouvrir", "common.copy": "Copier", "common.copied": "Copié",
+  "common.loading": "Chargement…", "pi.connect": "Connecter Pi", "pi.connected": "Connecté : {username}",
+  "pi.connectFailed": "Échec de la connexion Pi"
+};
+const es: Dict = {
+  "nav.language": "Idioma", "nav.sovereign": "Núcleo económico", "nav.bridge": "Puente", "nav.governance": "Gobernanza",
+  "nav.compliance": "Cumplimiento", "nav.economics": "Economía", "nav.infra": "Infraestructura", "nav.explorer": "Explorador",
+  "nav.layers": "Tokens de 7 capas", "nav.micro": "Microdispositivo", "nav.network": "Red", "nav.pidex": "PiDEX",
+  "nav.standards": "Estándares", "nav.testnet": "Red de pruebas", "nav.gateways": "Portales", "nav.bn254": "Verificador BN254",
+  "nav.repository": "Repositorio", "common.open": "Abrir", "common.copy": "Copiar", "common.copied": "Copiado",
+  "common.loading": "Cargando…", "pi.connect": "Conectar Pi", "pi.connected": "Conectado: {username}",
+  "pi.connectFailed": "No se pudo conectar a Pi"
+};
+const de: Dict = {
+  "nav.language": "Sprache", "nav.sovereign": "Wirtschaftskern", "nav.bridge": "Brücke", "nav.governance": "Governance",
+  "nav.compliance": "Compliance", "nav.economics": "Wirtschaft", "nav.infra": "Infrastruktur", "nav.explorer": "Explorer",
+  "nav.layers": "7-Schichten-Token", "nav.micro": "Mikrogerät", "nav.network": "Netzwerk", "nav.pidex": "PiDEX",
+  "nav.standards": "Standards", "nav.testnet": "Testnetz", "nav.gateways": "Gateways", "nav.bn254": "BN254-Prüfer",
+  "nav.repository": "Repository", "common.open": "Öffnen", "common.copy": "Kopieren", "common.copied": "Kopiert",
+  "common.loading": "Wird geladen…", "pi.connect": "Pi verbinden", "pi.connected": "Verbunden: {username}",
+  "pi.connectFailed": "Pi-Verbindung fehlgeschlagen"
+};
+const pt: Dict = {
+  "nav.language": "Idioma", "nav.sovereign": "Núcleo econômico", "nav.bridge": "Ponte", "nav.governance": "Governança",
+  "nav.compliance": "Conformidade", "nav.economics": "Economia", "nav.infra": "Infraestrutura", "nav.explorer": "Explorador",
+  "nav.layers": "Tokens de 7 camadas", "nav.micro": "Microdispositivo", "nav.network": "Rede", "nav.pidex": "PiDEX",
+  "nav.standards": "Padrões", "nav.testnet": "Rede de testes", "nav.gateways": "Portais", "nav.bn254": "Verificador BN254",
+  "nav.repository": "Repositório", "common.open": "Abrir", "common.copy": "Copiar", "common.copied": "Copiado",
+  "common.loading": "Carregando…", "pi.connect": "Conectar Pi", "pi.connected": "Conectado: {username}",
+  "pi.connectFailed": "Falha ao conectar ao Pi"
+};
+
+export const messages: Record<Lang, Dict> = { en, ar, zh, id, fr, es, de, pt };
