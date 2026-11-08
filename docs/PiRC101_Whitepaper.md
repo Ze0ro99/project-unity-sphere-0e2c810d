@@ -28,6 +28,14 @@ $${\Phi} = calculatePhi(L_n, S_n / QWF)$$
 
 Production deployment requires hardening inputs via a **Decentralized Oracle Aggregation Mechanism (DOAM)**.
 
+### 4.1. Live market rebase and independent QWF state
+
+IPPR is recalculated for each accepted PI/USD market-index tick using the fixed supply multiplier of 10,000,000. QWF is a separate adaptive state; it is not the IPPR multiplier. A change in QWF changes the reflexive constraint Φ, but does not rewrite the IPPR market rebase.
+
+The accepted market quote must include source provenance, quote units, timestamp, expiry, source quorum, deviation and policy version. If the oracle quorum is stale or unavailable, the live reference is unavailable; the system must not substitute a fixed historical IPPR value.
+
+QWF updates are discrete, versioned, bounded and governance-approved. The exact adjustment rate and clamp bounds must be pinned to an approved PiRC-101 revision before automated updates are enabled. The historical ~$2.248M figure is a scenario calibration, not a live constant.
+
 ## 5. Architectural Modularity and Governance Roadmap
 This standard embraces modular engineering for failsafe operations.
 
