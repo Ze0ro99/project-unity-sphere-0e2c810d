@@ -67,6 +67,7 @@ const PREDEFINED_PRODUCTS: Product[] = [
 export function Subscriptions() {
   const { user, accessToken, isPiReady } = useAuth();
   const [isConfigured, setIsConfigured] = useState<boolean | null>(null);
+  const [isPaymentsEnabled, setIsPaymentsEnabled] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(PREDEFINED_PRODUCTS[0]);
   const [isCustomProduct, setIsCustomProduct] = useState(false);
   
@@ -93,6 +94,7 @@ export function Subscriptions() {
       .then((res) => res.json())
       .then((data) => {
         setIsConfigured(data.configured);
+        setIsPaymentsEnabled(data.paymentsEnabled === true);
       })
       .catch((err) => {
         console.error("Failed to fetch payments configuration status:", err);
@@ -102,6 +104,13 @@ export function Subscriptions() {
 
   const handleCreatePayment = async () => {
     setErrorMessage(null);
+    if (!isPaymentsEnabled) {
+      const msg = "Pi payments are disabled until server configuration and Sandbox validation are complete.";
+      setErrorMessage(msg);
+      setPaymentStatus("error");
+      addLog("BLOCKED: " + msg);
+      return;
+    }
     setPaymentStatus("initializing");
     setLogs([]);
     addLog("Initiating Pi payment request...");
@@ -263,13 +272,19 @@ export function Subscriptions() {
           {isConfigured === false && (
             <div className="flex items-center gap-2 px-4 py-2 bg-amber-950/40 border border-amber-900/50 rounded-xl text-xs text-amber-400 font-mono shadow-inner">
               <AlertTriangle className="h-4 w-4 animate-pulse flex-shrink-0" />
-              <span>Warning: PI_NETWORK_API_KEY environment variable is not configured. Payments will fall back to simulated developer sandbox responses. Please configure PI_NETWORK_API_KEY for mainnet/testnet server validation.</span>
+              <span>Pi server API key is not configured. Payment requests are blocked until server configuration is complete.</span>
             </div>
           )}
           {isConfigured === true && (
             <div className="flex items-center gap-2 px-4 py-2 bg-emerald-950/40 border border-emerald-900/50 rounded-xl text-xs text-emerald-400 font-mono shadow-inner">
               <ShieldCheck className="h-4 w-4 flex-shrink-0" />
-              <span>Sovereign Server Key Loaded</span>
+              <span>Pi Server API Key Configured</span>
+            </div>
+          )}
+          {isConfigured === true && !isPaymentsEnabled && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-amber-950/40 border border-amber-900/50 rounded-xl text-xs text-amber-400 font-mono shadow-inner">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+              <span>Payments disabled by server safety switch</span>
             </div>
           )}
           {isPiReady ? (
@@ -415,14 +430,16 @@ export function Subscriptions() {
 
               <button
                 onClick={handleCreatePayment}
-                disabled={paymentStatus === "initializing" || paymentStatus === "approved"}
+                disabled={!isPaymentsEnabled || paymentStatus === "initializing" || paymentStatus === "approved"}
                 className={`w-full py-4 px-6 rounded-xl font-bold transition-all flex items-center justify-center gap-3 shadow-lg active:scale-[0.98] ${
-                  paymentStatus === "initializing" || paymentStatus === "approved"
+                  !isPaymentsEnabled || paymentStatus === "initializing" || paymentStatus === "approved"
                     ? "bg-violet-600/50 text-white/50 cursor-not-allowed"
                     : "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-violet-950/20"
                 }`}
               >
-                {paymentStatus === "initializing" || paymentStatus === "approved" ? (
+                {!isPaymentsEnabled ? (
+                  <><AlertTriangle className="h-5 w-5" /><span>Payments Disabled</span></>
+                ) : paymentStatus === "initializing" || paymentStatus === "approved" ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
                     <span>Processing Handshake...</span>
