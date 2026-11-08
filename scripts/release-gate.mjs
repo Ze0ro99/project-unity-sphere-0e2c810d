@@ -44,8 +44,18 @@ if (network.mainnet_writes_enabled !== false) failures.push("Mainnet writes must
 if (!process.env.PI_NETWORK_PASSPHRASE) failures.push("PI_NETWORK_PASSPHRASE must be configured as a protected deployment secret; secret values are never read from the manifest.");
 const probe = network.last_read_only_probe ?? {};
 if (probe.identity_verified !== true) failures.push("The latest read-only Testnet identity probe is not verified.");
-if (!(probe.registered_layer_contract_instances_found > 0) || probe.registered_layer_contract_instances_found !== probe.registered_layer_contract_instances_checked) {
-  failures.push(`Registered layer contract deployment readback is incomplete (${probe.registered_layer_contract_instances_found ?? 0}/${probe.registered_layer_contract_instances_checked ?? 0}).`);
+const expectedLayerContracts = 7;
+if (probe.network_passphrase !== "Pi Testnet") failures.push("The read-only probe did not confirm the exact Pi Testnet passphrase.");
+if (probe.soroban_rpc_protocol !== network.expected_protocol) failures.push(`Soroban protocol mismatch: expected ${network.expected_protocol ?? "unset"}, observed ${probe.soroban_rpc_protocol ?? "unset"}.`);
+if (probe.latest_ledger == null || !Number.isInteger(probe.latest_ledger)) failures.push("The latest Testnet ledger sequence is missing or invalid.");
+if (probe.registered_layer_contract_instances_checked !== expectedLayerContracts || probe.registered_layer_contract_instances_found !== expectedLayerContracts) {
+  failures.push(`All seven layer contract instances must be found by readback (${probe.registered_layer_contract_instances_found ?? 0}/${probe.registered_layer_contract_instances_checked ?? 0}; expected 7/7).`);
+}
+
+const sourcePins = manifest.source_pins?.repositories ?? {};
+for (const name of ["pirc", "smartcontracts"]) {
+  const sha = sourcePins[name]?.integration_sha;
+  if (typeof sha !== "string" || !/^[a-f0-9]{40}$/i.test(sha)) failures.push(`Missing or invalid pinned integration commit for ${name}.`);
 }
 
 const features = manifest.feature_status ?? [];
