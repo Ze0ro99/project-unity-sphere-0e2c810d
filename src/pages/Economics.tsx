@@ -5,6 +5,8 @@ import {
   simulate,
   downloadCSV,
   liveSnapshot,
+  ipprFromSpot,
+  BASE_IPPR,
   type SimulationScenario,
   type ScenarioOutcome,
 } from "@/lib/economics";
@@ -47,13 +49,17 @@ export default function Economics() {
     return () => clearInterval(id);
   }, []);
 
+  const liveOk = market.index?.trusted === true
+    && (market.index?.sources ?? 0) >= 3
+    && Number.isFinite(spot) && spot > 0;
+  const ipprLive = liveOk ? ipprFromSpot(spot) : NaN;
+  const scenarioBaseIppr = liveOk ? ipprLive : BASE_IPPR;
   const outcomes = useMemo(
-    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon })),
-    [scenarios, horizon],
+    () => scenarios.map((s) => simulate({ ...s, durationEpochs: horizon }, "market-rebased", scenarioBaseIppr)),
+    [scenarios, horizon, scenarioBaseIppr],
   );
   const active = outcomes.find((o) => o.scenario.id === selected) ?? outcomes[0];
-  const live = useMemo(() => liveSnapshot(tick), [tick]);
-  const liveOk = Number.isFinite(spot) && spot > 0;
+  const simulation = useMemo(() => liveSnapshot(tick), [tick]);
 
   return (
     <div className="space-y-4">
@@ -65,8 +71,8 @@ export default function Economics() {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.economics")}</h1>
             <p className="text-sm text-muted">
-              Reflexive scenario model Φ = (Lₙ · IPPR) / QWF. The model index is calibrated independently;
-              the observed π/USD venue quote is displayed separately and is not a reserve or collateral proof.
+              Live IPPR is re-based on every accepted PI/USD market tick: IPPR = PI/USD × 10,000,000.
+              Adaptive QWF and network velocity are separate inputs to Φ = (Lₙ × IPPR) / QWF; simulated values are never presented as live chain measurements.
             </p>
           </div>
         </div>
@@ -83,12 +89,12 @@ export default function Economics() {
 
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
-          { label: "QWF", value: fmt(live.qwf) },
-          { label: "IPPR model index", value: fmt(live.ippr) },
-          { label: "Modeled velocity", value: live.velocity.toFixed(4) },
-          { label: "Modeled Φ", value: live.phi.toFixed(4) },
-          { label: "Modeled collateral proxy", value: `${(live.collateralRatio * 100).toFixed(1)}%` },
-          { label: "Modeled emission rate", value: `${(live.mintingRate * 100).toFixed(2)}%` },
+          { label: "IPPR (USD) LIVE", value: liveOk ? `${fmt(ipprLive, 2)}` : "UNAVAILABLE — ORACLE GATE" },
+          { label: "QWF (verified feed)", value: "NOT CONNECTED" },
+          { label: "Network velocity (verified)", value: "NOT CONNECTED" },
+          { label: "Reflexive Φ (live)", value: "WAITING FOR QWF + Lₙ" },
+          { label: "Simulation QWF", value: fmt(simulation.qwf) },
+          { label: "Simulation velocity", value: simulation.velocity.toFixed(4) },
         ].map((m) => (
           <div key={m.label} className="rounded-xl border border-border bg-panel/60 p-4">
             <div className="text-[11px] uppercase tracking-wider text-muted">{m.label}</div>
@@ -97,6 +103,8 @@ export default function Economics() {
         ))}
       </section>
 
+
+      <p className="text-[11px] text-muted">Live market data is separate from the illustrative simulation. QWF and Lₙ remain unavailable here until a verified Testnet telemetry source supplies their values; no simulated value is promoted to a live protocol state.</p>
 
       <div className="grid lg:grid-cols-3 gap-4">
         <section className="rounded-xl border border-border bg-panel/60 p-4 space-y-3">
