@@ -31,5 +31,5 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - name: Type check
-        run: deno check supabase/functions/pirc-soroban-event-ingest/index.ts
+      - name: Type check (Deno built-in runtime types)
+        run: deno check --no-config supabase/functions/pirc-soroban-event-ingest/index.ts
