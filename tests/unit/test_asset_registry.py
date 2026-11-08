@@ -108,6 +108,7 @@ def test_network_health_endpoint_reports_real_probe_result(monkeypatch):
 
 def test_contract_verification_uses_readback_for_registered_contract(monkeypatch):
     expected = {"probe_status": "FOUND", "contract_instance_present": True, "rpc_url": "https://rpc.testnet.minepi.com"}
+    monkeypatch.setattr(asset_registry, "check_pi_testnet", lambda: {"identity_verified": True, "status": "verified"})
     monkeypatch.setattr(asset_registry, "verify_contract_instance", lambda contract_id: expected)
     response = client.get("/v1/assets/pi-testnet/heart/verification")
     assert response.status_code == 200
@@ -157,6 +158,11 @@ def test_all_seven_layer_contract_references_are_registered_for_readback(monkeyp
     # Stub the network probe: unit tests must never depend on external RPC.
     monkeypatch.setattr(
         asset_registry,
+        "check_pi_testnet",
+        lambda: {"identity_verified": True, "status": "verified"},
+    )
+    monkeypatch.setattr(
+        asset_registry,
         "verify_contract_instance",
         lambda contract_id: {"probe_status": "NOT_FOUND", "contract_instance_present": False},
     )
@@ -189,6 +195,11 @@ def test_contract_verification_keeps_rpc_failure_unverified(monkeypatch):
         "contract_instance_present": None,
         "error": "test RPC unavailable",
     }
+    monkeypatch.setattr(
+        asset_registry,
+        "check_pi_testnet",
+        lambda: {"identity_verified": True, "status": "verified"},
+    )
     monkeypatch.setattr(
         asset_registry,
         "verify_contract_instance",

@@ -49,6 +49,9 @@ jobs:
       - name: Probe Pi Testnet and Stellar Testnet (read-only)
         env:
           PYTHONPATH: ${{ github.workspace }}
+          PI_NETWORK: "testnet"
+          PI_NETWORK_PASSPHRASE: "Pi Testnet"
+          PI_PROTOCOL_EXPECTED: "28"
           PI_TESTNET_HTTP_TIMEOUT_SECONDS: "15"
           NETWORK_SMOKE_TIMEOUT_SECONDS: "15"
         run: python scripts/test_network_endpoints.py

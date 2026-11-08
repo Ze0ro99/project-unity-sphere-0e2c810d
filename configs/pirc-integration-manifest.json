@@ -1,0 +1,514 @@
+{
+  "schema_version": "1.0.0",
+  "project": "Unity Sphere / PiRC cross-repository integration",
+  "status": "INTEGRATION_IN_PROGRESS",
+  "target_network": {
+    "network_id": "pi-testnet1",
+    "canonical_network": "Pi Testnet",
+    "alias": "Testnet1",
+    "horizon_url": "https://api.testnet.minepi.com",
+    "soroban_rpc_url": "https://rpc.testnet.minepi.com",
+    "expected_protocol": 28,
+    "passphrase_source": "PI_NETWORK_PASSPHRASE",
+    "passphrase_value": null,
+    "mainnet_writes_enabled": false,
+    "last_read_only_probe": {
+      "checked_at": "2026-11-08T13:45:06Z",
+      "identity_verified": true,
+      "network_passphrase": "Pi Testnet",
+      "soroban_rpc_protocol": 28,
+      "horizon_supported_protocol": 29,
+      "latest_ledger": 27596965,
+      "registered_layer_contract_instances_found": 0,
+      "registered_layer_contract_instances_checked": 7
+    }
+  },
+  "repositories": {
+    "pirc": {
+      "url": "https://github.com/Ze0ro99/PiRC",
+      "role": "normative_standards_economics_governance_schemas"
+    },
+    "smartcontracts": {
+      "url": "https://github.com/Ze0ro99/SmartContracts",
+      "role": "soroban_contracts_abi_storage_authorization_tests"
+    },
+    "unity_sphere": {
+      "url": "https://github.com/Ze0ro99/project-unity-sphere-0e2c810d",
+      "role": "portals_apis_wallet_adapters_pidex_asset_registry_monitoring"
+    }
+  },
+  "feature_status": [
+    {
+      "id": "PIRC-101",
+      "domain": "monetary_base_pair",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere economic adapters; SmartContracts integration pending",
+      "status": "PARTIAL",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-207",
+      "domain": "asset_registry_seven_layers",
+      "spec": "PiRC schemas and registry",
+      "implementation": "Unity Sphere registry and asset API",
+      "status": "BLOCKED_SEVEN_LAYER_CONTRACT_IDS_NOT_FOUND_ON_VERIFIED_PI_TESTNET",
+      "network_evidence": {
+        "checked_at": "2026-11-08T13:45:06Z",
+        "latest_ledger": 27596965,
+        "identity_verified": true,
+        "all_registered_layer_contracts": "NOT_FOUND",
+        "source_registry": "PiRC 7-layer packet registry",
+        "registry_declared_contract_ids": [
+          {
+            "color": "RED",
+            "contract_id": "CC6WMAHKOPWY6HW46VNKTAV4DZZLRTTNMYLDEKCAICQGMCWV5PZYNTBO"
+          },
+          {
+            "color": "GREEN",
+            "contract_id": "CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4"
+          },
+          {
+            "color": "ORANGE",
+            "contract_id": "CB7T6TDSZ5B2MQI7NI4EG6ZASYPRMJ3XVUWS6BON4Z64OBMUJ4ZD6GKF"
+          },
+          {
+            "color": "YELLOW",
+            "contract_id": "CANLSQUPUZYKE3S2HAIGXAHMOQWE4FVX5DS7GTL42BVKSNHLFVMQSDFF"
+          },
+          {
+            "color": "BLUE",
+            "contract_id": "CAMSQZTSCTF3MG4UEIAWKRZNSX7LLKGKXMVBEQO2ETVPGS3CINM7JBQD"
+          },
+          {
+            "color": "PURPLE",
+            "contract_id": "CCGEMIEAZFJSBTRL5VGJJAUGPJI3B7UQ3BTAB2OQGW73JMWLS57YVVA4"
+          },
+          {
+            "color": "GOLD",
+            "contract_id": "CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG"
+          }
+        ],
+        "chain_readback": "0/7 found at recorded read-only probe",
+        "deployment_claim": "UNVERIFIED"
+      }
+    },
+    {
+      "id": "PIRC-208",
+      "domain": "ai_capability_anomaly",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere analytics/agent views",
+      "status": "PARTIAL_REVIEW_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-209",
+      "domain": "identity_credentials",
+      "spec": "PiRC",
+      "implementation": "SmartContracts reference identity crate",
+      "status": "REFERENCE_ONLY",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-210",
+      "domain": "cross_ledger_portability",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere bridge UI and reference code",
+      "status": "NOT_TESTNET_VERIFIED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-211",
+      "domain": "risk_analytics",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere risk views and contract references",
+      "status": "PARTIAL",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-211.5",
+      "domain": "compliance",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere compliance portal",
+      "status": "UI_PRESENT_POLICY_REVIEW_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-212",
+      "domain": "governance_execution",
+      "spec": "PiRC",
+      "implementation": "SmartContracts/Unity reference modules",
+      "status": "NOT_TESTNET_VERIFIED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-213_224",
+      "domain": "rwa_provenance",
+      "spec": "PiRC",
+      "implementation": "SmartContracts reference crates and Unity registry",
+      "status": "REFERENCE_ONLY",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-214",
+      "domain": "oracle_observations",
+      "spec": "PiRC",
+      "implementation": "SmartContracts oracle reference",
+      "status": "NOT_QUORUM_VERIFIED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-215_227",
+      "domain": "amm_liquidity_slippage",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere contracts/pidex_amm",
+      "status": "AMM_SOURCE_PRESENT_TESTS_ADDED_CI_PENDING_NOT_DEPLOYED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-216_238",
+      "domain": "risk_liquidation",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-218_240",
+      "domain": "yield_treasury",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-220_252",
+      "domain": "treasury_reserves",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "NO_CUSTODY_OR_RESERVE_PROOF",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-222_246",
+      "domain": "custody_escrow",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "SECURITY_REVIEW_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-225",
+      "domain": "proof_of_reserves",
+      "spec": "PiRC",
+      "implementation": "SmartContracts reference attestation crate",
+      "status": "ATTESTATION_ONLY_NOT_CUSTODY_PROOF",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-231_232",
+      "domain": "lending_liquidation",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-233_234",
+      "domain": "synthetic_assets",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-244_245",
+      "domain": "cbdc_settlement_batching",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-254_255",
+      "domain": "circuit_breaker_recovery",
+      "spec": "PiRC",
+      "implementation": "SmartContracts references",
+      "status": "REVIEW_AND_TEST_REQUIRED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-260",
+      "domain": "registry_keeper",
+      "spec": "PiRC",
+      "implementation": "SmartContracts/Unity references",
+      "status": "NOT_TESTNET_VERIFIED",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-800",
+      "domain": "attestor_proof_verification",
+      "spec": "PiRC",
+      "implementation": "Unity Sphere BN254/commitment path",
+      "status": "BN254_FAILS_CLOSED_ATTESTOR_ONLY",
+      "network_evidence": null
+    },
+    {
+      "id": "PI_WALLET",
+      "domain": "account_wallet_binding",
+      "spec": "Official Pi SDK wallet_address scope",
+      "implementation": "Shared Pi SDK connection store and PiDEX address panel",
+      "status": "IMPLEMENTED_TEST_REQUIRED_NO_SOROBAN_SIGNING",
+      "network_evidence": null
+    },
+    {
+      "id": "PIDEX_CORE",
+      "domain": "subscription_authorization",
+      "spec": "PiRC-2",
+      "implementation": "Unity Sphere contracts/pidex_core",
+      "status": "FAIL_CLOSED_UNTIL_CANONICAL_SUBSCRIPTION_CLIENT",
+      "network_evidence": null
+    },
+    {
+      "id": "PIDEX_AMM",
+      "domain": "onchain_amm_execution",
+      "spec": "PiRC-215_227",
+      "implementation": "Unity Sphere contracts/pidex_amm",
+      "status": "SOURCE_PRESENT_TESTS_ADDED_CI_PENDING_NO_DEPLOYED_ASSETS",
+      "network_evidence": {
+        "checked_at": "2026-11-08T13:45:06Z",
+        "latest_ledger": 27596965,
+        "amm_contract_id": null
+      }
+    },
+    {
+      "id": "SOROBAN_EVENT_INGEST",
+      "domain": "event_sync",
+      "spec": "PiRC event and settlement schemas",
+      "implementation": "Supabase pirc-soroban-event-ingest",
+      "status": "RAW_INGEST_ONLY_NO_XDR_OR_SETTLEMENT_READBACK",
+      "network_evidence": null
+    },
+    {
+      "id": "OUSD_TEST",
+      "domain": "test_only_asset",
+      "spec": "PiRC OUSD test profile",
+      "implementation": "SmartContracts OUSD reference and Unity registry",
+      "status": "TEST_ONLY_NO_PEG_RESERVES_OR_REDEMPTION",
+      "network_evidence": null
+    },
+    {
+      "id": "PIRC-2",
+      "domain": "subscription_authorization_and_recurring_billing",
+      "spec": "PiRC subscription lifecycle and recurring billing proposal",
+      "implementation": "SmartContracts/contracts/subscription",
+      "status": "SCAFFOLD_ABI_MISMATCH_NOT_TESTNET_DEPLOYED",
+      "network_evidence": null,
+      "notes": "The active source currently exposes only initialize, mint, transfer, subscribe(user, plan), balance_of and ping. The README's service lifecycle, allowance billing and recurring process API is a target description, not the current ABI. Archived backup sources are not accepted without independent review and tests."
+    }
+  ],
+  "unresolved_registry_conflicts": {
+    "canonical_pirc_color_order": [
+      "Red",
+      "Orange",
+      "Yellow",
+      "Green",
+      "Blue",
+      "Indigo",
+      "Purple"
+    ],
+    "unity_current_layer_ids": [
+      "L0",
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5",
+      "L6"
+    ],
+    "gold_registry_entry": "UNMAPPED",
+    "indigo_contract": "NONE_VERIFIED",
+    "migration_status": "BLOCKED_PENDING_VERSIONED_REGISTRY_MIGRATION"
+  },
+  "evidence_policy": {
+    "allowed_states": [
+      "PROPOSED",
+      "SPECIFIED",
+      "IMPLEMENTED",
+      "TESTED",
+      "TESTNET_VERIFIED",
+      "SECURITY_REVIEWED",
+      "MAINNET_VERIFIED",
+      "BLOCKED"
+    ],
+    "unknown_fields": "null_or_UNVERIFIED",
+    "required_testnet_evidence": [
+      "network_passphrase",
+      "protocol_version",
+      "contract_id",
+      "deployment_transaction",
+      "wasm_code_hash",
+      "initialized_state_readback",
+      "authorization_tests",
+      "event_readback",
+      "timestamp",
+      "reviewer"
+    ],
+    "never_infer_deployment_from_source_or_address": true
+  },
+  "source_pins": {
+    "refreshed_at": "2026-11-08T14:01:19Z",
+    "policy": "Pin exact reviewed commits and merged main commits for upstream repositories. Resolve the Unity Sphere integration head from PR #52 metadata at gate time; do not self-pin a commit inside its own manifest.",
+    "repositories": {
+      "pirc": {
+        "main_sha": "e8c2b2bf4f67b0f1fda29c34ead0804e66fb96ff",
+        "integration_pr": 369,
+        "integration_branch": "integration/testnet1-pidex-status-2026-11-08",
+        "integration_sha": "e94627af767c6a7ba69bcb2cb779d05b0ff0f975",
+        "integration_state": "MERGED"
+      },
+      "smartcontracts": {
+        "main_sha": "2bca4658f58dc097085f1956d87a5f7f3b756a05",
+        "integration_pr": 1108,
+        "integration_branch": "integration/pidex-amm-canonical-2026-11-08",
+        "integration_sha": "4b35bf67f1459635e50c0672ed3a188e96abaad4",
+        "integration_state": "MERGED"
+      },
+      "unity_sphere": {
+        "main_sha": "9b335ee08a9b349328c24cd33d92f35281fdaad2",
+        "integration_pr": 52,
+        "integration_branch": "integration/pirc-testnet1-wallet-pidex-2026-11-08",
+        "integration_sha": null,
+        "integration_state": "OPEN_DRAFT_HEAD_RESOLVED_FROM_PR_METADATA",
+        "integration_head_source": "https://github.com/Ze0ro99/project-unity-sphere-0e2c810d/pull/52"
+      }
+    }
+  },
+  "wallet_capabilities": {
+    "pi_sdk_version": "2.0",
+    "requested_scopes": [
+      "username",
+      "wallet_address"
+    ],
+    "identity_verification": "SERVER_SIDE_PI_PLATFORM_ME",
+    "wallet_address_binding": "IMPLEMENTED_PENDING_PI_BROWSER_RUNTIME_TEST",
+    "soroban_signing": "NOT_ENABLED",
+    "pi_wallet_submission": "PRE_SIGNED_XDR_ONLY",
+    "signing_capability_note": "The official Pi Wallet documentation states that Wallet methods submit pre-signed XDR and the SDK does not build or sign transactions. wallet_address authentication is identity binding, not transaction-signing authorization.",
+    "live_pidex_execution": "DISABLED_UNTIL_SUPPORTED_SIGNER_AND_CONTRACT_DEPLOYMENTS",
+    "testnet_native_balance_read": "SOURCE_IMPLEMENTED_CI_PENDING_PI_BROWSER_RUNTIME_TEST",
+    "custom_asset_balance_read": "BLOCKED_UNTIL_CONTRACT_DEPLOYMENT_AND_VERIFIED_ABI",
+    "transaction_signing": "NOT_ENABLED"
+  },
+  "asset_synchronization": {
+    "registry_source": "PiRC-207 versioned registry",
+    "network_id": "pi-testnet1",
+    "contract_instances_verified_at_probe": 0,
+    "current_registry_contract_references_checked": 7,
+    "on_chain_balance_sync": "NATIVE_TEST_PI_READ_ONLY_SOURCE_IMPLEMENTED; CUSTOM_ASSET_BALANCES_NOT_IMPLEMENTED",
+    "soroban_event_ingestion": "RAW_EVENT_INGESTION_ONLY",
+    "xdr_decoding": "NOT_IMPLEMENTED",
+    "finality_and_state_reconciliation": "NOT_IMPLEMENTED",
+    "live_asset_activation": "BLOCKED_UNTIL_CONTRACT_DEPLOYMENT_AND_READBACK",
+    "event_ingestion_source": "supabase/functions/pirc-soroban-event-ingest/index.ts",
+    "event_ingestion_status": "IDENTITY_GATED_MULTI_CONTRACT_RAW_INGESTION_SOURCE_DENO_CHECK_PASSED_NOT_DEPLOYED",
+    "network_identity_checks": [
+      "Horizon passphrase",
+      "Soroban RPC passphrase",
+      "Soroban RPC protocol",
+      "RPC health",
+      "ledger retention",
+      "allowlisted HTTPS hosts"
+    ],
+    "contract_allowlist_env": "PI_TESTNET_CONTRACT_IDS",
+    "durable_cursor": "one cursor per network and contract",
+    "idempotency": "unique network_id + contract_id + event_id",
+    "transaction_finality": "NOT_VERIFIED",
+    "settlement_projection": "NOT_IMPLEMENTED",
+    "wallet_balance_reconciliation": "NOT_IMPLEMENTED",
+    "on_chain_asset_activation": "BLOCKED_UNTIL_DEPLOYMENT_CODE_HASH_ISSUER_AND_BALANCE_READBACK",
+    "wallet_address_verification": "PI_PLATFORM_ME_TOKEN_VERIFIED_AND_TESTNET_HORIZON_ACCOUNT_READBACK"
+  },
+  "protocol_upgrade_policy": {
+    "expected_protocol_is_operator_configured": true,
+    "current_observed_soroban_protocol": 28,
+    "current_horizon_supported_protocol": 29,
+    "auto_upgrade": false,
+    "activation_rule": "Block contract writes and asset activation until RPC protocol, network passphrase, contract ABI, WASM compatibility and regression tests are re-verified for the target network."
+  },
+  "provided_network_references": {
+    "user_supplied_address": {
+      "value": "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6",
+      "strkey_valid": true,
+      "strkey_type": "ed25519_public_key_account",
+      "checksum": "CRC16-XModem verified",
+      "network_id": "pi-testnet1",
+      "registry_declared_role": "PiRC Master Issuer account for the seven colored Project Packets",
+      "registry_source": "Ze0ro99/PiRC:artifacts/pirc-wealth-core/public/data/full-repo/CONTRACTS_REGISTRY.json",
+      "registry_source_blob": "99f068086ce8b60e05985611e34964b26e1f0987",
+      "network_membership": "DECLARED_BY_PROJECT_REGISTRY_NOT_INDEPENDENTLY_VERIFIED",
+      "account_readback": "PENDING",
+      "contract_id": false,
+      "deployer_authorization": "NOT_ESTABLISHED",
+      "note": "The supplied G... address is the registry-declared master issuer account, not a Soroban contract ID. This source claim does not prove account existence, signer control, admin authorization, or deployment state on Pi Testnet."
+    }
+  },
+  "pirc_registry_import": {
+    "source": "Ze0ro99/PiRC:artifacts/pirc-wealth-core/public/data/full-repo/7_layer_packets.json",
+    "source_blob": "a6ac1ef3fd145eab9e71db59964cd7e0a8cb8c9a",
+    "schema": "pirc.7-layer-packets/v1",
+    "issuer_account": "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6",
+    "entries": [
+      {
+        "index": 6,
+        "color": "RED",
+        "role": "Governance",
+        "contract_id": "CC6WMAHKOPWY6HW46VNKTAV4DZZLRTTNMYLDEKCAICQGMCWV5PZYNTBO",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 5,
+        "color": "GREEN",
+        "role": "Pi Cash",
+        "contract_id": "CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 3,
+        "color": "ORANGE",
+        "role": "Register",
+        "contract_id": "CB7T6TDSZ5B2MQI7NI4EG6ZASYPRMJ3XVUWS6BON4Z64OBMUJ4ZD6GKF",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 2,
+        "color": "YELLOW",
+        "role": "Subscribe",
+        "contract_id": "CANLSQUPUZYKE3S2HAIGXAHMOQWE4FVX5DS7GTL42BVKSNHLFVMQSDFF",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 4,
+        "color": "BLUE",
+        "role": "Extend",
+        "contract_id": "CAMSQZTSCTF3MG4UEIAWKRZNSX7LLKGKXMVBEQO2ETVPGS3CINM7JBQD",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 0,
+        "color": "PURPLE",
+        "role": "Pay Upfront",
+        "contract_id": "CCGEMIEAZFJSBTRL5VGJJAUGPJI3B7UQ3BTAB2OQGW73JMWLS57YVVA4",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      },
+      {
+        "index": 1,
+        "color": "GOLD",
+        "role": "Status",
+        "contract_id": "CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG",
+        "verification_status": "REGISTRY_DECLARED_NOT_CHAIN_VERIFIED"
+      }
+    ],
+    "chain_readback_status": "0_OF_7_FOUND_AT_2026-11-08T13:45:06Z",
+    "migration_warning": "The PiRC packet registry uses PURPLE/GOLD/YELLOW/ORANGE/BLUE/GREEN/RED. The canonical Unity seven-layer proposal uses RED/ORANGE/YELLOW/GREEN/BLUE/INDIGO/PURPLE. Do not silently map GOLD to INDIGO or infer token equivalence; require a versioned, approved registry migration."
+  }
+}

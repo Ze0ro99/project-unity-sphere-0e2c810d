@@ -1,27 +1,62 @@
-"""Read-only Pi Testnet endpoint probes.
+"""Fail-closed, read-only Pi Testnet1 network identity and contract probes.
 
-These checks confirm service reachability only; they do not prove a particular
-contract is deployed, audited, issuer-authorized, or safe to trade.
+Testnet1 is a PiRC project alias for the Pi Testnet profile. It is not a
+separate chain identifier. Endpoint reachability alone never marks an asset
+or contract as verified.
 """
 from __future__ import annotations
 
 import os
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 
-HORIZON_URL = os.getenv("PI_TESTNET_HORIZON_URL", "https://api.testnet.minepi.com").rstrip("/")
-SOROBAN_RPC_URL = os.getenv("PI_TESTNET_SOROBAN_RPC_URL", "https://rpc.testnet.minepi.com").rstrip("/")
+PI_NETWORK = os.getenv("PI_NETWORK", "testnet").strip().lower()
+HORIZON_URL = os.getenv(
+    "PI_HORIZON_URL",
+    os.getenv("PI_TESTNET_HORIZON_URL", "https://api.testnet.minepi.com"),
+).rstrip("/")
+SOROBAN_RPC_URL = os.getenv(
+    "PI_SOROBAN_RPC_URL",
+    os.getenv("PI_TESTNET_SOROBAN_RPC_URL", "https://rpc.testnet.minepi.com"),
+).rstrip("/")
+EXPECTED_PASSPHRASE = (
+    os.getenv("PI_NETWORK_PASSPHRASE")
+    or os.getenv("PI_TESTNET_NETWORK_PASSPHRASE")
+)
+EXPECTED_PROTOCOL = os.getenv("PI_PROTOCOL_EXPECTED", "28").strip()
 TIMEOUT_SECONDS = float(os.getenv("PI_TESTNET_HTTP_TIMEOUT_SECONDS", "5"))
+DEFAULT_ALLOWED_HOSTS = {"api.testnet.minepi.com", "rpc.testnet.minepi.com"}
+ALLOWED_HOSTS = {
+    host.strip().lower()
+    for host in os.getenv("PI_TESTNET_ALLOWED_HOSTS", "").split(",")
+    if host.strip()
+} or DEFAULT_ALLOWED_HOSTS
 
 
-def _get_horizon(client: httpx.Client) -> dict[str, Any]:
+def _endpoint_allowed(url: str, expected_host: str) -> bool:
+    parsed = urlparse(url)
+    return (
+        parsed.scheme == "https"
+        and parsed.hostname is not None
+        and parsed.hostname.lower() == expected_host
+        and parsed.hostname.lower() in ALLOWED_HOSTS
+        and parsed.username is None
+        and parsed.password is None
+    )
+
+
+def _get_json(client: httpx.Client, url: str) -> tuple[bool, dict[str, Any] | None, str | None]:
     try:
-        response = client.get(f"{HORIZON_URL}/")
+        response = client.get(url)
         response.raise_for_status()
-        return {"url": HORIZON_URL, "reachable": True, "http_status": response.status_code}
+        payload = response.json()
+        if not isinstance(payload, dict):
+            return False, None, "Unexpected non-object response"
+        return True, payload, None
     except (httpx.HTTPError, ValueError) as exc:
-        return {"url": HORIZON_URL, "reachable": False, "error": str(exc)[:300]}
+        return False, None, str(exc)[:300]
 
 
 def _rpc(client: httpx.Client, method: str) -> dict[str, Any]:
@@ -32,41 +67,144 @@ def _rpc(client: httpx.Client, method: str) -> dict[str, Any]:
         )
         response.raise_for_status()
         payload = response.json()
+        if not isinstance(payload, dict):
+            return {"ok": False, "error": "Unexpected non-object RPC response"}
         if payload.get("error"):
             return {"ok": False, "error": str(payload["error"])[:300]}
-        return {"ok": True, "result": payload.get("result")}
+        result = payload.get("result")
+        if not isinstance(result, dict):
+            return {"ok": False, "error": "RPC response omitted result object"}
+        return {"ok": True, "result": result}
     except (httpx.HTTPError, ValueError) as exc:
         return {"ok": False, "error": str(exc)[:300]}
 
 
 def check_pi_testnet() -> dict[str, Any]:
-    with httpx.Client(timeout=TIMEOUT_SECONDS, follow_redirects=True) as client:
-        horizon = _get_horizon(client)
+    """Probe endpoints and independently verify the configured network identity.
+
+    The function is read-only. It does not sign, submit, deploy, mint, or transfer.
+    """
+    config_ok = (
+        PI_NETWORK == "testnet"
+        and _endpoint_allowed(HORIZON_URL, "api.testnet.minepi.com")
+        and _endpoint_allowed(SOROBAN_RPC_URL, "rpc.testnet.minepi.com")
+    )
+    if not config_ok:
+        return {
+            "network_id": "pi-testnet1",
+            "network_alias": "Testnet1",
+            "status": "blocked",
+            "configuration": "INVALID_OR_NOT_TESTNET",
+            "identity_verified": False,
+            "contract_verification": "NOT_PERFORMED",
+            "notice": "Only the explicit Pi Testnet profile is permitted by this read-only adapter.",
+        }
+
+    with httpx.Client(timeout=TIMEOUT_SECONDS, follow_redirects=False) as client:
+        horizon_ok, horizon_root, horizon_error = _get_json(client, f"{HORIZON_URL}/")
+        rpc_network = _rpc(client, "getNetwork")
         rpc_health = _rpc(client, "getHealth")
         latest_ledger = _rpc(client, "getLatestLedger")
 
-    rpc_result = rpc_health.get("result") or {}
-    rpc_health_ok = rpc_health.get("ok", False) and (
-        not isinstance(rpc_result, dict)
-        or str(rpc_result.get("status", "healthy")).lower() in {"healthy", "ok"}
+    horizon_passphrase = (horizon_root or {}).get("network_passphrase")
+    rpc_network_data = rpc_network.get("result") or {}
+    rpc_passphrase = (
+        rpc_network_data.get("passphrase")
+        or rpc_network_data.get("networkPassphrase")
     )
-    ledger_result = latest_ledger.get("result") or {}
-    rpc_ok = rpc_health_ok and latest_ledger.get("ok", False)
-    reachable = horizon.get("reachable", False) and rpc_ok
+    rpc_protocol = rpc_network_data.get("protocolVersion")
+    horizon_protocol = (horizon_root or {}).get("core_supported_protocol_version")
+
+    health_data = rpc_health.get("result") or {}
+    health_status = str(health_data.get("status", "")).lower()
+    health_ok = rpc_health.get("ok", False) and health_status in {"healthy", "ok"}
+    rpc_ok = (
+        rpc_network.get("ok", False)
+        and health_ok
+        and latest_ledger.get("ok", False)
+    )
+    endpoints_reachable = horizon_ok and rpc_ok
+
+    passphrase_matches = bool(
+        EXPECTED_PASSPHRASE
+        and horizon_passphrase == EXPECTED_PASSPHRASE
+        and rpc_passphrase == EXPECTED_PASSPHRASE
+    )
+    try:
+        expected_protocol = int(EXPECTED_PROTOCOL)
+        protocol_matches = (
+            rpc_protocol is not None
+            and horizon_protocol is not None
+            and int(rpc_protocol) == expected_protocol
+            and int(horizon_protocol) >= expected_protocol
+        )
+    except (TypeError, ValueError):
+        expected_protocol = None
+        protocol_matches = False
+
+    identity_verified = (
+        PI_NETWORK == "testnet"
+        and endpoints_reachable
+        and passphrase_matches
+        and protocol_matches
+    )
+
+    if identity_verified:
+        status = "verified"
+    elif endpoints_reachable and not EXPECTED_PASSPHRASE:
+        status = "reachable_unverified"
+    elif endpoints_reachable:
+        status = "identity_mismatch"
+    else:
+        status = "degraded"
 
     return {
-        "network_id": "pi-testnet",
-        "network_passphrase": "Pi Testnet",
-        "status": "reachable" if reachable else "degraded",
-        "horizon": horizon,
+        "network_id": "pi-testnet1",
+        "network_alias": "Testnet1",
+        "configured_network": PI_NETWORK,
+        "status": status,
+        "identity_verified": identity_verified,
+        "expected_protocol": expected_protocol,
+        "observed_protocol": {
+            "horizon_supported": horizon_protocol,
+            "soroban_rpc": rpc_protocol,
+        },
+        "passphrase_checks": {
+            "expected_configured": bool(EXPECTED_PASSPHRASE),
+            "horizon_matches": bool(EXPECTED_PASSPHRASE and horizon_passphrase == EXPECTED_PASSPHRASE),
+            "rpc_matches": bool(EXPECTED_PASSPHRASE and rpc_passphrase == EXPECTED_PASSPHRASE),
+        },
+        "horizon": {
+            "url": HORIZON_URL,
+            "reachable": horizon_ok,
+            "error": horizon_error,
+        },
         "soroban_rpc": {
             "url": SOROBAN_RPC_URL,
             "reachable": rpc_ok,
-            "health": rpc_health,
-            "latest_ledger": ledger_result,
+            "network": {
+                "ok": rpc_network.get("ok", False),
+                "passphrase_present": bool(rpc_passphrase),
+                "protocol_version": rpc_protocol,
+            },
+            "health": {
+                "ok": health_ok,
+                "status": health_status or None,
+                "latest_ledger": health_data.get("latestLedger"),
+                "oldest_ledger": health_data.get("oldestLedger"),
+                "retention_window": health_data.get("ledgerRetentionWindow"),
+            },
+            "latest_ledger": {
+                "ok": latest_ledger.get("ok", False),
+                "id": (latest_ledger.get("result") or {}).get("id"),
+                "close_time": (latest_ledger.get("result") or {}).get("closeTime"),
+            },
         },
         "contract_verification": "NOT_PERFORMED",
-        "notice": "Endpoint reachability is not contract deployment, issuer, code-hash, reserve or audit verification.",
+        "notice": (
+            "Read-only network identity check. This is not contract deployment, "
+            "code-hash, issuer, asset, reserve, wallet-signing, or trading verification."
+        ),
     }
 
 
@@ -101,11 +239,13 @@ def verify_contract_instance(contract_id: str) -> dict[str, Any]:
             "probe_status": "FOUND" if present else "NOT_FOUND",
             "contract_instance_present": present,
             "rpc_url": SOROBAN_RPC_URL,
+            "network_id": "pi-testnet1",
         }
     except Exception as exc:
         return {
             "probe_status": "RPC_UNAVAILABLE",
             "contract_instance_present": None,
             "rpc_url": SOROBAN_RPC_URL,
+            "network_id": "pi-testnet1",
             "error": str(exc)[:300],
         }

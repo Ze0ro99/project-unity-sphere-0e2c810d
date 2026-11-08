@@ -1,0 +1,27 @@
+name: Unity Sphere Release Readiness Gate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unity-sphere-release-readiness
+  cancel-in-progress: true
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PI_NETWORK_PASSPHRASE: ${{ secrets.PI_NETWORK_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+      - name: Enforce localization and Testnet evidence gates
+        run: node scripts/release-gate.mjs

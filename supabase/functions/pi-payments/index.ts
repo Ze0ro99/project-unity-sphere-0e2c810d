@@ -6,6 +6,7 @@
 // approve/complete payments that belong to them and to this app.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { z } from "npm:zod@3.23.8";
+import { readPiTestnetNativeBalance } from "./pi-testnet-wallet.ts";
 
 const PI_API = "https://api.minepi.com/v2";
 const PI_API_KEY = (Deno.env.get("PI_API_KEY") || Deno.env.get("PI_NETWORK_API_KEY") || "").trim();
@@ -23,6 +24,7 @@ const Id = z.string().regex(/^[A-Za-z0-9_-]{4,128}$/);
 const Body = z.discriminatedUnion("action", [
   z.object({ action: z.literal("health") }),
   z.object({ action: z.literal("auth"), accessToken: z.string().min(10).max(4096) }),
+  z.object({ action: z.literal("wallet_balance"), accessToken: z.string().min(10).max(4096) }),
   z.object({ action: z.literal("approve"), accessToken: z.string().min(10).max(4096), paymentId: Id }),
   z.object({
     action: z.literal("complete"),
@@ -46,11 +48,30 @@ async function piServer(path: string, init: RequestInit = {}) {
   return text ? JSON.parse(text) : {};
 }
 
-async function piUser(accessToken: string): Promise<{ uid: string; username: string } | null> {
+async function piUser(accessToken: string): Promise<{ uid: string; username: string; wallet_address?: string } | null> {
   const r = await fetch(`${PI_API}/me`, { headers: { Authorization: `Bearer ${accessToken}` } });
   if (!r.ok) return null;
   const me = await r.json().catch(() => null);
-  return me?.uid ? { uid: me.uid, username: me.username } : null;
+  return me?.uid ? { uid: me.uid, username: me.username, ...(typeof me.wallet_address === "string" ? { wallet_address: me.wallet_address } : {}) } : null;
+}
+
+
+async function piTestnetWalletBalance(accessToken: string) {
+  const me = await piUser(accessToken);
+  if (!me) return json({ error: "Unauthorized" }, 401);
+  try {
+    return json(await readPiTestnetNativeBalance(me.wallet_address));
+  } catch (error) {
+    console.error("pi-testnet-wallet-balance", error);
+    const message = String(error);
+    if (message.includes("testnet_network_identity_unverified")) {
+      return json({ error: "testnet_network_identity_unverified" }, 503);
+    }
+    if (message.includes("testnet_account_read_failed")) {
+      return json({ error: "testnet_account_read_failed" }, 502);
+    }
+    return json({ error: "testnet_wallet_balance_unavailable" }, 502);
+  }
 }
 
 Deno.serve(async (req) => {
@@ -82,6 +103,10 @@ Deno.serve(async (req) => {
       const me = await piUser(body.accessToken);
       if (!me) return json({ error: "Unauthorized" }, 401);
       return json({ authenticated: true, user: me });
+    }
+
+    if (body.action === "wallet_balance") {
+      return await piTestnetWalletBalance(body.accessToken);
     }
 
     const payment = await piServer(`/payments/${body.paymentId}`);

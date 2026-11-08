@@ -150,6 +150,58 @@ def pi_testnet_network_health() -> dict[str, Any]:
     return check_pi_testnet()
 
 
+def _load_capability_catalog() -> dict[str, Any]:
+    catalog_file = _REPOSITORY_ROOT / "assets" / "registry" / "developer-capability-catalog.json"
+    try:
+        with catalog_file.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=503, detail={
+            "code": "CAPABILITY_CATALOG_UNAVAILABLE",
+            "message": "Developer capability catalog is unavailable or invalid.",
+            "retryable": True,
+        }) from exc
+    if not isinstance(payload, dict) or not isinstance(payload.get("capabilities"), list):
+        raise HTTPException(status_code=503, detail={
+            "code": "CAPABILITY_CATALOG_INVALID",
+            "message": "Developer capability catalog has an invalid schema.",
+            "retryable": False,
+        })
+    return payload
+
+
+@router.get("/developer/capabilities")
+def list_developer_capabilities() -> dict[str, Any]:
+    catalog = _load_capability_catalog()
+    return {
+        "schema_version": catalog.get("schema_version"),
+        "catalog_version": catalog.get("catalog_version"),
+        "network_profiles": catalog.get("network_profiles", []),
+        "app_access": catalog.get("app_access", {}),
+        "count": len(catalog["capabilities"]),
+        "items": catalog["capabilities"],
+        "notice": "Discovery metadata only. A catalog entry does not grant credentials, signing authority, deployment access or live economic execution.",
+    }
+
+
+@router.get("/developer/capabilities/{capability_id}")
+def get_developer_capability(capability_id: str) -> dict[str, Any]:
+    catalog = _load_capability_catalog()
+    for capability in catalog["capabilities"]:
+        if capability.get("id") == capability_id:
+            return {
+                "catalog_version": catalog.get("catalog_version"),
+                "item": capability,
+                "app_access": catalog.get("app_access", {}),
+                "notice": "Capability discovery only. Access must be separately authorized and implemented.",
+            }
+    raise HTTPException(status_code=404, detail={
+        "code": "CAPABILITY_NOT_FOUND",
+        "message": "No developer capability is registered with this identifier.",
+        "retryable": False,
+    })
+
+
 @router.get("/assets")
 def list_assets(verification_status: str | None = Query(default=None)) -> dict[str, Any]:
     records = _records()
@@ -234,8 +286,33 @@ def get_asset_verification(network: str, asset_id: str) -> dict[str, Any]:
             "network_id": network_id,
             "retryable": False,
         })
+
     contract_id = record.get("contract_id")
+    network_probe = None
     if contract_id:
+        # Never probe a contract until the configured Pi Testnet1 profile has
+        # verified its network identity and protocol.
+        network_probe = check_pi_testnet()
+        if not network_probe.get("identity_verified"):
+            return {
+                "asset_key": record.get("asset_key"),
+                "network_id": network_id,
+                "contract_id": contract_id,
+                "verification_status": "UNVERIFIED",
+                "deployment_tx": None,
+                "deployed_code_hash": None,
+                "verified_at": None,
+                "checks": {
+                    "registry_record": "PRESENT",
+                    "network_readback": "NETWORK_IDENTITY_UNVERIFIED",
+                    "network_probe": network_probe,
+                    "contract_instance_probe": None,
+                    "issuer_authorization": "NOT_VERIFIED",
+                    "deployed_code_hash": "NOT_VERIFIED",
+                },
+                "notice": "Network identity is not verified; contract probes and asset activation are blocked.",
+            }
+
         probe = verify_contract_instance(str(contract_id))
         probe_status = probe.get("probe_status", "RPC_UNAVAILABLE")
         if probe_status == "FOUND":
@@ -266,6 +343,7 @@ def get_asset_verification(network: str, asset_id: str) -> dict[str, Any]:
         "checks": {
             "registry_record": "PRESENT",
             "network_readback": network_readback,
+            "network_probe": network_probe,
             "contract_instance_probe": probe,
             "issuer_authorization": "NOT_VERIFIED",
             "deployed_code_hash": "NOT_VERIFIED",
