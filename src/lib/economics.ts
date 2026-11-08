@@ -15,6 +15,24 @@
 export const BASE_QWF = 10_000_000; // Quantified Work Force baseline
 /** Scaled purchasing-power model; never an atomic-unit or execution-price conversion. */
 export const IPPR_SUPPLY_MULTIPLIER = 10_000_000;
+export const MARKET_INDEX_MAX_AGE_MS = 30_000;
+
+/** A quote is live only while its server timestamp is valid and within the freshness window. */
+export function isFreshMarketIndex(timestamp: number, now = Date.now()): boolean {
+  return Number.isFinite(timestamp)
+    && Number.isFinite(now)
+    && timestamp > 0
+    && now >= timestamp
+    && now - timestamp <= MARKET_INDEX_MAX_AGE_MS;
+}
+
+/** PiRC-101: Φ = (L_n × IPPR) / QWF. L_n is the network-liquidity/velocity factor. */
+export function reflexiveConstraint(networkFactor: number, ippr: number, qwf: number): number {
+  if (![networkFactor, ippr, qwf].every(Number.isFinite) || networkFactor <= 0 || ippr <= 0 || qwf <= 0) {
+    return NaN;
+  }
+  return (networkFactor * ippr) / qwf;
+}
 
 export function ipprFromSpot(spot: number): number {
   return Number.isFinite(spot) && spot > 0 ? spot * IPPR_SUPPLY_MULTIPLIER : NaN;
@@ -114,7 +132,7 @@ export function simulate(scenario: SimulationScenario, seedSuffix = "", baseIppr
     const shock = (rand() - 0.5) * 2 * scenario.oracleVolatility * 0.5;
     const velocity = Math.max(0.05, BASE_VELOCITY + cyclical * 0.5 + shock);
 
-    const phi = (velocity * ippr) / qwf;
+    const phi = reflexiveConstraint(velocity, ippr, qwf);
     const collateralRatio = Math.min(1, Math.max(0.5, phi));
     window.push(velocity);
     if (window.length > 7) window.shift();
