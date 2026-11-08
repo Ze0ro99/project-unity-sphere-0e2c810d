@@ -23,6 +23,11 @@ const GATES: Gate[] = [
   { to: "/pidex#pool", title: "Liquidity Pools", desc: "Provide / remove liquidity, LP shares & fee accrual", icon: Droplets, group: "Trading", tag: "PiRC-215" },
   { to: "/pidex#account", title: "Treasury & Portfolio", desc: "Balances, deposits, withdrawals and fills export", icon: Wallet, group: "Trading" },
 
+  { to: "/oracle", title: "Market Data Gateway", desc: "PI/USD venue median, source quorum, quote freshness and live IPPR rebase.", icon: Satellite, group: "Sovereign", tag: "PiRC-214" },
+  { to: "/pidex", title: "Utility & Commerce Gateway", desc: "Merchant listings, product utility, inventory, payment intents and fulfilment evidence.", icon: Boxes, group: "Sovereign", tag: "PiRC-V18" },
+  { to: "/economics", title: "Velocity & Liquidity Gateway", desc: "Verified settled commerce velocity, turnover, PiDEX depth, spread and slippage.", icon: Gauge, group: "Sovereign", tag: "PiRC-101" },
+  { to: "/testnet", title: "Solvency & Settlement Gateway", desc: "Testnet identity, contract read-back, reserve evidence and settlement-finality checks.", icon: ShieldCheck, group: "Sovereign", tag: "TESTNET" },
+
   { to: "/sovereign", title: "Economic Core", desc: "Manifold routing, Φ solvency, WCF & efficiency factors", icon: Sigma, group: "Sovereign", tag: "core/math" },
   { to: "/sovereign#risk", title: "Risk Analytics", desc: "VaR, expected shortfall, drawdown & depth scoring", icon: Gauge, group: "Sovereign", tag: "PiRC-211" },
   { to: "/sovereign#anomaly", title: "Anomaly Detection", desc: "Robust-z dislocation, volume burst & book imbalance", icon: AlertTriangle, group: "Sovereign", tag: "PiRC-208" },
@@ -59,7 +64,17 @@ const GROUP_ICON: Record<string, LucideIcon> = {
 export default function Gateways() {
   const { t } = useI18n();
   const groupLabels: Record<string, string> = { Trading: t("gate.group.trading"), Sovereign: t("gate.group.sovereign"), Blockchain: t("gate.group.blockchain"), Standards: t("gate.group.standards") };
-  const titleLabels: Record<string, string> = { "Exchange Terminal": t("nav.pidex"), "Economic Core": t("nav.sovereign"), "Cross-Chain Bridge": t("nav.bridge"), "Governance & Treasury": t("nav.governance"), "Compliance Gateway": t("nav.compliance"), "Oracle & Purchasing Power": t("nav.oracle"), "Chain Explorer": t("nav.explorer"), "Network Health": t("nav.network"), "7-Layer Registry": t("nav.layers"), "Standards Compliance": t("nav.standards"), "Testnet Probe": t("nav.testnet"), "Repository Sync": t("nav.repository"), "BN254 / ZK Verifier": t("nav.bn254") };
+  const titleLabels: Record<string, string> = {
+    "Market Data Gateway": t("gate.marketData.title"),
+    "Utility & Commerce Gateway": t("gate.utilityCommerce.title"),
+    "Velocity & Liquidity Gateway": t("gate.velocityLiquidity.title"),
+    "Solvency & Settlement Gateway": t("gate.solvencySettlement.title"), "Exchange Terminal": t("nav.pidex"), "Economic Core": t("nav.sovereign"), "Cross-Chain Bridge": t("nav.bridge"), "Governance & Treasury": t("nav.governance"), "Compliance Gateway": t("nav.compliance"), "Oracle & Purchasing Power": t("nav.oracle"), "Chain Explorer": t("nav.explorer"), "Network Health": t("nav.network"), "7-Layer Registry": t("nav.layers"), "Standards Compliance": t("nav.standards"), "Testnet Probe": t("nav.testnet"), "Repository Sync": t("nav.repository"), "BN254 / ZK Verifier": t("nav.bn254") };
+  const descLabels: Record<string, string> = {
+    "Market Data Gateway": t("gate.marketData.desc"),
+    "Utility & Commerce Gateway": t("gate.utilityCommerce.desc"),
+    "Velocity & Liquidity Gateway": t("gate.velocityLiquidity.desc"),
+    "Solvency & Settlement Gateway": t("gate.solvencySettlement.desc"),
+  };
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-border bg-panel/60 p-5 sm:p-7">
@@ -100,7 +115,7 @@ export default function Gateways() {
                   </div>
                   <div>
                     <div className="font-semibold text-sm">{titleLabels[gate.title] ?? gate.title}</div>
-                    <div className="text-xs text-muted mt-1 leading-relaxed">{gate.desc}</div>
+                    <div className="text-xs text-muted mt-1 leading-relaxed">{descLabels[gate.title] ?? gate.desc}</div>
                   </div>
                 </Link>
               ))}
