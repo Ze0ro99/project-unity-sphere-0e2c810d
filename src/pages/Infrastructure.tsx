@@ -10,6 +10,7 @@ import {
   type CacheStats,
 } from "@/lib/infra";
 import { fetchLatestLedgers, HORIZON_MAINNET } from "@/lib/pi";
+import { useI18n } from "@/i18n";
 
 const TIER_COLOR: Record<string, string> = {
   edge: "text-green",
@@ -24,6 +25,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default function Infrastructure() {
+  const { t } = useI18n();
   const [stats, setStats] = useState<CacheStats>(() => cacheStats());
   const [busy, setBusy] = useState(false);
 
@@ -60,7 +62,7 @@ export default function Infrastructure() {
             <Server size={20} />
           </span>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Infrastructure</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.infra")}</h1>
             <p className="text-sm text-muted">
               Edge cache &amp; CDN policy telemetry, contract warehouse build matrix and the branch merge ledger.
             </p>
