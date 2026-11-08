@@ -10,6 +10,7 @@ import {
 } from "@/lib/oracle";
 import { useMarketIndex, refreshMarketIndex } from "@/lib/market-index";
 import { useI18n } from "@/i18n";
+import { ipprFromSpot } from "@/lib/economics";
 
 const REFRESH_MS = 30_000;
 
@@ -102,9 +103,10 @@ export default function Oracle() {
             {t("oracle.refresh")}
           </button>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-4">
+        <div className="mt-4 grid gap-3 sm:grid-cols-5">
           <Stat label={t("oracle.feedsLive")} value={`${liveFeeds} / ${FEEDS.length}`} />
-          <Stat label={t("oracle.piMedian")} value={agg ? `$${fmt(agg.price, 4)}` : "—"} />
+          <Stat label={t("oracle.piMedian")} value={agg ? `${fmt(agg.price, 6)}` : "—"} />
+          <Stat label={t("oracle.ipprLive")} value={agg ? `${fmt(ipprFromSpot(agg.price), 0)}` : "—"} />
           <Stat label={t("oracle.deviation")} value={agg ? `${agg.deviationBps.toFixed(1)} bps` : "—"} />
           <Stat
             label={t("oracle.updated")}
