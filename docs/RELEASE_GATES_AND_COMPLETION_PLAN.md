@@ -49,6 +49,7 @@ The integration manifest currently records:
 - [ ] Complete every user-facing dictionary key for each advertised locale.
 - [ ] Require interpolation placeholder parity across locales.
 - [ ] Move visible hard-coded route text into the shared localization system or explicitly mark canonical names, hashes, addresses, and code as non-translatable.
+- [ ] Complete route-level translation for all 17 application pages. The current dictionaries have 166 keys, but several pages localize only their page heading while the remaining labels, tables, forms, and notices are still hard-coded in English. Non-English selection remains disabled until route coverage is complete.
 - [ ] Verify every route at mobile and desktop sizes, including RTL behavior and LTR numeric identifiers.
 - [ ] Obtain fluent review for each advertised locale.
 - [ ] Keep incomplete locales visible as unavailable/disabled in the selector until every English baseline key, interpolation placeholder, and route label has been translated and reviewed.
