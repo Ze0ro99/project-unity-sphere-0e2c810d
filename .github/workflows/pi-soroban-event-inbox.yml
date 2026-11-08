@@ -12,6 +12,7 @@ on:
     branches: [main]
     paths:
       - "supabase/functions/pirc-soroban-event-ingest/**"
+      - "supabase/functions/pi-payments/**"
       - "supabase/migrations/*pirc_soroban_event_inbox.sql"
       - "supabase/config.toml"
       - ".github/workflows/pi-soroban-event-inbox.yml"
