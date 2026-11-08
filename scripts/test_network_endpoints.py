@@ -72,10 +72,10 @@ def main() -> int:
     }
     print(json.dumps(report, indent=2, sort_keys=True))
 
-    pi_rpc_ok = bool(pi.get("soroban_rpc", {}).get("reachable"))
+    pi_rpc_ok = bool(pi.get("identity_verified"))
     stellar_ok = bool(stellar["horizon"]["reachable"] and stellar["soroban_rpc"]["reachable"])
     if not pi_rpc_ok or not stellar_ok:
-        print("One or more required testnet read-only probes failed.", file=sys.stderr)
+        print("Pi Testnet identity or one of the separate testnet read-only probes failed.", file=sys.stderr)
         return 1
     return 0
 
