@@ -12,7 +12,7 @@ for (const locale of localeNames) {
   const end = source.indexOf("\n};", start);
   if (end < 0) throw new Error(`Unterminated locale dictionary: ${locale}`);
   const block = source.slice(start, end);
-  dictionaries.set(locale, new Set([...block.matchAll(/^\\s*"([^"]+)":/gm)].map((match) => match[1])));
+  dictionaries.set(locale, new Set([...block.matchAll(/^\s*"([^"]+)":/gm)].map((match) => match[1])));
 }
 
 const baseline = dictionaries.get("en");
