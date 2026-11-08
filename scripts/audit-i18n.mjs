@@ -22,7 +22,7 @@ console.log(`i18n key baseline: ${baseline.size} English keys\n`);
 for (const locale of localeNames) {
   const keys = dictionaries.get(locale);
   const missing = [...baseline].filter((key) => !keys.has(key));
-  const coverage = baseline.size === 0 ? 100 : ((keys.size - missing.length) / baseline.size) * 100;
+  const coverage = baseline.size === 0 ? 100 : ((baseline.size - missing.length) / baseline.size) * 100;
   const state = missing.length === 0 ? "complete" : "incomplete";
   console.log(`${locale.padEnd(3)} ${coverage.toFixed(1).padStart(5)}%  ${keys.size.toString().padStart(3)} keys  ${state}`);
   if (missing.length) {
