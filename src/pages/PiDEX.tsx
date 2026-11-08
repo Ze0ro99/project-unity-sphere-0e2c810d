@@ -30,6 +30,8 @@ import {
 import CandleChart from "@/components/exchange/CandleChart";
 import DepthChart from "@/components/exchange/DepthChart";
 import { useMarketIndex } from "@/lib/market-index";
+import { usePiConnection } from "@/lib/piSdk";
+import { useI18n } from "@/i18n";
 import { ipprFromSpot, IPPR_SUPPLY_MULTIPLIER } from "@/lib/economics";
 import {
   Search, Shield, Activity, Star, TrendingUp, TrendingDown, AlertTriangle,
@@ -40,6 +42,8 @@ type Tab = "orders" | "history" | "balances" | "pool";
 
 export default function PiDEX() {
   const state = useSyncExternalStore(exchangeStore.subscribe, exchangeStore.getSnapshot, exchangeStore.getSnapshot);
+  const { t } = useI18n();
+  const { connected: piConnected, user: piUser, loading: piLoading, connect: connectPi } = usePiConnection();
   const market = useMarketIndex();
   const index = market.index;
   const piUsd = index?.price ?? NaN;
@@ -178,6 +182,36 @@ export default function PiDEX() {
           <Stat label="24h Vol (π)" value={compact(m.vol24h)} />
           <Stat label="Pool TVL (π)" value={compact(m.reserveQuote * 2)} />
         </div>
+      </section>
+
+      <section className="card px-4 py-3 flex flex-wrap items-center gap-3 border border-border">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <Wallet size={16} className="text-gold" />
+          <div className="min-w-0">
+            <div className="text-xs font-semibold">{t("pidex.walletTitle")}</div>
+            <div className="text-[11px] text-muted">
+              {piConnected ? t("pidex.walletConnected") : t("pidex.walletDisconnected")}
+            </div>
+            {piConnected && piUser?.walletAddress ? (
+              <div className="mono text-[10px] text-muted break-all" title={piUser.walletAddress}>
+                {t("pidex.walletAddress")}: {piUser.walletAddress}
+              </div>
+            ) : piConnected ? (
+              <div className="text-[10px] text-amber-400">{t("pidex.walletAddressMissing")}</div>
+            ) : null}
+          </div>
+        </div>
+        {!piConnected && (
+          <button
+            type="button"
+            onClick={connectPi}
+            disabled={piLoading}
+            className="rounded-md bg-panel2 border border-border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+          >
+            {piLoading ? t("common.loading") : t("pidex.connectWallet")}
+          </button>
+        )}
+        <p className="w-full text-[10px] text-muted">{t("pidex.walletScopeNote")}</p>
       </section>
 
       <section className="card px-4 py-2 flex flex-wrap items-center gap-3 border border-sky-500/30 bg-sky-500/5">
