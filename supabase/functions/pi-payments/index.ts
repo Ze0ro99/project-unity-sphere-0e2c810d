@@ -8,8 +8,36 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { z } from "npm:zod@3.23.8";
 import { readPiTestnetNativeBalance } from "./pi-testnet-wallet.ts";
 
-const PI_API = "https://api.minepi.com/v2";
-const PI_API_KEY = (Deno.env.get("PI_API_KEY") || Deno.env.get("PI_NETWORK_API_KEY") || "").trim();
+// Fail closed: never fall back to the Pi Mainnet Platform API or a legacy API key.
+const PI_NETWORK = (Deno.env.get("PI_NETWORK") || "").trim().toLowerCase();
+const PI_PLATFORM_API_URL = (Deno.env.get("PI_PLATFORM_API_URL") || "").trim().replace(/\\/$/, "");
+const PI_PLATFORM_API_ALLOWED_HOSTS = new Set(
+  (Deno.env.get("PI_PLATFORM_API_ALLOWED_HOSTS") || "")
+    .split(",").map((host) => host.trim().toLowerCase()).filter(Boolean),
+);
+const PI_TESTNET_API_KEY = (Deno.env.get("PI_TESTNET_API_KEY") || "").trim();
+
+function piTestnetApiBase(): string {
+  if (PI_NETWORK !== "testnet") throw new Error("testnet_network_not_configured");
+  if (!PI_PLATFORM_API_URL || PI_PLATFORM_API_ALLOWED_HOSTS.size === 0) {
+    throw new Error("testnet_platform_api_not_configured");
+  }
+  let parsed: URL;
+  try { parsed = new URL(PI_PLATFORM_API_URL); }
+  catch { throw new Error("testnet_platform_api_invalid"); }
+  if (
+    parsed.protocol !== "https:" ||
+    parsed.hostname.toLowerCase() === "api.minepi.com" ||
+    !PI_PLATFORM_API_ALLOWED_HOSTS.has(parsed.hostname.toLowerCase()) ||
+    !parsed.pathname.replace(/\\/$/, "").endsWith("/v2")
+  ) throw new Error("testnet_platform_api_not_allowlisted");
+  return PI_PLATFORM_API_URL;
+}
+
+function testnetPaymentWritesEnabled(): boolean {
+  try { piTestnetApiBase(); return PI_TESTNET_API_KEY.length > 0; }
+  catch { return false; }
+}
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -35,10 +63,11 @@ const Body = z.discriminatedUnion("action", [
 ]);
 
 async function piServer(path: string, init: RequestInit = {}) {
-  if (!PI_API_KEY) throw new Error("PI_API_KEY not configured");
-  const r = await fetch(`${PI_API}${path}`, {
+  const base = piTestnetApiBase();
+  if (!PI_TESTNET_API_KEY) throw new Error("testnet_platform_api_key_missing");
+  const r = await fetch(`${base}${path}`, {
     ...init,
-    headers: { ...(init.headers ?? {}), Authorization: `Key ${PI_API_KEY}`, "Content-Type": "application/json" },
+    headers: { ...(init.headers ?? {}), Authorization: `Key ${PI_TESTNET_API_KEY}`, "Content-Type": "application/json" },
   });
   const text = await r.text();
   if (!r.ok) {
@@ -49,7 +78,8 @@ async function piServer(path: string, init: RequestInit = {}) {
 }
 
 async function piUser(accessToken: string): Promise<{ uid: string; username: string; wallet_address?: string } | null> {
-  const r = await fetch(`${PI_API}/me`, { headers: { Authorization: `Bearer ${accessToken}` } });
+  const base = piTestnetApiBase();
+  const r = await fetch(`${base}/me`, { headers: { Authorization: `Bearer ${accessToken}` } });
   if (!r.ok) return null;
   const me = await r.json().catch(() => null);
   return me?.uid ? { uid: me.uid, username: me.username, ...(typeof me.wallet_address === "string" ? { wallet_address: me.wallet_address } : {}) } : null;
@@ -90,7 +120,9 @@ Deno.serve(async (req) => {
   try {
     if (body.action === "health") {
       // Confirms the server API key is accepted by Pi Network (no secret is returned).
-      if (!PI_API_KEY) return json({ ok: false, key: "missing" });
+      if (!testnetPaymentWritesEnabled()) {
+        return json({ ok: false, network: PI_NETWORK || "unset", writes_enabled: false, reason: "testnet_platform_api_not_configured" }, 503);
+      }
       try {
         await piServer("/payments/incomplete_server_payments");
         return json({ ok: true, key: "valid" });
@@ -112,6 +144,7 @@ Deno.serve(async (req) => {
     const payment = await piServer(`/payments/${body.paymentId}`);
 
     if (body.action === "approve") {
+      if (!testnetPaymentWritesEnabled()) return json({ error: "testnet_payment_api_not_configured" }, 503);
       const me = await piUser(body.accessToken);
       if (!me) return json({ error: "Unauthorized" }, 401);
       if (payment.user_uid !== me.uid) return json({ error: "forbidden" }, 403);
@@ -122,6 +155,7 @@ Deno.serve(async (req) => {
 
     // complete — allowed for the payer, or for an incomplete payment recovered at login
     // as long as the on-chain txid matches the one Pi recorded for this payment.
+    if (!testnetPaymentWritesEnabled()) return json({ error: "testnet_payment_api_not_configured" }, 503);
     if (body.accessToken) {
       const me = await piUser(body.accessToken);
       if (!me) return json({ error: "Unauthorized" }, 401);
@@ -138,6 +172,7 @@ Deno.serve(async (req) => {
   } catch (e) {
     console.error("pi-payments error", e);
     const msg = (e as Error).message ?? "";
+    if (msg.startsWith("testnet_")) return json({ error: msg }, 503);
     if (msg.startsWith("upstream_404")) return json({ error: "payment_not_found" }, 404);
     return json({ error: "server_error" }, 500);
   }
