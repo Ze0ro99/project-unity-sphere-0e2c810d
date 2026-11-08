@@ -3,6 +3,13 @@ export type Lang = "en" | "ar" | "zh" | "id" | "fr" | "es" | "de" | "pt";
 type Dict = Record<string, string>;
 
 const en: Dict = {
+  "pidex.walletTitle": "Pi Wallet",
+  "pidex.walletConnected": "Pi wallet identity connected",
+  "pidex.walletDisconnected": "Pi account is not connected",
+  "pidex.walletAddressMissing": "Wallet address was not returned",
+  "pidex.walletScopeNote": "This binds your Pi account and wallet address. It does not enable Soroban transaction signing or live PiDEX settlement.",
+  "pidex.connectWallet": "Connect Pi wallet",
+  "pidex.walletAddress": "Wallet address",
   "nav.oracle": "Oracle",
   "oracle.title": "Oracle & Purchasing Power",
   "oracle.subtitle": "Off-chain Ethereum Mainnet Chainlink reads + centralized-exchange Pi median; not a Pi/Soroban on-chain oracle.",
@@ -180,6 +187,13 @@ const en: Dict = {
 };
 
 const ar: Dict = {
+  "pidex.walletTitle": "محفظة Pi",
+  "pidex.walletConnected": "تم ربط هوية محفظة Pi",
+  "pidex.walletDisconnected": "حساب Pi غير متصل",
+  "pidex.walletAddressMissing": "لم يُرجع عنوان المحفظة",
+  "pidex.walletScopeNote": "يربط هذا حساب Pi بعنوان المحفظة، لكنه لا يفعّل توقيع معاملات Soroban أو تسوية PiDEX الحية.",
+  "pidex.connectWallet": "اتصل بمحفظة Pi",
+  "pidex.walletAddress": "عنوان المحفظة",
   "nav.oracle": "\u0627\u0644\u0623\u0648\u0631\u0627\u0643\u0644",
   "oracle.title": "\u0627\u0644\u0623\u0648\u0631\u0627\u0643\u0644 \u0648\u0627\u0644\u0642\u0648\u0629 \u0627\u0644\u0634\u0631\u0627\u0626\u064a\u0629",
   "oracle.subtitle": "\u062a\u063a\u0630\u064a\u0627\u062a Chainlink AggregatorV3 \u0648\u0648\u0633\u064a\u0637 \u0627\u0644\u0645\u0646\u0635\u0627\u062a \u0648\u0645\u0624\u0634\u0631 \u0633\u0644\u0629 PiRC-214.",
@@ -353,6 +367,13 @@ const ar: Dict = {
 };
 
 const zh: Dict = {
+  "pidex.walletTitle": "Pi 钱包",
+  "pidex.walletConnected": "Pi 钱包身份已连接",
+  "pidex.walletDisconnected": "Pi 账户未连接",
+  "pidex.walletAddressMissing": "未返回钱包地址",
+  "pidex.walletScopeNote": "此操作将 Pi 账户与钱包地址关联，但不会启用 Soroban 交易签名或 PiDEX 实时结算。",
+  "pidex.connectWallet": "连接 Pi 钱包",
+  "pidex.walletAddress": "钱包地址",
   "nav.oracle": "\u9884\u8a00\u673a",
   "oracle.title": "\u9884\u8a00\u673a\u4e0e\u8d2d\u4e70\u529b",
   "oracle.subtitle": "Chainlink AggregatorV3 \u6570\u636e\u6e90\u3001\u4ea4\u6613\u6240\u4e2d\u4f4d\u6570\u4e0e PiRC-214 \u4e00\u7bee\u5b50\u6307\u6570\u3002",
@@ -526,6 +547,13 @@ const zh: Dict = {
 };
 
 const id: Dict = {
+  "pidex.walletTitle": "Dompet Pi",
+  "pidex.walletConnected": "Identitas dompet Pi terhubung",
+  "pidex.walletDisconnected": "Akun Pi belum terhubung",
+  "pidex.walletAddressMissing": "Alamat dompet tidak dikembalikan",
+  "pidex.walletScopeNote": "Ini menghubungkan akun Pi dengan alamat dompet. Ini tidak mengaktifkan penandatanganan transaksi Soroban atau penyelesaian PiDEX langsung.",
+  "pidex.connectWallet": "Hubungkan dompet Pi",
+  "pidex.walletAddress": "Alamat dompet",
   "nav.oracle": "Oracle",
   "oracle.title": "Oracle & Daya Beli",
   "oracle.subtitle": "Pembacaan Chainlink off-chain dari Ethereum Mainnet dan median Pi dari bursa; bukan oracle on-chain Pi/Soroban.",
@@ -699,6 +727,13 @@ const id: Dict = {
 };
 
 const fr: Dict = {
+  "pidex.walletTitle": "Portefeuille Pi",
+  "pidex.walletConnected": "Identité du portefeuille Pi connectée",
+  "pidex.walletDisconnected": "Compte Pi non connecté",
+  "pidex.walletAddressMissing": "L’adresse du portefeuille n’a pas été renvoyée",
+  "pidex.walletScopeNote": "Cela associe le compte Pi à l’adresse du portefeuille. Cela n’active ni la signature Soroban ni le règlement PiDEX en direct.",
+  "pidex.connectWallet": "Connecter le portefeuille Pi",
+  "pidex.walletAddress": "Adresse du portefeuille",
   "nav.language": "Langue", "nav.sovereign": "Noyau économique", "nav.bridge": "Pont", "nav.governance": "Gouvernance",
   "nav.compliance": "Conformité", "nav.economics": "Économie", "nav.infra": "Infrastructure", "nav.explorer": "Explorateur",
   "nav.layers": "Jetons à 7 couches", "nav.micro": "Micro-appareil", "nav.network": "Réseau", "nav.pidex": "PiDEX",
@@ -735,6 +770,13 @@ const fr: Dict = {
   "footer.tagline": "PiScan · Écosystème du réseau souverain PiRC · Données issues de Pi Network Horizon",
 };
 const es: Dict = {
+  "pidex.walletTitle": "Billetera Pi",
+  "pidex.walletConnected": "Identidad de la billetera Pi conectada",
+  "pidex.walletDisconnected": "La cuenta Pi no está conectada",
+  "pidex.walletAddressMissing": "No se devolvió la dirección de la billetera",
+  "pidex.walletScopeNote": "Esto vincula la cuenta Pi con la dirección de la billetera. No habilita la firma de transacciones Soroban ni la liquidación PiDEX en vivo.",
+  "pidex.connectWallet": "Conectar billetera Pi",
+  "pidex.walletAddress": "Dirección de la billetera",
   "nav.language": "Idioma", "nav.sovereign": "Núcleo económico", "nav.bridge": "Puente", "nav.governance": "Gobernanza",
   "nav.compliance": "Cumplimiento", "nav.economics": "Economía", "nav.infra": "Infraestructura", "nav.explorer": "Explorador",
   "nav.layers": "Tokens de 7 capas", "nav.micro": "Microdispositivo", "nav.network": "Red", "nav.pidex": "PiDEX",
@@ -771,6 +813,13 @@ const es: Dict = {
   "footer.tagline": "PiScan · Ecosistema de red soberana PiRC · Datos de Pi Network Horizon",
 };
 const de: Dict = {
+  "pidex.walletTitle": "Pi-Wallet",
+  "pidex.walletConnected": "Pi-Wallet-Identität verbunden",
+  "pidex.walletDisconnected": "Pi-Konto nicht verbunden",
+  "pidex.walletAddressMissing": "Wallet-Adresse wurde nicht zurückgegeben",
+  "pidex.walletScopeNote": "Dies verknüpft das Pi-Konto mit der Wallet-Adresse. Es aktiviert weder Soroban-Transaktionssignaturen noch Live-PiDEX-Abwicklung.",
+  "pidex.connectWallet": "Pi-Wallet verbinden",
+  "pidex.walletAddress": "Wallet-Adresse",
   "nav.language": "Sprache", "nav.sovereign": "Wirtschaftskern", "nav.bridge": "Brücke", "nav.governance": "Governance",
   "nav.compliance": "Compliance", "nav.economics": "Wirtschaft", "nav.infra": "Infrastruktur", "nav.explorer": "Explorer",
   "nav.layers": "7-Schichten-Token", "nav.micro": "Mikrogerät", "nav.network": "Netzwerk", "nav.pidex": "PiDEX",
@@ -807,6 +856,13 @@ const de: Dict = {
   "footer.tagline": "PiScan · PiRC-Souveränes Netzwerkökosystem · Daten von Pi Network Horizon",
 };
 const pt: Dict = {
+  "pidex.walletTitle": "Carteira Pi",
+  "pidex.walletConnected": "Identidade da carteira Pi conectada",
+  "pidex.walletDisconnected": "Conta Pi não conectada",
+  "pidex.walletAddressMissing": "O endereço da carteira não foi retornado",
+  "pidex.walletScopeNote": "Isto associa a conta Pi ao endereço da carteira. Não habilita assinatura de transações Soroban nem liquidação PiDEX em tempo real.",
+  "pidex.connectWallet": "Conectar carteira Pi",
+  "pidex.walletAddress": "Endereço da carteira",
   "nav.language": "Idioma", "nav.sovereign": "Núcleo econômico", "nav.bridge": "Ponte", "nav.governance": "Governança",
   "nav.compliance": "Conformidade", "nav.economics": "Economia", "nav.infra": "Infraestrutura", "nav.explorer": "Explorador",
   "nav.layers": "Tokens de 7 camadas", "nav.micro": "Microdispositivo", "nav.network": "Rede", "nav.pidex": "PiDEX",
