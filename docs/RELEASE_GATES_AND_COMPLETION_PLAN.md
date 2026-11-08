@@ -12,8 +12,10 @@ This document defines the release gates for the Unity Sphere application, Pi Pla
 
 - Repository: https://github.com/Ze0ro99/project-unity-sphere-0e2c810d
 - Default branch: `main`
-- Active integration pull request: https://github.com/Ze0ro99/project-unity-sphere-0e2c810d/pull/52
-- Integration branch: `integration/pirc-testnet1-wallet-pidex-2026-11-08`
+- Current economic-gateway integration: [PR #57](https://github.com/Ze0ro99/project-unity-sphere-0e2c810d/pull/57).
+- Stacked formula/freshness/quote-integrity corrections: [PR #58](https://github.com/Ze0ro99/project-unity-sphere-0e2c810d/pull/58).
+- Contract source of truth: [SmartContracts PR #1108](https://github.com/Ze0ro99/SmartContracts/pull/1108) (merged); focused PiDEX AMM and test-asset CI coverage: [SmartContracts PR #1114](https://github.com/Ze0ro99/SmartContracts/pull/1114).
+- The prior wallet/PiDEX integration baseline is retained in `integration/pirc-testnet1-wallet-pidex-2026-11-08`; current economic changes are developed on dedicated branches.
 - Related standards repository: https://github.com/Ze0ro99/PiRC
 - Related contract repository: https://github.com/Ze0ro99/SmartContracts
 - All source identifiers, code comments, API schemas, tests, operational runbooks, and engineering documentation must be authored in English.
@@ -21,14 +23,7 @@ This document defines the release gates for the Unity Sphere application, Pi Pla
 
 ## 3. Current evidence
 
-The latest inspected integration branch check set passed:
-- Frontend build
-- Python/API tests
-- Deno static check for the Soroban event inbox
-- Publish-artifact build
-- Secret scans
-
-The static publish workflow's actual publish step was skipped. These checks do not prove that Lovable or the Pi Browser listing is serving this commit.
+The current PR #57 frontend build, locale dictionary audit, artifact build and secret scans passed on its inspected head. PR #58 adds focused IPPR/freshness/quote-currency tests; its frontend build, those tests, locale dictionary audit and secret scans passed on the latest inspected head. These checks do not prove that Lovable or the Pi Browser listing is serving either commit. The publish workflow's actual publish step was skipped.
 
 The latest recorded read-only Pi Testnet probe verified the network identity and protocol profile, but found zero of seven registered layer contract instances. This is a deployment blocker, not a UI defect.
 
@@ -54,7 +49,7 @@ The integration manifest currently records:
 - [ ] Obtain fluent review for each advertised locale.
 - [ ] Keep incomplete locales visible as unavailable/disabled in the selector until every English baseline key, interpolation placeholder, and route label has been translated and reviewed.
 
-The current integration branch has 166 English, Arabic, Chinese, and Indonesian keys, but only 42 keys in each of French, Spanish, German, and Portuguese. The latter four locales are partial and must not be advertised as fully translated. The release gate fails on this condition.
+The current economic/localization PR #57 has 187 keys in each of English, Arabic, Chinese, and Indonesian, but only 42 keys in each of French, Spanish, German, and Portuguese. The latter four locales are partial and must not be advertised as fully translated. In addition, route-level hard-coded English remains on multiple pages; dictionary key parity alone is insufficient. Arabic, Chinese and Indonesian must not be considered release-complete until all 17 routes, forms, tables, dialogs, errors and RTL behavior are localized and reviewed. The release gate fails on this condition.
 
 ### Gate B — Pi identity and payment safety
 
