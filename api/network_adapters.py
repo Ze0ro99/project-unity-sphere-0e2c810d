@@ -182,9 +182,23 @@ def check_pi_testnet() -> dict[str, Any]:
         "soroban_rpc": {
             "url": SOROBAN_RPC_URL,
             "reachable": rpc_ok,
-            "network": rpc_network,
-            "health": rpc_health,
-            "latest_ledger": latest_ledger,
+            "network": {
+                "ok": rpc_network.get("ok", False),
+                "passphrase_present": bool(rpc_passphrase),
+                "protocol_version": rpc_protocol,
+            },
+            "health": {
+                "ok": health_ok,
+                "status": health_status or None,
+                "latest_ledger": health_data.get("latestLedger"),
+                "oldest_ledger": health_data.get("oldestLedger"),
+                "retention_window": health_data.get("ledgerRetentionWindow"),
+            },
+            "latest_ledger": {
+                "ok": latest_ledger.get("ok", False),
+                "id": (latest_ledger.get("result") or {}).get("id"),
+                "close_time": (latest_ledger.get("result") or {}).get("closeTime"),
+            },
         },
         "contract_verification": "NOT_PERFORMED",
         "notice": (
