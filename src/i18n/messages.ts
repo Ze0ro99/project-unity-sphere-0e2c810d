@@ -209,6 +209,7 @@ const en: Dict = {
   "economics.formulaDescription": "Live IPPR is re-based on every accepted PI/USDT market tick: IPPR = PI/USDT × 10,000,000. USD parity is not yet independently normalized. Adaptive QWF and network velocity are separate inputs to Φ = (Lₙ × IPPR) / QWF.",
   "economics.simulationQwf": "Simulation QWF",
   "economics.simulationVelocity": "Simulation velocity",
+  "economics.simulationPhi": "Simulation Φ (live IPPR input)",
 };
 
 const ar: Dict = {
@@ -414,6 +415,7 @@ const ar: Dict = {
   "economics.formulaDescription": "تُعاد معايرة IPPR مع كل تحديث مقبول لسعر PI/USDT: ‏IPPR = PI/USDT × 10,000,000. لم تتم بعد معايرة تكافؤ USDT/USD بصورة مستقلة. ويظل QWF التكيفي وسرعة الشبكة مدخلين مستقلين في Φ = (Lₙ × IPPR) / QWF.",
   "economics.simulationQwf": "QWF في المحاكاة",
   "economics.simulationVelocity": "السرعة في المحاكاة",
+  "economics.simulationPhi": "Φ في المحاكاة (باستخدام IPPR الحالي)",
 };
 
 const zh: Dict = {
@@ -619,6 +621,7 @@ const zh: Dict = {
   "economics.formulaDescription": "每次接受 PI/USDT 市场报价更新时都会重新计算 IPPR：IPPR = PI/USDT × 10,000,000。USDT/USD 尚未独立归一化。自适应 QWF 和网络速度是 Φ = (Lₙ × IPPR) / QWF 的独立输入。",
   "economics.simulationQwf": "模拟 QWF",
   "economics.simulationVelocity": "模拟速度",
+  "economics.simulationPhi": "模拟 Φ（使用当前 IPPR）",
 };
 
 const id: Dict = {
@@ -824,6 +827,7 @@ const id: Dict = {
   "economics.formulaDescription": "IPPR dihitung ulang pada setiap tick pasar PI/USDT yang diterima: IPPR = PI/USDT × 10.000.000. Paritas USDT/USD belum dinormalisasi secara independen. QWF adaptif dan kecepatan jaringan adalah input terpisah untuk Φ = (Lₙ × IPPR) / QWF.",
   "economics.simulationQwf": "QWF Simulasi",
   "economics.simulationVelocity": "Kecepatan Simulasi",
+  "economics.simulationPhi": "Φ Simulasi (menggunakan IPPR terkini)",
 };
 
 const fr: Dict = {
