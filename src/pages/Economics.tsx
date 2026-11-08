@@ -4,7 +4,7 @@ import {
   DEFAULT_SCENARIOS,
   simulate,
   downloadCSV,
-  liveSnapshot,
+  simulationSnapshot,
   ipprFromSpot,
   BASE_IPPR,
   type SimulationScenario,
@@ -59,7 +59,7 @@ export default function Economics() {
     [scenarios, horizon, scenarioBaseIppr],
   );
   const active = outcomes.find((o) => o.scenario.id === selected) ?? outcomes[0];
-  const simulation = useMemo(() => liveSnapshot(tick), [tick]);
+  const simulation = useMemo(() => simulationSnapshot(tick), [tick]);
 
   return (
     <div className="space-y-4">
