@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-export type PiUser = { uid: string; username: string };
+export type PiUser = { uid: string; username: string; walletAddress?: string | null };
 
 export type PaymentData = {
   amount: number;
@@ -64,6 +64,7 @@ export function initPi(): Promise<void> {
 }
 
 let piAccessToken: string | null = null;
+let piPaymentsScopeGranted = false;
 
 async function serverCall(action: string, body: Record<string, any>) {
   const { data, error } = await supabase.functions.invoke("pi-payments", {
@@ -95,13 +96,20 @@ export function usePiConnection() {
     setError(null);
     try {
       await initPi();
+      // Wallet address is requested for account-to-wallet binding. Payment
+      // permission is deliberately deferred until the user starts a payment.
       const auth = await window.Pi.authenticate(
-        ["username", "payments"],
+        ["username", "wallet_address"],
         onIncompletePaymentFound
       );
       piAccessToken = auth.accessToken;
+      piPaymentsScopeGranted = false;
       await serverCall("auth", { accessToken: auth.accessToken });
-      setUser({ uid: auth.user.uid, username: auth.user.username });
+      setUser({
+        uid: auth.user.uid,
+        username: auth.user.username,
+        walletAddress: auth.user.wallet_address ?? null,
+      });
       setConnected(true);
     } catch (e: any) {
       setError(e?.message ?? "Pi authentication failed");
@@ -113,10 +121,23 @@ export function usePiConnection() {
   return { user, connected, loading, error, connect };
 }
 
+async function ensurePiPaymentPermission(): Promise<void> {
+  await initPi();
+  if (!window.Pi) throw new Error("Pi SDK unavailable");
+  if (piPaymentsScopeGranted && piAccessToken) return;
+
+  const auth = await window.Pi.authenticate(
+    ["username", "wallet_address", "payments"],
+    onIncompletePaymentFound
+  );
+  piAccessToken = auth.accessToken;
+  await serverCall("auth", { accessToken: auth.accessToken });
+  piPaymentsScopeGranted = true;
+}
+
 export function usePiPurchase(payment: PaymentData) {
   return useCallback(async () => {
-    await initPi();
-    if (!window.Pi) throw new Error("Pi SDK unavailable");
+    await ensurePiPaymentPermission();
     if (!piAccessToken) throw new Error("Connect your Pi account first");
     return window.Pi.createPayment(payment, {
       onReadyForServerApproval: async (paymentId: string) => {
