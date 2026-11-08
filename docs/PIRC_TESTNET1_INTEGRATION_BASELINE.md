@@ -74,9 +74,10 @@ The Pi SDK integration now requests `username` and `wallet_address` for normal c
 
 Important capability boundary:
 - A verified Pi Platform account and returned `wallet_address` bind a Pioneer to an address.
-- They do not expose the user's private key. The Pi SDK also documents a `Pi.Wallet` module for wallet transaction flows, but its documented submission path accepts a pre-signed Stellar XDR; the SDK does not build or sign that XDR. Therefore a connected address alone is not a complete signing path, and the application must not silently sign on the user's behalf.
+- The new `wallet_balance` action verifies the access token against Pi Platform `/me`, checks the Pi Testnet Horizon passphrase, then reads the matching account's native Test Pi balance and ledger sequence. An account 404 is shown as `account_not_found`, not as a zero balance. This is read-only native-balance evidence, not custom-token balance or ownership verification.
+- The address does not expose the user's private key. The Pi SDK's documented `Pi.Wallet` submission path accepts a pre-signed Stellar XDR; the SDK does not build or sign that XDR. A connected address and a read-only balance are not a signing path, and the application must not silently sign on the user's behalf.
 - Pi Platform payments use the separate `Pi.createPayment` and server approval/completion lifecycle.
-- The PiDEX UI therefore displays the connected address but continues to label order entry, balances, fills and liquidity as local simulation until a real wallet-signing and settlement adapter is independently implemented and verified.
+- The PiDEX UI displays the connected address and read-only Test Pi balance when available, while order entry, local balances, fills and liquidity remain simulation data until a real wallet-signing and settlement adapter is independently implemented and verified.
 
 The Pi SDK's `wallet_address` permission and payment scopes are defined in the [official Pi Client SDK reference](https://developers.minepi.com/docs/api-reference/SdkReference).
 
