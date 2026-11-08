@@ -360,14 +360,17 @@
     "soroban_signing": "NOT_ENABLED",
     "pi_wallet_submission": "PRE_SIGNED_XDR_ONLY",
     "signing_capability_note": "The official Pi Wallet documentation states that Wallet methods submit pre-signed XDR and the SDK does not build or sign transactions. wallet_address authentication is identity binding, not transaction-signing authorization.",
-    "live_pidex_execution": "DISABLED_UNTIL_SUPPORTED_SIGNER_AND_CONTRACT_DEPLOYMENTS"
+    "live_pidex_execution": "DISABLED_UNTIL_SUPPORTED_SIGNER_AND_CONTRACT_DEPLOYMENTS",
+    "testnet_native_balance_read": "SOURCE_IMPLEMENTED_CI_PENDING_PI_BROWSER_RUNTIME_TEST",
+    "custom_asset_balance_read": "BLOCKED_UNTIL_CONTRACT_DEPLOYMENT_AND_VERIFIED_ABI",
+    "transaction_signing": "NOT_ENABLED"
   },
   "asset_synchronization": {
     "registry_source": "PiRC-207 versioned registry",
     "network_id": "pi-testnet1",
     "contract_instances_verified_at_probe": 0,
     "current_registry_contract_references_checked": 7,
-    "on_chain_balance_sync": "NOT_IMPLEMENTED",
+    "on_chain_balance_sync": "NATIVE_TEST_PI_READ_ONLY_SOURCE_IMPLEMENTED; CUSTOM_ASSET_BALANCES_NOT_IMPLEMENTED",
     "soroban_event_ingestion": "RAW_EVENT_INGESTION_ONLY",
     "xdr_decoding": "NOT_IMPLEMENTED",
     "finality_and_state_reconciliation": "NOT_IMPLEMENTED",
@@ -388,7 +391,8 @@
     "transaction_finality": "NOT_VERIFIED",
     "settlement_projection": "NOT_IMPLEMENTED",
     "wallet_balance_reconciliation": "NOT_IMPLEMENTED",
-    "on_chain_asset_activation": "BLOCKED_UNTIL_DEPLOYMENT_CODE_HASH_ISSUER_AND_BALANCE_READBACK"
+    "on_chain_asset_activation": "BLOCKED_UNTIL_DEPLOYMENT_CODE_HASH_ISSUER_AND_BALANCE_READBACK",
+    "wallet_address_verification": "PI_PLATFORM_ME_TOKEN_VERIFIED_AND_TESTNET_HORIZON_ACCOUNT_READBACK"
   },
   "protocol_upgrade_policy": {
     "expected_protocol_is_operator_configured": true,
