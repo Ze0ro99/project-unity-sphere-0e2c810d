@@ -80,7 +80,7 @@ export default function Economics() {
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] mono text-muted">
           <span className={liveOk ? "text-green" : "text-red"}>
-            ● π/USDT index {liveOk ? `$${spot.toFixed(6)}` : "unavailable"}
+            ● π/USDT index {liveOk ? `${spot.toFixed(6)} USDT` : "unavailable"}
           </span>
           <span>{market.index?.sources ?? 0}/{market.index?.totalSources ?? 0} venues</span>
           <span>deviation {(market.index?.deviationBps ?? 0).toFixed(1)} bps</span>
