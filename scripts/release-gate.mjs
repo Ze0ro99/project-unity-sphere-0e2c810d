@@ -14,7 +14,7 @@ function parseDictionary(locale) {
   if (end < 0) return null;
   const block = messages.slice(start, end);
   const entries = new Map();
-  for (const match of block.matchAll(/^\s*"([^"]+)"\s*:\s*(?:"((?:\\\\.|[^"\\\\])*)"|\n\s*"((?:\\\\.|[^"\\\\])*)")/gm)) {
+  for (const match of block.matchAll(/^\s*"([^"]+)"\s*:\s*(?:"([^"\n]*)"|[\r\n]+\s*"([^"\n]*)")/gm)) {
     entries.set(match[1], match[2] ?? match[3] ?? "");
   }
   return entries;
