@@ -40,6 +40,7 @@ type PiConnectionSnapshot = {
   loading: boolean;
   error: string | null;
   testnetBalance: PiTestnetBalance | null;
+  refreshingBalance: boolean;
 };
 
 const initialSnapshot: PiConnectionSnapshot = {
@@ -48,6 +49,7 @@ const initialSnapshot: PiConnectionSnapshot = {
   loading: false,
   error: null,
   testnetBalance: null,
+  refreshingBalance: false,
 };
 
 let connectionSnapshot = initialSnapshot;
@@ -198,13 +200,33 @@ export function usePiConnection() {
     }
   }, []);
 
+  const refreshTestnetBalance = useCallback(async () => {
+    if (!connectionSnapshot.connected || !piAccessToken) return;
+    publishConnection({ refreshingBalance: true });
+    try {
+      const testnetBalance = await serverCall("wallet_balance", { accessToken: piAccessToken });
+      publishConnection({ testnetBalance });
+    } catch (error) {
+      console.warn("Pi Testnet balance refresh unavailable", error);
+      publishConnection({
+        testnetBalance: {
+          status: "unavailable",
+          native_balance: null,
+          notice: "Read-only Pi Testnet balance could not be verified.",
+        },
+      });
+    } finally {
+      publishConnection({ refreshingBalance: false });
+    }
+  }, []);
+
   const disconnect = useCallback(() => {
     piAccessToken = null;
     piPaymentsScopeGranted = false;
     publishConnection({ ...initialSnapshot });
   }, []);
 
-  return { ...state, connect, disconnect };
+  return { ...state, connect, disconnect, refreshTestnetBalance };
 }
 
 async function ensurePiPaymentPermission(): Promise<void> {
