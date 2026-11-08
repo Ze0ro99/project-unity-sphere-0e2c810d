@@ -147,6 +147,30 @@ const en: Dict = {
   "bn.err.emptyProof": "Proof is empty.",
   "bn.err.badHex": "Proof must be valid hex.",
   "bn.err.emptyInputs": "Provide at least one public input.",
+
+  // Shared portal shell and compliance labels
+  "gate.title": "Sovereign Gateways",
+  "gate.subtitle": "Every platform capability, one gateway per feature.",
+  "gate.group.trading": "Trading",
+  "gate.group.sovereign": "Sovereign",
+  "gate.group.blockchain": "Blockchain",
+  "gate.group.standards": "Standards",
+  "compliance.title": "Compliance Gateway",
+  "compliance.subtitle": "AML/KYC risk assessment model and regulatory alignment monitor. This page is an illustrative control, not a certified compliance decision.",
+  "compliance.screening": "Transaction screening",
+  "compliance.assessment": "Assessment",
+  "compliance.notional": "Notional",
+  "compliance.age": "Counterparty age",
+  "compliance.velocity": "24h velocity",
+  "compliance.jurisdiction": "Jurisdiction",
+  "compliance.crossChain": "Cross-chain leg",
+  "compliance.shielded": "Shielded (ZK) order",
+  "compliance.riskScore": "Risk score",
+  "compliance.edd": "Enhanced due diligence required",
+  "compliance.standard": "Standard due diligence",
+  "compliance.micar": "EU MiCAR alignment",
+  "compliance.blocked": "SETTLEMENT BLOCKED",
+  "compliance.permitted": "SETTLEMENT PERMITTED",
 };
 
 const ar: Dict = {
@@ -290,6 +314,30 @@ const ar: Dict = {
   "bn.err.emptyProof": "الإثبات فارغ.",
   "bn.err.badHex": "يجب أن يكون الإثبات سِتّي عشري صالح.",
   "bn.err.emptyInputs": "قدّم مدخلاً عاماً واحداً على الأقل.",
+
+  // Shared portal shell and compliance labels
+  "gate.title": "بوابات السيادة",
+  "gate.subtitle": "قدرات المنصة، بوابة مستقلة لكل وظيفة.",
+  "gate.group.trading": "التداول",
+  "gate.group.sovereign": "السيادة",
+  "gate.group.blockchain": "البلوكتشين",
+  "gate.group.standards": "المعايير",
+  "compliance.title": "بوابة الامتثال",
+  "compliance.subtitle": "نموذج تقديري لمخاطر AML/KYC ومتابعة المواءمة التنظيمية. هذه الصفحة توضيحية وليست قرار امتثال معتمداً.",
+  "compliance.screening": "فحص المعاملات",
+  "compliance.assessment": "التقييم",
+  "compliance.notional": "القيمة الاسمية",
+  "compliance.age": "عمر الطرف المقابل",
+  "compliance.velocity": "عدد التحويلات خلال 24 ساعة",
+  "compliance.jurisdiction": "الاختصاص القضائي",
+  "compliance.crossChain": "عملية عبر سلسلة أخرى",
+  "compliance.shielded": "أمر محمي (ZK)",
+  "compliance.riskScore": "درجة المخاطر",
+  "compliance.edd": "يتطلب عناية واجبة معززة",
+  "compliance.standard": "العناية الواجبة الاعتيادية",
+  "compliance.micar": "مواءمة MiCAR الأوروبية",
+  "compliance.blocked": "التسوية محظورة",
+  "compliance.permitted": "التسوية مسموحة",
 };
 
 const zh: Dict = {
@@ -433,6 +481,30 @@ const zh: Dict = {
   "bn.err.emptyProof": "证明为空。",
   "bn.err.badHex": "证明必须为有效的十六进制。",
   "bn.err.emptyInputs": "请至少提供一个公开输入。",
+
+  // Shared portal shell and compliance labels
+  "gate.title": "主权门户",
+  "gate.subtitle": "平台功能总览，每项功能对应一个门户。",
+  "gate.group.trading": "交易",
+  "gate.group.sovereign": "主权经济",
+  "gate.group.blockchain": "区块链",
+  "gate.group.standards": "标准",
+  "compliance.title": "合规门户",
+  "compliance.subtitle": "AML/KYC 风险评估模型与监管对齐监测。本页面仅供参考，不构成认证合规决定。",
+  "compliance.screening": "交易筛查",
+  "compliance.assessment": "评估",
+  "compliance.notional": "名义金额",
+  "compliance.age": "交易对手年龄",
+  "compliance.velocity": "24 小时转账次数",
+  "compliance.jurisdiction": "司法管辖区",
+  "compliance.crossChain": "跨链操作",
+  "compliance.shielded": "隐私保护订单（ZK）",
+  "compliance.riskScore": "风险评分",
+  "compliance.edd": "需要强化尽职调查",
+  "compliance.standard": "标准尽职调查",
+  "compliance.micar": "欧盟 MiCAR 对齐",
+  "compliance.blocked": "结算已阻止",
+  "compliance.permitted": "允许结算",
 };
 
 const id: Dict = {
@@ -576,6 +648,30 @@ const id: Dict = {
   "bn.err.emptyProof": "Bukti kosong.",
   "bn.err.badHex": "Bukti harus heksadesimal yang valid.",
   "bn.err.emptyInputs": "Berikan minimal satu input publik.",
+
+  // Shared portal shell and compliance labels
+  "gate.title": "Gerbang Berdaulat",
+  "gate.subtitle": "Semua kemampuan platform, satu gerbang untuk setiap fitur.",
+  "gate.group.trading": "Perdagangan",
+  "gate.group.sovereign": "Berdaulat",
+  "gate.group.blockchain": "Blockchain",
+  "gate.group.standards": "Standar",
+  "compliance.title": "Gerbang Kepatuhan",
+  "compliance.subtitle": "Model penilaian risiko AML/KYC dan pemantauan keselarasan regulasi. Halaman ini bersifat ilustratif, bukan keputusan kepatuhan tersertifikasi.",
+  "compliance.screening": "Penyaringan transaksi",
+  "compliance.assessment": "Penilaian",
+  "compliance.notional": "Nilai nominal",
+  "compliance.age": "Usia pihak lawan",
+  "compliance.velocity": "Transfer 24 jam",
+  "compliance.jurisdiction": "Yurisdiksi",
+  "compliance.crossChain": "Transaksi lintas rantai",
+  "compliance.shielded": "Pesanan terlindung (ZK)",
+  "compliance.riskScore": "Skor risiko",
+  "compliance.edd": "Uji tuntas lanjutan diperlukan",
+  "compliance.standard": "Uji tuntas standar",
+  "compliance.micar": "Keselarasan EU MiCAR",
+  "compliance.blocked": "PENYELESAIAN DIBLOKIR",
+  "compliance.permitted": "PENYELESAIAN DIIZINKAN",
 };
 
 const fr: Dict = {
@@ -586,6 +682,30 @@ const fr: Dict = {
   "nav.repository": "Dépôt", "common.open": "Ouvrir", "common.copy": "Copier", "common.copied": "Copié",
   "common.loading": "Chargement…", "pi.connect": "Connecter Pi", "pi.connected": "Connecté : {username}",
   "pi.connectFailed": "Échec de la connexion Pi"
+
+  // Shared portal shell and compliance labels
+  "gate.title": "Portails souverains",
+  "gate.subtitle": "Toutes les capacités de la plateforme, un portail par fonctionnalité.",
+  "gate.group.trading": "Trading",
+  "gate.group.sovereign": "Souveraineté",
+  "gate.group.blockchain": "Blockchain",
+  "gate.group.standards": "Normes",
+  "compliance.title": "Portail de conformité",
+  "compliance.subtitle": "Modèle d’évaluation des risques AML/KYC et suivi de l’alignement réglementaire. Cette page est indicative et ne constitue pas une décision de conformité certifiée.",
+  "compliance.screening": "Contrôle des transactions",
+  "compliance.assessment": "Évaluation",
+  "compliance.notional": "Montant notionnel",
+  "compliance.age": "Ancienneté de la contrepartie",
+  "compliance.velocity": "Transferts sur 24 h",
+  "compliance.jurisdiction": "Juridiction",
+  "compliance.crossChain": "Opération inter-chaînes",
+  "compliance.shielded": "Ordre protégé (ZK)",
+  "compliance.riskScore": "Score de risque",
+  "compliance.edd": "Vigilance renforcée requise",
+  "compliance.standard": "Vigilance standard",
+  "compliance.micar": "Alignement MiCAR de l’UE",
+  "compliance.blocked": "RÈGLEMENT BLOQUÉ",
+  "compliance.permitted": "RÈGLEMENT AUTORISÉ",
 };
 const es: Dict = {
   "nav.language": "Idioma", "nav.sovereign": "Núcleo económico", "nav.bridge": "Puente", "nav.governance": "Gobernanza",
@@ -595,6 +715,30 @@ const es: Dict = {
   "nav.repository": "Repositorio", "common.open": "Abrir", "common.copy": "Copiar", "common.copied": "Copiado",
   "common.loading": "Cargando…", "pi.connect": "Conectar Pi", "pi.connected": "Conectado: {username}",
   "pi.connectFailed": "No se pudo conectar a Pi"
+
+  // Shared portal shell and compliance labels
+  "gate.title": "Portales soberanos",
+  "gate.subtitle": "Todas las capacidades de la plataforma, un portal por función.",
+  "gate.group.trading": "Comercio",
+  "gate.group.sovereign": "Soberanía",
+  "gate.group.blockchain": "Blockchain",
+  "gate.group.standards": "Estándares",
+  "compliance.title": "Portal de cumplimiento",
+  "compliance.subtitle": "Modelo de evaluación de riesgos AML/KYC y seguimiento de alineación normativa. Esta página es ilustrativa y no constituye una decisión de cumplimiento certificada.",
+  "compliance.screening": "Control de transacciones",
+  "compliance.assessment": "Evaluación",
+  "compliance.notional": "Importe nominal",
+  "compliance.age": "Antigüedad de la contraparte",
+  "compliance.velocity": "Transferencias en 24 h",
+  "compliance.jurisdiction": "Jurisdicción",
+  "compliance.crossChain": "Operación entre cadenas",
+  "compliance.shielded": "Orden protegida (ZK)",
+  "compliance.riskScore": "Puntuación de riesgo",
+  "compliance.edd": "Se requiere diligencia debida reforzada",
+  "compliance.standard": "Diligencia debida estándar",
+  "compliance.micar": "Alineación con MiCAR de la UE",
+  "compliance.blocked": "LIQUIDACIÓN BLOQUEADA",
+  "compliance.permitted": "LIQUIDACIÓN PERMITIDA",
 };
 const de: Dict = {
   "nav.language": "Sprache", "nav.sovereign": "Wirtschaftskern", "nav.bridge": "Brücke", "nav.governance": "Governance",
@@ -604,6 +748,30 @@ const de: Dict = {
   "nav.repository": "Repository", "common.open": "Öffnen", "common.copy": "Kopieren", "common.copied": "Kopiert",
   "common.loading": "Wird geladen…", "pi.connect": "Pi verbinden", "pi.connected": "Verbunden: {username}",
   "pi.connectFailed": "Pi-Verbindung fehlgeschlagen"
+
+  // Shared portal shell and compliance labels
+  "gate.title": "Souveräne Gateways",
+  "gate.subtitle": "Alle Plattformfunktionen – ein Gateway pro Funktion.",
+  "gate.group.trading": "Handel",
+  "gate.group.sovereign": "Souverän",
+  "gate.group.blockchain": "Blockchain",
+  "gate.group.standards": "Standards",
+  "compliance.title": "Compliance-Gateway",
+  "compliance.subtitle": "AML/KYC-Risikobewertungsmodell und Überwachung der regulatorischen Ausrichtung. Diese Seite ist illustrativ und keine zertifizierte Compliance-Entscheidung.",
+  "compliance.screening": "Transaktionsprüfung",
+  "compliance.assessment": "Bewertung",
+  "compliance.notional": "Nominalwert",
+  "compliance.age": "Alter der Gegenpartei",
+  "compliance.velocity": "Überweisungen in 24 Stunden",
+  "compliance.jurisdiction": "Rechtsordnung",
+  "compliance.crossChain": "Chain-übergreifender Vorgang",
+  "compliance.shielded": "Geschützte Order (ZK)",
+  "compliance.riskScore": "Risikowert",
+  "compliance.edd": "Erweiterte Sorgfaltsprüfung erforderlich",
+  "compliance.standard": "Standard-Sorgfaltsprüfung",
+  "compliance.micar": "EU-MiCAR-Ausrichtung",
+  "compliance.blocked": "ABWICKLUNG BLOCKIERT",
+  "compliance.permitted": "ABWICKLUNG ZULÄSSIG",
 };
 const pt: Dict = {
   "nav.language": "Idioma", "nav.sovereign": "Núcleo econômico", "nav.bridge": "Ponte", "nav.governance": "Governança",
@@ -613,6 +781,30 @@ const pt: Dict = {
   "nav.repository": "Repositório", "common.open": "Abrir", "common.copy": "Copiar", "common.copied": "Copiado",
   "common.loading": "Carregando…", "pi.connect": "Conectar Pi", "pi.connected": "Conectado: {username}",
   "pi.connectFailed": "Falha ao conectar ao Pi"
+
+  // Shared portal shell and compliance labels
+  "gate.title": "Portais soberanos",
+  "gate.subtitle": "Todos os recursos da plataforma, um portal por funcionalidade.",
+  "gate.group.trading": "Negociação",
+  "gate.group.sovereign": "Soberania",
+  "gate.group.blockchain": "Blockchain",
+  "gate.group.standards": "Padrões",
+  "compliance.title": "Portal de conformidade",
+  "compliance.subtitle": "Modelo de avaliação de risco AML/KYC e monitoramento de alinhamento regulatório. Esta página é ilustrativa e não constitui uma decisão de conformidade certificada.",
+  "compliance.screening": "Triagem de transações",
+  "compliance.assessment": "Avaliação",
+  "compliance.notional": "Valor nocional",
+  "compliance.age": "Idade da contraparte",
+  "compliance.velocity": "Transferências em 24 horas",
+  "compliance.jurisdiction": "Jurisdição",
+  "compliance.crossChain": "Operação entre cadeias",
+  "compliance.shielded": "Ordem protegida (ZK)",
+  "compliance.riskScore": "Pontuação de risco",
+  "compliance.edd": "Diligência reforçada necessária",
+  "compliance.standard": "Diligência padrão",
+  "compliance.micar": "Alinhamento com MiCAR da UE",
+  "compliance.blocked": "LIQUIDAÇÃO BLOQUEADA",
+  "compliance.permitted": "LIQUIDAÇÃO PERMITIDA",
 };
 
 export const messages: Record<Lang, Dict> = { en, ar, zh, id, fr, es, de, pt };
