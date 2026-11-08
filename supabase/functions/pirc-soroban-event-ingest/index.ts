@@ -39,6 +39,13 @@ Deno.serve(async (req) => {
    cursor = rows?.[0];
   }
   if (!cursor) throw new Error("cursor_initialization_failed");
+  const health = await rpc("getHealth", {});
+  const oldestLedger = Number(health.oldestLedger);
+  const latestAvailableLedger = Number(health.latestLedger);
+  if (!Number.isSafeInteger(oldestLedger) || !Number.isSafeInteger(latestAvailableLedger)) throw new Error("rpc_health_missing_ledger_bounds");
+  if (!cursor.paging_cursor && Number(cursor.start_ledger) < oldestLedger) {
+   return json({ error: "start_ledger_outside_rpc_retention", configured_start_ledger: Number(cursor.start_ledger), oldest_available_ledger: oldestLedger, latest_ledger: latestAvailableLedger, action: "choose_an_available_start_ledger_and_reconcile_before_reseeding" }, 409);
+  }
   const pagination: Record<string, unknown> = { limit: PAGE_LIMIT };
   const params: Record<string, unknown> = { filters: [{ type: "contract", contractIds: [CONTRACT_ID] }], pagination };
   if (cursor.paging_cursor) pagination.cursor = cursor.paging_cursor;
