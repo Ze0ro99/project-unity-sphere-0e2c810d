@@ -7,6 +7,7 @@ import {
   simulationSnapshot,
   ipprFromSpot,
   BASE_IPPR,
+  isFreshMarketIndex,
   type SimulationScenario,
   type ScenarioOutcome,
 } from "@/lib/economics";
@@ -51,6 +52,7 @@ export default function Economics() {
 
   const liveOk = market.index?.trusted === true
     && (market.index?.sources ?? 0) >= 3
+    && isFreshMarketIndex(market.ts)
     && Number.isFinite(spot) && spot > 0;
   const ipprLive = liveOk ? ipprFromSpot(spot) : NaN;
   const scenarioBaseIppr = liveOk ? ipprLive : BASE_IPPR;
@@ -60,9 +62,10 @@ export default function Economics() {
   );
   const active = outcomes.find((o) => o.scenario.id === selected) ?? outcomes[0];
   const simulation = useMemo(() => simulationSnapshot(tick), [tick]);
-  const phiSimulation = liveOk && simulation.qwf > 0
-    ? (simulation.velocity * ipprLive) / simulation.qwf
-    : NaN;
+  // Keep the simulation internally consistent: never combine a live market tick
+  // with simulated QWF/velocity. Live Φ stays unavailable until verified L_n and
+  // QWF telemetry are connected; this card is a pure simulation output.
+  const phiSimulation = simulation.phi;
 
   return (
     <div className="space-y-4">
