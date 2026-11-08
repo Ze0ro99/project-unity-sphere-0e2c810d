@@ -23,6 +23,7 @@ const Id = z.string().regex(/^[A-Za-z0-9_-]{4,128}$/);
 const Body = z.discriminatedUnion("action", [
   z.object({ action: z.literal("health") }),
   z.object({ action: z.literal("auth"), accessToken: z.string().min(10).max(4096) }),
+  z.object({ action: z.literal("wallet_balance"), accessToken: z.string().min(10).max(4096) }),
   z.object({ action: z.literal("approve"), accessToken: z.string().min(10).max(4096), paymentId: Id }),
   z.object({
     action: z.literal("complete"),
@@ -51,6 +52,59 @@ async function piUser(accessToken: string): Promise<{ uid: string; username: str
   if (!r.ok) return null;
   const me = await r.json().catch(() => null);
   return me?.uid ? { uid: me.uid, username: me.username, ...(typeof me.wallet_address === "string" ? { wallet_address: me.wallet_address } : {}) } : null;
+}
+
+
+async function piTestnetWalletBalance(accessToken: string) {
+  const me = await piUser(accessToken);
+  if (!me) return json({ error: "Unauthorized" }, 401);
+  const walletAddress = me.wallet_address;
+  if (!walletAddress || !/^G[A-Z2-7]{55}$/.test(walletAddress)) {
+    return json({ status: "wallet_address_unavailable", network_id: "pi-testnet", native_balance: null }, 200);
+  }
+
+  const horizon = "https://api.testnet.minepi.com";
+  const rootResponse = await fetch(horizon + "/", { redirect: "error" });
+  const root = await rootResponse.json().catch(() => null);
+  if (!rootResponse.ok || root?.network_passphrase !== "Pi Testnet") {
+    return json({ error: "testnet_network_identity_unverified" }, 503);
+  }
+
+  const accountResponse = await fetch(
+    horizon + "/accounts/" + encodeURIComponent(walletAddress),
+    { redirect: "error" },
+  );
+  if (accountResponse.status === 404) {
+    return json({
+      status: "account_not_found",
+      network_id: "pi-testnet",
+      network_alias: "Testnet1",
+      account_id: walletAddress,
+      native_balance: null,
+      ledger: null,
+      notice: "No Pi Testnet account was found for this wallet address. This is not a zero-balance proof.",
+    });
+  }
+  if (!accountResponse.ok) {
+    return json({ error: "testnet_account_read_failed", upstream_status: accountResponse.status }, 502);
+  }
+
+  const account = await accountResponse.json().catch(() => null);
+  if (!account || account.account_id !== walletAddress || !Array.isArray(account.balances)) {
+    return json({ error: "invalid_testnet_account_response" }, 502);
+  }
+  const native = account.balances.find((item: any) => item?.asset_type === "native");
+  return json({
+    status: "read_only_verified",
+    network_id: "pi-testnet",
+    network_alias: "Testnet1",
+    account_id: walletAddress,
+    native_balance: typeof native?.balance === "string" ? native.balance : "0",
+    asset: "Test Pi",
+    sequence: typeof account.sequence === "string" ? account.sequence : null,
+    ledger: Number.isSafeInteger(account.last_modified_ledger) ? account.last_modified_ledger : null,
+    notice: "Read-only Pi Testnet native balance. Test Pi has no monetary value and may be reset.",
+  });
 }
 
 Deno.serve(async (req) => {
@@ -82,6 +136,10 @@ Deno.serve(async (req) => {
       const me = await piUser(body.accessToken);
       if (!me) return json({ error: "Unauthorized" }, 401);
       return json({ authenticated: true, user: me });
+    }
+
+    if (body.action === "wallet_balance") {
+      return await piTestnetWalletBalance(body.accessToken);
     }
 
     const payment = await piServer(`/payments/${body.paymentId}`);
