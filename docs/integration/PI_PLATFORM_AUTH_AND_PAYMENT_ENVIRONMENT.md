@@ -29,6 +29,7 @@ Never use a Pi Mainnet wallet secret for Testnet deployment. Never expose the Pi
 - The backend must verify the Pi access token and compare the verified UID with the payment's user UID before approval, completion or incomplete-payment recovery.
 - Completion must verify the payment is approved and reject a transaction ID mismatch.
 - Missing server API key or disabled payment flag fails closed. There is no successful mock-payment fallback in the server payment routes.
+- The UI Custom Tester is preview-only; real payments are restricted to the server-side product allowlist and exact configured amounts.
 - The frontend may hold the Pi access token in memory for the current authenticated session; do not persist it to localStorage.
 - Do not mark a purchased entitlement active until Pi's server-side completion endpoint returns success.
 - Keep sandbox and production app configuration separate. A sandbox flag alone is not evidence of a production-ready app.
