@@ -174,7 +174,7 @@ export default function PiDEX() {
           <span className={`text-sm mono flex items-center gap-1 ${chg >= 0 ? "text-green" : "text-red"}`}>
             {chg >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}{chg.toFixed(2)}%
           </span>
-          {idxOk && <span className="text-xs mono text-muted">≈ ${(m.price * piUsd).toFixed(6)}</span>}
+          {idxOk && <span className="text-xs mono text-muted">≈ ${(m.price * piUsd).toFixed(6)} USDT</span>}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-2 text-xs ml-auto">
           <Stat label="24h High" value={fmt(m.high24h, 5)} />
@@ -420,7 +420,7 @@ export default function PiDEX() {
 
             <div className="mt-3 space-y-1 text-[11px] mono">
               <Row k="Est. total" v={`${fmt(size * (type === "limit" ? price : m.price), 5)} π`} />
-              {idxOk && <Row k="Est. total (USD · live index)" v={`$${(size * (type === "limit" ? price : m.price) * piUsd).toFixed(4)}`} />}
+              {idxOk && <Row k="Est. total (USDT reference)" v={`$${(size * (type === "limit" ? price : m.price) * piUsd).toFixed(4)}`} />}
               <Row k={`Fee · T${tier.tier} ${type === "limit" ? "maker" : "taker"}`}
                 v={`${((type === "limit" ? tier.makerBps : tier.takerBps) / 100).toFixed(2)}%`} />
               {quote && <Row k="Price impact" v={`${(quote.priceImpactBps / 100).toFixed(3)}%`} danger={quote.priceImpactBps > slip} />}
