@@ -165,6 +165,29 @@
         "Automatic approval",
         "Mainnet deployment"
       ]
+    },
+    {
+      "id": "soroban.events.read",
+      "name": "Authenticated Testnet event feed for Lovable",
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_UNVERIFIED",
+      "mode": "AUTHENTICATED_READ_ONLY",
+      "network": "pi-testnet1",
+      "description": "Paginated read-only access to raw Soroban event observations through a JWT-authenticated Edge Function. It does not prove finality or settlement.",
+      "endpoints": [
+        "GET /functions/v1/pirc-events-feed"
+      ],
+      "requires": [
+        "Valid Supabase user access token",
+        "Configured exact CORS origins",
+        "Service-role key kept server-side",
+        "Raw event inbox migration and ingestion function"
+      ],
+      "blocked_actions": [
+        "Direct table access",
+        "Settlement promotion",
+        "Balance or reserve claims",
+        "Signing or transaction submission"
+      ]
     }
   ]
 }
