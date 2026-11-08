@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { LAYERS, ISSUER, MASTER_REGISTRY } from "@/data/layers";
 import { HORIZON_TESTNET, fetchRoot, shorten } from "@/lib/pi";
 import { CheckCircle2, XCircle, Loader2, RefreshCw, FlaskConical, ExternalLink, AlertTriangle } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 type Status = "pending" | "ok" | "fail" | "unknown";
 type Check = { id: string; label: string; kind: "token" | "contract" | "network"; address: string; status: Status; detail?: string; latencyMs?: number };
@@ -14,6 +15,7 @@ const CONTRACTS = [
 ];
 
 export default function Testnet() {
+  const { t } = useI18n();
   const [checks, setChecks] = useState<Check[]>([]);
   const [running, setRunning] = useState(false);
   const [lastRun, setLastRun] = useState<Date | null>(null);
@@ -123,7 +125,7 @@ export default function Testnet() {
           <div className="flex-1 min-w-[260px]">
             <div className="flex items-center gap-2 mb-1">
               <FlaskConical size={18} className="text-orange" />
-              <h1 className="text-2xl font-bold">Testnet Verification</h1>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.testnet")}</h1>
               <span className="chip">Pi Testnet</span>
             </div>
             <p className="text-muted text-sm">
