@@ -66,9 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Defer incomplete-payment recovery until the server has verified this user's access token.
-      let incompletePayment: any = null;
+      const incompletePayments: any[] = [];
       const onIncompletePaymentFound = async (payment: any) => {
-        incompletePayment = payment;
+        if (payment?.identifier) incompletePayments.push(payment);
       };
 
       // 3. Authenticate with "username" and "payments" scope
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           uid: authData.user.uid,
           username: authData.user.username || auth.user.username // Authenticated user's username
         });
-        if (incompletePayment?.identifier) {
+        for (const incompletePayment of incompletePayments) {
           const recovery = await fetch(`${API_BASE}/api/payments/incomplete`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
