@@ -24,7 +24,7 @@ for (const locale of localeNames) dictionaries.set(locale, parse(locale));
 const baseline = dictionaries.get("en");
 const placeholders = (value) => [...value.matchAll(/\{([a-zA-Z0-9_]+)\}/g)].map((match) => match[1]).sort().join("|");
 let failed = false;
-console.log(\`i18n baseline: \${baseline.size} English keys\n\`);
+console.log("i18n baseline: " + baseline.size + " English keys\n");
 
 for (const locale of localeNames) {
   const dictionary = dictionaries.get(locale);
