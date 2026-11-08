@@ -1,7 +1,7 @@
 // Pi Network auth verification + payment approve/complete.
 //
 // Identity comes from the Pi Network itself: the client sends the Pi access token
-// returned by Pi.authenticate(), we verify it against https://api.minepi.com/v2/me,
+// returned by Pi.authenticate(), we verify it against an explicitly allowlisted Pi Testnet Platform API endpoint,
 // and every payment is checked against the Pi Platform API so a user can only
 // approve/complete payments that belong to them and to this app.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -10,7 +10,7 @@ import { readPiTestnetNativeBalance } from "./pi-testnet-wallet.ts";
 
 // Fail closed: never fall back to the Pi Mainnet Platform API or a legacy API key.
 const PI_NETWORK = (Deno.env.get("PI_NETWORK") || "").trim().toLowerCase();
-const PI_PLATFORM_API_URL = (Deno.env.get("PI_PLATFORM_API_URL") || "").trim().replace(/\\/$/, "");
+const PI_PLATFORM_API_URL = (Deno.env.get("PI_PLATFORM_API_URL") || "").trim().replace(/\/$/, "");
 const PI_PLATFORM_API_ALLOWED_HOSTS = new Set(
   (Deno.env.get("PI_PLATFORM_API_ALLOWED_HOSTS") || "")
     .split(",").map((host) => host.trim().toLowerCase()).filter(Boolean),
@@ -29,7 +29,7 @@ function piTestnetApiBase(): string {
     parsed.protocol !== "https:" ||
     parsed.hostname.toLowerCase() === "api.minepi.com" ||
     !PI_PLATFORM_API_ALLOWED_HOSTS.has(parsed.hostname.toLowerCase()) ||
-    !parsed.pathname.replace(/\\/$/, "").endsWith("/v2")
+    !parsed.pathname.replace(/\/$/, "").endsWith("/v2")
   ) throw new Error("testnet_platform_api_not_allowlisted");
   return PI_PLATFORM_API_URL;
 }
