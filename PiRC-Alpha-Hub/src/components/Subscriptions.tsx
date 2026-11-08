@@ -65,7 +65,7 @@ const PREDEFINED_PRODUCTS: Product[] = [
 ];
 
 export function Subscriptions() {
-  const { user, isPiReady } = useAuth();
+  const { user, accessToken, isPiReady } = useAuth();
   const [isConfigured, setIsConfigured] = useState<boolean | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(PREDEFINED_PRODUCTS[0]);
   const [isCustomProduct, setIsCustomProduct] = useState(false);
@@ -106,7 +106,7 @@ export function Subscriptions() {
     setLogs([]);
     addLog("Initiating Pi payment request...");
 
-    if (!isPiReady || typeof window.Pi === "undefined") {
+    if (!isPiReady || typeof window.Pi === "undefined" || !accessToken) {
       const msg = "Pi SDK is not fully initialized. Ensure you are running inside the Pi Browser.";
       setErrorMessage(msg);
       setPaymentStatus("error");
@@ -171,7 +171,7 @@ export function Subscriptions() {
             const res = await fetch("/api/payments/approve", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ paymentId }),
+              body: JSON.stringify({ paymentId, accessToken }),
             });
 
             if (!res.ok) {
@@ -202,7 +202,7 @@ export function Subscriptions() {
             const res = await fetch("/api/payments/complete", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ paymentId, txid }),
+              body: JSON.stringify({ paymentId, txid, accessToken }),
             });
 
             if (!res.ok) {
