@@ -17,6 +17,17 @@ export const BASE_QWF = 10_000_000; // Quantified Work Force baseline
 export const IPPR_SUPPLY_MULTIPLIER = 10_000_000;
 export const MARKET_INDEX_MAX_AGE_MS = 30_000;
 
+/** Canonical IPPR requires a USD-denominated PI quote with independently normalized USD parity. */
+export function isCanonicalUsdQuote(index: {
+  quoteAsset: string;
+  priceUnit: string;
+  usdParity: string;
+} | null | undefined): boolean {
+  return index?.quoteAsset === "USD"
+    && index.priceUnit === "USD_PER_PI"
+    && index.usdParity === "NORMALIZED";
+}
+
 /** A quote is live only while its server timestamp is valid and within the freshness window. */
 export function isFreshMarketIndex(timestamp: number, now = Date.now()): boolean {
   return Number.isFinite(timestamp)
