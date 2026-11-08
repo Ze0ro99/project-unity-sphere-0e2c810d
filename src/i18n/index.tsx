@@ -12,7 +12,7 @@ const I18nCtx = createContext<Ctx | null>(null);
 const STORAGE_KEY = "pirc.lang";
 const RTL = new Set<Lang>(["ar"]);
 // Only fully translated locales may be selected. Partial dictionaries stay visible as disabled options.
-const SUPPORTED = new Set<string>(["en", "ar", "zh", "id"]);
+const SUPPORTED = new Set<string>(["en"]);
 
 function safeStoredLanguage(): Lang | null {
   try {
@@ -97,11 +97,11 @@ export function useI18n(): Ctx {
 
 export const LANGS: { code: Lang; label: string; complete: boolean }[] = [
   { code: "en", label: "English", complete: true },
-  { code: "ar", label: "العربية", complete: true },
+  { code: "ar", label: "العربية", complete: false },
   { code: "fr", label: "Français", complete: false },
   { code: "es", label: "Español", complete: false },
   { code: "de", label: "Deutsch", complete: false },
   { code: "pt", label: "Português", complete: false },
-  { code: "zh", label: "中文", complete: true },
-  { code: "id", label: "Bahasa Indonesia", complete: true },
+  { code: "zh", label: "中文", complete: false },
+  { code: "id", label: "Bahasa Indonesia", complete: false },
 ];
