@@ -154,7 +154,7 @@ export function usePiConnection() {
         user: {
           uid: verified.user.uid,
           username: verified.user.username ?? auth.user.username,
-          walletAddress: auth.user.wallet_address ?? null,
+          walletAddress: verified.user.wallet_address ?? null,
         },
         connected: true,
         error: null,
@@ -198,7 +198,7 @@ async function ensurePiPaymentPermission(): Promise<void> {
     user: {
       uid: verified.user?.uid ?? auth.user.uid,
       username: verified.user?.username ?? auth.user.username,
-      walletAddress: auth.user.wallet_address ?? connectionSnapshot.user?.walletAddress ?? null,
+      walletAddress: verified.user?.wallet_address ?? connectionSnapshot.user?.walletAddress ?? null,
     },
     connected: true,
     error: null,
