@@ -35,7 +35,9 @@ export function reflexiveConstraint(networkFactor: number, ippr: number, qwf: nu
 }
 
 export function ipprFromSpot(spot: number): number {
-  return Number.isFinite(spot) && spot > 0 ? spot * IPPR_SUPPLY_MULTIPLIER : NaN;
+  return Number.isFinite(spot) && spot > 0
+    ? Number((spot * IPPR_SUPPLY_MULTIPLIER).toFixed(8))
+    : NaN;
 }
 
 /**
