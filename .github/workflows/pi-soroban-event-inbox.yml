@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "supabase/functions/pirc-soroban-event-ingest/**"
+      - "supabase/functions/pi-payments/**"
       - "supabase/migrations/*pirc_soroban_event_inbox.sql"
       - "supabase/config.toml"
       - ".github/workflows/pi-soroban-event-inbox.yml"
@@ -31,5 +32,5 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - name: Type check (Deno built-in runtime types)
-        run: deno check --no-config supabase/functions/pirc-soroban-event-ingest/index.ts
+      - name: Type check Pi wallet and Soroban Edge Functions
+        run: deno check --no-config supabase/functions/pirc-soroban-event-ingest/index.ts supabase/functions/pi-payments/index.ts
