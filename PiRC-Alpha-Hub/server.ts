@@ -126,6 +126,7 @@ async function startServer() {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
+        signal: AbortSignal.timeout(10000),
       });
 
       if (!piResponse.ok) {
@@ -133,6 +134,9 @@ async function startServer() {
       }
 
       const userData = await piResponse.json();
+      if (!userData || typeof userData.uid !== "string" || userData.uid.length === 0) {
+        return res.status(401).json({ error: "Authentication failed" });
+      }
       
       // Here you would typically establish a session, save to DB, etc.
       // For now, we return the validated user data to the frontend
@@ -155,6 +159,7 @@ async function startServer() {
     }
     const response = await fetch("https://api.minepi.com/v2/me", {
       headers: { Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(10000),
     });
     if (!response.ok) throw new Error("unauthorized");
     const user = await response.json();
@@ -216,7 +221,6 @@ async function startServer() {
       const payment = await callPiApi("GET", `/v2/payments/${paymentId}`);
       if (payment.user_uid !== user.uid) return res.status(403).json({ error: "forbidden" });
       if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
-      if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
       if (payment.status?.developer_completed) return res.json({ status: "success", already: true, data: payment });
       if (payment.status?.developer_approved) return res.json({ status: "success", already: true, data: payment });
       const result = await callPiApi("POST", `/v2/payments/${paymentId}/approve`);
@@ -272,8 +276,8 @@ async function startServer() {
       return res.json({ status: "success", action: "completed", data: completed });
     } catch (error: any) {
       const message = error?.message || "";
-      const status = message === "unauthorized" ? 401 : message.startsWith("PI_UPSTREAM_404") ? 404 : message === "PI_API_KEY_NOT_CONFIGURED" ? 503 : 502;
-      return res.status(status).json({ error: status === 401 ? "Unauthorized" : status === 404 ? "payment_not_found" : status === 503 ? "payments_not_configured" : "pi_platform_error" });
+      const status = message === "unauthorized" ? 401 : message.startsWith("PI_UPSTREAM_404") ? 404 : (message === "PI_API_KEY_NOT_CONFIGURED" || message === "PI_PAYMENTS_DISABLED") ? 503 : 502;
+      return res.status(status).json({ error: status === 401 ? "Unauthorized" : status === 404 ? "payment_not_found" : status === 503 ? (message === "PI_PAYMENTS_DISABLED" ? "payments_disabled" : "payments_not_configured") : "pi_platform_error" });
     }
   });
 
