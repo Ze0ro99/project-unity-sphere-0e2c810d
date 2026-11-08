@@ -43,7 +43,7 @@ type Tab = "orders" | "history" | "balances" | "pool";
 export default function PiDEX() {
   const state = useSyncExternalStore(exchangeStore.subscribe, exchangeStore.getSnapshot, exchangeStore.getSnapshot);
   const { t } = useI18n();
-  const { connected: piConnected, user: piUser, loading: piLoading, connect: connectPi } = usePiConnection();
+  const { connected: piConnected, user: piUser, loading: piLoading, connect: connectPi, testnetBalance: piTestnetBalance } = usePiConnection();
   const market = useMarketIndex();
   const index = market.index;
   const piUsd = index?.price ?? NaN;
@@ -199,6 +199,21 @@ export default function PiDEX() {
             ) : piConnected ? (
               <div className="text-[10px] text-amber-400">{t("pidex.walletAddressMissing")}</div>
             ) : null}
+            {piConnected && piTestnetBalance?.status === "read_only_verified" && (
+              <div className="text-[10px] text-green">
+                {t("pidex.testnetBalance")}: {piTestnetBalance.native_balance} Test Pi
+                {piTestnetBalance.ledger ? ` · ledger ${piTestnetBalance.ledger}` : ""}
+              </div>
+            )}
+            {piConnected && piTestnetBalance?.status === "account_not_found" && (
+              <div className="text-[10px] text-amber-400">{t("pidex.testnetAccountNotFound")}</div>
+            )}
+            {piConnected && piTestnetBalance?.status === "wallet_address_unavailable" && (
+              <div className="text-[10px] text-amber-400">{t("pidex.testnetWalletAddressUnavailable")}</div>
+            )}
+            {piConnected && piTestnetBalance?.status === "unavailable" && (
+              <div className="text-[10px] text-amber-400">{t("pidex.testnetBalanceUnavailable")}</div>
+            )}
           </div>
         </div>
         {!piConnected && (
