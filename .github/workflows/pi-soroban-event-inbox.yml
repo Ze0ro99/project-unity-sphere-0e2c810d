@@ -1,0 +1,37 @@
+name: Pi Soroban event inbox validation
+
+on:
+  pull_request:
+    paths:
+      - "supabase/functions/pirc-soroban-event-ingest/**"
+      - "supabase/migrations/*pirc_soroban_event_inbox.sql"
+      - "supabase/config.toml"
+      - ".github/workflows/pi-soroban-event-inbox.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/functions/pirc-soroban-event-ingest/**"
+      - "supabase/migrations/*pirc_soroban_event_inbox.sql"
+      - "supabase/config.toml"
+      - ".github/workflows/pi-soroban-event-inbox.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pi-soroban-event-inbox-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deno-static-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Format
+        run: deno fmt --check supabase/functions/pirc-soroban-event-ingest/index.ts
+      - name: Type check
+        run: deno check supabase/functions/pirc-soroban-event-ingest/index.ts
