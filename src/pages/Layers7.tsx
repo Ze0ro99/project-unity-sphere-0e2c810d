@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { LAYERS, ISSUER, MASTER_REGISTRY } from "@/data/layers";
 import { shorten, fetchIssuedAssets, fetchAccount, isValidStrKey, HORIZON_TESTNET } from "@/lib/pi";
 import { Layers, RefreshCw } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 export default function Layers7() {
+  const { t } = useI18n();
   const issuerValid = isValidStrKey(ISSUER, "G");
 
   // Seven-layer issuer data is intentionally pinned to Pi Testnet.
@@ -30,7 +32,7 @@ export default function Layers7() {
       <section className="card p-6">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <Layers size={18} className="text-purple" />
-          <h1 className="text-2xl font-bold">7-Layer Token System</h1>
+          <h1 className="text-2xl font-bold">{t("nav.layers")}</h1>
           <span className="chip">PiRC-207</span>
           <span className={`chip ${issuerDataLoaded ? "" : "text-muted"}`}>
             <span className={`w-2 h-2 rounded-full ${issuerDataLoaded ? "bg-green" : assetsQ.isFetching ? "bg-gold" : "bg-red"}`} />
