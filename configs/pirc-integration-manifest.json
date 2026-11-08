@@ -128,7 +128,7 @@
       "domain": "amm_liquidity_slippage",
       "spec": "PiRC",
       "implementation": "Unity Sphere contracts/pidex_amm",
-      "status": "CONTRACT_SOURCE_PRESENT_DEPLOYMENT_UNVERIFIED",
+      "status": "AMM_SOURCE_PRESENT_TESTS_ADDED_CI_PENDING_NOT_DEPLOYED",
       "network_evidence": null
     },
     {
@@ -240,7 +240,7 @@
       "domain": "onchain_amm_execution",
       "spec": "PiRC-215_227",
       "implementation": "Unity Sphere contracts/pidex_amm",
-      "status": "SOURCE_PRESENT_NOT_DEPLOYED_TOKEN_CONTRACTS_NOT_FOUND",
+      "status": "SOURCE_PRESENT_TESTS_ADDED_CI_PENDING_NO_DEPLOYED_ASSETS",
       "network_evidence": {
         "checked_at": "2026-11-08T13:45:06Z",
         "latest_ledger": 27596965,
@@ -262,6 +262,15 @@
       "implementation": "SmartContracts OUSD reference and Unity registry",
       "status": "TEST_ONLY_NO_PEG_RESERVES_OR_REDEMPTION",
       "network_evidence": null
+    },
+    {
+      "id": "PIRC-2",
+      "domain": "subscription_authorization_and_recurring_billing",
+      "spec": "PiRC subscription lifecycle and recurring billing proposal",
+      "implementation": "SmartContracts/contracts/subscription",
+      "status": "SCAFFOLD_ABI_MISMATCH_NOT_TESTNET_DEPLOYED",
+      "network_evidence": null,
+      "notes": "The active source currently exposes only initialize, mint, transfer, subscribe(user, plan), balance_of and ping. The README's service lifecycle, allowance billing and recurring process API is a target description, not the current ABI. Archived backup sources are not accepted without independent review and tests."
     }
   ],
   "unresolved_registry_conflicts": {
@@ -314,7 +323,7 @@
     "never_infer_deployment_from_source_or_address": true
   },
   "source_pins": {
-    "refreshed_at": "2026-11-08T13:53:25Z",
+    "refreshed_at": "2026-11-08T14:01:19Z",
     "policy": "Pin exact reviewed commits. Pull-request heads are proposed integration inputs, not merged release sources.",
     "repositories": {
       "pirc": {
@@ -328,14 +337,14 @@
         "main_sha": "ea61996c7defe47b7333c864c741c107eecd7626",
         "integration_pr": 1108,
         "integration_branch": "integration/pidex-amm-canonical-2026-11-08",
-        "integration_sha": "28bb84f4346c960660e0c0239a61d5db18ff5f92",
+        "integration_sha": "f75484c8dd901e5186033d44176a06693445e490",
         "integration_state": "OPEN_DRAFT"
       },
       "unity_sphere": {
         "main_sha": "9b335ee08a9b349328c24cd33d92f35281fdaad2",
         "integration_pr": 52,
         "integration_branch": "integration/pirc-testnet1-wallet-pidex-2026-11-08",
-        "integration_sha": "20ff93f2665abeff1f6a29cab43c5b27729e668b",
+        "integration_sha": "77ada3f13c4f2a8ca34993fe21273d0855898201",
         "integration_state": "OPEN_DRAFT"
       }
     }
@@ -364,7 +373,7 @@
     "finality_and_state_reconciliation": "NOT_IMPLEMENTED",
     "live_asset_activation": "BLOCKED_UNTIL_CONTRACT_DEPLOYMENT_AND_READBACK",
     "event_ingestion_source": "supabase/functions/pirc-soroban-event-ingest/index.ts",
-    "event_ingestion_status": "IDENTITY_GATED_MULTI_CONTRACT_RAW_INGESTION_SOURCE_CI_PENDING_NOT_DEPLOYED",
+    "event_ingestion_status": "IDENTITY_GATED_MULTI_CONTRACT_RAW_INGESTION_SOURCE_DENO_CHECK_PASSED_NOT_DEPLOYED",
     "network_identity_checks": [
       "Horizon passphrase",
       "Soroban RPC passphrase",
