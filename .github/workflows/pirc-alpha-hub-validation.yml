@@ -1,0 +1,40 @@
+name: PiRC Alpha Hub validation
+
+on:
+  pull_request:
+    paths:
+      - "PiRC-Alpha-Hub/**"
+      - ".github/workflows/pirc-alpha-hub-validation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "PiRC-Alpha-Hub/**"
+      - ".github/workflows/pirc-alpha-hub-validation.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pirc-alpha-hub-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: PiRC-Alpha-Hub
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.12.0"
+          cache: npm
+          cache-dependency-path: PiRC-Alpha-Hub/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Type check
+        run: npm run lint
+      - name: Build
+        run: npm run build

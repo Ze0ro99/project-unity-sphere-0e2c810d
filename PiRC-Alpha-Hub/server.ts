@@ -117,8 +117,8 @@ async function startServer() {
   app.post("/api/auth", async (req, res) => {
     try {
       const { accessToken } = req.body;
-      if (!accessToken) {
-        return res.status(400).json({ error: "Access token is required" });
+      if (typeof accessToken !== "string" || accessToken.length < 10 || accessToken.length > 4096) {
+        return res.status(400).json({ error: "invalid_request" });
       }
 
       // Validate access token against Pi Network API
@@ -126,6 +126,7 @@ async function startServer() {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
+        signal: AbortSignal.timeout(10000),
       });
 
       if (!piResponse.ok) {
@@ -133,13 +134,15 @@ async function startServer() {
       }
 
       const userData = await piResponse.json();
+      if (!userData || typeof userData.uid !== "string" || userData.uid.length === 0) {
+        return res.status(401).json({ error: "Authentication failed" });
+      }
       
       // Here you would typically establish a session, save to DB, etc.
       // For now, we return the validated user data to the frontend
       res.json({ 
         authenticated: true, 
         user: userData,
-        sessionId: Math.random().toString(36).substring(7)
       });
     } catch (error: any) {
       console.error("Pi Auth Error:", error.message);
@@ -147,147 +150,134 @@ async function startServer() {
     }
   });
 
-  // Pi Network Payments Implementation
-  const PI_NETWORK_API_KEY = process.env.PI_NETWORK_API_KEY;
+  // Pi Platform API: fail closed when the server key is missing.
+  const PI_NETWORK_API_KEY = process.env.PI_API_KEY || process.env.PI_NETWORK_API_KEY;
 
-  const callPiApi = async (method: string, endpoint: string, body?: any) => {
-    if (!PI_NETWORK_API_KEY) {
-      console.warn(`[Mock Pi API] PI_NETWORK_API_KEY is not set. Simulating response for ${method} ${endpoint}`);
-      
-      const paymentId = endpoint.split("/")[3] || "mock_payment_id";
-      
-      if (endpoint.endsWith("/approve")) {
-        return {
-          identifier: paymentId,
-          amount: body?.amount || 1.0,
-          memo: "Mock Approved Payment",
-          status: { developer_approved: true, developer_completed: false },
-          transaction: null,
-        };
-      } else if (endpoint.endsWith("/complete")) {
-        return {
-          identifier: paymentId,
-          amount: body?.amount || 1.0,
-          memo: "Mock Completed Payment",
-          status: { developer_approved: true, developer_completed: true },
-          transaction: { txid: body?.txid || "mock_txid_12345" },
-        };
-      } else {
-        // GET payment status
-        return {
-          identifier: paymentId,
-          amount: 1.0,
-          memo: "Mock Payment Status",
-          status: { developer_approved: true, developer_completed: false },
-          transaction: { txid: "mock_txid_12345" },
-        };
-      }
+  const verifyPiUser = async (accessToken: string) => {
+    if (!accessToken || accessToken.length < 10 || accessToken.length > 4096) {
+      throw new Error("unauthorized");
     }
+    const response = await fetch("https://api.minepi.com/v2/me", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) throw new Error("unauthorized");
+    const user = await response.json();
+    if (!user?.uid) throw new Error("unauthorized");
+    return user as { uid: string; username?: string };
+  };
 
+  const callPiApi = async (method: string, endpoint: string, body?: unknown) => {
+    if (!PI_NETWORK_API_KEY) throw new Error("PI_API_KEY_NOT_CONFIGURED");
+    if (process.env.PI_PAYMENTS_ENABLED !== "true") throw new Error("PI_PAYMENTS_DISABLED");
     const response = await fetch(`https://api.minepi.com${endpoint}`, {
       method,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Key ${PI_NETWORK_API_KEY}`,
       },
-      body: body ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : JSON.stringify(body),
     });
-    
+    const text = await response.text();
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Pi API error (${response.status}): ${text}`);
+      console.error("Pi Platform API rejected request", response.status, text.slice(0, 300));
+      throw new Error(`PI_UPSTREAM_${response.status}`);
     }
-    return await response.json();
+    return text ? JSON.parse(text) : {};
   };
 
-  // Check if Pi API key is configured
-  app.get("/api/payments/config", (req, res) => {
+  const validPaymentId = (value: unknown): value is string =>
+    typeof value === "string" && /^[A-Za-z0-9_-]{4,128}$/.test(value);
+
+  const PRODUCT_CATALOG: Record<string, number> = {
+    pirc_premium: 1.0,
+    compiler_boost: 0.5,
+    node_boost: 0.2,
+    dev_tip: 0.1,
+  };
+
+  const validatePaymentProduct = (payment: any) => {
+    const productId = payment?.metadata?.productId;
+    const expectedAmount = PRODUCT_CATALOG[productId];
+    if (expectedAmount === undefined || !Number.isFinite(payment?.amount)) return false;
+    return Math.round(Number(payment.amount) * 10_000_000) === Math.round(expectedAmount * 10_000_000);
+  };
+
+  app.get("/api/payments/config", (_req, res) => {
     res.json({
-      configured: !!PI_NETWORK_API_KEY,
+      configured: Boolean(PI_NETWORK_API_KEY),
+      mode: process.env.VITE_PI_SANDBOX === "false" ? "production" : "sandbox",
+      paymentsEnabled: Boolean(PI_NETWORK_API_KEY) && process.env.PI_PAYMENTS_ENABLED === "true",
     });
   });
 
-  // Approve a payment (called by onReadyForServerApproval)
   app.post("/api/payments/approve", async (req, res) => {
     try {
-      const { paymentId } = req.body;
-      if (!paymentId) {
-        return res.status(400).json({ error: "paymentId is required" });
+      const { paymentId, accessToken } = req.body ?? {};
+      if (!validPaymentId(paymentId) || typeof accessToken !== "string") {
+        return res.status(400).json({ error: "invalid_request" });
       }
-
-      console.log(`Approving payment ${paymentId}...`);
-      const approvalResult = await callPiApi("POST", `/v2/payments/${paymentId}/approve`);
-      console.log(`Payment ${paymentId} approved successfully:`, approvalResult);
-      
-      res.json({ status: "success", data: approvalResult });
+      const user = await verifyPiUser(accessToken);
+      const payment = await callPiApi("GET", `/v2/payments/${paymentId}`);
+      if (payment.user_uid !== user.uid) return res.status(403).json({ error: "forbidden" });
+      if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
+      if (payment.status?.developer_completed) return res.json({ status: "success", already: true, data: payment });
+      if (payment.status?.developer_approved) return res.json({ status: "success", already: true, data: payment });
+      const result = await callPiApi("POST", `/v2/payments/${paymentId}/approve`);
+      return res.json({ status: "success", data: result });
     } catch (error: any) {
-      console.error(`Error approving payment:`, error.message);
-      res.status(500).json({ error: error.message || "Failed to approve payment" });
+      const message = error?.message || "";
+      const status = message === "unauthorized" ? 401 : message.startsWith("PI_UPSTREAM_404") ? 404 : (message === "PI_API_KEY_NOT_CONFIGURED" || message === "PI_PAYMENTS_DISABLED") ? 503 : 502;
+      return res.status(status).json({ error: status === 401 ? "Unauthorized" : status === 404 ? "payment_not_found" : status === 503 ? (message === "PI_PAYMENTS_DISABLED" ? "payments_disabled" : "payments_not_configured") : "pi_platform_error" });
     }
   });
 
-  // Complete a payment (called by onReadyForServerCompletion)
   app.post("/api/payments/complete", async (req, res) => {
     try {
-      const { paymentId, txid } = req.body;
-      if (!paymentId || !txid) {
-        return res.status(400).json({ error: "paymentId and txid are required" });
+      const { paymentId, txid, accessToken } = req.body ?? {};
+      if (!validPaymentId(paymentId) || typeof txid !== "string" || !/^[a-fA-F0-9]{64}$/.test(txid) || typeof accessToken !== "string") {
+        return res.status(400).json({ error: "invalid_request" });
       }
-
-      console.log(`Completing payment ${paymentId} with txid ${txid}...`);
-      const completionResult = await callPiApi("POST", `/v2/payments/${paymentId}/complete`, { txid });
-      console.log(`Payment ${paymentId} completed successfully:`, completionResult);
-      
-      res.json({ status: "success", data: completionResult });
+      const user = await verifyPiUser(accessToken);
+      const payment = await callPiApi("GET", `/v2/payments/${paymentId}`);
+      if (payment.user_uid !== user.uid) return res.status(403).json({ error: "forbidden" });
+      if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
+      if (payment.status?.developer_completed) return res.json({ status: "success", already: true, data: payment });
+      if (!payment.status?.developer_approved) return res.status(409).json({ error: "payment_not_approved" });
+      if (payment.transaction?.txid && payment.transaction.txid !== txid) return res.status(409).json({ error: "transaction_mismatch" });
+      const result = await callPiApi("POST", `/v2/payments/${paymentId}/complete`, { txid });
+      return res.json({ status: "success", data: result });
     } catch (error: any) {
-      console.error(`Error completing payment:`, error.message);
-      res.status(500).json({ error: error.message || "Failed to complete payment" });
+      const message = error?.message || "";
+      const status = message === "unauthorized" ? 401 : message.startsWith("PI_UPSTREAM_404") ? 404 : (message === "PI_API_KEY_NOT_CONFIGURED" || message === "PI_PAYMENTS_DISABLED") ? 503 : 502;
+      return res.status(status).json({ error: status === 401 ? "Unauthorized" : status === 404 ? "payment_not_found" : status === 503 ? (message === "PI_PAYMENTS_DISABLED" ? "payments_disabled" : "payments_not_configured") : "pi_platform_error" });
     }
   });
 
-  // Handle incomplete payments
   app.post("/api/payments/incomplete", async (req, res) => {
     try {
-      const { paymentId, txid } = req.body;
-      if (!paymentId) {
-        return res.status(400).json({ error: "paymentId is required" });
+      const { paymentId, txid, accessToken } = req.body ?? {};
+      if (!validPaymentId(paymentId) || typeof accessToken !== "string") {
+        return res.status(400).json({ error: "invalid_request" });
       }
-
-      console.log(`Processing incomplete payment ${paymentId}...`);
-      
-      // Fetch current status from Pi Network
-      const paymentInfo = await callPiApi("GET", `/v2/payments/${paymentId}`);
-      console.log(`Incomplete payment status retrieved:`, paymentInfo);
-      
-      let result = { action: "none", data: paymentInfo };
-      
-      // If not approved, approve it
-      if (!paymentInfo.status?.developer_approved) {
-        console.log(`Incomplete payment ${paymentId} is not approved. Approving...`);
-        const approveData = await callPiApi("POST", `/v2/payments/${paymentId}/approve`);
-        result = { action: "approved", data: approveData };
-      } 
-      // If approved but not completed
-      else if (!paymentInfo.status?.developer_completed) {
-        // We need a txid to complete. Let's find it.
-        const actualTxid = txid || paymentInfo.transaction?.txid;
-        if (actualTxid) {
-          console.log(`Incomplete payment ${paymentId} is approved but not completed. Completing with txid ${actualTxid}...`);
-          const completeData = await callPiApi("POST", `/v2/payments/${paymentId}/complete`, { txid: actualTxid });
-          result = { action: "completed", data: completeData };
-        } else {
-          console.log(`Incomplete payment ${paymentId} is approved but lacks transaction ID. Cannot complete yet.`);
-          result = { action: "pending_transaction", data: paymentInfo };
-        }
-      } else {
-        console.log(`Incomplete payment ${paymentId} is already fully approved and completed.`);
-        result = { action: "already_completed", data: paymentInfo };
+      const user = await verifyPiUser(accessToken);
+      const payment = await callPiApi("GET", `/v2/payments/${paymentId}`);
+      if (payment.user_uid !== user.uid) return res.status(403).json({ error: "forbidden" });
+      if (!validatePaymentProduct(payment)) return res.status(409).json({ error: "unrecognized_product_or_amount" });
+      if (payment.status?.developer_completed) return res.json({ status: "success", action: "already_completed", data: payment });
+      const actualTxid = payment.transaction?.txid;
+      if (actualTxid && !/^[a-fA-F0-9]{64}$/.test(actualTxid)) return res.status(409).json({ error: "invalid_transaction_id" });
+      if (txid && actualTxid && txid !== actualTxid) return res.status(409).json({ error: "transaction_mismatch" });
+      if (!payment.status?.developer_approved) {
+        await callPiApi("POST", `/v2/payments/${paymentId}/approve`);
       }
-
-      res.json({ status: "success", ...result });
+      if (!actualTxid) return res.json({ status: "success", action: "pending_transaction" });
+      const completed = await callPiApi("POST", `/v2/payments/${paymentId}/complete`, { txid: actualTxid });
+      return res.json({ status: "success", action: "completed", data: completed });
     } catch (error: any) {
-      console.error(`Error processing incomplete payment:`, error.message);
-      res.status(500).json({ error: error.message || "Failed to process incomplete payment" });
+      const message = error?.message || "";
+      const status = message === "unauthorized" ? 401 : message.startsWith("PI_UPSTREAM_404") ? 404 : (message === "PI_API_KEY_NOT_CONFIGURED" || message === "PI_PAYMENTS_DISABLED") ? 503 : 502;
+      return res.status(status).json({ error: status === 401 ? "Unauthorized" : status === 404 ? "payment_not_found" : status === 503 ? (message === "PI_PAYMENTS_DISABLED" ? "payments_disabled" : "payments_not_configured") : "pi_platform_error" });
     }
   });
 

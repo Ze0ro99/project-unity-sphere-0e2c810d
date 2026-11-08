@@ -7,6 +7,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  accessToken: string | null;
   loading: boolean;
   error: string | null;
   isPiReady: boolean;
@@ -22,6 +23,7 @@ const API_BASE = "";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPiReady, setIsPiReady] = useState(false);
@@ -33,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
 
       if (typeof window.Pi === "undefined") {
-        if (process.env.NODE_ENV !== "production") {
+        if (import.meta.env.DEV) {
           console.log("Pi SDK is not loaded. Mocking Pi Network Auth for development/sandbox environment.");
           setUser({ uid: "demo_user_12345", username: "pi_demo_user" });
           setIsPiReady(true);
@@ -46,12 +48,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 1. Initialize Pi SDK as a Promise and fully await it before calling authenticate
       if (!isInitialized.current) {
         try {
-          await window.Pi.init({ version: "2.0", sandbox: true });
+          const sandbox = import.meta.env.VITE_PI_SANDBOX !== "false";
+          await window.Pi.init({ version: "2.0", sandbox });
           isInitialized.current = true;
           setIsPiReady(true);
         } catch (e: any) {
           console.warn("Pi.init error:", e.message || e);
-          if (process.env.NODE_ENV !== "production") {
+          if (import.meta.env.DEV) {
             console.log("Mocking Pi Network Auth for development/sandbox environment.");
             setUser({ uid: "demo_user_12345", username: "pi_demo_user" });
             setIsPiReady(true);
@@ -62,25 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // 2. Define incomplete payment handler (required by Pi SDK to complete in-flight payments)
+      // Defer incomplete-payment recovery until the server has verified this user's access token.
+      const incompletePayments: any[] = [];
       const onIncompletePaymentFound = async (payment: any) => {
-        console.log("Incomplete payment found:", payment);
-        try {
-          const response = await fetch(`${API_BASE}/api/payments/incomplete`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              paymentId: payment.identifier,
-              txid: payment.transaction?.txid,
-            }),
-          });
-          const data = await response.json();
-          console.log("Incomplete payment automatically resolved on login:", data);
-        } catch (err: any) {
-          console.error("Failed to complete in-flight payment:", err.message || err);
-        }
+        if (payment?.identifier) incompletePayments.push(payment);
       };
 
       // 3. Authenticate with "username" and "payments" scope
@@ -102,10 +90,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const authData = await authResponse.json();
       
       if (authData.authenticated) {
+        setAccessToken(auth.accessToken);
         setUser({
           uid: authData.user.uid,
           username: authData.user.username || auth.user.username // Authenticated user's username
         });
+        for (const incompletePayment of incompletePayments) {
+          const recovery = await fetch(`${API_BASE}/api/payments/incomplete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              paymentId: incompletePayment.identifier,
+              txid: incompletePayment.transaction?.txid,
+              accessToken: auth.accessToken,
+            }),
+          });
+          if (!recovery.ok) console.warn("Incomplete Pi payment requires manual recovery:", recovery.status);
+        }
       } else {
         throw new Error("Server rejected authentication.");
       }
@@ -114,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(err.message || "Failed to authenticate with Pi Network");
       
       // Automatic attempt fallback for desktop/browser preview in development mode
-      if (process.env.NODE_ENV !== "production" && isAutoAttempt) {
+      if (import.meta.env.DEV && isAutoAttempt) {
         console.log("Auto-attempt failed, fallback to mock user in development mode.");
         setUser({ uid: "demo_user_12345", username: "pi_demo_user" });
       }
@@ -135,10 +136,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = () => {
     setUser(null);
+    setAccessToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, isPiReady, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, accessToken, loading, error, isPiReady, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
