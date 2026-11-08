@@ -15,8 +15,8 @@ export default function LanguageSwitcher() {
         className="max-w-[112px] sm:max-w-none bg-transparent outline-none mono text-xs"
       >
         {LANGS.map((language) => (
-          <option key={language.code} value={language.code} className="bg-panel text-text">
-            {language.label}
+          <option key={language.code} value={language.code} disabled={!language.complete} className="bg-panel text-text">
+            {language.complete ? language.label : `${language.label} — translation incomplete`}
           </option>
         ))}
       </select>
