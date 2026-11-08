@@ -46,11 +46,11 @@ async function piServer(path: string, init: RequestInit = {}) {
   return text ? JSON.parse(text) : {};
 }
 
-async function piUser(accessToken: string): Promise<{ uid: string; username: string } | null> {
+async function piUser(accessToken: string): Promise<{ uid: string; username: string; wallet_address?: string } | null> {
   const r = await fetch(`${PI_API}/me`, { headers: { Authorization: `Bearer ${accessToken}` } });
   if (!r.ok) return null;
   const me = await r.json().catch(() => null);
-  return me?.uid ? { uid: me.uid, username: me.username } : null;
+  return me?.uid ? { uid: me.uid, username: me.username, ...(typeof me.wallet_address === "string" ? { wallet_address: me.wallet_address } : {}) } : null;
 }
 
 Deno.serve(async (req) => {
