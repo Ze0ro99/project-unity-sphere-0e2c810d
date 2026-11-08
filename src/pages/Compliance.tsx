@@ -63,7 +63,7 @@ export default function Compliance() {
 
       <div className="grid lg:grid-cols-2 gap-4">
         <section className="rounded-xl border border-border bg-panel/60 p-4 space-y-4">
-          <h2 className="text-sm font-semibold flex items-center gap-2"><AlertOctagon size={15} className="text-gold" /> Transaction screening</h2>
+          <h2 className="text-sm font-semibold flex items-center gap-2"><AlertOctagon size={15} className="text-gold" /> {t("compliance.screening")}</h2>
 
           <label className="block text-xs text-muted">
             {t("compliance.notional")} · {num(notional)} π
@@ -100,7 +100,7 @@ export default function Compliance() {
         </section>
 
         <section className="rounded-xl border border-border bg-panel/60 p-4">
-          <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><FileCheck2 size={15} className="text-gold" /> Assessment</h2>
+          <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><FileCheck2 size={15} className="text-gold" /> {t("compliance.assessment")}</h2>
           <div className="flex items-end gap-4 mb-3">
             <div>
               <div className="text-[11px] uppercase text-muted">{t("compliance.riskScore")}</div>
