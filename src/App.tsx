@@ -117,7 +117,7 @@ function Header() {
         </nav>
         <div className="ml-auto hidden xl:flex items-center gap-2 text-xs text-muted">
           <span className="pulse-dot" />
-          <span className="mono">MAINNET · api.mainnet.minepi.com</span>
+          <span className="mono">TESTNET1 · Pi Testnet · Mainnet writes disabled</span>
         </div>
         <div className="ml-auto lg:ml-0 flex items-center gap-2">
           <LanguageSwitcher />
