@@ -51,6 +51,7 @@ The integration manifest currently records:
 - [ ] Move visible hard-coded route text into the shared localization system or explicitly mark canonical names, hashes, addresses, and code as non-translatable.
 - [ ] Verify every route at mobile and desktop sizes, including RTL behavior and LTR numeric identifiers.
 - [ ] Obtain fluent review for each advertised locale.
+- [ ] Keep incomplete locales visible as unavailable/disabled in the selector until every English baseline key, interpolation placeholder, and route label has been translated and reviewed.
 
 The current integration branch has 166 English, Arabic, Chinese, and Indonesian keys, but only 42 keys in each of French, Spanish, German, and Portuguese. The latter four locales are partial and must not be advertised as fully translated. The release gate fails on this condition.
 
