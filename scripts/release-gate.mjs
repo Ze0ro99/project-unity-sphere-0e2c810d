@@ -30,22 +30,32 @@ for (const locale of locales) {
 
 const english = dictionaries.get("en") ?? new Map();
 const placeholders = (value) => [...value.matchAll(/\{([a-zA-Z0-9_]+)\}/g)].map((match) => match[1]).sort().join("|");
-for (const locale of locales) {
-  if (locale === "en") continue;
-  const dictionary = dictionaries.get(locale);
-  if (!dictionary) continue;
-  const missing = [...english.keys()].filter((key) => !dictionary.has(key));
-  const empty = [...dictionary].filter(([, value]) => !value.trim()).map(([key]) => key);
-  const mismatched = [...english.keys()].filter((key) => dictionary.has(key) && placeholders(english.get(key)) !== placeholders(dictionary.get(key)));
-  if (missing.length) failures.push(`Locale ${locale} is missing ${missing.length}/${english.size} English baseline keys.`);
-  if (empty.length) failures.push(`Locale ${locale} has ${empty.length} empty translation values.`);
-  if (mismatched.length) failures.push(`Locale ${locale} has ${mismatched.length} interpolation-placeholder mismatches.`);
-}
-
 const supportedMatch = i18nProvider.match(/const SUPPORTED = new Set<string>\(\[([^\]]*)\]\)/);
 if (!supportedMatch) failures.push("The shared i18n provider does not expose a parseable supported-locale allowlist.");
 const enabledLocales = supportedMatch ? [...supportedMatch[1].matchAll(/"([a-z]{2})"/g)].map((match) => match[1]) : [];
-if (enabledLocales.some((locale) => locale !== "en")) failures.push("Non-English locales cannot be enabled until all application routes have complete reviewed translations; partial selection causes mixed-language rendering.");
+if (!enabledLocales.includes("en")) failures.push("English must remain enabled as the fallback locale.");
+for (const locale of enabledLocales) {
+  const dictionary = dictionaries.get(locale);
+  if (!dictionary) {
+    failures.push(`Enabled locale ${locale} has no dictionary.`);
+    continue;
+  }
+  const missing = [...english.keys()].filter((key) => !dictionary.has(key));
+  const empty = [...dictionary].filter(([, value]) => !value.trim()).map(([key]) => key);
+  const mismatched = [...english.keys()].filter((key) => dictionary.has(key) && placeholders(english.get(key)) !== placeholders(dictionary.get(key)));
+  if (missing.length) failures.push(`Enabled locale ${locale} is missing ${missing.length}/${english.size} English baseline keys.`);
+  if (empty.length) failures.push(`Enabled locale ${locale} has ${empty.length} empty translation values.`);
+  if (mismatched.length) failures.push(`Enabled locale ${locale} has ${mismatched.length} interpolation-placeholder mismatches.`);
+}
+for (const locale of locales.filter((item) => !enabledLocales.includes(item))) {
+  console.log(`Locale ${locale}: disabled until its complete translation review is finished.`);
+}
+const switcherLocales = [...i18nProvider.matchAll(/\{ code: "([a-z]{2})", label: "[^"]+", complete: (true|false) \}/g)];
+for (const [, locale, complete] of switcherLocales) {
+  if ((complete === "true") !== enabledLocales.includes(locale)) {
+    failures.push(`Language switcher completion flag disagrees with provider allowlist for ${locale}.`);
+  }
+}
 
 const network = manifest.target_network ?? {};
 if (network.network_id !== "pi-testnet1" || network.canonical_network !== "Pi Testnet") failures.push("The release target must be the explicitly named Pi Testnet profile.");
