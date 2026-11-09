@@ -36,6 +36,7 @@ function Spark({ outcome, field, color }: { outcome: ScenarioOutcome; field: "ph
 }
 
 export default function Economics() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const [scenarios] = useState<SimulationScenario[]>(DEFAULT_SCENARIOS);
   const [selected, setSelected] = useState(DEFAULT_SCENARIOS[0].id);
@@ -82,10 +83,10 @@ export default function Economics() {
           <span className={liveOk ? "text-green" : "text-red"}>
             ● π/USDT index {liveOk ? `${spot.toFixed(6)} USDT` : "unavailable"}
           </span>
-          <span>{market.index?.sources ?? 0}/{market.index?.totalSources ?? 0} venues</span>
-          <span>deviation {(market.index?.deviationBps ?? 0).toFixed(1)} bps</span>
+          <span>{market.index?.sources ?? 0}/{market.index?.totalSources ?? 0}  {tr("venues")}</span>
+          <span>{tr("deviation")} {(market.index?.deviationBps ?? 0).toFixed(1)} bps</span>
           <span>24h {market.index?.changePct != null ? `${market.index.changePct.toFixed(2)}%` : "—"}</span>
-          <span>synced {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
+          <span>{tr("synced")} {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
         </div>
       </section>
 
@@ -110,7 +111,7 @@ export default function Economics() {
 
       <div className="grid lg:grid-cols-3 gap-4">
         <section className="rounded-xl border border-border bg-panel/60 p-4 space-y-3">
-          <h2 className="text-sm font-semibold flex items-center gap-2"><Gauge size={15} className="text-gold" /> Scenario selection</h2>
+          <h2 className="text-sm font-semibold flex items-center gap-2"><Gauge size={15} className="text-gold" />  {tr("Scenario selection")}</h2>
           {scenarios.map((s) => {
             const o = outcomes.find((x) => x.scenario.id === s.id)!;
             const on = s.id === selected;
@@ -131,34 +132,32 @@ export default function Economics() {
             );
           })}
           <label className="block text-xs text-muted pt-1">
-            Horizon · {horizon} epochs
-            <input type="range" min={30} max={1095} step={5} value={horizon}
+             {tr("Horizon ·")} {horizon}  {tr("epochs")} <input type="range" min={30} max={1095} step={5} value={horizon}
               onChange={(e) => setHorizon(Number(e.target.value))} className="mt-2 w-full accent-gold" />
           </label>
           <button
             onClick={() => downloadCSV(active)}
             className="w-full flex items-center justify-center gap-2 rounded-md border border-border bg-panel2 hover:bg-panel px-3 py-2 text-sm"
           >
-            <Download size={14} /> Export CSV
-          </button>
+            <Download size={14} />  {tr("Export CSV")} </button>
         </section>
 
         <section className="lg:col-span-2 rounded-xl border border-border bg-panel/60 p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold flex items-center gap-2"><Activity size={15} className="text-green" /> {active.scenario.name} projection</h2>
+            <h2 className="text-sm font-semibold flex items-center gap-2"><Activity size={15} className="text-green" /> {active.scenario.name}  {tr("projection")}</h2>
             <span className="text-[11px] mono text-muted">95% CI Φ [{active.ci95[0]}, {active.ci95[1]}]</span>
           </div>
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-muted mb-1">Modeled Φ reflexive constraint</div>
+            <div className="text-[11px] uppercase tracking-wider text-muted mb-1">{tr("Modeled Φ reflexive constraint")}</div>
             <Spark outcome={active} field="phi" color="#e0b23c" />
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted mb-1">IPPR model index</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted mb-1">{tr("IPPR model index")}</div>
               <Spark outcome={active} field="ippr" color="#3ec98c" />
             </div>
             <div>
-              <div className="text-[11px] uppercase tracking-wider text-muted mb-1">Modeled collateral proxy</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted mb-1">{tr("Modeled collateral proxy")}</div>
               <Spark outcome={active} field="collateralRatio" color="#4d8ff5" />
             </div>
           </div>

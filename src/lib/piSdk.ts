@@ -91,7 +91,7 @@ let initPromise: Promise<void> | null = null;
 
 export function initPi(): Promise<void> {
   if (initPromise) return initPromise;
-  initPromise = new Promise((resolve, reject) => {
+  const pending = new Promise<void>((resolve, reject) => {
     const start = Date.now();
     const tick = () => {
       if (typeof window !== "undefined" && window.Pi) {
@@ -111,7 +111,8 @@ export function initPi(): Promise<void> {
     initPromise = null;
     throw error;
   });
-  return initPromise;
+  initPromise = pending;
+  return pending;
 }
 
 let piAccessToken: string | null = null;

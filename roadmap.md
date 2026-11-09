@@ -1,5 +1,7 @@
-# Bug fixes
-- [x] Restore missing IPPR helper and fix browser digest type.
-- [ ] Verify app pages and live market updates in the browser.
-- [ ] Review two broad record-access findings; obtain intended access scope before changing permissions.
-- [ ] Run regression tests and commit verified changes.
+# Language and network synchronization
+- [ ] Apply selected language across gateway text and controls; preserve Arabic direction and user selections.
+- [ ] Detect active protocol from closed ledgers automatically; track v28, v29, v30 without claiming unverified contract compatibility.
+- [ ] Verify calculation constants and fix startup errors.
+- [ ] Verify gateway navigation and network detection in the browser; run regression tests.
+- [ ] Review two broad record-access findings; obtain access-scope decision before changing paid permissions.
+- [ ] Commit verified changes.

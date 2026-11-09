@@ -11,6 +11,8 @@ import {
 } from "@/lib/pi";
 import { Radio } from "lucide-react";
 import { useI18n } from "@/i18n";
+import { useProtocol } from "@/lib/useProtocol";
+import { TRACKED_UPGRADES, upgradeState } from "@/lib/protocol";
 
 const NETWORKS = [
   { key: "mainnet", title: "Pi Mainnet", endpoint: HORIZON_MAINNET },
@@ -19,13 +21,14 @@ const NETWORKS = [
 ];
 
 export default function Network() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Radio size={18} className="text-blue" />
         <h1 className="text-2xl font-bold">{t("nav.network")}</h1>
-        <span className="chip"><span className="pulse-dot" /> live</span>
+        <span className="chip"><span className="pulse-dot" />  {tr("live")}</span>
       </div>
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
         {NETWORKS.map((n) => (
@@ -37,6 +40,9 @@ export default function Network() {
 }
 
 function NetCard({ nkey, title, endpoint }: { nkey: string; title: string; endpoint: string }) {
+  const { t: tr } = useI18n();
+  const { t } = useI18n();
+  const { observation } = useProtocol(endpoint);
   const root = useQuery({
     queryKey: ["root", nkey],
     queryFn: () => fetchRoot(endpoint),
@@ -73,23 +79,29 @@ function NetCard({ nkey, title, endpoint }: { nkey: string; title: string; endpo
       <div className="mono text-xs text-muted mt-1 break-all">{endpoint}</div>
 
       <div className="grid grid-cols-2 gap-3 mt-4 text-sm">
-        <Info k="Network" v={data?.network_passphrase ?? "—"} />
-        <Info k="Protocol" v={data?.current_protocol_version ?? data?.protocol_version ? `v${data.current_protocol_version ?? data.protocol_version}` : "—"} />
+        <Info k={tr("Network")} v={data?.network_passphrase ?? "—"} />
+        <Info k={t("protocol.active")} v={observation.active ? `v${observation.active} · ${t(`protocol.${observation.state}`)}` : "—"} />
+        <Info k={t("protocol.supported")} v={observation.supported ? `v${observation.supported}` : "—"} />
         <Info k="Horizon" v={data?.horizon_version ?? "—"} />
         <Info k="Core" v={data?.core_version ?? "—"} />
-        <Info k="Latest Ledger" v={data?.history_latest_ledger?.toLocaleString?.() ?? "—"} />
-        <Info k="Ingest Lag" v={
+        <Info k={tr("Latest Ledger")} v={data?.history_latest_ledger?.toLocaleString?.() ?? "—"} />
+        <Info k={tr("Ingest Lag")} v={
           data?.core_latest_ledger && data?.history_latest_ledger
             ? `${Math.max(0, data.core_latest_ledger - data.history_latest_ledger)} ledgers`
             : "—"
         } />
       </div>
 
-      <div className="text-[10px] uppercase text-muted mt-4 mb-2 tracking-wide">Live throughput</div>
+      <div className="flex flex-wrap gap-2 mt-4 text-xs">
+        {TRACKED_UPGRADES.map(v => <span key={v} className="chip">v{v} · {t(`protocol.${upgradeState(observation, v)}`)}</span>)}
+      </div>
+      <p className="text-xs text-muted mt-2">{t("protocol.notice")}</p>
+
+      <div className="text-[10px] uppercase text-muted mt-4 mb-2 tracking-wide">{tr("Live throughput")}</div>
       <div className="grid grid-cols-3 gap-3 text-sm">
-        <Info k="Close Time" v={mct === null ? "—" : `${mct.toFixed(1)}s`} />
-        <Info k="Ops / sec" v={rate === null ? "—" : rate.toFixed(2)} />
-        <Info k="Fail Rate" v={failRate === null ? "—" : `${failRate.toFixed(2)}%`} />
+        <Info k={tr("Close Time")} v={mct === null ? "—" : `${mct.toFixed(1)}s`} />
+        <Info k={tr("Ops / sec")} v={rate === null ? "—" : rate.toFixed(2)} />
+        <Info k={tr("Fail Rate")} v={failRate === null ? "—" : `${failRate.toFixed(2)}%`} />
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import { Shield, CheckCircle2, FileCode2, Scale, Lock, Activity, Gauge, Layers } from "lucide-react";
 import { useI18n } from "@/i18n";
+import { useProtocol } from "@/lib/useProtocol";
+import { TRACKED_UPGRADES, upgradeState } from "@/lib/protocol";
 
 type Status = "enforced" | "wired" | "documented" | "shipped";
 type ProtocolStatus = "documented" | "unverified";
@@ -22,6 +24,8 @@ const PROTOCOLS: { v: string; state: ProtocolStatus }[] = [
   { v: "v26", state: "unverified" },
   { v: "v27", state: "unverified" },
   { v: "v28", state: "unverified" },
+  { v: "v29", state: "unverified" },
+  { v: "v30", state: "unverified" },
 ];
 
 const CHECK_IDS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
@@ -38,6 +42,7 @@ function statusToneKey(s: Status) {
 
 export default function Standards() {
   const { t, lang } = useI18n();
+  const { observation } = useProtocol();
   return (
     <div className="space-y-6" key={lang}>
       <header className="flex items-start justify-between gap-4 flex-wrap">
@@ -79,6 +84,11 @@ export default function Standards() {
 
       <section className="p-4 rounded-lg border border-border bg-panel/60">
         <h2 className="font-semibold mb-3">{t("standards.protocolMatrix")}</h2>
+        <div className="flex flex-wrap gap-2 mb-3 text-xs">
+          <span>{t("protocol.active")}: {observation.active ? `v${observation.active}` : "—"}</span>
+          {TRACKED_UPGRADES.map(v => <span key={v} className="chip">v{v} · {t(`protocol.${upgradeState(observation, v)}`)}</span>)}
+        </div>
+        <p className="text-xs text-muted mb-3">{t("protocol.notice")}</p>
         <div className="grid grid-cols-2 md:grid-cols-7 gap-2 text-xs mono">
           {PROTOCOLS.map((p) => (
             <div key={p.v} className="p-2 rounded border border-border bg-panel2/40">

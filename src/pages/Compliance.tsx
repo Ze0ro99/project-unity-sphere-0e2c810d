@@ -21,6 +21,7 @@ const MICAR = [
 ];
 
 export default function Compliance() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const [notional, setNotional] = useState(1500);
   const [ageDays, setAgeDays] = useState(12);
@@ -71,13 +72,11 @@ export default function Compliance() {
               onChange={(e) => setNotional(Number(e.target.value))} className="mt-2 w-full accent-gold" />
           </label>
           <label className="block text-xs text-muted">
-            {t("compliance.age")} · {ageDays} days
-            <input type="range" min={0} max={365} value={ageDays}
+            {t("compliance.age")} · {ageDays}  {tr("days")} <input type="range" min={0} max={365} value={ageDays}
               onChange={(e) => setAgeDays(Number(e.target.value))} className="mt-2 w-full accent-gold" />
           </label>
           <label className="block text-xs text-muted">
-            {t("compliance.velocity")} · {velocity} transfers
-            <input type="range" min={0} max={80} value={velocity}
+            {t("compliance.velocity")} · {velocity}  {tr("transfers")} <input type="range" min={0} max={80} value={velocity}
               onChange={(e) => setVelocity(Number(e.target.value))} className="mt-2 w-full accent-gold" />
           </label>
           <label className="block text-xs text-muted">

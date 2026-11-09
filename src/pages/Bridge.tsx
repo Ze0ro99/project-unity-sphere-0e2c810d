@@ -18,6 +18,7 @@ const CORRIDOR_BPS = 8;
 const RELAYER_PI = 0.0003;
 
 export default function Bridge() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const [from, setFrom] = useState("pi-mainnet");
   const [to, setTo] = useState("stellar-testnet");
@@ -76,30 +77,26 @@ export default function Bridge() {
         <section className="lg:col-span-2 rounded-xl border border-border bg-panel/60 p-4 space-y-4">
           <div className="grid sm:grid-cols-2 gap-3">
             <label className="text-xs text-muted">
-              From chain
-              <select value={from} onChange={(e) => setFrom(e.target.value)}
+               {tr("From chain")} <select value={from} onChange={(e) => setFrom(e.target.value)}
                 className="mt-1 w-full bg-panel2 border border-border rounded-md px-2 py-2 text-sm text-text">
                 {CHAINS.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </label>
             <label className="text-xs text-muted">
-              To chain
-              <select value={to} onChange={(e) => setTo(e.target.value)}
+               {tr("To chain")} <select value={to} onChange={(e) => setTo(e.target.value)}
                 className="mt-1 w-full bg-panel2 border border-border rounded-md px-2 py-2 text-sm text-text">
                 {CHAINS.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </label>
             <label className="text-xs text-muted">
-              Asset
-              <select value={asset} onChange={(e) => setAsset(e.target.value)}
+               {tr("Asset")} <select value={asset} onChange={(e) => setAsset(e.target.value)}
                 className="mt-1 w-full bg-panel2 border border-border rounded-md px-2 py-2 text-sm text-text">
-                <option value="PI">π (native)</option>
+                <option value="PI">{tr("π (native)")}</option>
                 {LAYERS.map((l) => <option key={l.id} value={l.name.toUpperCase()}>{l.name.toUpperCase()} · {l.role}</option>)}
               </select>
             </label>
             <label className="text-xs text-muted">
-              Amount
-              <input type="number" min={0} step={0.0001} value={amount}
+               {tr("Amount")} <input type="number" min={0} step={0.0001} value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
                 className="mt-1 w-full bg-panel2 border border-border rounded-md px-2 py-2 text-sm text-text mono" />
             </label>
@@ -107,27 +104,26 @@ export default function Bridge() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
             <div className="rounded-lg border border-border bg-panel2/30 px-3 py-2">
-              <div className="text-muted">Corridor fee</div>
+              <div className="text-muted">{tr("Corridor fee")}</div>
               <div className="mono">{num(corridorFee, 4)} · {CORRIDOR_BPS} bps</div>
             </div>
             <div className="rounded-lg border border-border bg-panel2/30 px-3 py-2">
-              <div className="text-muted">Relayer</div>
+              <div className="text-muted">{tr("Relayer")}</div>
               <div className="mono">{RELAYER_PI} π</div>
             </div>
             <div className="rounded-lg border border-border bg-panel2/30 px-3 py-2">
-              <div className="text-muted">You receive</div>
+              <div className="text-muted">{tr("You receive")}</div>
               <div className="mono text-green">{num(received, 4)} {asset}</div>
             </div>
             <div className="rounded-lg border border-border bg-panel2/30 px-3 py-2">
-              <div className="text-muted flex items-center gap-1"><Timer size={11} /> ETA</div>
+              <div className="text-muted flex items-center gap-1"><Timer size={11} />  {tr("ETA")}</div>
               <div className="mono">{etaSec}s</div>
             </div>
           </div>
 
           <button onClick={simulate}
             className="w-full py-2.5 rounded-md bg-gradient-to-r from-gold to-orange text-black font-semibold text-sm hover:opacity-90 transition">
-            Route transfer through corridor
-          </button>
+             {tr("Route transfer through corridor")} </button>
 
           <div className="rounded-lg border border-border bg-panel2/20 p-3 max-h-64 overflow-auto">
             {log.length === 0 ? (
@@ -146,25 +142,25 @@ export default function Bridge() {
 
         <section className="space-y-4">
           <div className="rounded-xl border border-border bg-panel/60 p-4">
-            <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><ShieldCheck size={15} className="text-gold" /> Compliance pre-check</h2>
+            <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><ShieldCheck size={15} className="text-gold" />  {tr("Compliance pre-check")}</h2>
             <div className="text-xs space-y-1.5">
-              <div className="flex justify-between"><span className="text-muted">Risk score</span><span className="mono">{aml.score}/100</span></div>
-              <div className="flex justify-between"><span className="text-muted">Band</span>
+              <div className="flex justify-between"><span className="text-muted">{tr("Risk score")}</span><span className="mono">{aml.score}/100</span></div>
+              <div className="flex justify-between"><span className="text-muted">{tr("Band")}</span>
                 <span className={`mono uppercase ${aml.band === "low" ? "text-green" : aml.band === "medium" ? "text-yellow" : "text-red"}`}>{aml.band}</span>
               </div>
-              <div className="flex justify-between"><span className="text-muted">EDD required</span><span className="mono">{aml.requiresEdd ? "Yes" : "No"}</span></div>
+              <div className="flex justify-between"><span className="text-muted">{tr("EDD required")}</span><span className="mono">{aml.requiresEdd ? "Yes" : "No"}</span></div>
               <p className="text-muted pt-2 border-t border-border/60">{aml.micarArticle}</p>
             </div>
           </div>
 
           <div className="rounded-xl border border-border bg-panel/60 p-4">
-            <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><Link2 size={15} className="text-gold" /> Corridor endpoints</h2>
+            <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><Link2 size={15} className="text-gold" />  {tr("Corridor endpoints")}</h2>
             <ul className="text-xs space-y-2">
               {CHAINS.map((c) => (
                 <li key={c.id} className="border-b border-border/60 pb-2 last:border-0">
                   <div className="font-semibold">{c.name}</div>
                   <div className="mono text-muted break-all">{c.horizon}</div>
-                  <div className="mono text-muted">finality ~{c.finalitySec}s · {pct(1 / (c.confirmations + 1), 0)} reorg budget</div>
+                  <div className="mono text-muted">{tr("finality ~")}{c.finalitySec}s · {pct(1 / (c.confirmations + 1), 0)}  {tr("reorg budget")}</div>
                 </li>
               ))}
             </ul>

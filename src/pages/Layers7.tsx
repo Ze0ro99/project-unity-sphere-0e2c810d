@@ -5,6 +5,7 @@ import { Layers, RefreshCw } from "lucide-react";
 import { useI18n } from "@/i18n";
 
 export default function Layers7() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const issuerValid = isValidStrKey(ISSUER, "G");
 
@@ -41,24 +42,23 @@ export default function Layers7() {
           <button
             onClick={() => { assetsQ.refetch(); issuerQ.refetch(); }}
             className="ml-auto chip hover:bg-panel2"
-            aria-label="Refresh Testnet issuer data"
+            aria-label={tr("Refresh Testnet issuer data")}
           >
-            <RefreshCw size={12} className={assetsQ.isFetching ? "animate-spin" : ""} /> Refresh
-          </button>
+            <RefreshCw size={12} className={assetsQ.isFetching ? "animate-spin" : ""} />  {tr("Refresh")} </button>
         </div>
         <p className="text-muted text-sm">
           Pi Testnet view of the seven proposed PiRC token layers. Issuer account metrics are read from Pi Testnet Horizon.
           Per-layer asset-code mapping and Soroban contract deployment remain unverified until exact network evidence is available.
         </p>
         <div className="grid md:grid-cols-2 gap-3 mt-4 text-sm">
-          <Row label="Pi Testnet issuer account" value={ISSUER} />
-          <Row label="Master registry reference" value={MASTER_REGISTRY} />
+          <Row label={tr("Pi Testnet issuer account")} value={ISSUER} />
+          <Row label={tr("Master registry reference")} value={MASTER_REGISTRY} />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-          <Metric label="Issued assets" value={assetsQ.data ? String(assetsQ.data.length) : "—"} />
-          <Metric label="Issuer asset holders*" value={totalHolders ? totalHolders.toLocaleString() : "—"} />
-          <Metric label="Account subentries" value={issuerQ.data ? String(issuerQ.data.subentry_count) : "—"} />
-          <Metric label="Last modified ledger" value={issuerQ.data?.last_modified_ledger?.toLocaleString?.() ?? "—"} />
+          <Metric label={tr("Issued assets")} value={assetsQ.data ? String(assetsQ.data.length) : "—"} />
+          <Metric label={tr("Issuer asset holders*")} value={totalHolders ? totalHolders.toLocaleString() : "—"} />
+          <Metric label={tr("Account subentries")} value={issuerQ.data ? String(issuerQ.data.subentry_count) : "—"} />
+          <Metric label={tr("Last modified ledger")} value={issuerQ.data?.last_modified_ledger?.toLocaleString?.() ?? "—"} />
         </div>
         <p className="text-xs text-muted mt-2">*Holder count is the sum of returned issuer-asset account counts; it is not a unique-holder count across assets.</p>
       </section>
@@ -80,15 +80,14 @@ export default function Layers7() {
               </div>
               <span className="ml-auto chip text-muted">
                 <span className="w-1.5 h-1.5 rounded-full bg-muted" />
-                unverified
-              </span>
+                 {tr("unverified")} </span>
             </div>
-            <div className="mt-4 text-xs text-muted">Soroban contract reference</div>
+            <div className="mt-4 text-xs text-muted">{tr("Soroban contract reference")}</div>
             <div className="mono text-xs break-all">{layer.address}</div>
             <div className="grid grid-cols-3 gap-2 mt-4 text-center">
-              <Metric label="Asset code" value="not mapped" />
-              <Metric label="Supply" value="unverified" />
-              <Metric label="Holders" value="unverified" />
+              <Metric label={tr("Asset code")} value="not mapped" />
+              <Metric label={tr("Supply")} value="unverified" />
+              <Metric label={tr("Holders")} value="unverified" />
             </div>
           </div>
         ))}
@@ -98,11 +97,12 @@ export default function Layers7() {
 }
 
 function Row({ label, value }: { label: string; value: string }) {
+  const { t: tr } = useI18n();
   return (
     <div className="rounded-md border border-border p-3 bg-panel2/40">
       <div className="text-xs text-muted uppercase tracking-wide">{label}</div>
       <div className="mono text-xs break-all mt-1">{value}</div>
-      <div className="text-[11px] text-muted mt-1">short: {shorten(value, 8, 8)}</div>
+      <div className="text-[11px] text-muted mt-1">{tr("short:")} {shorten(value, 8, 8)}</div>
     </div>
   );
 }

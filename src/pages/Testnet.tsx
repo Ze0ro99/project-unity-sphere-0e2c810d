@@ -3,6 +3,7 @@ import { LAYERS, ISSUER, MASTER_REGISTRY } from "@/data/layers";
 import { HORIZON_TESTNET, fetchRoot, shorten } from "@/lib/pi";
 import { CheckCircle2, XCircle, Loader2, RefreshCw, FlaskConical, ExternalLink, AlertTriangle } from "lucide-react";
 import { useI18n } from "@/i18n";
+import { useProtocol } from "@/lib/useProtocol";
 
 type Status = "pending" | "ok" | "fail" | "unknown";
 type Check = { id: string; label: string; kind: "token" | "contract" | "network"; address: string; status: Status; detail?: string; latencyMs?: number };
@@ -15,7 +16,9 @@ const CONTRACTS = [
 ];
 
 export default function Testnet() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const { observation } = useProtocol(HORIZON_TESTNET);
   const [checks, setChecks] = useState<Check[]>([]);
   const [running, setRunning] = useState(false);
   const [lastRun, setLastRun] = useState<Date | null>(null);
@@ -44,7 +47,7 @@ export default function Testnet() {
     const netOk = !!root?.network_passphrase;
 
     setChecks((prev) => prev.map((c) => c.id === "network"
-      ? { ...c, status: netOk ? "ok" : "fail", latencyMs: netLat, detail: netOk ? `Protocol v${root.core_supported_protocol_version} · ${root.network_passphrase}` : "Unreachable" }
+      ? { ...c, status: netOk ? "ok" : "fail", latencyMs: netLat, detail: netOk ? root.network_passphrase : "Unreachable" }
       : c));
 
     // Sequential-ish (limit concurrency)
@@ -134,9 +137,9 @@ export default function Testnet() {
           </div>
           <div className="flex gap-4 text-center">
             <Metric label="OK" value={counts.ok} tone="green" />
-            <Metric label="Failed" value={counts.fail} tone="red" />
-            <Metric label="Unknown" value={counts.unknown} tone="muted" />
-            <Metric label="Pending" value={counts.pending} tone="muted" />
+            <Metric label={tr("Failed")} value={counts.fail} tone="red" />
+            <Metric label={tr("Unknown")} value={counts.unknown} tone="muted" />
+            <Metric label={tr("Pending")} value={counts.pending} tone="muted" />
           </div>
           <button onClick={run} disabled={running}
             className="px-4 py-2 rounded-md bg-gold text-black text-sm font-semibold flex items-center gap-2 disabled:opacity-50">
@@ -146,13 +149,13 @@ export default function Testnet() {
         </div>
         {rootInfo && (
           <div className="grid md:grid-cols-4 gap-3 mt-4 text-xs">
-            <Fact k="Passphrase" v={rootInfo.network_passphrase} />
+            <Fact k={tr("Passphrase")} v={rootInfo.network_passphrase} />
             <Fact k="Horizon" v={rootInfo.horizon_version} />
             <Fact k="Core" v={rootInfo.core_version} />
-            <Fact k="Protocol" v={String(rootInfo.core_supported_protocol_version)} />
+            <Fact k={t("protocol.active")} v={observation.active ? `v${observation.active}` : "—"} />
           </div>
         )}
-        {lastRun && <div className="text-[10px] text-muted mt-3">Last run: {lastRun.toLocaleTimeString()}</div>}
+        {lastRun && <div className="text-[10px] text-muted mt-3">{tr("Last run:")} {lastRun.toLocaleTimeString()}</div>}
       </section>
 
       {(["network", "token", "contract"] as const).map((kind) => {
@@ -175,6 +178,7 @@ export default function Testnet() {
 }
 
 function Row({ c }: { c: Check }) {
+  const { t: tr } = useI18n();
   const Icon = c.status === "ok" ? CheckCircle2 : c.status === "fail" ? XCircle : c.status === "unknown" ? AlertTriangle : Loader2;
   const tone = c.status === "ok" ? "text-green" : c.status === "fail" ? "text-red" : c.status === "unknown" ? "text-amber-400" : "text-muted";
   return (
@@ -187,7 +191,7 @@ function Row({ c }: { c: Check }) {
       <div className="flex items-center gap-2">
         {c.latencyMs != null && <span className="mono text-[10px] text-muted">{c.latencyMs}ms</span>}
         {c.address.startsWith("G") && <a href={`https://api.testnet.minepi.com/accounts/${c.address}`} target="_blank" rel="noreferrer"
-          className="text-muted hover:text-gold" aria-label="Open Horizon account"><ExternalLink size={12} /></a>}
+          className="text-muted hover:text-gold" aria-label={tr("Open Horizon account")}><ExternalLink size={12} /></a>}
       </div>
     </div>
   );

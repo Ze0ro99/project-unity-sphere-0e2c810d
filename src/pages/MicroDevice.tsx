@@ -5,6 +5,7 @@ import { Cpu, Wifi, Battery, HardDrive } from "lucide-react";
 import { useI18n } from "@/i18n";
 
 export default function MicroDevice() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const [now, setNow] = useState(new Date());
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function MicroDevice() {
       <div className="flex items-center gap-2">
         <Cpu size={18} className="text-blue" />
         <h1 className="text-2xl font-bold">{t("nav.micro")}</h1>
-        <span className="chip"><span className="pulse-dot" /> streaming</span>
+        <span className="chip"><span className="pulse-dot" />  {tr("streaming")}</span>
       </div>
 
       <div className="grid md:grid-cols-[380px_1fr] gap-6">
@@ -38,19 +39,19 @@ export default function MicroDevice() {
                 <span>{now.toLocaleTimeString()}</span>
               </div>
               <div className="mt-1 flex items-center justify-between text-[10px] text-muted">
-                <span className="flex items-center gap-1"><Wifi size={10} className="text-green" /> MAINNET</span>
+                <span className="flex items-center gap-1"><Wifi size={10} className="text-green" />  {tr("MAINNET")}</span>
                 <span className="flex items-center gap-1"><Battery size={10} className="text-green" /> 98%</span>
               </div>
 
               <div className="mt-3 rounded-lg border border-border bg-panel p-3">
-                <div className="text-[10px] text-muted uppercase">Ledger</div>
+                <div className="text-[10px] text-muted uppercase">{tr("Ledger")}</div>
                 <div className="mono text-lg font-bold">#{latest?.sequence?.toLocaleString() ?? "—"}</div>
                 <div className="text-[10px] text-muted mono truncate">{latest ? shorten(latest.hash, 8, 6) : ""}</div>
               </div>
 
               <div className="mt-3">
                 <div className="flex items-center justify-between text-[10px] text-muted">
-                  <span className="flex items-center gap-1"><HardDrive size={10} /> node load</span>
+                  <span className="flex items-center gap-1"><HardDrive size={10} />  {tr("node load")}</span>
                   <span className="mono">{load}%</span>
                 </div>
                 <div className="h-1.5 rounded bg-panel2 mt-1 overflow-hidden">
@@ -59,7 +60,7 @@ export default function MicroDevice() {
               </div>
 
               <div className="mt-3 flex-1 overflow-hidden">
-                <div className="text-[10px] text-muted uppercase mb-1">tx feed</div>
+                <div className="text-[10px] text-muted uppercase mb-1">{tr("tx feed")}</div>
                 <div className="space-y-1 overflow-hidden">
                   {(txQ.data ?? []).slice(0, 10).map((t) => (
                     <div key={t.id} className="flex items-center gap-2 text-[10px] mono">
@@ -81,14 +82,14 @@ export default function MicroDevice() {
         {/* Telemetry */}
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Tile label="Uptime" value="99.98%" tone="green" />
-            <Tile label="Peers" value="21" />
-            <Tile label="Sync" value="in-sync" tone="green" />
-            <Tile label="Firmware" value="v3.1.4" />
+            <Tile label={tr("Uptime")} value="99.98%" tone="green" />
+            <Tile label={tr("Peers")} value="21" />
+            <Tile label={tr("Sync")} value="in-sync" tone="green" />
+            <Tile label={tr("Firmware")} value="v3.1.4" />
           </div>
 
           <div className="card p-4">
-            <h3 className="font-semibold mb-2">Recent Ledgers</h3>
+            <h3 className="font-semibold mb-2">{tr("Recent Ledgers")}</h3>
             <div className="divide-y divide-border">
               {ledgersQ.data?.map((l) => (
                 <div key={l.id} className="py-2 flex items-center gap-3 text-sm">

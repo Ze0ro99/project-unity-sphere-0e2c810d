@@ -25,6 +25,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default function Infrastructure() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const [stats, setStats] = useState<CacheStats>(() => cacheStats());
   const [busy, setBusy] = useState(false);
@@ -73,8 +74,7 @@ export default function Infrastructure() {
               disabled={busy}
               className="flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-border hover:bg-panel2 disabled:opacity-50"
             >
-              <RefreshCw size={14} className={busy ? "animate-spin" : ""} /> Refresh
-            </button>
+              <RefreshCw size={14} className={busy ? "animate-spin" : ""} />  {tr("Refresh")} </button>
             <button
               onClick={() => {
                 purgeCache();
@@ -82,8 +82,7 @@ export default function Infrastructure() {
               }}
               className="flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-border hover:bg-panel2"
             >
-              <Trash2 size={14} /> Purge
-            </button>
+              <Trash2 size={14} />  {tr("Purge")} </button>
           </div>
         </div>
       </section>
@@ -110,13 +109,13 @@ export default function Infrastructure() {
           <table className="w-full text-xs mono">
             <thead className="text-muted">
               <tr className="border-b border-border">
-                <th className="text-left px-4 py-2">Key</th>
-                <th className="text-left px-4 py-2">Tier</th>
+                <th className="text-left px-4 py-2">{tr("Key")}</th>
+                <th className="text-left px-4 py-2">{tr("Tier")}</th>
                 <th className="text-right px-4 py-2">TTL</th>
                 <th className="text-right px-4 py-2">SWR</th>
-                <th className="text-right px-4 py-2">Age</th>
-                <th className="text-right px-4 py-2">Hits</th>
-                <th className="text-right px-4 py-2">Last</th>
+                <th className="text-right px-4 py-2">{tr("Age")}</th>
+                <th className="text-right px-4 py-2">{tr("Hits")}</th>
+                <th className="text-right px-4 py-2">{tr("Last")}</th>
               </tr>
             </thead>
             <tbody>
@@ -147,12 +146,12 @@ export default function Infrastructure() {
           <table className="w-full text-xs mono">
             <thead className="text-muted">
               <tr className="border-b border-border">
-                <th className="text-left px-4 py-2">Module</th>
-                <th className="text-left px-4 py-2">Standard</th>
-                <th className="text-left px-4 py-2">Lang</th>
-                <th className="text-left px-4 py-2">Path</th>
-                <th className="text-left px-4 py-2">Runner</th>
-                <th className="text-left px-4 py-2">Status</th>
+                <th className="text-left px-4 py-2">{tr("Module")}</th>
+                <th className="text-left px-4 py-2">{tr("Standard")}</th>
+                <th className="text-left px-4 py-2">{tr("Lang")}</th>
+                <th className="text-left px-4 py-2">{tr("Path")}</th>
+                <th className="text-left px-4 py-2">{tr("Runner")}</th>
+                <th className="text-left px-4 py-2">{tr("Status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -173,8 +172,7 @@ export default function Infrastructure() {
 
       <section className="rounded-xl border border-border bg-panel/60 overflow-hidden">
         <div className="px-4 py-3 border-b border-border flex items-center gap-2 text-sm font-semibold">
-          <GitMerge size={15} /> Branch merge ledger
-        </div>
+          <GitMerge size={15} />  {tr("Branch merge ledger")} </div>
         <div className="divide-y divide-border/50">
           {MERGE_LEDGER.map((b) => (
             <div key={b.branch} className="px-4 py-3 grid gap-1 sm:grid-cols-[minmax(0,20rem)_1fr]">

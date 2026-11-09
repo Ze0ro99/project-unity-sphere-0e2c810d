@@ -3,9 +3,12 @@ import { fetchLatestLedgers, fetchLatestTx, fetchRoot, relTime, shorten, HORIZON
 import { Activity, Blocks, Coins, GitBranch, Zap } from "lucide-react";
 import { LAYERS } from "@/data/layers";
 import { useI18n } from "@/i18n";
+import { useProtocol } from "@/lib/useProtocol";
 
 export default function Explorer() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const { observation } = useProtocol();
   const ledgersQ = useQuery({
     queryKey: ["ledgers"],
     queryFn: () => fetchLatestLedgers(HORIZON_MAINNET, 12),
@@ -39,8 +42,7 @@ export default function Explorer() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="chip mb-3">
-              <span className="pulse-dot" /> Live · Pi Mainnet
-            </div>
+              <span className="pulse-dot" />  {tr("Live · Pi Mainnet")} </div>
             <h1 className="text-2xl md:text-3xl font-bold">{t("nav.explorer")}</h1>
             <p className="text-muted text-sm mt-1">
               Real-time blocks, transactions, and 7-layer token telemetry — Piscan-grade.
@@ -48,28 +50,27 @@ export default function Explorer() {
           </div>
           <div className="flex items-center gap-2 w-full md:w-auto">
             <input
-              placeholder="Search address / tx hash / ledger #"
+              placeholder={tr("Search address / tx hash / ledger #")}
               className="w-full md:w-96 bg-panel border border-border rounded-md px-3 py-2 text-sm outline-none focus:border-blue"
             />
             <button className="px-3 py-2 rounded-md bg-blue/90 hover:bg-blue text-black text-sm font-semibold">
-              Search
-            </button>
+               {tr("Search")} </button>
           </div>
         </div>
       </section>
 
       {/* Stat tiles */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Stat icon={Blocks} label="Latest Ledger"
+        <Stat icon={Blocks} label={tr("Latest Ledger")}
           value={latest ? `#${latest.sequence.toLocaleString()}` : "—"}
           sub={latest ? relTime(latest.closed_at) : ""} />
-        <Stat icon={Zap} label="Avg TPS (60s)"
+        <Stat icon={Zap} label={tr("Avg TPS (60s)")}
           value={ledgersQ.data ? String(tps) : "—"}
           sub="successful ops / sec" />
-        <Stat icon={GitBranch} label="Protocol"
-          value={rootQ.data?.protocol_version ? `v${rootQ.data.protocol_version}` : "—"}
+        <Stat icon={GitBranch} label={tr("Protocol")}
+          value={observation.active ? `v${observation.active}` : "—"}
           sub={rootQ.data?.core_version ?? "stellar-core"} />
-        <Stat icon={Coins} label="Total Pi"
+        <Stat icon={Coins} label={tr("Total Pi")}
           value={latest ? shortenBigNumber(latest.total_coins) : "—"}
           sub="on ledger" />
       </section>
@@ -79,10 +80,10 @@ export default function Explorer() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Activity size={16} className="text-blue" />
-            <h2 className="font-semibold">7-Layer Token Registry</h2>
+            <h2 className="font-semibold">{tr("7-Layer Token Registry")}</h2>
             <span className="chip">PiRC-207</span>
           </div>
-          <a href="/layers" className="text-xs text-blue hover:underline">View all →</a>
+          <a href="/layers" className="text-xs text-blue hover:underline">{tr("View all →")}</a>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
           {LAYERS.map((l) => (
@@ -120,13 +121,13 @@ function Stat({ icon: Icon, label, value, sub }: any) {
 }
 
 function LedgersPanel({ data, loading }: any) {
+  const { t: tr } = useI18n();
   return (
     <section className="card p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-semibold flex items-center gap-2">
-          <Blocks size={16} className="text-purple" /> Latest Ledgers
-        </h2>
-        <span className="chip"><span className="pulse-dot" /> live</span>
+          <Blocks size={16} className="text-purple" />  {tr("Latest Ledgers")} </h2>
+        <span className="chip"><span className="pulse-dot" />  {tr("live")}</span>
       </div>
       <div className="divide-y divide-border">
         {loading && <SkeletonRows n={6} />}
@@ -138,11 +139,11 @@ function LedgersPanel({ data, loading }: any) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="mono text-xs truncate">{shorten(l.hash, 10, 8)}</div>
-              <div className="text-[11px] text-muted">{relTime(l.closed_at)} · {l.operation_count} ops</div>
+              <div className="text-[11px] text-muted">{relTime(l.closed_at)} · {l.operation_count}  {tr("ops")}</div>
             </div>
             <div className="text-right">
               <div className="text-xs"><span className="text-green">{l.successful_transaction_count}</span> <span className="text-muted">/</span> <span className="text-red">{l.failed_transaction_count}</span></div>
-              <div className="text-[11px] text-muted">tx s/f</div>
+              <div className="text-[11px] text-muted">{tr("tx s/f")}</div>
             </div>
           </div>
         ))}
@@ -152,13 +153,13 @@ function LedgersPanel({ data, loading }: any) {
 }
 
 function TxPanel({ data, loading }: any) {
+  const { t: tr } = useI18n();
   return (
     <section className="card p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-semibold flex items-center gap-2">
-          <Zap size={16} className="text-gold" /> Latest Transactions
-        </h2>
-        <span className="chip"><span className="pulse-dot" /> live</span>
+          <Zap size={16} className="text-gold" />  {tr("Latest Transactions")} </h2>
+        <span className="chip"><span className="pulse-dot" />  {tr("live")}</span>
       </div>
       <div className="divide-y divide-border">
         {loading && <SkeletonRows n={8} />}
@@ -167,10 +168,10 @@ function TxPanel({ data, loading }: any) {
             <span className={`w-2 h-2 rounded-full ${t.successful ? "bg-green" : "bg-red"}`} />
             <div className="flex-1 min-w-0">
               <div className="mono text-xs truncate link-hash cursor-pointer">{shorten(t.hash, 10, 8)}</div>
-              <div className="text-[11px] text-muted mono truncate">from {shorten(t.source_account, 6, 6)}</div>
+              <div className="text-[11px] text-muted mono truncate">{tr("from")} {shorten(t.source_account, 6, 6)}</div>
             </div>
             <div className="text-right">
-              <div className="text-xs mono">{t.operation_count} op</div>
+              <div className="text-xs mono">{t.operation_count}  {tr("op")}</div>
               <div className="text-[11px] text-muted">{relTime(t.created_at)}</div>
             </div>
           </div>

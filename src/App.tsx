@@ -85,6 +85,7 @@ export default function App() {
 }
 
 function Header() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
@@ -117,7 +118,7 @@ function Header() {
         </nav>
         <div className="ml-auto hidden xl:flex items-center gap-2 text-xs text-muted">
           <span className="pulse-dot" />
-          <span className="mono">TESTNET1 · Pi Testnet · Mainnet writes disabled</span>
+          <span className="mono">{tr("TESTNET1 · Pi Testnet · Mainnet writes disabled")}</span>
         </div>
         <div className="ml-auto lg:ml-0 flex items-center gap-2">
           <LanguageSwitcher />

@@ -41,6 +41,7 @@ import {
 type Tab = "orders" | "history" | "balances" | "pool";
 
 export default function PiDEX() {
+  const { t: tr } = useI18n();
   const state = useSyncExternalStore(exchangeStore.subscribe, exchangeStore.getSnapshot, exchangeStore.getSnapshot);
   const { t } = useI18n();
   const { connected: piConnected, user: piUser, loading: piLoading, connect: connectPi, testnetBalance: piTestnetBalance, refreshingBalance, refreshTestnetBalance } = usePiConnection();
@@ -162,7 +163,7 @@ export default function PiDEX() {
                   <AlertTriangle size={10} /> HALTED · PiRC-251
                 </span>
               ) : (
-                <span className="chip"><span className="pulse-dot" /> Live</span>
+                <span className="chip"><span className="pulse-dot" />  {tr("Live")}</span>
               )}
             </div>
             <div className="text-[11px] text-muted">PiRC-101 base pair · Spot · Hybrid CLOB + AMM</div>
@@ -177,10 +178,10 @@ export default function PiDEX() {
           {idxOk && <span className="text-xs mono text-muted">≈ ${(m.price * piUsd).toFixed(6)} USDT</span>}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-2 text-xs ml-auto">
-          <Stat label="24h High" value={fmt(m.high24h, 5)} />
-          <Stat label="24h Low" value={fmt(m.low24h, 5)} />
-          <Stat label="24h Vol (π)" value={compact(m.vol24h)} />
-          <Stat label="Pool TVL (π)" value={compact(m.reserveQuote * 2)} />
+          <Stat label={tr("24h High")} value={fmt(m.high24h, 5)} />
+          <Stat label={tr("24h Low")} value={fmt(m.low24h, 5)} />
+          <Stat label={tr("24h Vol (π)")} value={compact(m.vol24h)} />
+          <Stat label={tr("Pool TVL (π)")} value={compact(m.reserveQuote * 2)} />
         </div>
       </section>
 
@@ -252,7 +253,7 @@ export default function PiDEX() {
         <span className="text-muted">24h {index?.changePct != null ? `${index.changePct.toFixed(2)}%` : "—"}</span>
         <span className="text-muted">IPPR (USDT reference) {idxOk ? ippr.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</span>
         <span className="text-muted">π/USDT × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")} · USDT reference index, not an execution price</span>
-        <span className="text-muted ml-auto">synced {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
+        <span className="text-muted ml-auto">{tr("synced")} {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
       </section>
 
 
@@ -264,12 +265,12 @@ export default function PiDEX() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search markets"
+              placeholder={tr("Search markets")}
               className="bg-transparent text-xs w-full focus:outline-none"
             />
           </div>
           <div className="text-[10px] text-muted grid grid-cols-3 px-1 mb-1 uppercase tracking-wide">
-            <span>Pair</span><span className="text-right">Last</span><span className="text-right">24h</span>
+            <span>{tr("Pair")}</span><span className="text-right">{tr("Last")}</span><span className="text-right">24h</span>
           </div>
           <div className="space-y-0.5">
             {markets.map((x) => {
@@ -296,9 +297,9 @@ export default function PiDEX() {
             })}
           </div>
           <div className="mt-3 pt-3 border-t border-border space-y-1 text-[10px] text-muted">
-            <div className="flex justify-between"><span>Fee tier</span><span className="mono" style={{ color: tier.hex }}>T{tier.tier} {tier.name}</span></div>
-            <div className="flex justify-between"><span>Maker / Taker</span><span className="mono">{tier.makerBps / 100}% / {tier.takerBps / 100}%</span></div>
-            <div className="flex justify-between"><span>30d volume</span><span className="mono">{compact(state.account.volume30d)} π</span></div>
+            <div className="flex justify-between"><span>{tr("Fee tier")}</span><span className="mono" style={{ color: tier.hex }}>T{tier.tier} {tier.name}</span></div>
+            <div className="flex justify-between"><span>{tr("Maker / Taker")}</span><span className="mono">{tier.makerBps / 100}% / {tier.takerBps / 100}%</span></div>
+            <div className="flex justify-between"><span>{tr("30d volume")}</span><span className="mono">{compact(state.account.volume30d)} π</span></div>
           </div>
         </section>
 
@@ -307,7 +308,7 @@ export default function PiDEX() {
           <div className="card p-3">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2 text-xs text-muted">
-                <Activity size={13} /> <span className="mono">{tf} · Japanese candlesticks</span>
+                <Activity size={13} /> <span className="mono">{tf}  {tr("· Japanese candlesticks")}</span>
               </div>
               <div className="flex gap-1 text-[10px]">
                 {TIMEFRAMES.map((x) => (
@@ -327,11 +328,11 @@ export default function PiDEX() {
           <div className="grid md:grid-cols-2 gap-3">
             <OrderBook m={m} onPick={(p) => { setType("limit"); setPriceInput(p.toFixed(6)); }} />
             <div className="card p-3">
-              <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><LayersIcon size={13} /> Market Depth</h3>
+              <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><LayersIcon size={13} />  {tr("Market Depth")}</h3>
               <DepthChart bids={m.bids} asks={m.asks} />
               <div className="grid grid-cols-2 gap-2 mt-2 text-[10px] mono">
-                <div className="text-green">Bid liq {compact(m.bids[m.bids.length - 1]?.total ?? 0)}</div>
-                <div className="text-red text-right">Ask liq {compact(m.asks[m.asks.length - 1]?.total ?? 0)}</div>
+                <div className="text-green">{tr("Bid liq")} {compact(m.bids[m.bids.length - 1]?.total ?? 0)}</div>
+                <div className="text-red text-right">{tr("Ask liq")} {compact(m.asks[m.asks.length - 1]?.total ?? 0)}</div>
               </div>
             </div>
           </div>
@@ -348,8 +349,8 @@ export default function PiDEX() {
                 ))}
               </div>
               <div className="ml-auto flex gap-1">
-                <button onClick={() => setSide("buy")} className={`px-4 py-1.5 rounded text-xs font-semibold ${side === "buy" ? "bg-green text-black" : "bg-panel2 text-muted"}`}>Buy</button>
-                <button onClick={() => setSide("sell")} className={`px-4 py-1.5 rounded text-xs font-semibold ${side === "sell" ? "bg-red text-white" : "bg-panel2 text-muted"}`}>Sell</button>
+                <button onClick={() => setSide("buy")} className={`px-4 py-1.5 rounded text-xs font-semibold ${side === "buy" ? "bg-green text-black" : "bg-panel2 text-muted"}`}>{tr("Buy")}</button>
+                <button onClick={() => setSide("sell")} className={`px-4 py-1.5 rounded text-xs font-semibold ${side === "sell" ? "bg-red text-white" : "bg-panel2 text-muted"}`}>{tr("Sell")}</button>
               </div>
             </div>
 
@@ -384,7 +385,7 @@ export default function PiDEX() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 mt-3">
-              <span className="text-[10px] text-muted uppercase tracking-wide">Time in force</span>
+              <span className="text-[10px] text-muted uppercase tracking-wide">{tr("Time in force")}</span>
               <div className="flex rounded-md overflow-hidden border border-border">
                 {(["GTC", "IOC", "FOK"] as TimeInForce[]).map((t) => (
                   <button key={t} onClick={() => setTif(t)}
@@ -395,18 +396,16 @@ export default function PiDEX() {
               </div>
               <label className="flex items-center gap-1.5 text-[11px] cursor-pointer select-none">
                 <input type="checkbox" checked={postOnly} onChange={(e) => setPostOnly(e.target.checked)} className="accent-gold" />
-                Post-only
-              </label>
+                 {tr("Post-only")} </label>
               <label className="flex items-center gap-1.5 text-[11px] cursor-pointer select-none">
                 <input type="checkbox" checked={reduceOnly} onChange={(e) => setReduceOnly(e.target.checked)} className="accent-gold" />
-                Reduce-only
-              </label>
+                 {tr("Reduce-only")} </label>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3 mt-3">
               <label className="block">
                 <div className="text-[10px] text-muted uppercase tracking-wide mb-1 flex justify-between">
-                  <span>Max slippage (PiRC-227)</span><span className="mono text-text">{(slip / 100).toFixed(2)}%</span>
+                  <span>{tr("Max slippage (PiRC-227)")}</span><span className="mono text-text">{(slip / 100).toFixed(2)}%</span>
                 </div>
                 <input type="range" min={5} max={500} step={5} value={slip} onChange={(e) => setSlip(+e.target.value)}
                   className="w-full accent-gold" />
@@ -419,13 +418,13 @@ export default function PiDEX() {
 
 
             <div className="mt-3 space-y-1 text-[11px] mono">
-              <Row k="Est. total" v={`${fmt(size * (type === "limit" ? price : m.price), 5)} π`} />
-              {idxOk && <Row k="Est. total (USDT reference)" v={`$${(size * (type === "limit" ? price : m.price) * piUsd).toFixed(4)}`} />}
+              <Row k={tr("Est. total")} v={`${fmt(size * (type === "limit" ? price : m.price), 5)} π`} />
+              {idxOk && <Row k={tr("Est. total (USDT reference)")} v={`$${(size * (type === "limit" ? price : m.price) * piUsd).toFixed(4)}`} />}
               <Row k={`Fee · T${tier.tier} ${type === "limit" ? "maker" : "taker"}`}
                 v={`${((type === "limit" ? tier.makerBps : tier.takerBps) / 100).toFixed(2)}%`} />
-              {quote && <Row k="Price impact" v={`${(quote.priceImpactBps / 100).toFixed(3)}%`} danger={quote.priceImpactBps > slip} />}
-              {quote && <Row k="Min received" v={`${fmt(quote.out * (1 - slip / 10000), 5)} ${side === "buy" ? `${m.layer.id}π` : "π"}`} />}
-              <Row k="Pool fee (PiRC-215)" v={`${FEE_BPS / 100}% · x·y=k`} />
+              {quote && <Row k={tr("Price impact")} v={`${(quote.priceImpactBps / 100).toFixed(3)}%`} danger={quote.priceImpactBps > slip} />}
+              {quote && <Row k={tr("Min received")} v={`${fmt(quote.out * (1 - slip / 10000), 5)} ${side === "buy" ? `${m.layer.id}π` : "π"}`} />}
+              <Row k={tr("Pool fee (PiRC-215)")} v={`${FEE_BPS / 100}% · x·y=k`} />
             </div>
 
             <button
@@ -444,12 +443,12 @@ export default function PiDEX() {
         {/* Trades + tier ladder */}
         <section className="order-3 space-y-3">
           <div className="card p-3">
-            <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><Activity size={13} /> Live Trades</h3>
+            <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><Activity size={13} />  {tr("Live Trades")}</h3>
             <div className="text-[10px] text-muted grid grid-cols-3 px-1 mb-1 uppercase">
-              <span>Price</span><span className="text-right">Size</span><span className="text-right">Time</span>
+              <span>{tr("Price")}</span><span className="text-right">{tr("Size")}</span><span className="text-right">{tr("Time")}</span>
             </div>
             <div className="space-y-0.5 text-[11px] mono max-h-72 overflow-auto">
-              {m.trades.length === 0 && <div className="text-muted py-2">Streaming…</div>}
+              {m.trades.length === 0 && <div className="text-muted py-2">{tr("Streaming…")}</div>}
               {m.trades.map((t) => (
                 <div key={t.id} className="grid grid-cols-3 px-1 py-0.5 rounded hover:bg-panel2/50">
                   <span className={t.side === "buy" ? "text-green" : "text-red"}>
@@ -463,7 +462,7 @@ export default function PiDEX() {
           </div>
 
           <div className="card p-3">
-            <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><Gauge size={13} /> 7-Tier Fairness Schedule</h3>
+            <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><Gauge size={13} />  {tr("7-Tier Fairness Schedule")}</h3>
             <div className="space-y-1 text-[10px] mono">
               {FAIRNESS_TIERS.map((t) => (
                 <div key={t.tier} className={`flex items-center gap-2 px-1.5 py-1 rounded ${t.tier === tier.tier ? "bg-panel2" : ""}`}>
@@ -488,13 +487,13 @@ export default function PiDEX() {
             </button>
           ))}
           {tab === "orders" && openOrders.length > 0 && (
-            <button onClick={() => cancelAll()} className="ml-auto text-[11px] text-muted hover:text-red transition">Cancel all</button>
+            <button onClick={() => cancelAll()} className="ml-auto text-[11px] text-muted hover:text-red transition">{tr("Cancel all")}</button>
           )}
         </div>
 
         {tab === "orders" && (
           <Table head={["Time", "Market", "Side", "Type", "TIF", "Price", "Trigger", "Size", "Filled", "Status", ""]}>
-            {openOrders.length === 0 && <Empty cols={11} text="No open orders" />}
+            {openOrders.length === 0 && <Empty cols={11} text={tr("No open orders")} />}
             {openOrders.map((o) => (
               <tr key={o.id} className="border-b border-border/40">
                 <Td>{new Date(o.ts).toLocaleTimeString()}</Td>
@@ -519,11 +518,10 @@ export default function PiDEX() {
           <>
             <div className="flex justify-end mb-2">
               <button onClick={downloadCsv} className="flex items-center gap-1.5 text-[11px] text-muted hover:text-text transition">
-                <Download size={12} /> Export CSV
-              </button>
+                <Download size={12} />  {tr("Export CSV")} </button>
             </div>
             <Table head={["Time", "Market", "Side", "Price", "Size", "Fee (π)", "ZK", "Tx"]}>
-              {state.account.fills.length === 0 && <Empty cols={8} text="No fills yet" />}
+              {state.account.fills.length === 0 && <Empty cols={8} text={tr("No fills yet")} />}
               {state.account.fills.map((f) => (
                 <tr key={f.id} className="border-b border-border/40">
                   <Td>{new Date(f.ts).toLocaleTimeString()}</Td>
@@ -543,10 +541,10 @@ export default function PiDEX() {
         {tab === "balances" && (
           <div className="space-y-3">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
-              <Stat label="Portfolio equity (π)" value={fmt(equity.equity, 2)} />
-              <Stat label="Spot value (π)" value={fmt(equity.spot, 2)} />
-              <Stat label="LP value (π)" value={fmt(equity.lpValue, 2)} />
-              <Stat label="Fees paid (π)" value={fmt(equity.feesPaid, 4)} />
+              <Stat label={tr("Portfolio equity (π)")} value={fmt(equity.equity, 2)} />
+              <Stat label={tr("Spot value (π)")} value={fmt(equity.spot, 2)} />
+              <Stat label={tr("LP value (π)")} value={fmt(equity.lpValue, 2)} />
+              <Stat label={tr("Fees paid (π)")} value={fmt(equity.feesPaid, 4)} />
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
               {Object.entries(state.account.balances).map(([sym, bal]) => (
@@ -571,20 +569,17 @@ export default function PiDEX() {
                 onClick={() => runLiquidity(() => deposit(treasuryAsset, parseFloat(treasuryAmount) || 0))}
                 className="px-4 py-2 rounded-md bg-green text-black text-xs font-semibold hover:brightness-110"
               >
-                Deposit
-              </button>
+                 {tr("Deposit")} </button>
               <button
                 onClick={() => runLiquidity(() => withdraw(treasuryAsset, parseFloat(treasuryAmount) || 0))}
                 className="px-4 py-2 rounded-md bg-panel2 border border-border text-xs font-semibold hover:text-red"
               >
-                Withdraw
-              </button>
+                 {tr("Withdraw")} </button>
               <button
                 onClick={() => { resetAccount(); flash(true, "Account reset to sovereign defaults"); }}
                 className="ml-auto flex items-center gap-1.5 text-[11px] text-muted hover:text-text transition"
               >
-                <RotateCcw size={12} /> Reset account
-              </button>
+                <RotateCcw size={12} />  {tr("Reset account")} </button>
             </div>
           </div>
         )}
@@ -592,37 +587,37 @@ export default function PiDEX() {
         {tab === "pool" && (
           <div className="space-y-3">
             <div className="grid md:grid-cols-3 gap-3 text-xs">
-              <PoolCard title="Reserves (PiRC-215)">
+              <PoolCard title={tr("Reserves (PiRC-215)")}>
                 <Row k={`${m.layer.id}π`} v={fmt(m.reserveBase, 2)} />
                 <Row k="π" v={fmt(m.reserveQuote, 2)} />
-                <Row k="k invariant" v={compact(m.reserveBase * m.reserveQuote)} />
-                <Row k="Spot" v={fmt(m.reserveQuote / m.reserveBase, 6)} />
+                <Row k={tr("k invariant")} v={compact(m.reserveBase * m.reserveQuote)} />
+                <Row k={tr("Spot")} v={fmt(m.reserveQuote / m.reserveBase, 6)} />
               </PoolCard>
-              <PoolCard title="Risk controls">
+              <PoolCard title={tr("Risk controls")}>
                 <Row k="TWAP" v={fmt(m.twap, 6)} />
-                <Row k="Deviation" v={`${(((m.price - m.twap) / m.twap) * 100).toFixed(3)}%`} />
-                <Row k="Breaker (PiRC-251)" v={m.halted ? "TRIPPED" : "Armed @ 8%"} danger={m.halted} />
+                <Row k={tr("Deviation")} v={`${(((m.price - m.twap) / m.twap) * 100).toFixed(3)}%`} />
+                <Row k={tr("Breaker (PiRC-251)")} v={m.halted ? "TRIPPED" : "Armed @ 8%"} danger={m.halted} />
                 <Row k="MEV" v="Private mempool" />
               </PoolCard>
-              <PoolCard title="Settlement">
-                <Row k="Fee schedule" v={`${FEE_BPS / 100}% pool + tier`} />
-                <Row k="Curve" v="x·y=k · constant product" />
-                <Row k="Verifier" v="BN254 · Groth16" />
-                <Row k="Layer" v={`${m.layer.id} ${m.layer.name} · ${m.layer.role}`} />
+              <PoolCard title={tr("Settlement")}>
+                <Row k={tr("Fee schedule")} v={`${FEE_BPS / 100}% pool + tier`} />
+                <Row k={tr("Curve")} v="x·y=k · constant product" />
+                <Row k={tr("Verifier")} v="BN254 · Groth16" />
+                <Row k={tr("Layer")} v={`${m.layer.id} ${m.layer.name} · ${m.layer.role}`} />
               </PoolCard>
             </div>
 
             <div className="grid md:grid-cols-2 gap-3">
               <div className="bg-panel2/50 border border-border rounded-lg p-3">
-                <div className="text-[11px] font-semibold mb-2 flex items-center gap-2"><Droplets size={13} /> Provide liquidity</div>
-                <Field label="Amount (π) — paired automatically" value={lpAmount} onChange={setLpAmount} placeholder="0.00" />
+                <div className="text-[11px] font-semibold mb-2 flex items-center gap-2"><Droplets size={13} />  {tr("Provide liquidity")}</div>
+                <Field label={tr("Amount (π) — paired automatically")} value={lpAmount} onChange={setLpAmount} placeholder="0.00" />
                 {(() => {
                   const q = quoteLiquidity(symbol, parseFloat(lpAmount) || 0);
                   return (
                     <div className="mt-2 space-y-0.5 mono text-[11px]">
                       <Row k={`Pairs with ${m.layer.id}π`} v={fmt(q.base, 4)} />
-                      <Row k="LP shares minted" v={fmt(q.shares, 4)} />
-                      <Row k="Pool share" v={`${q.poolPct.toFixed(4)}%`} />
+                      <Row k={tr("LP shares minted")} v={fmt(q.shares, 4)} />
+                      <Row k={tr("Pool share")} v={`${q.poolPct.toFixed(4)}%`} />
                     </div>
                   );
                 })()}
@@ -630,22 +625,21 @@ export default function PiDEX() {
                   onClick={() => runLiquidity(() => addLiquidity(symbol, parseFloat(lpAmount) || 0))}
                   className="w-full mt-3 py-2 rounded-md bg-gold text-black text-xs font-semibold hover:brightness-110"
                 >
-                  Add liquidity
-                </button>
+                   {tr("Add liquidity")} </button>
               </div>
 
               <div className="bg-panel2/50 border border-border rounded-lg p-3">
-                <div className="text-[11px] font-semibold mb-2 flex items-center gap-2"><Droplets size={13} /> Your position</div>
+                <div className="text-[11px] font-semibold mb-2 flex items-center gap-2"><Droplets size={13} />  {tr("Your position")}</div>
                 {lpPos ? (
                   <div className="space-y-0.5 mono text-[11px]">
-                    <Row k="LP shares" v={fmt(lpPos.shares, 4)} />
-                    <Row k="Pool share" v={`${((lpPos.shares / m.lpShares) * 100).toFixed(4)}%`} />
-                    <Row k="Redeemable π" v={fmt((lpPos.shares / m.lpShares) * m.reserveQuote, 4)} />
+                    <Row k={tr("LP shares")} v={fmt(lpPos.shares, 4)} />
+                    <Row k={tr("Pool share")} v={`${((lpPos.shares / m.lpShares) * 100).toFixed(4)}%`} />
+                    <Row k={tr("Redeemable π")} v={fmt((lpPos.shares / m.lpShares) * m.reserveQuote, 4)} />
                     <Row k={`Redeemable ${m.layer.id}π`} v={fmt((lpPos.shares / m.lpShares) * m.reserveBase, 4)} />
-                    <Row k="Fees earned (π)" v={fmt(lpPos.feesEarned, 6)} />
+                    <Row k={tr("Fees earned (π)")} v={fmt(lpPos.feesEarned, 6)} />
                   </div>
                 ) : (
-                  <div className="text-muted text-[11px] py-6 text-center">No LP position in {m.symbol}</div>
+                  <div className="text-muted text-[11px] py-6 text-center">{tr("No LP position in")} {m.symbol}</div>
                 )}
                 <div className="flex gap-1 mt-3">
                   {[0.25, 0.5, 1].map((p) => (
@@ -655,7 +649,7 @@ export default function PiDEX() {
                       onClick={() => runLiquidity(() => removeLiquidity(symbol, p))}
                       className="flex-1 py-2 rounded-md bg-panel2 border border-border text-[11px] hover:text-text disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      Remove {p * 100}%
+                       {tr("Remove")} {p * 100}%
                     </button>
                   ))}
                 </div>
@@ -680,6 +674,7 @@ export default function PiDEX() {
 /* ---------------- sub components ---------------- */
 
 function OrderBook({ m, onPick }: { m: Market; onPick: (p: number) => void }) {
+  const { t: tr } = useI18n();
   const max = Math.max(m.bids[m.bids.length - 1]?.total ?? 1, m.asks[m.asks.length - 1]?.total ?? 1);
   const spread = (m.asks[0]?.price ?? 0) - (m.bids[0]?.price ?? 0);
   const row = (l: (typeof m.bids)[number], side: Side) => (
@@ -693,14 +688,14 @@ function OrderBook({ m, onPick }: { m: Market; onPick: (p: number) => void }) {
   );
   return (
     <div className="card p-3">
-      <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><LayersIcon size={13} /> Order Book</h3>
+      <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><LayersIcon size={13} />  {tr("Order Book")}</h3>
       <div className="text-[10px] text-muted grid grid-cols-3 px-1 mb-1 uppercase">
-        <span>Price (π)</span><span className="text-right">Size</span><span className="text-right">Total</span>
+        <span>{tr("Price (π)")}</span><span className="text-right">{tr("Size")}</span><span className="text-right">{tr("Total")}</span>
       </div>
       <div className="flex flex-col-reverse">{m.asks.slice(0, 9).map((l) => row(l, "sell"))}</div>
       <div className="flex items-center justify-between px-1 py-1.5 my-1 border-y border-border">
         <span className="text-sm font-bold mono" style={{ color: m.layer.hex }}>{fmt(m.price, 5)}</span>
-        <span className="text-[10px] text-muted mono">spread {fmt(spread, 5)}</span>
+        <span className="text-[10px] text-muted mono">{tr("spread")} {fmt(spread, 5)}</span>
       </div>
       <div>{m.bids.slice(0, 9).map((l) => row(l, "buy"))}</div>
     </div>

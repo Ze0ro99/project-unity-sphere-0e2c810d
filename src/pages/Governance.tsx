@@ -34,6 +34,7 @@ const SIGNERS = [
 const THRESHOLD = 3;
 
 export default function Governance() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const [proposals, setProposals] = useState(SEED);
   const [votes, setVotes] = useState<Record<string, "for" | "against">>({});
@@ -102,14 +103,14 @@ export default function Governance() {
                   <div className="h-full bg-red" style={{ width: `${(1 - support) * 100}%` }} />
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-[11px] mono text-muted">
-                  <span className="text-green">For {num(p.for)}</span>
-                  <span className="text-red">Against {num(p.against)}</span>
-                  <span>Support {pct(support, 1)}</span>
+                  <span className="text-green">{tr("For")} {num(p.for)}</span>
+                  <span className="text-red">{tr("Against")} {num(p.against)}</span>
+                  <span>{tr("Support")} {pct(support, 1)}</span>
                   <span className={quorumMet ? "text-green" : "text-orange"}>
-                    Quorum {num(total)} / {num(p.quorum)}
+                     {tr("Quorum")} {num(total)} / {num(p.quorum)}
                   </span>
                   <span>{p.standard}</span>
-                  <span className="ml-auto">Ends {p.endsIn}</span>
+                  <span className="ml-auto">{tr("Ends")} {p.endsIn}</span>
                 </div>
 
                 {p.status === "active" && (
@@ -138,7 +139,7 @@ export default function Governance() {
         <section className="space-y-4">
           <div className="rounded-xl border border-border bg-panel/60 p-4">
             <h2 className="text-sm font-semibold flex items-center gap-2 mb-3">
-              <KeyRound size={15} className="text-gold" /> Keeper multisig · {signed.length}-of-{SIGNERS.length}
+              <KeyRound size={15} className="text-gold" />  {tr("Keeper multisig ·")} {signed.length}{tr("-of-")}{SIGNERS.length}
             </h2>
             <ul className="space-y-2 text-xs">
               {SIGNERS.map((s) => {
@@ -172,7 +173,7 @@ export default function Governance() {
           </div>
 
           <div className="rounded-xl border border-border bg-panel/60 p-4">
-            <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><Vote size={15} className="text-gold" /> Treasury vaults</h2>
+            <h2 className="text-sm font-semibold flex items-center gap-2 mb-3"><Vote size={15} className="text-gold" />  {tr("Treasury vaults")}</h2>
             <ul className="space-y-2 text-xs">
               {treasury.map((t) => (
                 <li key={t.layer.id}>
@@ -184,14 +185,14 @@ export default function Governance() {
                   <div className="h-1 mt-1 rounded-full bg-panel2 overflow-hidden">
                     <div className="h-full" style={{ width: `${t.locked * 100}%`, background: t.layer.hex }} />
                   </div>
-                  <div className="text-[10px] text-muted mono">{pct(t.locked, 0)} locked in vault</div>
+                  <div className="text-[10px] text-muted mono">{pct(t.locked, 0)}  {tr("locked in vault")}</div>
                 </li>
               ))}
             </ul>
             <dl className="mt-3 pt-3 border-t border-border/60 text-xs space-y-1 mono">
-              <div className="flex justify-between"><dt className="text-muted">Total treasury</dt><dd>{num(totalTreasury)}</dd></div>
-              <div className="flex justify-between"><dt className="text-muted">Credit ceiling</dt><dd>{num(creditCeiling(totalTreasury))} π</dd></div>
-              <div className="flex justify-between"><dt className="text-muted">Parity target</dt><dd className="text-gold">{PARITY.toLocaleString()}</dd></div>
+              <div className="flex justify-between"><dt className="text-muted">{tr("Total treasury")}</dt><dd>{num(totalTreasury)}</dd></div>
+              <div className="flex justify-between"><dt className="text-muted">{tr("Credit ceiling")}</dt><dd>{num(creditCeiling(totalTreasury))} π</dd></div>
+              <div className="flex justify-between"><dt className="text-muted">{tr("Parity target")}</dt><dd className="text-gold">{PARITY.toLocaleString()}</dd></div>
             </dl>
           </div>
         </section>

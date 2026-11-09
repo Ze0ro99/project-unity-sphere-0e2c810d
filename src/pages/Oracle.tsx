@@ -28,6 +28,7 @@ function age(sec: number) {
 }
 
 export default function Oracle() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const market = useMarketIndex();
   const [rounds, setRounds] = useState<FeedRound[]>([]);
@@ -120,14 +121,14 @@ export default function Oracle() {
                 : "—"
             }
           />
-          <Stat label="24h High (USDT)" value={market.index?.high24h ? `${fmt(market.index.high24h, 4)} USDT` : "—"} />
-          <Stat label="24h Low (USDT)" value={market.index?.low24h ? `${fmt(market.index.low24h, 4)} USDT` : "—"} />
+          <Stat label={tr("24h High (USDT)")} value={market.index?.high24h ? `${fmt(market.index.high24h, 4)} USDT` : "—"} />
+          <Stat label={tr("24h Low (USDT)")} value={market.index?.low24h ? `${fmt(market.index.low24h, 4)} USDT` : "—"} />
           <Stat
-            label="24h Vol (π)"
+            label={tr("24h Vol (π)")}
             value={market.index?.baseVol24h ? market.index.baseVol24h.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}
           />
           <Stat
-            label="24h Turnover"
+            label={tr("24h Turnover")}
             value={market.index?.quoteVol24h ? `${market.index.quoteVol24h.toLocaleString("en-US", { maximumFractionDigits: 0 })} USDT` : "—"}
           />
         </div>

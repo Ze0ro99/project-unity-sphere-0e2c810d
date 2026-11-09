@@ -15,6 +15,7 @@ import { useI18n } from "@/i18n";
 type FileState = { path: string; status: "loading" | "ok" | "missing"; bytes?: number };
 
 export default function Repository() {
+  const { t: tr } = useI18n();
   const { t } = useI18n();
   const [meta, setMeta] = useState<RepoMeta | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -103,8 +104,7 @@ export default function Repository() {
             onClick={loadRepo}
             className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-md border border-border hover:bg-panel2"
           >
-            <RefreshCw size={14} className={busy ? "animate-spin" : ""} /> Refresh
-          </button>
+            <RefreshCw size={14} className={busy ? "animate-spin" : ""} />  {tr("Refresh")} </button>
         </div>
       </header>
 
@@ -116,23 +116,23 @@ export default function Repository() {
 
       {/* Repo summary */}
       <section className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2">
-        <Stat label="Default branch" value={meta?.default_branch ?? "—"} />
-        <Stat label="Branches" value={branches.length || "—"} />
-        <Stat label="Last push" value={meta ? relTime(meta.pushed_at) : "—"} />
-        <Stat label="Tracked files" value={stats?.files ?? "…"} />
-        <Stat label="Markdown docs" value={stats?.markdown ?? "…"} />
-        <Stat label="Standards found" value={stats?.standards ?? "…"} />
-        <Stat label="Solidity contracts" value={stats?.contracts.sol ?? "…"} />
+        <Stat label={tr("Default branch")} value={meta?.default_branch ?? "—"} />
+        <Stat label={tr("Branches")} value={branches.length || "—"} />
+        <Stat label={tr("Last push")} value={meta ? relTime(meta.pushed_at) : "—"} />
+        <Stat label={tr("Tracked files")} value={stats?.files ?? "…"} />
+        <Stat label={tr("Markdown docs")} value={stats?.markdown ?? "…"} />
+        <Stat label={tr("Standards found")} value={stats?.standards ?? "…"} />
+        <Stat label={tr("Solidity contracts")} value={stats?.contracts.sol ?? "…"} />
         <Stat label="Rust / Soroban" value={stats?.contracts.rs ?? "…"} />
-        <Stat label="Shell pipelines" value={stats?.scripts ?? "…"} />
-        <Stat label="JSON schemas" value={stats?.schemas ?? "…"} />
-        <Stat label="CI workflows" value={stats?.workflows.length ?? "…"} />
-        <Stat label="Webhook present" value={stats ? (stats.hasWebhook ? "yes" : "no") : "…"} />
+        <Stat label={tr("Shell pipelines")} value={stats?.scripts ?? "…"} />
+        <Stat label={tr("JSON schemas")} value={stats?.schemas ?? "…"} />
+        <Stat label={tr("CI workflows")} value={stats?.workflows.length ?? "…"} />
+        <Stat label={tr("Webhook present")} value={stats ? (stats.hasWebhook ? "yes" : "no") : "…"} />
       </section>
 
       <div className="grid lg:grid-cols-2 gap-4">
         {/* Branches */}
-        <Panel title="Branches" icon={GitBranch}>
+        <Panel title={tr("Branches")} icon={GitBranch}>
           <div className="max-h-64 overflow-auto divide-y divide-border">
             {branches.length === 0 && <Empty />}
             {branches.map((b) => (
@@ -145,7 +145,7 @@ export default function Repository() {
               >
                 <GitBranch size={13} className="text-muted shrink-0" />
                 <span className="mono truncate">{b.name}</span>
-                {b.protected && <span className="text-[10px] px-1.5 py-0.5 rounded bg-gold/15 text-gold">protected</span>}
+                {b.protected && <span className="text-[10px] px-1.5 py-0.5 rounded bg-gold/15 text-gold">{tr("protected")}</span>}
                 <span className="ml-auto mono text-muted">{b.commit.sha.slice(0, 7)}</span>
               </button>
             ))}
@@ -174,10 +174,10 @@ export default function Repository() {
         </Panel>
 
         {/* CI */}
-        <Panel title="Continuous integration" icon={Workflow}>
+        <Panel title={tr("Continuous integration")} icon={Workflow}>
           <div className="p-2 flex flex-wrap gap-1.5">
             {!stats && <Empty />}
-            {stats?.workflows.length === 0 && <span className="text-xs text-muted p-1">No workflows on this branch.</span>}
+            {stats?.workflows.length === 0 && <span className="text-xs text-muted p-1">{tr("No workflows on this branch.")}</span>}
             {stats?.workflows.map((w) => (
               <span key={w} className="mono text-[11px] px-2 py-1 rounded border border-border bg-panel2">
                 {w}
@@ -187,7 +187,7 @@ export default function Repository() {
         </Panel>
 
         {/* Canonical files */}
-        <Panel title="Canonical exchange inputs" icon={FileCode2}>
+        <Panel title={tr("Canonical exchange inputs")} icon={FileCode2}>
           <div className="divide-y divide-border">
             {files.map((f) => (
               <div key={f.path} className="flex items-center gap-2 px-2 py-2 text-xs">
@@ -196,7 +196,7 @@ export default function Repository() {
                 <span className="ml-auto">
                   {f.status === "loading" && <Loader2 size={13} className="animate-spin text-muted" />}
                   {f.status === "ok" && <span className="text-green mono">{f.bytes} B</span>}
-                  {f.status === "missing" && <span className="text-muted mono">missing</span>}
+                  {f.status === "missing" && <span className="text-muted mono">{tr("missing")}</span>}
                 </span>
               </div>
             ))}
@@ -210,10 +210,10 @@ export default function Repository() {
           <table className="w-full text-xs">
             <thead className="text-muted">
               <tr className="border-b border-border">
-                <th className="text-left font-medium px-2 py-2">Entity</th>
-                <th className="text-left font-medium px-2 py-2">Key</th>
-                <th className="text-left font-medium px-2 py-2">Type</th>
-                <th className="text-left font-medium px-2 py-2">Result</th>
+                <th className="text-left font-medium px-2 py-2">{tr("Entity")}</th>
+                <th className="text-left font-medium px-2 py-2">{tr("Key")}</th>
+                <th className="text-left font-medium px-2 py-2">{tr("Type")}</th>
+                <th className="text-left font-medium px-2 py-2">{tr("Result")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -225,8 +225,7 @@ export default function Repository() {
                   <td className="px-2 py-2">
                     {k.check.valid ? (
                       <span className="inline-flex items-center gap-1 text-green">
-                        <ShieldCheck size={13} /> verified
-                      </span>
+                        <ShieldCheck size={13} />  {tr("verified")} </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-red">
                         <ShieldAlert size={13} /> {k.check.reason}
@@ -277,5 +276,6 @@ function Panel({
 }
 
 function Empty() {
-  return <div className="px-2 py-4 text-xs text-muted flex items-center gap-2"><Loader2 size={13} className="animate-spin" /> Loading…</div>;
+  const { t: tr } = useI18n();
+  return <div className="px-2 py-4 text-xs text-muted flex items-center gap-2"><Loader2 size={13} className="animate-spin" />  {tr("Loading…")}</div>;
 }
