@@ -69,7 +69,7 @@ export default function Bn254() {
   }
 
   return (
-    <div className="space-y-6" key={lang}>
+    <div className="space-y-6">
       <header className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">

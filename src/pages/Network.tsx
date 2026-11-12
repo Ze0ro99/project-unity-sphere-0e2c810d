@@ -21,8 +21,8 @@ const NETWORKS = [
 ];
 
 export default function Network() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -73,7 +73,7 @@ function NetCard({ nkey, title, endpoint }: { nkey: string; title: string; endpo
         <h2 className="font-semibold">{title}</h2>
         <span className={`chip ${ok ? "" : "text-red"}`}>
           <span className={`w-2 h-2 rounded-full ${ok ? "bg-green" : root.isLoading ? "bg-gold" : "bg-red"}`} />
-          {ok ? "healthy" : root.isLoading ? "checking…" : "offline"}
+          {tr(ok ? "healthy" : root.isLoading ? "checking…" : "offline")}
         </span>
       </div>
       <div className="mono text-xs text-muted mt-1 break-all">{endpoint}</div>

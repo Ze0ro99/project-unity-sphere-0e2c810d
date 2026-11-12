@@ -15,8 +15,8 @@ import { useI18n } from "@/i18n";
 type FileState = { path: string; status: "loading" | "ok" | "missing"; bytes?: number };
 
 export default function Repository() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const [meta, setMeta] = useState<RepoMeta | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [branch, setBranch] = useState<string>("");

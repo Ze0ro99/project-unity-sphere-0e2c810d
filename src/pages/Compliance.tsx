@@ -21,8 +21,8 @@ const MICAR = [
 ];
 
 export default function Compliance() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const [notional, setNotional] = useState(1500);
   const [ageDays, setAgeDays] = useState(12);
   const [crossChain, setCrossChain] = useState(true);
@@ -30,7 +30,7 @@ export default function Compliance() {
   const [jur, setJur] = useState("EU");
   const [velocity, setVelocity] = useState(8);
 
-  const jurisdiction = JURISDICTIONS.find((j) => j.code === jur)!;
+  const jurisdiction = JURISDICTIONS.find((j) => j.code === jur) ?? JURISDICTIONS[0];
   const result = useMemo(
     () => assessAml({
       notionalPi: notional,
@@ -83,7 +83,7 @@ export default function Compliance() {
             {t("compliance.jurisdiction")}
             <select value={jur} onChange={(e) => setJur(e.target.value)}
               className="mt-1 w-full bg-panel2 border border-border rounded-md px-2 py-2 text-sm text-text">
-              {JURISDICTIONS.map((j) => <option key={j.code} value={j.code}>{j.label}</option>)}
+              {JURISDICTIONS.map((j) => <option key={j.code} value={j.code}>{tr(j.label)}</option>)}
             </select>
           </label>
           <div className="flex gap-4 text-xs">
@@ -106,7 +106,7 @@ export default function Compliance() {
               <div className={`text-3xl font-bold mono ${bandTone}`}>{result.score}</div>
             </div>
             <div className="pb-1">
-              <div className={`text-sm font-semibold uppercase mono ${bandTone}`}>{result.band}</div>
+              <div className={`text-sm font-semibold uppercase mono ${bandTone}`}>{tr(result.band)}</div>
               <div className="text-[11px] text-muted">{result.requiresEdd ? t("compliance.edd") : t("compliance.standard")}</div>
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function Compliance() {
             {result.signals.map((s) => (
               <li key={s.label} className="flex items-center gap-2">
                 <span className={`w-1.5 h-1.5 rounded-full ${s.hit ? "bg-red" : "bg-green"}`} />
-                <span className={s.hit ? "text-text" : "text-muted"}>{s.label}</span>
+                <span className={s.hit ? "text-text" : "text-muted"}>{tr(s.label)}</span>
                 <span className="ml-auto mono text-muted">+{s.weight}</span>
               </li>
             ))}

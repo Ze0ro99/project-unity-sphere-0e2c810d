@@ -85,8 +85,8 @@ export default function App() {
 }
 
 function Header() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
 
@@ -125,7 +125,7 @@ function Header() {
           <PiConnectButton />
           <button
             className="lg:hidden p-2 rounded-md border border-border hover:bg-panel2"
-            aria-label={open ? "Close menu" : "Open menu"}
+            aria-label={open ? t("app.closeMenu") : t("app.openMenu")}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >

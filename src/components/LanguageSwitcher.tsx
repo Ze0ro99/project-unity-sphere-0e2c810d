@@ -16,7 +16,7 @@ export default function LanguageSwitcher() {
       >
         {LANGS.map((language) => (
           <option key={language.code} value={language.code} disabled={!language.complete} className="bg-panel text-text">
-            {language.complete ? language.label : `${language.label} — translation incomplete`}
+            {language.complete ? language.label : `${language.label} — ${t("common.incomplete")}`}
           </option>
         ))}
       </select>

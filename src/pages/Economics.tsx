@@ -36,8 +36,8 @@ function Spark({ outcome, field, color }: { outcome: ScenarioOutcome; field: "ph
 }
 
 export default function Economics() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const [scenarios] = useState<SimulationScenario[]>(DEFAULT_SCENARIOS);
   const [selected, setSelected] = useState(DEFAULT_SCENARIOS[0].id);
   const [horizon, setHorizon] = useState(365);
@@ -81,7 +81,7 @@ export default function Economics() {
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] mono text-muted">
           <span className={liveOk ? "text-green" : "text-red"}>
-            ● π/USDT index {liveOk ? `${spot.toFixed(6)} USDT` : "unavailable"}
+            ● π/USDT index {liveOk ? `${spot.toFixed(6)} USDT` : tr("unavailable")}
           </span>
           <span>{market.index?.sources ?? 0}/{market.index?.totalSources ?? 0}  {tr("venues")}</span>
           <span>{tr("deviation")} {(market.index?.deviationBps ?? 0).toFixed(1)} bps</span>
@@ -92,7 +92,7 @@ export default function Economics() {
 
       <section className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
         {[
-          { label: t("economics.liveIppr"), value: liveOk ? `${fmt(ipprLive, 2)} USDT` : "UNAVAILABLE — ORACLE GATE" },
+          { label: t("economics.liveIppr"), value: liveOk ? `${fmt(ipprLive, 2)} USDT` : tr("UNAVAILABLE — ORACLE GATE") },
           { label: t("economics.simulationQwf"), value: fmt(simulation.qwf) },
           { label: t("economics.simulationVelocity"), value: simulation.velocity.toFixed(4) },
           { label: t("economics.simulationPhi"), value: Number.isFinite(phiSimulation) ? phiSimulation.toFixed(6) : "—" },
@@ -122,7 +122,7 @@ export default function Economics() {
                 className={`w-full text-left rounded-lg border p-3 transition ${on ? "border-gold bg-panel2" : "border-border hover:bg-panel2/60"}`}
               >
                 <div className="flex items-center justify-between text-sm font-semibold">
-                  {s.name}
+                  {tr(s.name)}
                   <span className={`mono text-xs ${o.final.phi >= 1 ? "text-green" : "text-red"}`}>Φ {o.final.phi.toFixed(3)}</span>
                 </div>
                 <div className="mt-1 text-[11px] text-muted mono">
@@ -144,7 +144,7 @@ export default function Economics() {
 
         <section className="lg:col-span-2 rounded-xl border border-border bg-panel/60 p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold flex items-center gap-2"><Activity size={15} className="text-green" /> {active.scenario.name}  {tr("projection")}</h2>
+            <h2 className="text-sm font-semibold flex items-center gap-2"><Activity size={15} className="text-green" /> {tr(active.scenario.name)}  {tr("projection")}</h2>
             <span className="text-[11px] mono text-muted">95% CI Φ [{active.ci95[0]}, {active.ci95[1]}]</span>
           </div>
           <div>
@@ -169,7 +169,7 @@ export default function Economics() {
           <thead className="text-[11px] uppercase tracking-wider text-muted">
             <tr className="border-b border-border">
               {["Scenario", "Final modeled Φ", "Final model index", "Min modeled collateral", "Max model drawdown", "Breaker epochs", "Verdict"].map((h) => (
-                <th key={h} className="text-left font-medium px-4 py-2 whitespace-nowrap">{h}</th>
+                <th key={h} className="text-left font-medium px-4 py-2 whitespace-nowrap">{tr(h)}</th>
               ))}
             </tr>
           </thead>
@@ -178,14 +178,14 @@ export default function Economics() {
               const safe = o.minCollateral >= 0.8 && o.final.phi >= 0.9;
               return (
                 <tr key={o.scenario.id} className="border-b border-border/60 last:border-0">
-                  <td className="px-4 py-2 whitespace-nowrap">{o.scenario.name}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{tr(o.scenario.name)}</td>
                   <td className="px-4 py-2">{o.final.phi.toFixed(4)}</td>
                   <td className="px-4 py-2">{fmt(o.final.ippr)}</td>
                   <td className="px-4 py-2">{(o.minCollateral * 100).toFixed(1)}%</td>
                   <td className="px-4 py-2">{(o.maxDrawdown * 100).toFixed(1)}%</td>
                   <td className="px-4 py-2">{o.breakerEpochs}</td>
                   <td className={`px-4 py-2 ${safe ? "text-green" : "text-red"}`}>
-                    {safe ? "MODEL THRESHOLD MET" : "MODEL THRESHOLD NOT MET"}
+                    {tr(safe ? "MODEL THRESHOLD MET" : "MODEL THRESHOLD NOT MET")}
                   </td>
                 </tr>
               );
@@ -197,11 +197,7 @@ export default function Economics() {
       <section className="rounded-xl border border-border bg-panel/60 p-4 text-xs text-muted flex gap-2">
         <AlertTriangle size={14} className="text-yellow shrink-0 mt-0.5" />
         <p>
-          SIMULATION ONLY — not a live monetary policy, minting controller, reserve ratio, solvency certificate, or price guarantee.
-          Projections are deterministic (seeded PRNG) so exported CSVs reproduce the charts exactly. A 15% deviation
-          from the 7-epoch velocity median sets the simulation circuit breaker and zeroes the modeled emission rate.
-          These are model outputs only: no actual minting, collateral, solvency, reserves, or settlement are controlled or verified here.
-        </p>
+           {tr("SIMULATION ONLY — not a live monetary policy, minting controller, reserve ratio, solvency certificate, or price guarantee. Projections are deterministic (seeded PRNG) so exported CSVs reproduce the charts exactly. A 15% deviation from the 7-epoch velocity median sets the simulation circuit breaker and zeroes the modeled emission rate. These are model outputs only: no actual minting, collateral, solvency, reserves, or settlement are controlled or verified here.")} </p>
       </section>
     </div>
   );

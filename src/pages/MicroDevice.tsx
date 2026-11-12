@@ -5,8 +5,8 @@ import { Cpu, Wifi, Battery, HardDrive } from "lucide-react";
 import { useI18n } from "@/i18n";
 
 export default function MicroDevice() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);

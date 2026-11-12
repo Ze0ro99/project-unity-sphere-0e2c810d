@@ -34,8 +34,8 @@ const SIGNERS = [
 const THRESHOLD = 3;
 
 export default function Governance() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const [proposals, setProposals] = useState(SEED);
   const [votes, setVotes] = useState<Record<string, "for" | "against">>({});
   const [signed, setSigned] = useState<string[]>([SIGNERS[0].name, SIGNERS[1].name]);

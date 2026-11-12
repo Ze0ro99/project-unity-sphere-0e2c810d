@@ -28,8 +28,8 @@ function age(sec: number) {
 }
 
 export default function Oracle() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const market = useMarketIndex();
   const [rounds, setRounds] = useState<FeedRound[]>([]);
   const [loading, setLoading] = useState(true);

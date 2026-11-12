@@ -25,8 +25,8 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default function Infrastructure() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const [stats, setStats] = useState<CacheStats>(() => cacheStats());
   const [busy, setBusy] = useState(false);
 

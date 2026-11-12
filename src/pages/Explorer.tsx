@@ -6,8 +6,8 @@ import { useI18n } from "@/i18n";
 import { useProtocol } from "@/lib/useProtocol";
 
 export default function Explorer() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const { observation } = useProtocol();
   const ledgersQ = useQuery({
     queryKey: ["ledgers"],

@@ -18,16 +18,16 @@ const CORRIDOR_BPS = 8;
 const RELAYER_PI = 0.0003;
 
 export default function Bridge() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const [from, setFrom] = useState("pi-mainnet");
   const [to, setTo] = useState("stellar-testnet");
   const [asset, setAsset] = useState("GOLD");
   const [amount, setAmount] = useState(500);
   const [log, setLog] = useState<{ ts: number; text: string; tone: string }[]>([]);
 
-  const src = CHAINS.find((c) => c.id === from)!;
-  const dst = CHAINS.find((c) => c.id === to)!;
+  const src = CHAINS.find((c) => c.id === from) ?? CHAINS[0];
+  const dst = CHAINS.find((c) => c.id === to) ?? CHAINS[1];
   const corridorFee = (amount * CORRIDOR_BPS) / 10_000;
   const received = Math.max(0, amount - corridorFee - RELAYER_PI);
   const etaSec = src.finalitySec * src.confirmations + dst.finalitySec * dst.confirmations + 6;
@@ -67,8 +67,7 @@ export default function Bridge() {
           <div>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t("nav.bridge")}</h1>
             <p className="text-sm text-muted">
-              PiRC-210 lock-and-mint corridors between Pi and Stellar networks, screened by the PiRC-211.5 compliance gateway.
-            </p>
+               {tr("PiRC-210 lock-and-mint corridors between Pi and Stellar networks, screened by the PiRC-211.5 compliance gateway.")} </p>
           </div>
         </div>
       </section>
@@ -127,7 +126,7 @@ export default function Bridge() {
 
           <div className="rounded-lg border border-border bg-panel2/20 p-3 max-h-64 overflow-auto">
             {log.length === 0 ? (
-              <p className="text-xs text-muted">Corridor log is empty — route a transfer to trace the lock → attest → relay → mint lifecycle.</p>
+              <p className="text-xs text-muted"> {tr("Corridor log is empty — route a transfer to trace the lock → attest → relay → mint lifecycle.")} </p>
             ) : (
               <ul className="text-xs mono space-y-1">
                 {log.map((l, i) => (
@@ -146,9 +145,9 @@ export default function Bridge() {
             <div className="text-xs space-y-1.5">
               <div className="flex justify-between"><span className="text-muted">{tr("Risk score")}</span><span className="mono">{aml.score}/100</span></div>
               <div className="flex justify-between"><span className="text-muted">{tr("Band")}</span>
-                <span className={`mono uppercase ${aml.band === "low" ? "text-green" : aml.band === "medium" ? "text-yellow" : "text-red"}`}>{aml.band}</span>
+                <span className={`mono uppercase ${aml.band === "low" ? "text-green" : aml.band === "medium" ? "text-yellow" : "text-red"}`}>{tr(aml.band)}</span>
               </div>
-              <div className="flex justify-between"><span className="text-muted">{tr("EDD required")}</span><span className="mono">{aml.requiresEdd ? "Yes" : "No"}</span></div>
+              <div className="flex justify-between"><span className="text-muted">{tr("EDD required")}</span><span className="mono">{tr(aml.requiresEdd ? "Yes" : "No")}</span></div>
               <p className="text-muted pt-2 border-t border-border/60">{aml.micarArticle}</p>
             </div>
           </div>

@@ -5,8 +5,8 @@ import { Layers, RefreshCw } from "lucide-react";
 import { useI18n } from "@/i18n";
 
 export default function Layers7() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const issuerValid = isValidStrKey(ISSUER, "G");
 
   // Seven-layer issuer data is intentionally pinned to Pi Testnet.
@@ -37,7 +37,7 @@ export default function Layers7() {
           <span className="chip">PiRC-207</span>
           <span className={`chip ${issuerDataLoaded ? "" : "text-muted"}`}>
             <span className={`w-2 h-2 rounded-full ${issuerDataLoaded ? "bg-green" : assetsQ.isFetching ? "bg-gold" : "bg-red"}`} />
-            {issuerDataLoaded ? "Pi Testnet issuer data loaded" : assetsQ.isFetching ? "syncing…" : "Testnet data unavailable"}
+            {tr(issuerDataLoaded ? "Pi Testnet issuer data loaded" : assetsQ.isFetching ? "syncing…" : "Testnet data unavailable")}
           </span>
           <button
             onClick={() => { assetsQ.refetch(); issuerQ.refetch(); }}
@@ -47,9 +47,7 @@ export default function Layers7() {
             <RefreshCw size={12} className={assetsQ.isFetching ? "animate-spin" : ""} />  {tr("Refresh")} </button>
         </div>
         <p className="text-muted text-sm">
-          Pi Testnet view of the seven proposed PiRC token layers. Issuer account metrics are read from Pi Testnet Horizon.
-          Per-layer asset-code mapping and Soroban contract deployment remain unverified until exact network evidence is available.
-        </p>
+           {tr("Pi Testnet view of the seven proposed PiRC token layers. Issuer account metrics are read from Pi Testnet Horizon. Per-layer asset-code mapping and Soroban contract deployment remain unverified until exact network evidence is available.")} </p>
         <div className="grid md:grid-cols-2 gap-3 mt-4 text-sm">
           <Row label={tr("Pi Testnet issuer account")} value={ISSUER} />
           <Row label={tr("Master registry reference")} value={MASTER_REGISTRY} />
@@ -60,7 +58,7 @@ export default function Layers7() {
           <Metric label={tr("Account subentries")} value={issuerQ.data ? String(issuerQ.data.subentry_count) : "—"} />
           <Metric label={tr("Last modified ledger")} value={issuerQ.data?.last_modified_ledger?.toLocaleString?.() ?? "—"} />
         </div>
-        <p className="text-xs text-muted mt-2">*Holder count is the sum of returned issuer-asset account counts; it is not a unique-holder count across assets.</p>
+        <p className="text-xs text-muted mt-2"> {tr("*Holder count is the sum of returned issuer-asset account counts; it is not a unique-holder count across assets.")} </p>
       </section>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -85,9 +83,9 @@ export default function Layers7() {
             <div className="mt-4 text-xs text-muted">{tr("Soroban contract reference")}</div>
             <div className="mono text-xs break-all">{layer.address}</div>
             <div className="grid grid-cols-3 gap-2 mt-4 text-center">
-              <Metric label={tr("Asset code")} value="not mapped" />
-              <Metric label={tr("Supply")} value="unverified" />
-              <Metric label={tr("Holders")} value="unverified" />
+              <Metric label={tr("Asset code")} value={tr("not mapped")} />
+              <Metric label={tr("Supply")} value={tr("unverified")} />
+              <Metric label={tr("Holders")} value={tr("unverified")} />
             </div>
           </div>
         ))}

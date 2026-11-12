@@ -36,8 +36,8 @@ export default function EconomicGateways() {
   const marketPass = fresh && market.index?.trusted === true && (market.index?.sources ?? 0) >= 3;
   const marketState: GateState = marketPass ? "PASS" : "STALE";
   const marketEvidence = market.index
-    ? `${market.index.sources}/${market.index.totalSources} venues · ${market.index.deviationBps.toFixed(1)} bps · ${fresh ? "fresh snapshot" : "snapshot stale"}`
-    : "No accepted market quote";
+    ? `${market.index.sources}/${market.index.totalSources} venues · ${market.index.deviationBps.toFixed(1)} bps · ${t(fresh ? "fresh snapshot" : "snapshot stale")}`
+    : t("No accepted market quote");
   return (
     <div className="space-y-5">
       <header className="rounded-xl border border-border bg-panel/60 p-5 sm:p-7">
@@ -50,10 +50,10 @@ export default function EconomicGateways() {
         </div>
       </header>
       <GateCard id="market-data" title={t("gate.marketData.title")} description={t("gate.marketData.desc")} state={marketState} evidence={marketEvidence} />
-      <GateCard id="utility-commerce" title={t("gate.utility.title")} description={t("gate.utility.desc")} state="UNVERIFIED" evidence="No verified merchant catalogue / fulfilment evidence feed is connected." />
-      <GateCard id="velocity-liquidity" title={t("gate.velocity.title")} description={t("gate.velocity.desc")} state="UNVERIFIED" evidence="Raw event inbox is not a reconciled settlement or liquidity measurement." />
-      <GateCard id="solvency-settlement" title={t("gate.solvency.title")} description={t("gate.solvency.desc")} state="UNVERIFIED" evidence="No verified reserve attestation, liability ledger and finality read-back feed is connected." />
-      <p className="text-xs text-muted">A PASS on the market-data gateway only validates the displayed market quote. It does not authorize wallet signing, token issuance, payments, swaps, REF creation or settlement. All financial writes remain Testnet-only and fail closed.</p>
+      <GateCard id="utility-commerce" title={t("gate.utility.title")} description={t("gate.utility.desc")} state="UNVERIFIED" evidence={t("No verified merchant catalogue / fulfilment evidence feed is connected.")} />
+      <GateCard id="velocity-liquidity" title={t("gate.velocity.title")} description={t("gate.velocity.desc")} state="UNVERIFIED" evidence={t("Raw event inbox is not a reconciled settlement or liquidity measurement.")} />
+      <GateCard id="solvency-settlement" title={t("gate.solvency.title")} description={t("gate.solvency.desc")} state="UNVERIFIED" evidence={t("No verified reserve attestation, liability ledger and finality read-back feed is connected.")} />
+      <p className="text-xs text-muted">{t("A PASS on the market-data gateway only validates the displayed market quote. It does not authorize wallet signing, token issuance, payments, swaps, REF creation or settlement. All financial writes remain Testnet-only and fail closed.")}</p>
     </div>
   );
 }

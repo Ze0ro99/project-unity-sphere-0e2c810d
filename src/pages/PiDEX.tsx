@@ -104,7 +104,7 @@ export default function PiDEX() {
   };
 
   const submit = () => {
-    if (size <= 0) return flash(false, "Enter an order size");
+    if (size <= 0) return flash(false, tr("Enter an order size"));
     const o = placeOrder({
       symbol,
       side,
@@ -118,7 +118,7 @@ export default function PiDEX() {
       postOnly,
       reduceOnly,
     });
-    if (o.status === "rejected") flash(false, o.reason ?? "Order rejected");
+    if (o.status === "rejected") flash(false, o.reason ?? tr("Order rejected"));
     else if (o.status === "pending") flash(true, `STOP ${side.toUpperCase()} armed @ ${fmt(o.trigger ?? 0, 5)} π`);
     else flash(true, `${type.toUpperCase()} ${side.toUpperCase()} ${fmt(o.size, 2)} ${m.layer.id}π @ ${fmt(o.price, 5)} π`);
   };
@@ -166,8 +166,8 @@ export default function PiDEX() {
                 <span className="chip"><span className="pulse-dot" />  {tr("Live")}</span>
               )}
             </div>
-            <div className="text-[11px] text-muted">PiRC-101 base pair · Spot · Hybrid CLOB + AMM</div>
-            <div role="status" className="mt-1 inline-flex items-center gap-1 rounded border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold tracking-wide text-amber-300">SIMULATION MODE — orders, balances and fills are local demo data; no on-chain trade is executed.</div>
+            <div className="text-[11px] text-muted"> {tr("PiRC-101 base pair · Spot · Hybrid CLOB + AMM")} </div>
+            <div role="status" className="mt-1 inline-flex items-center gap-1 rounded border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold tracking-wide text-amber-300"> {tr("SIMULATION MODE — orders, balances and fills are local demo data; no on-chain trade is executed.")} </div>
           </div>
         </div>
         <div className="flex items-baseline gap-3">
@@ -241,18 +241,18 @@ export default function PiDEX() {
       </section>
 
       <section className="card px-4 py-2 flex flex-wrap items-center gap-3 border border-sky-500/30 bg-sky-500/5">
-        <span className="rounded px-2 py-1 text-[10px] font-bold tracking-wider bg-sky-500/15 text-sky-300">OUSD · TEST ONLY</span>
-        <span className="text-xs text-muted">Reference asset profile is registered for interface and contract testing only. No deployed contract, USD peg, reserve backing or redemption is claimed; OUSD trading and mint/redeem actions are disabled.</span>
+        <span className="rounded px-2 py-1 text-[10px] font-bold tracking-wider bg-sky-500/15 text-sky-300"> {tr("OUSD · TEST ONLY")} </span>
+        <span className="text-xs text-muted"> {tr("Reference asset profile is registered for interface and contract testing only. No deployed contract, USD peg, reserve backing or redemption is claimed; OUSD trading and mint/redeem actions are disabled.")} </span>
       </section>
 
       <section className="card px-4 py-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-[11px] mono">
         <span className={idxOk ? "text-green" : "text-red"}>
-          ● π/USDT index {idxOk ? `$${piUsd.toFixed(6)}` : "unavailable"}
+          ● π/USDT index {idxOk ? `$${piUsd.toFixed(6)}` : tr("unavailable")}
         </span>
-        <span className="text-muted">{index?.sources ?? 0}/{index?.totalSources ?? 0} venues · dev {(index?.deviationBps ?? 0).toFixed(1)} bps</span>
+        <span className="text-muted">{index?.sources ?? 0}/{index?.totalSources ?? 0}  {tr("venues · dev")} {(index?.deviationBps ?? 0).toFixed(1)} bps</span>
         <span className="text-muted">24h {index?.changePct != null ? `${index.changePct.toFixed(2)}%` : "—"}</span>
-        <span className="text-muted">IPPR (USDT reference) {idxOk ? ippr.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</span>
-        <span className="text-muted">π/USDT × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")} · USDT reference index, not an execution price</span>
+        <span className="text-muted"> {tr("IPPR (USDT reference)")} {idxOk ? ippr.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</span>
+        <span className="text-muted">π/USDT × {IPPR_SUPPLY_MULTIPLIER.toLocaleString("en-US")}  {tr("· USDT reference index, not an execution price")} </span>
         <span className="text-muted ml-auto">{tr("synced")} {market.ts ? new Date(market.ts).toLocaleTimeString() : "—"}</span>
       </section>
 
@@ -344,7 +344,7 @@ export default function PiDEX() {
                 {(["limit", "market", "amm", "stop"] as OrderType[]).map((t) => (
                   <button key={t} onClick={() => setType(t)}
                     className={`px-3 py-1.5 text-xs capitalize transition ${type === t ? "bg-panel2 text-text" : "text-muted hover:text-text"}`}>
-                    {t === "amm" ? "AMM Swap" : t === "stop" ? "Stop / TP" : t}
+                    {tr(t === "amm" ? "AMM Swap" : t === "stop" ? "Stop / TP" : t)}
                   </button>
                 ))}
               </div>
@@ -356,19 +356,19 @@ export default function PiDEX() {
 
             <div className="grid sm:grid-cols-2 gap-3">
               <Field
-                label={`Price (π)${type !== "limit" ? " · market" : ""}`}
+                label={`${tr("Price (π)")}${type !== "limit" ? ` · ${tr("market")}` : ""}`}
                 value={type === "limit" ? priceInput : fmt(m.price, 6)}
                 disabled={type !== "limit"}
                 onChange={setPriceInput}
                 placeholder={fmt(m.price, 6)}
               />
-              <Field label={`Size (${m.layer.id}π)`} value={sizeInput} onChange={setSizeInput} placeholder="0.00" />
+              <Field label={`${tr("Size")} (${m.layer.id}π)`} value={sizeInput} onChange={setSizeInput} placeholder="0.00" />
             </div>
 
             {type === "stop" && (
               <div className="mt-3">
                 <Field
-                  label={`Trigger price (π) · ${side === "buy" ? "fires at or above" : "fires at or below"}`}
+                  label={`${tr("Trigger price (π)")} · ${tr(side === "buy" ? "fires at or above" : "fires at or below")}`}
                   value={triggerInput}
                   onChange={setTriggerInput}
                   placeholder={fmt(m.price, 6)}
@@ -412,15 +412,14 @@ export default function PiDEX() {
               </label>
               <label className="flex items-end gap-2 text-xs cursor-pointer select-none pb-1">
                 <input type="checkbox" checked={zk} onChange={(e) => setZk(e.target.checked)} className="accent-purple" />
-                <Shield size={12} className="text-purple" /> Shielded settlement · BN254 / Groth16 (PiRC-800)
-              </label>
+                <Shield size={12} className="text-purple" />  {tr("Shielded settlement · BN254 / Groth16 (PiRC-800)")} </label>
             </div>
 
 
             <div className="mt-3 space-y-1 text-[11px] mono">
               <Row k={tr("Est. total")} v={`${fmt(size * (type === "limit" ? price : m.price), 5)} π`} />
               {idxOk && <Row k={tr("Est. total (USDT reference)")} v={`$${(size * (type === "limit" ? price : m.price) * piUsd).toFixed(4)}`} />}
-              <Row k={`Fee · T${tier.tier} ${type === "limit" ? "maker" : "taker"}`}
+              <Row k={`${tr("Fee")} · T${tier.tier} ${tr(type === "limit" ? "maker" : "taker")}`}
                 v={`${((type === "limit" ? tier.makerBps : tier.takerBps) / 100).toFixed(2)}%`} />
               {quote && <Row k={tr("Price impact")} v={`${(quote.priceImpactBps / 100).toFixed(3)}%`} danger={quote.priceImpactBps > slip} />}
               {quote && <Row k={tr("Min received")} v={`${fmt(quote.out * (1 - slip / 10000), 5)} ${side === "buy" ? `${m.layer.id}π` : "π"}`} />}
@@ -432,7 +431,7 @@ export default function PiDEX() {
               disabled={m.halted}
               className={`w-full mt-3 py-2.5 rounded-md font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed ${side === "buy" ? "bg-green text-black hover:brightness-110" : "bg-red text-white hover:brightness-110"}`}
             >
-              {m.halted ? "Trading halted — circuit breaker" : `${side === "buy" ? "Buy" : "Sell"} ${m.layer.id}π`}
+              {m.halted ? tr("HALTED · PiRC-251") : `${tr(side === "buy" ? "Buy" : "Sell")} ${m.layer.id}π`}
             </button>
             <div className="text-[10px] text-muted mono pt-2 mt-2 border-t border-border">
               Router PIDEX-ROUTER-V1 · Settlement Pi Mainnet + Soroban · Registry {m.layer.address.slice(0, 8)}…{m.layer.address.slice(-6)}
@@ -483,7 +482,7 @@ export default function PiDEX() {
           {(["orders", "history", "balances", "pool"] as Tab[]).map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`px-3 py-2 capitalize transition border-b-2 -mb-px ${tab === t ? "border-gold text-text" : "border-transparent text-muted hover:text-text"}`}>
-              {t === "orders" ? `Open Orders (${openOrders.length})` : t === "pool" ? "Pool / AMM" : t}
+              {t === "orders" ? tr("Open Orders ({count})", { count: openOrders.length }) : tr(t === "pool" ? "Pool / AMM" : t)}
             </button>
           ))}
           {tab === "orders" && openOrders.length > 0 && (
@@ -498,8 +497,8 @@ export default function PiDEX() {
               <tr key={o.id} className="border-b border-border/40">
                 <Td>{new Date(o.ts).toLocaleTimeString()}</Td>
                 <Td>{o.symbol}</Td>
-                <Td className={o.side === "buy" ? "text-green" : "text-red"}>{o.side.toUpperCase()}</Td>
-                <Td>{o.type}{o.postOnly ? " · PO" : ""}{o.reduceOnly ? " · RO" : ""}</Td>
+                <Td className={o.side === "buy" ? "text-green" : "text-red"}>{tr(o.side === "buy" ? "Buy" : "Sell")}</Td>
+                <Td>{tr(o.type)}{o.postOnly ? " · PO" : ""}{o.reduceOnly ? " · RO" : ""}</Td>
                 <Td>{o.tif}</Td>
                 <Td>{fmt(o.price, 5)}</Td>
                 <Td>{o.trigger ? fmt(o.trigger, 5) : "—"}</Td>
@@ -526,7 +525,7 @@ export default function PiDEX() {
                 <tr key={f.id} className="border-b border-border/40">
                   <Td>{new Date(f.ts).toLocaleTimeString()}</Td>
                   <Td>{f.symbol}</Td>
-                  <Td className={f.side === "buy" ? "text-green" : "text-red"}>{f.side.toUpperCase()}</Td>
+                  <Td className={f.side === "buy" ? "text-green" : "text-red"}>{tr(f.side === "buy" ? "Buy" : "Sell")}</Td>
                   <Td>{fmt(f.price, 5)}</Td>
                   <Td>{fmt(f.size, 2)}</Td>
                   <Td>{fmt(f.fee, 5)}</Td>
@@ -563,7 +562,7 @@ export default function PiDEX() {
             </div>
             <div className="flex flex-wrap items-end gap-2 pt-2 border-t border-border">
               <div className="w-40">
-                <Field label={`Amount (${treasuryAsset})`} value={treasuryAmount} onChange={setTreasuryAmount} placeholder="0.00" />
+                <Field label={`${tr("Amount")} (${treasuryAsset})`} value={treasuryAmount} onChange={setTreasuryAmount} placeholder="0.00" />
               </div>
               <button
                 onClick={() => runLiquidity(() => deposit(treasuryAsset, parseFloat(treasuryAmount) || 0))}
@@ -748,12 +747,13 @@ function PoolCard({ title, children }: { title: string; children: React.ReactNod
 }
 
 function Table({ head, children }: { head: string[]; children: React.ReactNode }) {
+  const { t: translateLabel } = useI18n();
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-[11px] mono">
         <thead>
           <tr className="text-muted text-left uppercase text-[10px]">
-            {head.map((h, i) => <th key={i} className="font-medium py-1 px-2">{h}</th>)}
+            {head.map((h, i) => <th key={i} className="font-medium py-1 px-2">{translateLabel(h)}</th>)}
           </tr>
         </thead>
         <tbody>{children}</tbody>

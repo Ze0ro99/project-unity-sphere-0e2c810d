@@ -16,8 +16,8 @@ const CONTRACTS = [
 ];
 
 export default function Testnet() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const { observation } = useProtocol(HORIZON_TESTNET);
   const [checks, setChecks] = useState<Check[]>([]);
   const [running, setRunning] = useState(false);

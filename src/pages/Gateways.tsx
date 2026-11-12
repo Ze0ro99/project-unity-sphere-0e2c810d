@@ -100,13 +100,13 @@ export default function Gateways() {
                     </span>
                     {gate.tag && (
                       <span className="text-[10px] mono px-2 py-0.5 rounded-full border border-border text-muted">
-                        {gate.tag}
+                        {gate.tag === "LIVE" ? t("Live") : gate.tag}
                       </span>
                     )}
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">{titleLabels[gate.title] ?? gate.title}</div>
-                    <div className="text-xs text-muted mt-1 leading-relaxed">{descLabels[gate.desc] ?? gate.desc}</div>
+                    <div className="font-semibold text-sm">{titleLabels[gate.title] ?? t(gate.title)}</div>
+                    <div className="text-xs text-muted mt-1 leading-relaxed">{descLabels[gate.desc] ?? t(gate.desc)}</div>
                   </div>
                 </Link>
               ))}

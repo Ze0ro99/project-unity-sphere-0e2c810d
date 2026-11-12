@@ -36,8 +36,8 @@ function Stat({ label, value, sub, tone }: { label: string; value: string; sub?:
 }
 
 export default function Sovereign() {
-  const { t: tr } = useI18n();
   const { t } = useI18n();
+  const tr = t;
   const state = useSyncExternalStore(exchangeStore.subscribe, exchangeStore.getSnapshot);
   const markets = useMemo(() => state.symbols.map((s) => state.markets[s]), [state]);
   const [size, setSize] = useState(2500);
