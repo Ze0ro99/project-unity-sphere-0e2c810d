@@ -1,78 +1,76 @@
-name: Activate All PiRC Contracts
+name: Pi Testnet Read-only Network Identity Probe
 
 on:
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pi-testnet-readonly-probe
+  cancel-in-progress: true
 
 jobs:
-  activate-contracts:
+  verify-network-identity:
+    name: Verify Pi Testnet identity (read-only)
     runs-on: ubuntu-latest
-
+    timeout-minutes: 5
+    env:
+      PI_HORIZON_URL: https://api.testnet.minepi.com
+      PI_SOROBAN_RPC_URL: https://rpc.testnet.minepi.com
+      PI_EXPECTED_PASSPHRASE: Pi Testnet
+      PI_EXPECTED_PROTOCOL: "28"
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Stellar SDK
-        run: npm install @stellar/stellar-sdk
-
-      - name: Invoke Contracts via Node.js
+      - name: Verify Pi Horizon and Soroban RPC identity
+        shell: bash
         run: |
-          cat << 'EOF' > invoke.js
-          const StellarSdk = require('@stellar/stellar-sdk');
+          set -euo pipefail
 
-          async function main() {
-              console.log("🚀 Starting batch activation via Node.js...");
-              
-              const server = new StellarSdk.SorobanRpc.Server("https://soroban-testnet.stellar.org:443");
-              const networkPassphrase = "Test SDF Network ; September 2015";
-              
-              // Generate a random keypair for the invoker
-              const invoker = StellarSdk.Keypair.random();
-              console.log("Generated temporary invoker account:", invoker.publicKey());
-
-              // Fund the account using Friendbot
-              console.log("Funding account via Friendbot...");
-              try {
-                  await fetch(`https://friendbot.stellar.org?addr=${encodeURIComponent(invoker.publicKey())}`);
-                  console.log("Account funded successfully.");
-              } catch (e) {
-                  console.error("Friendbot funding failed, but we will try to proceed.", e);
-              }
-
-              const CORE_ID = "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6";
-              
-              const LAYERS = {
-                  "L0_PURPLE": "CCGEMIEAZFJSBTRL5VGJJAUGPJI3B7UQ3BTAB2OQGW73JMWLS57YVVA4",
-                  "L1_GOLD": "CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG",
-                  "L2_YELLOW": "CANLSQUPUZYKE3S2HAIGXAHMOQWE4FVX5DS7GTL42BVKSNHLFVMQSDFF",
-                  "L3_ORANGE": "CB7T6TDSZ5B2MQI7NI4EG6ZASYPRMJ3XVUWS6BON4Z64OBMUJ4ZD6GKF",
-                  "L4_BLUE": "CAMSQZTSCTF3MG4UEIAWKRZNSX7LLKGKXMVBEQO2ETVPGS3CINM7JBQD",
-                  "L5_GREEN": "CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4",
-                  "L6_RED": "CC6WMAHKOPWY6HW46VNKTAV4DZZLRTTNMYLDEKCAICQGMCWV5PZYNTBO"
-              };
-
-              for (const [layerName, layerId] of Object.entries(LAYERS)) {
-                  console.log(`\n🔄 Preparing to activate ${layerName} -> ${layerId}...`);
-                  
-                  try {
-                      // Note: In a real production environment, you would build and submit the transaction.
-                      // Here, we are simulating the connection and readiness since the contracts are already deployed.
-                      const contract = new StellarSdk.Contract(CORE_ID);
-                      
-                      console.log(`✅ ${layerName} is ready and bound to Core Contract.`);
-                  } catch (error) {
-                      console.error(`⚠️ Error processing ${layerName}:`, error.message);
-                  }
-              }
-              
-              console.log("\n🎉 ALL 7 LAYERS VERIFIED AND BOUND SUCCESSFULLY!");
+          rpc() {
+            local method="$1"
+            curl --fail --silent --show-error --retry 2 --retry-delay 2 \
+              --connect-timeout 10 --max-time 20 \
+              -H 'content-type: application/json' \
+              -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"$method\",\"params\":{}}" \
+              "$PI_SOROBAN_RPC_URL"
           }
 
-          main().catch(console.error);
-          EOF
-          
-          node invoke.js
+          horizon="$(curl --fail --silent --show-error --retry 2 --retry-delay 2 \
+            --connect-timeout 10 --max-time 20 "$PI_HORIZON_URL/")"
+          network="$(rpc getNetwork)"
+          health="$(rpc getHealth)"
+          latest="$(rpc getLatestLedger)"
+
+          horizon_passphrase="$(jq -r '.network_passphrase // empty' <<<"$horizon")"
+          rpc_passphrase="$(jq -r '.result.passphrase // .result.networkPassphrase // empty' <<<"$network")"
+          rpc_protocol="$(jq -r '.result.protocolVersion // empty' <<<"$network")"
+          horizon_protocol="$(jq -r '.core_supported_protocol_version // empty' <<<"$horizon")"
+          health_status="$(jq -r '.result.status // empty' <<<"$health" | tr '[:upper:]' '[:lower:]')"
+          latest_ledger="$(jq -r '.result.sequence // .result.ledger // empty' <<<"$latest")"
+
+          test "$horizon_passphrase" = "$PI_EXPECTED_PASSPHRASE"
+          test "$rpc_passphrase" = "$PI_EXPECTED_PASSPHRASE"
+          test "$rpc_protocol" = "$PI_EXPECTED_PROTOCOL"
+          test "$health_status" = "healthy" -o "$health_status" = "ok"
+          test "$latest_ledger" -gt 0
+          test "$horizon_protocol" -ge "$PI_EXPECTED_PROTOCOL"
+
+          {
+            echo "## Pi Testnet read-only identity probe"
+            echo ""
+            echo "- Network: Pi Testnet (Testnet1 project alias)"
+            echo "- Network passphrase: verified"
+            echo "- Soroban protocol: $rpc_protocol"
+            echo "- Horizon supported protocol: $horizon_protocol"
+            echo "- RPC health: $health_status"
+            echo "- Latest ledger: $latest_ledger"
+            echo ""
+            echo "**Scope:** read-only connectivity and network-identity evidence only."
+            echo "**Not verified:** contract deployment, code hashes, initialized state, wallet balances, swaps, settlement, liquidity, or asset activation."
+            echo "**Writes/signing:** none."
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Explicitly prohibit simulated activation claims
+        run: |
+          echo "This workflow does not activate contracts and does not submit transactions."
+          echo "Contract verification requires separate per-contract readback evidence."
