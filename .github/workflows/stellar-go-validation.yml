@@ -1,0 +1,77 @@
+name: Stellar Go Modules Validation (Read Only)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "stellar-horizon/**"
+      - "stellar-rpc/**"
+      - ".github/workflows/stellar-go-validation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "stellar-horizon/**"
+      - "stellar-rpc/**"
+      - ".github/workflows/stellar-go-validation.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stellar-go-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Go module tests and vet
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Go
+        uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
+        with:
+          go-version-file: stellar-horizon/go.mod
+          cache: true
+          cache-dependency-path: |
+            stellar-horizon/go.sum
+            stellar-rpc/go.sum
+      - name: Verify module graphs
+        run: |
+          cd stellar-horizon
+          go mod verify
+          cd ../stellar-rpc
+          go mod verify
+      - name: Test stellar-horizon
+        working-directory: stellar-horizon
+        run: go test ./...
+      - name: Test stellar-rpc
+        working-directory: stellar-rpc
+        run: go test ./...
+      - name: Vet Go modules
+        run: |
+          cd stellar-horizon
+          go vet ./...
+          cd ../stellar-rpc
+          go vet ./...
+
+# This workflow performs validation only. It does not sign or submit transactions,
+# deploy contracts, or write to Pi Testnet/Mainnet.
