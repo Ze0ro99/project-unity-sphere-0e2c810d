@@ -7,6 +7,12 @@ on:
       - "stellar-horizon/**"
       - "stellar-rpc/**"
       - ".github/workflows/stellar-go-validation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "stellar-horizon/**"
+      - "stellar-rpc/**"
+      - ".github/workflows/stellar-go-validation.yml"
 
 permissions:
   contents: read
