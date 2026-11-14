@@ -76,10 +76,11 @@ function compactEvent(event) {
 }
 
 async function githubRepositoryFeed(repository) {
-  const [pullsResult, commitsResult, runsResult] = await Promise.allSettled([
+  const [pullsResult, commitsResult, runsResult, eventsResult] = await Promise.allSettled([
     getJson(`https://api.github.com/repos/${repository}/pulls?state=open&per_page=8`),
     getJson(`https://api.github.com/repos/${repository}/commits?per_page=1`),
     getJson(`https://api.github.com/repos/${repository}/actions/runs?per_page=1`),
+    getJson(`https://api.github.com/repos/${repository}/events?per_page=8`),
   ]);
 
   const pulls = pullsResult.status === "fulfilled"
@@ -91,8 +92,11 @@ async function githubRepositoryFeed(repository) {
   const run = runsResult.status === "fulfilled"
     ? runsResult.value.workflow_runs?.[0] || null
     : null;
+  const events = eventsResult.status === "fulfilled" && Array.isArray(eventsResult.value)
+    ? eventsResult.value.map(compactEvent)
+    : [];
   const failures = [
-    pullsResult, commitsResult, runsResult,
+    pullsResult, commitsResult, runsResult, eventsResult,
   ].filter((result) => result.status === "rejected").length;
 
   return {
@@ -107,6 +111,7 @@ async function githubRepositoryFeed(repository) {
       url: commit.html_url || null,
     } : null,
     latestWorkflow: run ? compactRun(run) : null,
+    recentEvents: events,
     failedSources: failures,
   };
 }
