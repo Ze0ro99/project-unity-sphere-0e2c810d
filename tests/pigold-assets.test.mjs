@@ -18,5 +18,6 @@ test("each proposed asset has a unique ID, symbol and explicit color", () => {
     assert.match(asset.color, /^#[0-9a-f]{6}$/i);
     assert.match(asset.logoPath, /^\/images\/(blue|gold|green|orange|purple|red|yellow)\.png$/);
     assert.equal(asset.status, "design");
+    assert.ok(asset.legacyMapping.length > 10);
   }
 });
