@@ -22,3 +22,7 @@ strip = "symbols"
 panic = "abort"
 codegen-units = 1
 lto = true
+
+# Keep this contract independently buildable; the parent contracts/Cargo.toml
+# is a legacy package manifest with a missing library source.
+[workspace]
