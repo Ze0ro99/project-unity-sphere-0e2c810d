@@ -38,9 +38,9 @@ test("all portal routes mount one canonical read-only status component", async (
   const app = await fs.readFile(new URL("../src/App.tsx", import.meta.url), "utf8");
   const component = await fs.readFile(new URL("../src/components/CanonicalPortalSync.tsx", import.meta.url), "utf8");
   assert.match(app, /<CanonicalPortalSync \/>/);
-  assert.match(component, /functions\/v1\/pirc-portal-feed/);
+  assert.match(component, /VITE_PIRC_PORTAL_FEED_URL/);
   assert.match(component, /30_000/);
-  assert.match(component, /no mock replacement is used/);
+  assert.match(component, /No local mock data is substituted/);
 });
 
 test("Developer Studio labels incomplete capabilities instead of simulating them", async () => {
@@ -69,16 +69,15 @@ test("legacy token adapter returns unknowns until chain read-back exists", async
   const fs = await import("node:fs/promises");
   const source = await fs.readFile(new URL("../assets/js/stellarConfig.js", import.meta.url), "utf8");
   assert.match(source, /status: "UNVERIFIED"/);
-  assert.match(source, /qwf_eff: null/);
-  assert.match(source, /phi_solvency: null/);
-  assert.match(source, /ref_capacity: null/);
+  assert.match(source, /attributes: null/);
+  assert.match(source, /verificationStatus: "UNVERIFIED"/);
   assert.doesNotMatch(source, /qwf_eff: 128|phi_solvency: true|ref_capacity: 32779800|status: "ACTIVE"/);
 });
 
 test("legacy bulk merge script is fail-closed and cannot push main", async () => {
   const fs = await import("node:fs/promises");
   const source = await fs.readFile(new URL("../pirc_matrix_unifier_and_sync.sh", import.meta.url), "utf8");
-  assert.match(source, /DEPRECATED AND DISABLED/);
+  assert.match(source, /DEPRECATED \/ FAIL-CLOSED/);
   assert.match(source, /exit 2/);
   assert.doesNotMatch(source, /git push origin main|git merge --no-ff/);
   assert.doesNotMatch(source, /qwf_eff: 128|status: "ACTIVE"/);
