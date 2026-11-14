@@ -28,24 +28,29 @@ export function quoteConstantProduct(
   reserveOut: number,
   amountIn: number,
   feeBps: number,
-  decimals = 7,
+  inputDecimals = 7,
+  outputDecimals = inputDecimals,
 ): AmmQuote {
   if (!Number.isInteger(feeBps) || feeBps < 0 || feeBps >= 10_000) {
     throw new RangeError("feeBps must be an integer in [0, 9999]");
   }
-  if (!Number.isInteger(decimals) || decimals < 0 || decimals > 12) {
-    throw new RangeError("decimals must be an integer in [0, 12]");
+  if (!Number.isInteger(inputDecimals) || inputDecimals < 0 || inputDecimals > 12) {
+    throw new RangeError("inputDecimals must be an integer in [0, 12]");
   }
-  const scale = 10n ** BigInt(decimals);
+  if (!Number.isInteger(outputDecimals) || outputDecimals < 0 || outputDecimals > 12) {
+    throw new RangeError("outputDecimals must be an integer in [0, 12]");
+  }
+  const inputScale = 10n ** BigInt(inputDecimals);
+  const outputScale = 10n ** BigInt(outputDecimals);
   const zero = { out: 0, priceImpactBps: 0, effPrice: 0, fee: 0 };
   if (amountIn < 0 || reserveIn < 0 || reserveOut < 0) {
     throw new RangeError("AMM quantities must be non-negative");
   }
   if (amountIn === 0 || reserveIn === 0 || reserveOut === 0) return zero;
 
-  const reserveInAtomic = toAtomic(reserveIn, scale);
-  const reserveOutAtomic = toAtomic(reserveOut, scale);
-  const amountInAtomic = toAtomic(amountIn, scale);
+  const reserveInAtomic = toAtomic(reserveIn, inputScale);
+  const reserveOutAtomic = toAtomic(reserveOut, outputScale);
+  const amountInAtomic = toAtomic(amountIn, inputScale);
   if (reserveInAtomic <= 0n || reserveOutAtomic <= 0n || amountInAtomic <= 0n) return zero;
 
   const feeRate = BigInt(feeBps);
@@ -63,12 +68,12 @@ export function quoteConstantProduct(
     ? Number((impactNumerator * BPS) / impactDenominator)
     : 0;
 
-  const out = Number(amountOutAtomic) / Number(scale);
-  const normalizedInput = Number(amountInAtomic) / Number(scale);
+  const out = Number(amountOutAtomic) / Number(outputScale);
+  const normalizedInput = Number(amountInAtomic) / Number(inputScale);
   return {
     out,
     priceImpactBps: impactBps,
     effPrice: out / normalizedInput,
-    fee: Number(feeAtomic) / Number(scale),
+    fee: Number(feeAtomic) / Number(inputScale),
   };
 }
