@@ -1,0 +1,404 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ze0ro99.github.io/PiRC/schemas/asset-contract-registry.schema.json",
+  "title": "PiRC Asset and Contract Registry",
+  "description": "Canonical, fail-closed registry for PiRC assets, Soroban contracts, and pair-specific liquidity pools. A registry entry is not proof of deployment unless status is verified and evidence is present.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "registry_id",
+    "network",
+    "assets",
+    "pools"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "registry_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "network_id",
+        "network_passphrase",
+        "rpc_url"
+      ],
+      "properties": {
+        "network_id": {
+          "const": "pi-testnet"
+        },
+        "network_passphrase": {
+          "const": "Pi Testnet"
+        },
+        "rpc_url": {
+          "const": "https://rpc.testnet.minepi.com"
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/asset"
+      }
+    },
+    "pools": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/pool"
+      }
+    },
+    "economic_policy": {
+      "$ref": "#/$defs/economic_policy"
+    }
+  },
+  "$defs": {
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "interface_version"
+      ],
+      "properties": {
+        "contract_id": {
+          "type": "string",
+          "pattern": "^C[A-Z2-7]{55}$"
+        },
+        "wasm_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "interface_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      }
+    },
+    "authorization_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requires_admin_auth",
+        "approval_required_for_policy_changes",
+        "allowed_operator_addresses"
+      ],
+      "properties": {
+        "requires_admin_auth": {
+          "const": true
+        },
+        "approval_required_for_policy_changes": {
+          "const": true
+        },
+        "allowed_operator_addresses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^G[A-Z2-7]{55}$"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "deployment_transaction_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "readback_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "readback_method": {
+          "type": "string",
+          "enum": [
+            "getContractInfo+getLedgerEntries",
+            "stellar-cli-readback",
+            "independent-rpc-readback"
+          ]
+        },
+        "readback_record_uri": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "economic_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_version",
+        "weight_scale_bps",
+        "factor_weights",
+        "oracle_policy",
+        "rounding_policy"
+      ],
+      "properties": {
+        "policy_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "weight_scale_bps": {
+          "const": 10000
+        },
+        "factor_weights": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "factor_id",
+              "weight_bps"
+            ],
+            "properties": {
+              "factor_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9._-]{1,63}$"
+              },
+              "weight_bps": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000
+              }
+            }
+          }
+        },
+        "oracle_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "min_sources",
+            "max_age_seconds",
+            "max_deviation_bps",
+            "aggregation",
+            "missing_data_action"
+          ],
+          "properties": {
+            "min_sources": {
+              "type": "integer",
+              "minimum": 3
+            },
+            "max_age_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 86400
+            },
+            "max_deviation_bps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5000
+            },
+            "aggregation": {
+              "const": "median"
+            },
+            "missing_data_action": {
+              "const": "reject"
+            }
+          }
+        },
+        "rounding_policy": {
+          "const": "largest_remainder"
+        }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_key",
+        "layer_id",
+        "symbol",
+        "asset_type",
+        "deployment_status",
+        "contract",
+        "authorization_policy"
+      ],
+      "properties": {
+        "asset_key": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "layer_id": {
+          "type": "string",
+          "pattern": "^[A-Z0-9_-]{2,32}$"
+        },
+        "symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12
+        },
+        "asset_type": {
+          "type": "string",
+          "enum": [
+            "native",
+            "classic_asset",
+            "soroban_token",
+            "utility",
+            "governance",
+            "reserve"
+          ]
+        },
+        "deployment_status": {
+          "type": "string",
+          "enum": [
+            "proposed",
+            "unverified",
+            "verified",
+            "suspended"
+          ]
+        },
+        "contract": {
+          "$ref": "#/$defs/contract"
+        },
+        "authorization_policy": {
+          "$ref": "#/$defs/authorization_policy"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "deployment_status": {
+                "const": "verified"
+              }
+            },
+            "required": [
+              "deployment_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "contract": {
+                "required": [
+                  "contract_id",
+                  "wasm_hash",
+                  "interface_version"
+                ]
+              },
+              "evidence": {
+                "required": [
+                  "deployment_transaction_hash",
+                  "readback_at",
+                  "readback_method"
+                ]
+              }
+            },
+            "required": [
+              "evidence"
+            ]
+          }
+        }
+      ]
+    },
+    "pool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pool_key",
+        "pool_contract_id",
+        "asset_a",
+        "asset_b",
+        "fee_bps",
+        "deployment_status",
+        "reserve_accounting_id"
+      ],
+      "properties": {
+        "pool_key": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "pool_contract_id": {
+          "type": "string",
+          "pattern": "^C[A-Z2-7]{55}$"
+        },
+        "asset_a": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 64
+        },
+        "asset_b": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 64
+        },
+        "fee_bps": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "deployment_status": {
+          "type": "string",
+          "enum": [
+            "proposed",
+            "unverified",
+            "verified",
+            "suspended"
+          ]
+        },
+        "reserve_accounting_id": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 128
+        },
+        "wasm_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "readback_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deployment_transaction_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "readback_method": {
+          "type": "string",
+          "enum": [
+            "getContractInfo+getLedgerEntries",
+            "stellar-cli-readback",
+            "independent-rpc-readback"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "deployment_status": {
+                "const": "verified"
+              }
+            },
+            "required": [
+              "deployment_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "wasm_hash",
+              "deployment_transaction_hash",
+              "readback_at",
+              "readback_method"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
