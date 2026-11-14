@@ -7,7 +7,7 @@ test("PiGold catalogue has one coordinator and six independent component assets"
   assert.equal(PIGOLD_COMPONENTS.length, 6);
   assert.equal(PIGOLD_ASSETS.filter((asset) => asset.relationship === "coordinator").length, 1);
   assert.deepEqual(PIGOLD_COMPONENTS.map((asset) => asset.id).sort(), [
-    "picash", "pibank", "piexchange", "pigovernance", "pipurple", "piyellow",
+    "pibank", "picash", "piexchange", "pigovernance", "pipurple", "piyellow",
   ]);
 });
 
