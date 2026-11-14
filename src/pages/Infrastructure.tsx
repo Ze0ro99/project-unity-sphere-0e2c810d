@@ -9,7 +9,7 @@ import {
   purgeCache,
   type CacheStats,
 } from "@/lib/infra";
-import { fetchLatestLedgers, HORIZON_MAINNET } from "@/lib/pi";
+import { fetchLatestLedgers, HORIZON_TESTNET } from "@/lib/pi";
 import { useI18n } from "@/i18n";
 
 const TIER_COLOR: Record<string, string> = {
@@ -33,7 +33,7 @@ export default function Infrastructure() {
   const refresh = async () => {
     setBusy(true);
     try {
-      await cached("ledgers:mainnet", () => fetchLatestLedgers(HORIZON_MAINNET, 10));
+      await cached("ledgers:testnet1", () => fetchLatestLedgers(HORIZON_MAINNET, 10));
       await cached("layers:registry", async () => CDN_POLICIES);
       await cached("standards:index", async () => WAREHOUSE);
     } catch {
