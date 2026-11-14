@@ -106,6 +106,7 @@ export default function PiGold() {
                 <span className="chip ml-auto">DESIGN</span>
               </div>
               <p className="pl-2 mt-3 text-xs leading-relaxed text-muted">{asset.description}</p>
+              <p className="pl-2 mt-2 text-[10px] leading-relaxed text-muted/80">Legacy mapping: {asset.legacyMapping}</p>
               {asset.relationship === "coordinator" && <div className="pl-2 mt-3 text-[11px] text-[#e7c982] flex items-center gap-1"><Coins size={12} /> Coordinates; does not custody component reserves</div>}
             </article>
           ))}
