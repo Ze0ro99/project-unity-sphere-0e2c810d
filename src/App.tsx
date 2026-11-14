@@ -14,7 +14,7 @@ import MicroDevice from "./pages/MicroDevice";
 import Network from "./pages/Network";
 import PiDEX from "./pages/PiDEX";
 import PiGold from "./pages/PiGold";
-import EcosystemSync from "@/components/EcosystemSync";
+import CanonicalPortalSync from "@/components/CanonicalPortalSync";
 import Testnet from "./pages/Testnet";
 import Standards from "./pages/Standards";
 import Bn254 from "./pages/Bn254";
@@ -59,6 +59,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 max-w-[1800px] w-full mx-auto px-3 sm:px-4 py-4">
+        <CanonicalPortalSync />
         <Routes>
           <Route path="/" element={<PiDEX />} />
           <Route path="/pidex" element={<PiDEX />} />
