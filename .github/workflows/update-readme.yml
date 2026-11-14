@@ -1,44 +1,55 @@
-name: Auto-Update PiRC Table in README
+name: PiRC README table consistency check
 
 on:
-  push:
+  pull_request:
+    branches: [main]
     paths:
-      - 'docs/**'
-      - 'scripts/generate_pirc_table.py'
-      - 'scripts/update_readme_table.py'
-      - 'README.md'
+      - "docs/**"
+      - "scripts/generate_pirc_table.py"
+      - "scripts/update_readme_table.py"
+      - "README.md"
+      - ".github/workflows/update-readme.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "scripts/generate_pirc_table.py"
+      - "scripts/update_readme_table.py"
+      - "README.md"
+      - ".github/workflows/update-readme.yml"
   workflow_dispatch:
 
-jobs:
-  update-table:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+permissions:
+  contents: read
 
+concurrency:
+  group: pirc-readme-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+          persist-credentials: false
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
-      - name: Generate PiRC Table
-        run: python scripts/generate_pirc_table.py > table.md
-
-      - name: Update README with new table
-        run: python scripts/update_readme_table.py
-
-      - name: Commit and Push if changed
+          python-version: "3.12"
+      - name: Verify README table markers
         run: |
-          git config user.name "PiRC-AutoBot"
-          git config user.email "bot@ze0ro99.dev"
-          if ! git diff --quiet README.md; then
-            git add README.md
-            git commit -m "chore: auto-update PiRC proposals table [skip ci]"
-            git push
-          else
-            echo "No changes to README.md"
+          grep -q '<!-- TABLE_START -->' README.md
+          grep -q '<!-- TABLE_END -->' README.md
+      - name: Regenerate proposal table in the ephemeral workspace
+        run: |
+          python scripts/generate_pirc_table.py > table.md
+          python scripts/update_readme_table.py
+      - name: Fail if README needs a reviewed update
+        run: |
+          if ! git diff --quiet -- README.md; then
+            echo "::error::README proposal table is stale. Update it in a reviewed pull request; this workflow never commits or pushes."
+            git diff --stat -- README.md
+            exit 1
           fi
+          echo "README proposal table is current."
