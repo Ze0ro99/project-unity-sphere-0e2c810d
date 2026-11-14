@@ -13,6 +13,7 @@ import Layers7 from "./pages/Layers7";
 import MicroDevice from "./pages/MicroDevice";
 import Network from "./pages/Network";
 import PiDEX from "./pages/PiDEX";
+import PiGold from "./pages/PiGold";
 import Testnet from "./pages/Testnet";
 import Standards from "./pages/Standards";
 import Bn254 from "./pages/Bn254";
@@ -29,6 +30,7 @@ import Oracle from "./pages/Oracle";
 
 const NAV = [
   { to: "/", key: "nav.pidex", icon: ArrowDownUp },
+  { to: "/pigold", key: "PiGold", icon: Layers },
   { to: "/gateways", key: "nav.gateways", icon: Boxes },
   { to: "/sovereign", key: "nav.sovereign", icon: Sigma },
   { to: "/bridge", key: "nav.bridge", icon: ArrowLeftRight },
@@ -59,6 +61,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<PiDEX />} />
           <Route path="/pidex" element={<PiDEX />} />
+          <Route path="/pigold" element={<PiGold />} />
           <Route path="/gateways" element={<Gateways />} />
           <Route path="/sovereign" element={<Sovereign />} />
           <Route path="/bridge" element={<Bridge />} />
