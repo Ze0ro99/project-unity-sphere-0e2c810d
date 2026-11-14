@@ -13,7 +13,8 @@
     "gate:release": "node scripts/release-gate.mjs",
     "test:amm": "node --experimental-strip-types --test tests/amm-math.test.mjs",
     "test:pigold": "node --experimental-strip-types --test tests/pigold-*.test.mjs tests/netlify-ecosystem-feed.test.mjs",
-    "test:token-layers": "node --test tests/token-layers.test.mjs"
+    "test:token-layers": "node --test tests/token-layers.test.mjs",
+    "test:asset-integrity": "node --test tests/asset-integrity.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
