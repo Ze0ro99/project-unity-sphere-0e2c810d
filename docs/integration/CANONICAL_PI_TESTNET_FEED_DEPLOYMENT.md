@@ -12,7 +12,7 @@ Do not query invented columns such as `network_id`, `start_ledger`, `paging_curs
 
 ## Frontend build environment
 
-Set these variables in the actual deployment provider (Netlify/Vercel) before expecting the shared panel to load:
+Netlify is configured in `netlify.toml` with the public feed URL and the project's legacy anon JWT key. The anon key is designed for browser use and RLS still denies direct access to private tables. For Vercel or another provider, set these variables in the deployment environment:
 
 - `VITE_PIRC_PORTAL_FEED_URL=https://naeuosudklqsgeghafkw.supabase.co/functions/v1/pirc-portal-feed`
 - `VITE_PIRC_PORTAL_FEED_ANON_KEY=<the project's public legacy anon JWT key>`
