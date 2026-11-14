@@ -55,6 +55,16 @@ test("Developer Studio labels incomplete capabilities instead of simulating them
   assert.match(gateways, /PIRC-2 Subscription Gateway/);
 });
 
+test("portal manifest and capability catalog share the canonical network/feed identity", async () => {
+  const fs = await import("node:fs/promises");
+  const manifest = JSON.parse(await fs.readFile(new URL("../configs/pirc-integration-manifest.json", import.meta.url), "utf8"));
+  const catalog = JSON.parse(await fs.readFile(new URL("../assets/registry/developer-capability-catalog.json", import.meta.url), "utf8"));
+  assert.equal(manifest.asset_synchronization.network_id, "pi-testnet");
+  assert.equal(manifest.portal_data_gateway.canonical_network_id, "pi-testnet");
+  assert.equal(manifest.portal_data_gateway.deployed_and_runtime_verified, false);
+  assert.ok(catalog.capabilities.some((item) => item.id === "portals.canonical-feed" && item.endpoint === "GET /functions/v1/pirc-portal-feed"));
+});
+
 test("Netlify API route precedes the SPA fallback", async () => {
   const fs = await import("node:fs/promises");
   const config = await fs.readFile(new URL("../netlify.toml", import.meta.url), "utf8");
