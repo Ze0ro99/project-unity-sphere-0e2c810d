@@ -15,8 +15,8 @@ Stellar CAP-38 / Protocol 18 introduced native constant-product liquidity-pool l
 From the SmartContracts repository root, using the canonical source in `main`:
 
 ```bash
-cargo test --locked --manifest-path contracts/pidex_amm/Cargo.toml
-cargo build --locked --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
+cargo test --manifest-path contracts/pidex_amm/Cargo.toml
+cargo build --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
 sha256sum target/wasm32-unknown-unknown/release/pidex_amm.wasm
 ```
 
