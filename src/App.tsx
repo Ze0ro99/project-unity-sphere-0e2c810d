@@ -28,6 +28,7 @@ import Economics from "./pages/Economics";
 import EconomicGateways from "./pages/EconomicGateways";
 import Infrastructure from "./pages/Infrastructure";
 import Oracle from "./pages/Oracle";
+import DeveloperStudio from "./pages/DeveloperStudio";
 
 const NAV = [
   { to: "/", key: "nav.pidex", icon: ArrowDownUp },
@@ -65,6 +66,7 @@ export default function App() {
           <Route path="/pidex" element={<PiDEX />} />
           <Route path="/pigold" element={<PiGold />} />
           <Route path="/gateways" element={<Gateways />} />
+          <Route path="/developer-studio" element={<DeveloperStudio />} />
           <Route path="/sovereign" element={<Sovereign />} />
           <Route path="/bridge" element={<Bridge />} />
           <Route path="/governance" element={<Governance />} />
