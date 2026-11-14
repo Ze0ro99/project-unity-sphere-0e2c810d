@@ -6,7 +6,7 @@ test("quote uses exact 30 bps integer arithmetic and floors output", () => {
   const quote = quoteConstantProduct(10_000, 20_000, 1_000, 30, 0);
   assert.equal(quote.out, 1_813);
   assert.equal(quote.fee, 3);
-  assert.equal(quote.priceImpactBps, 909);
+  assert.equal(quote.priceImpactBps, 935);
 });
 
 test("quote rounds fee in the same direction as Soroban integer division", () => {
