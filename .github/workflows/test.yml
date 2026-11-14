@@ -6,6 +6,8 @@ on:
     paths:
       - 'src/lib/denomination.ts'
       - 'tests/denomination.test.mjs'
+      - 'assets/js/token_layers.js'
+      - 'tests/token-layers.test.mjs'
       - 'api/network_adapters.py'
       - 'scripts/test_network_endpoints.py'
       - 'simulator/stochastic_abm_simulator.py'
@@ -36,6 +38,9 @@ jobs:
 
       - name: Test exact Pi denomination
         run: npm run test:denomination
+
+      - name: Test seven-layer denomination model
+        run: npm run test:token-layers
 
       - name: Set up Python
         uses: actions/setup-python@v5
