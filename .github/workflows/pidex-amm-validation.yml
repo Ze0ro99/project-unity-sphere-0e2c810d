@@ -1,0 +1,45 @@
+name: PiDEX AMM Contract Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "contracts/pidex_amm/**"
+      - ".github/workflows/pidex-amm-validation.yml"
+  push:
+    branches: [main]
+    paths:
+      - "contracts/pidex_amm/**"
+      - ".github/workflows/pidex-amm-validation.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pidex-amm-validation-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: PiDEX AMM unit tests and Wasm build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Rust cache
+        uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.1
+        with:
+          workspaces: contracts/pidex_amm
+      - name: Check formatting
+        run: cargo fmt --manifest-path contracts/pidex_amm/Cargo.toml -- --check
+      - name: Run contract unit tests
+        run: cargo test --locked --manifest-path contracts/pidex_amm/Cargo.toml
+      - name: Build Testnet Wasm artifact
+        run: cargo build --locked --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
+
+# Build and test only. No signing, deployment, minting, transfer or network write.
