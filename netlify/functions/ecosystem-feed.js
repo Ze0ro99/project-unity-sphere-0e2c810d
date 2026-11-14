@@ -6,7 +6,7 @@ const REPOSITORIES = [
 const PI_RPC = "https://rpc.testnet.minepi.com";
 const PI_HORIZON = "https://api.testnet.minepi.com";
 const EXPECTED_PASSPHRASE = "Pi Testnet";
-const CACHE_SECONDS = 45;
+const CACHE_SECONDS = 600;
 
 const jsonHeaders = {
   "Content-Type": "application/json; charset=utf-8",
@@ -56,25 +56,52 @@ function compactRun(run) {
   };
 }
 
+function compactEvent(event) {
+  const payload = event.payload || {};
+  const pull = payload.pull_request;
+  const issue = payload.issue;
+  const release = payload.release;
+  return {
+    id: String(event.id || ""),
+    type: String(event.type || "UnknownEvent"),
+    actor: String(event.actor?.login || "unknown"),
+    createdAt: event.created_at || null,
+    action: payload.action ? String(payload.action).slice(0, 40) : null,
+    title: String(pull?.title || issue?.title || release?.name || "").slice(0, 140) || null,
+    number: pull?.number || issue?.number || null,
+    ref: payload.ref ? String(payload.ref).slice(0, 160) : null,
+    commitCount: Array.isArray(payload.commits) ? payload.commits.length : null,
+    url: pull?.html_url || issue?.html_url || release?.html_url || null,
+  };
+}
+
 async function githubRepositoryFeed(repository) {
-  const [pullsResult, commitsResult, runsResult] = await Promise.allSettled([
-    getJson(`https://api.github.com/repos/${repository}/pulls?state=open&per_page=8`),
-    getJson(`https://api.github.com/repos/${repository}/commits?per_page=1`),
+  const [runsResult, eventsResult] = await Promise.allSettled([
     getJson(`https://api.github.com/repos/${repository}/actions/runs?per_page=1`),
+    getJson(`https://api.github.com/repos/${repository}/events?per_page=8`),
   ]);
 
-  const pulls = pullsResult.status === "fulfilled"
-    ? pullsResult.value.map(compactPull)
+  const rawEvents = eventsResult.status === "fulfilled" && Array.isArray(eventsResult.value)
+    ? eventsResult.value
     : [];
-  const commit = commitsResult.status === "fulfilled"
-    ? commitsResult.value[0]
-    : null;
+  const pulls = rawEvents
+    .filter((event) => event.type === "PullRequestEvent" && event.payload?.pull_request?.state === "open")
+    .map((event) => compactPull(event.payload.pull_request))
+    .filter((pull, index, all) => all.findIndex((item) => item.number === pull.number) === index)
+    .slice(0, 8);
+  const pushEvent = rawEvents.find((event) => event.type === "PushEvent" && Array.isArray(event.payload?.commits) && event.payload.commits.length > 0);
+  const pushedCommit = pushEvent?.payload.commits?.at(-1) || null;
+  const commit = pushedCommit ? {
+    sha: pushedCommit.sha,
+    commit: { message: pushedCommit.message, committer: { date: pushEvent.created_at } },
+    html_url: `https://github.com/${repository}/commit/${pushedCommit.sha}`,
+  } : null;
   const run = runsResult.status === "fulfilled"
     ? runsResult.value.workflow_runs?.[0] || null
     : null;
-  const failures = [
-    pullsResult, commitsResult, runsResult,
-  ].filter((result) => result.status === "rejected").length;
+  const events = rawEvents.map(compactEvent);
+  const failures = [runsResult, eventsResult]
+    .filter((result) => result.status === "rejected").length;
 
   return {
     repository,
@@ -88,6 +115,7 @@ async function githubRepositoryFeed(repository) {
       url: commit.html_url || null,
     } : null,
     latestWorkflow: run ? compactRun(run) : null,
+    recentEvents: events,
     failedSources: failures,
   };
 }
@@ -165,7 +193,7 @@ exports.handler = async (event) => {
       try {
         return await githubRepositoryFeed(repository);
       } catch {
-        return { repository, status: "unavailable", openPullRequests: [], latestCommit: null, latestWorkflow: null, failedSources: 3 };
+        return { repository, status: "unavailable", openPullRequests: [], latestCommit: null, latestWorkflow: null, recentEvents: [], failedSources: 2 };
       }
     })),
     piTestnetStatus().catch(() => ({

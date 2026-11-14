@@ -7,6 +7,7 @@ type RepoFeed = {
   openPullRequests: Array<{ number: number; title: string; draft: boolean; merged: boolean; url: string | null }>;
   latestCommit: { shortSha: string; message: string; committedAt: string | null; url: string | null } | null;
   latestWorkflow: { name: string; status: string; conclusion: string | null; url: string | null } | null;
+  recentEvents: Array<{ id: string; type: string; actor: string; createdAt: string | null; action: string | null; title: string | null; number: number | null; ref: string | null; commitCount: number | null; url: string | null }>;
 };
 type Feed = {
   generatedAt: string;
@@ -38,12 +39,13 @@ export default function EcosystemSync() {
 
   useEffect(() => {
     void refresh();
-    const timer = window.setInterval(() => void refresh(), 60_000);
+    const timer = window.setInterval(() => void refresh(), 600_000);
     return () => window.clearInterval(timer);
   }, [refresh]);
 
   const openCount = feed?.repositories.reduce((sum, repo) => sum + repo.openPullRequests.length, 0) ?? 0;
   const failed = feed?.repositories.filter((repo) => repo.status !== "ok").length ?? 0;
+  const recentEvents = feed?.repositories.flatMap((repo) => repo.recentEvents.map((event) => ({ ...event, repository: repo.repository.split("/")[1] }))).sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")).slice(0, 8) ?? [];
   const networkLabel = feed?.piTestnet.identityVerified ? "TESTNET ID VERIFIED" : feed?.piTestnet.status || "WAITING";
 
   return (
@@ -92,6 +94,38 @@ export default function EcosystemSync() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {feed && recentEvents.length > 0 && (
+        <div className="mt-3 border-t border-border/70 pt-3">
+          <div className="mb-2 text-[11px] font-semibold text-muted">Recent repository events</div>
+          <div className="grid gap-1 sm:grid-cols-2">
+            {recentEvents.map((event) => (
+              <div key={event.id} className="min-w-0 rounded-md bg-panel2/40 px-2 py-1.5 text-[10px]">
+                <span className="font-semibold">{event.repository}</span>
+                <span className="text-muted"> · {event.type.replace("Event", "")}{event.action ? ` · ${event.action}` : ""}</span>
+                {event.title && <div className="truncate text-muted">{event.title}</div>}
+                {event.ref && <div className="truncate text-muted">{event.ref}{event.commitCount != null ? ` · ${event.commitCount} commits` : ""}</div>}
+                <div className="text-muted/70">{event.actor} · {event.createdAt ? new Date(event.createdAt).toLocaleString() : "time unavailable"}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {feed && recentEvents.length > 0 && (
+        <div className="mt-3 border-t border-border/70 pt-3">
+          <div className="mb-2 text-[11px] font-semibold text-muted">Recent repository events</div>
+          <div className="grid gap-1 sm:grid-cols-2">
+            {recentEvents.map((event) => (
+              <div key={event.id} className="min-w-0 rounded-md bg-panel2/40 px-2 py-1.5 text-[10px]">
+                <span className="font-semibold">{event.repository}</span>
+                <span className="text-muted"> · {event.type.replace("Event", "")}{event.action ? ` · ${event.action}` : ""}</span>
+                {event.title && <div className="truncate text-muted">{event.title}</div>}
+                {event.ref && <div className="truncate text-muted">{event.ref}{event.commitCount != null ? ` · ${event.commitCount} commits` : ""}</div>}
+                <div className="text-muted/70">{event.actor} · {event.createdAt ? new Date(event.createdAt).toLocaleString() : "time unavailable"}</div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
       {feed && <p className="mt-2 text-[10px] text-muted">Updated {new Date(feed.generatedAt).toLocaleTimeString()} · Read-only API · no signing or Mainnet writes{failed ? ` · ${failed} partial repository feeds` : ""}</p>}
