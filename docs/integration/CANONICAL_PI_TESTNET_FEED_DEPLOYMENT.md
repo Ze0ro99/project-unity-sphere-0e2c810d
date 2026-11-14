@@ -12,10 +12,10 @@ Do not query invented columns such as `network_id`, `start_ledger`, `paging_curs
 
 ## Frontend build environment
 
-Netlify is configured in `netlify.toml` with the public feed URL and the project's legacy anon JWT key. The anon key is designed for browser use and RLS still denies direct access to private tables. For Vercel or another provider, set these variables in the deployment environment:
+Netlify's public feed URL is configured in `netlify.toml`. Set the project's legacy anon JWT key as a deployment environment variable in the Netlify dashboard; do not commit it because Gitleaks correctly detects JWTs even when they are intended for browser use. The anon key is designed for browser use and RLS still denies direct access to private tables. For Vercel or another provider, set these variables in the deployment environment:
 
 - `VITE_PIRC_PORTAL_FEED_URL=https://naeuosudklqsgeghafkw.supabase.co/functions/v1/pirc-portal-feed`
-- `VITE_PIRC_PORTAL_FEED_ANON_KEY=<the project's public legacy anon JWT key>`
+- `VITE_PIRC_PORTAL_FEED_ANON_KEY=<the project's public legacy anon JWT key>` (set in provider UI only; never commit it)
 
 The public anon key is intended for browser use; it does not grant access to private tables. The Edge Function still requires JWT verification and performs database reads using its server-side service-role secret. Never set a service-role key in a `VITE_*` variable.
 
