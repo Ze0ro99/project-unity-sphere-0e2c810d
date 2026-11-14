@@ -65,6 +65,16 @@ test("portal manifest and capability catalog share the canonical network/feed id
   assert.ok(catalog.capabilities.some((item) => item.id === "portals.canonical-feed" && item.endpoint === "GET /functions/v1/pirc-portal-feed"));
 });
 
+test("legacy token adapter returns unknowns until chain read-back exists", async () => {
+  const fs = await import("node:fs/promises");
+  const source = await fs.readFile(new URL("../assets/js/stellarConfig.js", import.meta.url), "utf8");
+  assert.match(source, /status: "UNVERIFIED"/);
+  assert.match(source, /qwf_eff: null/);
+  assert.match(source, /phi_solvency: null/);
+  assert.match(source, /ref_capacity: null/);
+  assert.doesNotMatch(source, /qwf_eff: 128|phi_solvency: true|ref_capacity: 32779800|status: "ACTIVE"/);
+});
+
 test("Netlify API route precedes the SPA fallback", async () => {
   const fs = await import("node:fs/promises");
   const config = await fs.readFile(new URL("../netlify.toml", import.meta.url), "utf8");
