@@ -11,6 +11,7 @@ export type PiGoldAsset = {
   name: string;
   symbol: string;
   color: string;
+  logoPath: string;
   role: string;
   relationship: "coordinator" | "component";
   status: "design";
@@ -23,6 +24,7 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
     name: "PiGold",
     symbol: "πG",
     color: "#d8b56d",
+    logoPath: "/images/gold.png",
     role: "Ecosystem coordinator",
     relationship: "coordinator",
     status: "design",
@@ -33,6 +35,7 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
     name: "PiBank",
     symbol: "πB",
     color: "#4c9de8",
+    logoPath: "/images/blue.png",
     role: "Banking and institutional services",
     relationship: "component",
     status: "design",
@@ -43,6 +46,7 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
     name: "PiCash",
     symbol: "πC",
     color: "#35b879",
+    logoPath: "/images/green.png",
     role: "Everyday payments",
     relationship: "component",
     status: "design",
@@ -53,6 +57,7 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
     name: "PiExchange",
     symbol: "πX",
     color: "#ed8a42",
+    logoPath: "/images/orange.png",
     role: "Exchange and market access",
     relationship: "component",
     status: "design",
@@ -63,6 +68,7 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
     name: "PiGovernance",
     symbol: "πGov",
     color: "#dc6268",
+    logoPath: "/images/red.png",
     role: "Governance and policy",
     relationship: "component",
     status: "design",
@@ -73,6 +79,7 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
     name: "PiPurple",
     symbol: "πP",
     color: "#9874d8",
+    logoPath: "/images/purple.png",
     role: "Identity and foundational participation",
     relationship: "component",
     status: "design",
@@ -83,6 +90,7 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
     name: "PiYellow",
     symbol: "πY",
     color: "#e4c85c",
+    logoPath: "/images/yellow.png",
     role: "Utility and service access",
     relationship: "component",
     status: "design",
