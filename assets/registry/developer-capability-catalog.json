@@ -3,11 +3,12 @@
   "catalog_version": "2026-11-08.1",
   "network_profiles": [
     {
-      "network_id": "pi-testnet1",
+      "network_id": "pi-testnet",
       "display_name": "Pi Testnet",
       "alias": "Testnet1",
       "write_enabled": false,
-      "mainnet_enabled": false
+      "mainnet_enabled": false,
+      "legacy_network_alias": "pi-testnet1"
     }
   ],
   "app_access": {
@@ -187,6 +188,25 @@
         "Settlement promotion",
         "Balance or reserve claims",
         "Signing or transaction submission"
+      ]
+    },
+    {
+      "id": "portals.canonical-feed",
+      "name": "Shared canonical read-only portal feed",
+      "status": "SOURCE_AND_SUPABASE_FUNCTION_DEPLOYED_PROVIDER_KEY_PENDING",
+      "mode": "READ_ONLY",
+      "network": "pi-testnet",
+      "endpoint": "GET /functions/v1/pirc-portal-feed",
+      "description": "Versioned network identity, contract cursor and raw event observation status shared by all portals; empty domains remain explicit.",
+      "requires": [
+        "JWT-authenticated public anon client key configured in the deployment provider",
+        "Supabase service-role key server-side only",
+        "Verified Pi Testnet network identity"
+      ],
+      "blocked_actions": [
+        "Treating raw events as settled balances",
+        "Automatic asset activation",
+        "Signing, minting or transfers"
       ]
     }
   ]
