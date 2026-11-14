@@ -11,6 +11,8 @@ on:
       - 'assets/js/stellarConfig.js'
       - 'assets/registry/pirc207-layer-registry.json'
       - 'tests/asset-integrity.test.mjs'
+      - 'pirc_matrix_unifier_and_sync.sh'
+      - 'tests/legacy-matrix-script-safety.test.mjs'
       - 'public/token-logos/**'
       - 'supabase/functions/pirc-portal-feed/**'
       - 'src/components/CanonicalPortalSync.tsx'
@@ -51,6 +53,9 @@ jobs:
 
       - name: Test asset verification and logo integrity
         run: npm run test:asset-integrity
+
+      - name: Test legacy matrix script safety
+        run: npm run test:legacy-script-safety
 
       - name: Test canonical portal feed safety
         run: npm run test:canonical-feed

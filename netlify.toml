@@ -6,6 +6,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  VITE_PIRC_PORTAL_FEED_URL = "https://naeuosudklqsgeghafkw.supabase.co/functions/v1/pirc-portal-feed"
 
 # Netlify Functions serve the live read-only ecosystem API.
 [functions]
