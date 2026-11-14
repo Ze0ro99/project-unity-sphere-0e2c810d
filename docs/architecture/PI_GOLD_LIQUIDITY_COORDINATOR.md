@@ -80,3 +80,37 @@ Secrets must never be stored in this registry or committed to Git. Do not use cr
 ## Current implementation gaps
 
 This specification does not create a PiGold router contract, deploy any contract, or establish pool liquidity. Those require implementation and independent tests against the exact contract interfaces. The current pair-specific AMM and accounting contract must not be represented as a complete multi-asset settlement system.
+
+
+## Seven-asset product taxonomy
+
+The portal product taxonomy contains seven proposed assets:
+- PiGold: system coordination, routing policy and consolidated reporting.
+- PiBank (blue): banking and institutional workflows.
+- PiCash (green): everyday payment utility.
+- PiExchange (orange): exchange and market access.
+- PiGovernance (red): governance and policy.
+- PiPurple (purple): foundational participation and provenance classification.
+- PiYellow (yellow): utility and service access.
+
+This catalogue is a product taxonomy, not a deployment or issuance registry. Each component retains its own contract identity, issuer, authorization, supply evidence and reserve accounting. PiGold does not become a custodial parent token and does not own or merge component balances.
+
+## Dynamic purchasing-power model (proposal only)
+
+The portal model is versioned as `pigr-0.1-proposal`. It uses a fresh, trusted external PI/USDT market reference as an anchor, then applies measured evidence factors:
+
+`InternalPP = ExternalSpot × ConfidenceFactor`
+
+`ConfidenceFactor = 0.40 + 0.25L + 0.15U + 0.10V + 0.10S`
+
+Where:
+- `L = clamp(unique verified reserves / verified liabilities, 0, 1)`
+- `U = clamp(fulfilled utility value / target utility value, 0, 1)`
+- `V = clamp(measured 24h turnover / external market value / target velocity, 0, 1)`
+- `S = clamp(1 - venue deviation / maximum permitted deviation, 0, 1)`
+
+The weights are provisional engineering defaults, not an official monetary rule. They require governance review before use in any financial decision. A stale or untrusted quote, fewer than three venues, missing evidence, duplicate reserve-accounting identifiers, or invalid values causes the model to return no result (fail closed).
+
+External market capitalization and internal reference value are displayed separately. They must not be summed as though they were independent assets; doing so can double-count the same underlying Pi supply. Liquidity is summed only across unique reserve-accounting identifiers. Turnover is measured from reconciled activity, not synthetic chart volume.
+
+The dashboard must show `PENDING EVIDENCE` rather than filling gaps with synthetic reserve, utility, supply or price values.
