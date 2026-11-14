@@ -208,9 +208,14 @@ impl PidexAmm {
             return Err(Error::ZeroAmount);
         }
 
-        let numerator = reserve_in.checked_mul(reserve_out).ok_or(Error::Overflow)?;
         let denominator = reserve_in.checked_add(amount_in_after_fee).ok_or(Error::Overflow)?;
-        let amount_out = reserve_out.checked_sub(numerator / denominator).ok_or(Error::Overflow)?;
+        // AMM output must round DOWN. Computing reserve_out - floor(k / denominator)
+        // rounds the output UP by one atomic unit for some ratios and can overpay.
+        let amount_out = constant_product_amount_out(
+            reserve_in,
+            reserve_out,
+            amount_in_after_fee,
+        )?;
         if amount_out <= 0 {
             return Err(Error::InsufficientLiquidity);
         }
@@ -327,6 +332,23 @@ impl PidexAmm {
     }
 }
 
+fn constant_product_amount_out(
+    reserve_in: i128,
+    reserve_out: i128,
+    amount_in_after_fee: i128,
+) -> Result<i128, Error> {
+    if reserve_in <= 0 || reserve_out <= 0 || amount_in_after_fee <= 0 {
+        return Err(Error::InsufficientLiquidity);
+    }
+    let numerator = reserve_out
+        .checked_mul(amount_in_after_fee)
+        .ok_or(Error::Overflow)?;
+    let denominator = reserve_in
+        .checked_add(amount_in_after_fee)
+        .ok_or(Error::Overflow)?;
+    Ok(numerator / denominator)
+}
+
 fn isqrt(n: i128) -> i128 {
     if n <= 0 {
         return 0;
@@ -348,7 +370,7 @@ fn isqrt(n: i128) -> i128 {
 
 #[cfg(test)]
 mod test {
-    use super::{isqrt, Error, PidexAmm, PidexAmmClient};
+    use super::{constant_product_amount_out, isqrt, Error, PidexAmm, PidexAmmClient};
     use soroban_sdk::{contract, contractimpl, testutils::Address as _, Address, BytesN, Env};
 
     #[contract]
@@ -359,6 +381,22 @@ mod test {
         pub fn has_commitment(_env: Env, _commitment: BytesN<32>) -> bool {
             false
         }
+    }
+
+    #[test]
+    fn constant_product_output_rounds_down_to_atomic_units() {
+        // The former k - floor(k / denominator) expression returned 3 here;
+        // the mathematically correct floor(output) is 2.
+        assert_eq!(constant_product_amount_out(3, 10, 1), Ok(2));
+        assert_eq!(constant_product_amount_out(10, 10, 10), Ok(5));
+        assert_eq!(
+            constant_product_amount_out(i128::MAX, i128::MAX, 2),
+            Err(Error::Overflow)
+        );
+        assert_eq!(
+            constant_product_amount_out(0, 10, 1),
+            Err(Error::InsufficientLiquidity)
+        );
     }
 
     #[test]
