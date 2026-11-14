@@ -11,7 +11,8 @@
     "test:denomination": "node --experimental-strip-types --test tests/denomination.test.mjs",
     "audit:i18n": "node scripts/audit-i18n.mjs",
     "gate:release": "node scripts/release-gate.mjs",
-    "test:amm": "node --experimental-strip-types --test tests/amm-math.test.mjs"
+    "test:amm": "node --experimental-strip-types --test tests/amm-math.test.mjs",
+    "test:pigold": "node --experimental-strip-types --test tests/pigold-*.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
