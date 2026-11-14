@@ -95,7 +95,10 @@ export default function PiGold() {
             <article key={asset.id} className="card p-4 relative overflow-hidden">
               <div className="absolute inset-y-0 left-0 w-1" style={{ background: asset.color }} />
               <div className="flex items-center gap-3 pl-2">
-                <div className="h-11 w-11 shrink-0 rounded-xl flex items-center justify-center text-lg font-bold border border-white/10" style={{ background: `${asset.color}22`, color: asset.color }}>{asset.symbol}</div>
+                <div className="relative h-11 w-11 shrink-0 rounded-xl flex items-center justify-center text-lg font-bold border border-white/10 overflow-hidden" style={{ background: `${asset.color}22`, color: asset.color }}>
+                  {asset.symbol}
+                  <img src={asset.logoPath} alt={`${asset.name} logo`} className="absolute inset-0 h-full w-full object-contain p-0.5" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                </div>
                 <div className="min-w-0">
                   <h3 className="font-semibold">{asset.name}</h3>
                   <div className="text-xs text-muted">{asset.role}</div>
