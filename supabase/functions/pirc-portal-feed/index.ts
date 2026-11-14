@@ -67,11 +67,13 @@ async function networkSnapshot() {
     const horizon = await horizonResponse.json().catch(() => null);
     const rpcPassphrase = network.passphrase ?? network.networkPassphrase;
     const protocol = Number(network.protocolVersion);
+    const horizonProtocol = Number(horizon?.core_supported_protocol_version);
     const healthy = ["healthy", "ok"].includes(String(health.status || "").toLowerCase());
     const identityVerified = horizonResponse.ok
       && horizon?.network_passphrase === EXPECTED_PASSPHRASE
       && rpcPassphrase === EXPECTED_PASSPHRASE
       && protocol === EXPECTED_PROTOCOL
+      && Number.isSafeInteger(horizonProtocol) && horizonProtocol >= EXPECTED_PROTOCOL
       && healthy;
     return {
       networkId: NETWORK_ID,
@@ -81,6 +83,7 @@ async function networkSnapshot() {
       identityVerified,
       passphraseVerified: horizon?.network_passphrase === EXPECTED_PASSPHRASE && rpcPassphrase === EXPECTED_PASSPHRASE,
       protocol,
+      horizonSupportedProtocol: Number.isSafeInteger(horizonProtocol) ? horizonProtocol : null,
       expectedProtocol: EXPECTED_PROTOCOL,
       rpcHealth: String(health.status || "unknown"),
       latestLedger: Number(latest.sequence ?? latest.ledger) || null,
@@ -119,7 +122,12 @@ Deno.serve(async (req) => {
     registryStatus: "UNVERIFIED",
     deploymentStatus: "NOT_VERIFIED",
     evidenceStatus: cursorById.has(contractId) ? "EVENT_CURSOR_PRESENT" : "ALLOWLISTED_ONLY",
-    cursor: cursorById.get(contractId) || null,
+    cursor: cursorById.has(contractId) ? {
+      startLedger: cursorById.get(contractId)?.start_ledger ?? null,
+      latestLedger: cursorById.get(contractId)?.latest_ledger ?? null,
+      lastEventId: cursorById.get(contractId)?.last_event_id ?? null,
+      updatedAt: cursorById.get(contractId)?.updated_at ?? null,
+    } : null,
     codeHash: null,
     deploymentTransaction: null,
     initializedStateReadback: null,
