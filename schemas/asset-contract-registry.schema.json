@@ -52,6 +52,9 @@
       "items": {
         "$ref": "#/$defs/pool"
       }
+    },
+    "economic_policy": {
+      "$ref": "#/$defs/economic_policy"
     }
   },
   "$defs": {
@@ -360,6 +363,18 @@
         "readback_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "deployment_transaction_hash": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "readback_method": {
+          "type": "string",
+          "enum": [
+            "getContractInfo+getLedgerEntries",
+            "stellar-cli-readback",
+            "independent-rpc-readback"
+          ]
         }
       },
       "allOf": [
@@ -377,11 +392,13 @@
           "then": {
             "required": [
               "wasm_hash",
-              "readback_at"
+              "deployment_transaction_hash",
+              "readback_at",
+              "readback_method"
             ]
           }
         }
       ]
     }
   }
-}\n
+}
