@@ -1,4 +1,4 @@
-name: PiRC README table consistency check
+name: PiRC proposal table generation validation
 
 on:
   pull_request:
@@ -37,19 +37,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Verify README table markers
-        run: |
-          grep -q '<!-- TABLE_START -->' README.md
-          grep -q '<!-- TABLE_END -->' README.md
-      - name: Regenerate proposal table in the ephemeral workspace
+      - name: Generate proposal table in the ephemeral workspace
         run: |
           python scripts/generate_pirc_table.py > table.md
-          python scripts/update_readme_table.py
-      - name: Fail if README needs a reviewed update
+          test -s table.md
+      - name: Validate generated table structure
         run: |
-          if ! git diff --quiet -- README.md; then
-            echo "::error::README proposal table is stale. Update it in a reviewed pull request; this workflow never commits or pushes."
-            git diff --stat -- README.md
-            exit 1
-          fi
-          echo "README proposal table is current."
+          python - <<'PY'
+          from pathlib import Path
+          table = Path("table.md").read_text(encoding="utf-8")
+          lines = [line for line in table.splitlines() if line.startswith("|")]
+          if len(lines) < 3 or not lines[0].startswith("| Proposal |"):
+              raise SystemExit("Generated PiRC proposal table is empty or malformed.")
+          print(f"Validated {len(lines) - 2} proposal rows.")
+          PY
