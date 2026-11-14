@@ -15,4 +15,7 @@
 *.keystore
 secrets/
 credentials/
+
+# Never commit validation credentials; rotate any previously committed value.
+validation-key.txt
 .secrets/
