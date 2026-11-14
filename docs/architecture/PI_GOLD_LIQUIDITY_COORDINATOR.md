@@ -114,3 +114,12 @@ The displayed 4,000/2,500/1,500/1,000/1,000 bps weights are a proposal only, not
 External market capitalization and internal reference value are displayed separately. They must not be summed as though they were independent assets; doing so can double-count the same underlying Pi supply. Liquidity is summed only across unique reserve-accounting identifiers. Turnover is measured from reconciled activity, not synthetic chart volume.
 
 The dashboard must show `PENDING EVIDENCE` rather than filling gaps with synthetic reserve, utility, supply or price values.
+
+
+## Legacy seven-layer crosswalk and unresolved mismatch
+
+The portal catalogue is a product taxonomy, not a replacement for the legacy PiRC-207 proposal table. The legacy proposal identifies Red/Root as governance, Orange/Sacral as mid-tier utility, Yellow/Solar Plexus as high-tier utility, Green/Heart as PiCash, Blue/Throat as banking, Indigo/Third Eye as premium reserve, and Purple/Crown as mined Pi/fractions.
+
+The current product catalogue proposes PiGold as a coordination/meta layer and six component roles. Blue, Green, Red, Purple and Yellow are conceptually aligned to the legacy labels, subject to independent contract/asset verification. Orange is not yet aligned: the legacy proposal calls it utility, while this product catalogue proposes exchange/market access. Indigo is not silently renamed to PiGold or PiPurple; it remains an unresolved legacy proposal outside the seven-product catalogue until governance records an explicit migration decision.
+
+No color or symbol is sufficient to bind a contract ID, issuer, reserve, supply, or redemption rule. The registry must retain the original identifiers and mark unresolved mappings as unverified.
