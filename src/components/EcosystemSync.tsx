@@ -94,6 +94,22 @@ export default function EcosystemSync() {
           ))}
         </div>
       )}
+      {feed && recentEvents.length > 0 && (
+        <div className="mt-3 border-t border-border/70 pt-3">
+          <div className="mb-2 text-[11px] font-semibold text-muted">Recent repository events</div>
+          <div className="grid gap-1 sm:grid-cols-2">
+            {recentEvents.map((event) => (
+              <div key={event.id} className="min-w-0 rounded-md bg-panel2/40 px-2 py-1.5 text-[10px]">
+                <span className="font-semibold">{event.repository}</span>
+                <span className="text-muted"> · {event.type.replace("Event", "")}{event.action ? ` · ${event.action}` : ""}</span>
+                {event.title && <div className="truncate text-muted">{event.title}</div>}
+                {event.ref && <div className="truncate text-muted">{event.ref}{event.commitCount != null ? ` · ${event.commitCount} commits` : ""}</div>}
+                <div className="text-muted/70">{event.actor} · {event.createdAt ? new Date(event.createdAt).toLocaleString() : "time unavailable"}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {feed && <p className="mt-2 text-[10px] text-muted">Updated {new Date(feed.generatedAt).toLocaleTimeString()} · Read-only API · no signing or Mainnet writes{failed ? ` · ${failed} partial repository feeds` : ""}</p>}
     </section>
   );
