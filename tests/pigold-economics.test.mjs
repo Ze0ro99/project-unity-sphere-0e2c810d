@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { computePiGoldMetrics } from "../src/lib/pigold-economics.ts";
+import { computePiGoldMetrics, PIGOLD_PROPOSED_WEIGHTS_BPS } from "../src/lib/pigold-economics.ts";
 
 const healthy = {
   externalPiUsd: 0.5,
@@ -12,6 +12,7 @@ const healthy = {
   deviationBps: 30,
   circulatingPi: 10_000_000,
   targetVelocity24h: 0.1,
+  policy: { version: "pigold-test-v1", approved: true, weightsBps: PIGOLD_PROPOSED_WEIGHTS_BPS },
   pools: [{
     poolId: "pool-a",
     reserveAccountingId: "reserve-a",
@@ -49,4 +50,17 @@ test("rejects incomplete or inconsistent reserve evidence", () => {
   assert.equal(computePiGoldMetrics({ ...healthy, pools: [] }), null);
   assert.equal(computePiGoldMetrics({ ...healthy, pools: [{ ...healthy.pools[0], reserveValueUsd: -1 }] }), null);
   assert.equal(computePiGoldMetrics({ ...healthy, deviationBps: 500 }), null);
+});
+
+test("requires an explicitly approved, versioned policy with integer basis-point weights", () => {
+  assert.equal(computePiGoldMetrics({ ...healthy, policy: { ...healthy.policy, approved: false } }), null);
+  assert.equal(computePiGoldMetrics({ ...healthy, policy: { ...healthy.policy, version: "" } }), null);
+  assert.equal(computePiGoldMetrics({
+    ...healthy,
+    policy: { ...healthy.policy, weightsBps: { ...PIGOLD_PROPOSED_WEIGHTS_BPS, priceStability: 999 } },
+  }), null);
+  assert.equal(computePiGoldMetrics({
+    ...healthy,
+    policy: { ...healthy.policy, weightsBps: { ...PIGOLD_PROPOSED_WEIGHTS_BPS, priceStability: 1000.5 } },
+  }), null);
 });
