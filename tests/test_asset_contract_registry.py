@@ -134,7 +134,7 @@ class AssetContractRegistryTests(unittest.TestCase):
         asset.update({
             "deployment_status": "verified",
             "contract": {
-                "contract_id": "C" + "A" * 55,
+                "contract_id": "C" + "B" * 55,
                 "wasm_hash": "a" * 64,
                 "interface_version": "1.0.0",
             },
