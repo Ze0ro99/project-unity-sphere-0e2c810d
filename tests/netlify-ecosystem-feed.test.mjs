@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-test("Netlify ecosystem feed source is read-only and pins Pi Testnet endpoints", async () => {
+test("Netlify ecosystem feed uses canonical GitHub collections and remains read-only", async () => {
   const fs = await import("node:fs/promises");
   const source = await fs.readFile(new URL("../netlify/functions/ecosystem-feed.js", import.meta.url), "utf8");
   assert.match(source, /https:\/\/rpc\.testnet\.minepi\.com/);
@@ -9,13 +9,27 @@ test("Netlify ecosystem feed source is read-only and pins Pi Testnet endpoints",
   assert.match(source, /EXPECTED_PASSPHRASE = "Pi Testnet"/);
   assert.match(source, /events\?per_page=8/);
   assert.match(source, /function compactEvent/);
-  assert.match(source, /pulls\\?state=open&sort=updated/);
-  assert.match(source, /commits\\?per_page=1/);
+  assert.match(source, /pulls\?state=open&sort=updated/);
+  assert.match(source, /commits\?per_page=1/);
   assert.match(source, /failures === 4/);
   assert.doesNotMatch(source, /failures === 3/);
   assert.match(source, /mainnetWrites: false/);
   assert.match(source, /signingEnabled: false/);
   assert.match(source, /tokenTransfersEnabled: false/);
+  assert.doesNotMatch(source, /sendTransaction|submitTransaction|signTransaction|mint\(/i);
+});
+
+test("Canonical portal feed never promotes unverified evidence to live state", async () => {
+  const fs = await import("node:fs/promises");
+  const source = await fs.readFile(new URL("../supabase/functions/pirc-portal-feed/index.ts", import.meta.url), "utf8");
+  assert.match(source, /pirc\.canonical-portal-feed\.v1/);
+  assert.match(source, /registryStatus: "UNVERIFIED"/);
+  assert.match(source, /deploymentStatus: "NOT_VERIFIED"/);
+  assert.match(source, /finality: "NOT_VERIFIED"/);
+  assert.match(source, /rawEventsAreNotSettlementFinality: true/);
+  assert.match(source, /subscriptions: \{ status: "NOT_CONFIGURED"/);
+  assert.match(source, /liquidity: \{ status: "NOT_CONFIGURED"/);
+  assert.match(source, /mainnetWrites: false/);
   assert.doesNotMatch(source, /sendTransaction|submitTransaction|signTransaction|mint\(/i);
 });
 
