@@ -17,6 +17,7 @@
 
 import { LAYERS, Layer } from "@/data/layers";
 import { onIndex, type IndexSnapshot } from "@/lib/market-index";
+import { quoteConstantProduct } from "@/lib/amm-math";
 
 export const FEE_BPS = 30;
 export const BPS = 10_000;
@@ -100,16 +101,7 @@ export function tierFor(volume30d: number): FairnessTier {
 /* ---------------- AMM math (mirrors pidex_amm) ---------------- */
 
 export function ammQuote(reserveIn: number, reserveOut: number, amountIn: number) {
-  if (amountIn <= 0 || reserveIn <= 0 || reserveOut <= 0) {
-    return { out: 0, priceImpactBps: 0, effPrice: 0, fee: 0 };
-  }
-  const fee = (amountIn * FEE_BPS) / BPS;
-  const inAfterFee = amountIn - fee;
-  const out = reserveOut - (reserveIn * reserveOut) / (reserveIn + inAfterFee);
-  const spot = reserveOut / reserveIn;
-  const eff = out / amountIn;
-  const impact = Math.max(0, (1 - eff / spot) * BPS);
-  return { out, priceImpactBps: impact, effPrice: eff, fee };
+  return quoteConstantProduct(reserveIn, reserveOut, amountIn, FEE_BPS, 7);
 }
 
 /* ---------------- Market state ---------------- */
