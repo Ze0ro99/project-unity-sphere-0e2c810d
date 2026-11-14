@@ -30,7 +30,7 @@ import Oracle from "./pages/Oracle";
 
 const NAV = [
   { to: "/", key: "nav.pidex", icon: ArrowDownUp },
-  { to: "/pigold", key: "PiGold", icon: Layers },
+  { to: "/pigold", key: "nav.pigold", icon: Layers },
   { to: "/gateways", key: "nav.gateways", icon: Boxes },
   { to: "/sovereign", key: "nav.sovereign", icon: Sigma },
   { to: "/bridge", key: "nav.bridge", icon: ArrowLeftRight },
