@@ -13,7 +13,7 @@ const CONTRACT_IDS = [...new Set((Deno.env.get("PI_TESTNET_CONTRACT_IDS") || Den
 const EVENT_LIMIT = Math.min(Math.max(Number(Deno.env.get("PIRC_PORTAL_EVENT_LIMIT") || "50"), 1), 100);
 
 function response(body: unknown, status = 200, origin = "*") {
-  return new Response(JSON.stringify(body), {
+  return new Response(status === 204 ? null : JSON.stringify(body), {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
@@ -57,6 +57,9 @@ async function readDatabase(path: string) {
 
 async function networkSnapshot() {
   try {
+    if (new URL(RPC_URL).hostname !== "rpc.testnet.minepi.com" || new URL(HORIZON_URL).hostname !== "api.testnet.minepi.com") {
+      throw new Error("pi_testnet_endpoint_not_allowlisted");
+    }
     const [network, health, latest, horizonResponse] = await Promise.all([
       rpc("getNetwork"), rpc("getHealth"), rpc("getLatestLedger"),
       fetch(HORIZON_URL + "/", { redirect: "error", signal: AbortSignal.timeout(10000) }),
@@ -110,7 +113,7 @@ Deno.serve(async (req) => {
   const cursors = cursorsResult.status === "fulfilled" && Array.isArray(cursorsResult.value) ? cursorsResult.value : [];
   const events = eventsResult.status === "fulfilled" && Array.isArray(eventsResult.value) ? eventsResult.value : [];
   const ids = new Set([...CONTRACT_IDS, ...cursors.map((row: Record<string, unknown>) => String(row.contract_id || ""))].filter(Boolean));
-  const cursorById = new Map(cursors.map((row: Record<string, unknown>) => [String(row.contract_id), row]));
+  const cursorById = new Map<string, Record<string, unknown>>(cursors.map((row: Record<string, unknown>) => [String(row.contract_id), row] as [string, Record<string, unknown>]));
   const contracts = [...ids].map((contractId) => ({
     contractId,
     registryStatus: "UNVERIFIED",
