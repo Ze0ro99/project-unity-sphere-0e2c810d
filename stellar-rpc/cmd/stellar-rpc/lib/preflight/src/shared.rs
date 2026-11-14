@@ -186,7 +186,7 @@ pub(crate) fn preflight_invoke_hf_op_post_autorestore_or_maybe_panic(
         hf,
         auth_mode,
         source_account,
-        rand::Rng::gen(&mut rand::thread_rng()),
+        rand::random::<u64>(),
         enable_debug,
     )?;
     let invoke_result = invoke_hf_result
