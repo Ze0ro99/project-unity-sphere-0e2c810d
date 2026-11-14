@@ -21,7 +21,7 @@
       "contract_id": "CC6WMAHKOPWY6HW46VNKTAV4DZZLRTTNMYLDEKCAICQGMCWV5PZYNTBO",
       "registry_layer": "L6",
       "repository_claim_status": "UNVERIFIED_REPOSITORY_CLAIM",
-      "verification_status": "UNVERIFIED",
+      "verification_status": "NOT_FOUND_ON_PI_TESTNET_AT_LAST_PROBE",
       "logo_uri": "/token-logos/red-governance.svg",
       "conversion_status": "UNSPECIFIED",
       "logo_status": "PROVISIONAL_DESIGN",
@@ -34,7 +34,15 @@
         "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
       },
       "intended_network_id": "pi-testnet",
-      "verified_network_id": null
+      "verified_network_id": null,
+      "pi_testnet_probe": {
+        "network_id": "pi-testnet",
+        "probe_status": "NOT_FOUND",
+        "latest_ledger": 27701412,
+        "observed_at": "2026-11-14T14:49:04Z",
+        "source": "GitHub Actions read-only network probe, run 43606786908",
+        "note": "The contract-instance read-back returned NOT_FOUND for this contract ID on Pi Testnet at the recorded ledger. This does not invalidate the separate user-supplied Stellar Testnet transaction claim."
+      }
     },
     {
       "key": "sacral",
@@ -47,7 +55,7 @@
       "contract_id": "CB7T6TDSZ5B2MQI7NI4EG6ZASYPRMJ3XVUWS6BON4Z64OBMUJ4ZD6GKF",
       "registry_layer": "L3",
       "repository_claim_status": "UNVERIFIED_REPOSITORY_CLAIM",
-      "verification_status": "UNVERIFIED",
+      "verification_status": "NOT_FOUND_ON_PI_TESTNET_AT_LAST_PROBE",
       "logo_uri": "/token-logos/orange-3141.svg",
       "conversion_status": "UNSPECIFIED",
       "logo_status": "PROVISIONAL_DESIGN",
@@ -60,7 +68,15 @@
         "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
       },
       "intended_network_id": "pi-testnet",
-      "verified_network_id": null
+      "verified_network_id": null,
+      "pi_testnet_probe": {
+        "network_id": "pi-testnet",
+        "probe_status": "NOT_FOUND",
+        "latest_ledger": 27701412,
+        "observed_at": "2026-11-14T14:49:04Z",
+        "source": "GitHub Actions read-only network probe, run 43606786908",
+        "note": "The contract-instance read-back returned NOT_FOUND for this contract ID on Pi Testnet at the recorded ledger. This does not invalidate the separate user-supplied Stellar Testnet transaction claim."
+      }
     },
     {
       "key": "solar",
@@ -73,7 +89,7 @@
       "contract_id": "CANLSQUPUZYKE3S2HAIGXAHMOQWE4FVX5DS7GTL42BVKSNHLFVMQSDFF",
       "registry_layer": "L2",
       "repository_claim_status": "UNVERIFIED_REPOSITORY_CLAIM",
-      "verification_status": "UNVERIFIED",
+      "verification_status": "NOT_FOUND_ON_PI_TESTNET_AT_LAST_PROBE",
       "logo_uri": "/token-logos/yellow-31140.svg",
       "conversion_status": "UNSPECIFIED",
       "logo_status": "PROVISIONAL_DESIGN",
@@ -86,7 +102,15 @@
         "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
       },
       "intended_network_id": "pi-testnet",
-      "verified_network_id": null
+      "verified_network_id": null,
+      "pi_testnet_probe": {
+        "network_id": "pi-testnet",
+        "probe_status": "NOT_FOUND",
+        "latest_ledger": 27701412,
+        "observed_at": "2026-11-14T14:49:04Z",
+        "source": "GitHub Actions read-only network probe, run 43606786908",
+        "note": "The contract-instance read-back returned NOT_FOUND for this contract ID on Pi Testnet at the recorded ledger. This does not invalidate the separate user-supplied Stellar Testnet transaction claim."
+      }
     },
     {
       "key": "heart",
@@ -99,7 +123,7 @@
       "contract_id": "CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4",
       "registry_layer": "L5",
       "repository_claim_status": "UNVERIFIED_REPOSITORY_CLAIM",
-      "verification_status": "UNVERIFIED",
+      "verification_status": "NOT_FOUND_ON_PI_TESTNET_AT_LAST_PROBE",
       "logo_uri": "/token-logos/green-picash.svg",
       "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI",
       "logo_status": "PROVISIONAL_DESIGN",
@@ -112,7 +136,15 @@
         "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
       },
       "intended_network_id": "pi-testnet",
-      "verified_network_id": null
+      "verified_network_id": null,
+      "pi_testnet_probe": {
+        "network_id": "pi-testnet",
+        "probe_status": "NOT_FOUND",
+        "latest_ledger": 27701412,
+        "observed_at": "2026-11-14T14:49:04Z",
+        "source": "GitHub Actions read-only network probe, run 43606786908",
+        "note": "The contract-instance read-back returned NOT_FOUND for this contract ID on Pi Testnet at the recorded ledger. This does not invalidate the separate user-supplied Stellar Testnet transaction claim."
+      }
     },
     {
       "key": "throat",
@@ -125,7 +157,7 @@
       "contract_id": "CAMSQZTSCTF3MG4UEIAWKRZNSX7LLKGKXMVBEQO2ETVPGS3CINM7JBQD",
       "registry_layer": "L4",
       "repository_claim_status": "UNVERIFIED_REPOSITORY_CLAIM",
-      "verification_status": "UNVERIFIED",
+      "verification_status": "NOT_FOUND_ON_PI_TESTNET_AT_LAST_PROBE",
       "logo_uri": "/token-logos/blue-314.svg",
       "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI",
       "logo_status": "PROVISIONAL_DESIGN",
@@ -138,7 +170,15 @@
         "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
       },
       "intended_network_id": "pi-testnet",
-      "verified_network_id": null
+      "verified_network_id": null,
+      "pi_testnet_probe": {
+        "network_id": "pi-testnet",
+        "probe_status": "NOT_FOUND",
+        "latest_ledger": 27701412,
+        "observed_at": "2026-11-14T14:49:04Z",
+        "source": "GitHub Actions read-only network probe, run 43606786908",
+        "note": "The contract-instance read-back returned NOT_FOUND for this contract ID on Pi Testnet at the recorded ledger. This does not invalidate the separate user-supplied Stellar Testnet transaction claim."
+      }
     },
     {
       "key": "thirdEye",
@@ -151,12 +191,20 @@
       "contract_id": null,
       "registry_layer": null,
       "repository_claim_status": "UNVERIFIED_REPOSITORY_CLAIM",
-      "verification_status": "UNVERIFIED",
+      "verification_status": "NOT_FOUND_ON_PI_TESTNET_AT_LAST_PROBE",
       "logo_uri": "/token-logos/indigo-reserve.svg",
       "conversion_status": "UNSPECIFIED",
       "logo_status": "PROVISIONAL_DESIGN",
       "intended_network_id": "pi-testnet",
-      "verified_network_id": null
+      "verified_network_id": null,
+      "pi_testnet_probe": {
+        "network_id": "pi-testnet",
+        "probe_status": "NOT_FOUND",
+        "latest_ledger": 27701412,
+        "observed_at": "2026-11-14T14:49:04Z",
+        "source": "GitHub Actions read-only network probe, run 43606786908",
+        "note": "The contract-instance read-back returned NOT_FOUND for this contract ID on Pi Testnet at the recorded ledger. This does not invalidate the separate user-supplied Stellar Testnet transaction claim."
+      }
     },
     {
       "key": "crown",
@@ -169,7 +217,7 @@
       "contract_id": "CCGEMIEAZFJSBTRL5VGJJAUGPJI3B7UQ3BTAB2OQGW73JMWLS57YVVA4",
       "registry_layer": "L0",
       "repository_claim_status": "UNVERIFIED_REPOSITORY_CLAIM",
-      "verification_status": "UNVERIFIED",
+      "verification_status": "NOT_FOUND_ON_PI_TESTNET_AT_LAST_PROBE",
       "logo_uri": "/token-logos/purple-mined-pi.svg",
       "conversion_status": "SOURCE_DEFINED_10000000_MICRO_PER_PI",
       "logo_status": "PROVISIONAL_DESIGN",
@@ -182,7 +230,15 @@
         "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
       },
       "intended_network_id": "pi-testnet",
-      "verified_network_id": null
+      "verified_network_id": null,
+      "pi_testnet_probe": {
+        "network_id": "pi-testnet",
+        "probe_status": "NOT_FOUND",
+        "latest_ledger": 27701412,
+        "observed_at": "2026-11-14T14:49:04Z",
+        "source": "GitHub Actions read-only network probe, run 43606786908",
+        "note": "The contract-instance read-back returned NOT_FOUND for this contract ID on Pi Testnet at the recorded ledger. This does not invalidate the separate user-supplied Stellar Testnet transaction claim."
+      }
     }
   ],
   "unmapped_registry_entries": [
@@ -204,7 +260,15 @@
       "repository_claim_status": "UNVERIFIED_REPOSITORY_CLAIM",
       "intended_network_id": "pi-testnet",
       "verified_network_id": null,
-      "verification_status": "UNVERIFIED"
+      "verification_status": "NOT_FOUND_ON_PI_TESTNET_AT_LAST_PROBE",
+      "pi_testnet_probe": {
+        "network_id": "pi-testnet",
+        "probe_status": "NOT_FOUND",
+        "latest_ledger": 27701412,
+        "observed_at": "2026-11-14T14:49:04Z",
+        "source": "GitHub Actions read-only network probe, run 43606786908",
+        "note": "The contract-instance read-back returned NOT_FOUND for this contract ID on Pi Testnet at the recorded ledger. This does not invalidate the separate user-supplied Stellar Testnet transaction claim."
+      }
     }
   ],
   "additional_assets": [
@@ -252,5 +316,15 @@
     "heart_throat_layer_units_per_pi_gcv": "1000",
     "heart_throat_native_atomic_units_per_layer_unit": "1000",
     "note": "These layer ratios are proposal-specific display/accounting ratios and must not be treated as native Pi asset conversions, CEX parity, redemption, or bank settlement."
+  },
+  "last_pi_testnet_contract_probe": {
+    "run_id": 43606786908,
+    "ledger_sequence": 27701412,
+    "observed_at": "2026-11-14T14:49:04Z",
+    "network_identity_verified": true,
+    "expected_passphrase": "Pi Testnet",
+    "rpc_protocol": 28,
+    "horizon_supported_protocol": 29,
+    "all_seven_contract_ids": "NOT_FOUND"
   }
 }
