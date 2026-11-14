@@ -107,3 +107,28 @@ Some documents say “Official”, “Complete”, “Ready”, “Live”, “1
 - G7: production review and governance authorization.
 
 No G6/G7 status is claimed by this audit.
+
+
+## 3. Remediation update — 2026-11-14
+
+The following source-level corrections are included in the reviewed follow-up branch:
+
+- Removed hard-coded `qwf_eff`, `phi_solvency`, `ref_capacity` and fabricated `ACTIVE` responses from the browser token-attribute adapter. The adapter now returns `UNVERIFIED` with null attributes until an authoritative read-back exists.
+- Removed the misleading client-side list that labeled the seven user-supplied contract IDs as live on both Pi and Stellar. Network endpoints and the Pi public account identity are kept separate from contract registry evidence.
+- Normalized registry claim labels to `UNVERIFIED_REPOSITORY_CLAIM`; set `verified_network_id=null` until independent Pi Testnet read-back.
+- Corrected the layer catalogue's displayed ratios so it renders the actual per-layer ratio (1 or 10,000 units per Pi) instead of showing 10,000 for every layer.
+- Updated labels to say "reference constant" and explicitly disclaim CEX parity, price, redemption and bank-readiness.
+- Added a Node test suite for layer ratios and conversion boundaries, and connected it to the focused CI workflow.
+- Added provisional local SVG artwork for the seven chakra layers plus a separate Gold-unmapped mark. Artwork is branding only and never a verification signal.
+
+### Still open — cannot be truthfully closed by source edits alone
+
+1. **Pi Testnet contract verification:** each intended Pi contract needs a successful Pi Testnet deployment transaction, instance read-back, WASM/code hash, admin/issuer, metadata and initialized-state evidence. Stellar Testnet transaction links are not Pi Testnet deployment proof.
+2. **Gold/Indigo governance decision:** Gold is an unmapped registry entry while Indigo is a separate proposed chakra layer. No contract mapping is assigned until a versioned proposal is approved.
+3. **Soroban business logic:** the inspected Unity Sphere Soroban crate currently exports only the identity module from `lib.rs`; the inspected AMM and oracle files are minimal event-emitting scaffolds, not reserve accounting or authenticated oracle implementations.
+4. **Cross-repository contract completeness:** the SmartContracts audit found repeated Rust contract bodies and authorization/unit-semantics gaps in the oracle and proof-of-reserves examples. Each standard needs a requirements traceability matrix, role checks, invariants, replay protection, negative-path tests and independent review before deployment.
+5. **Live ingestion:** Supabase inbox/cursor tables exist but contain zero events. A trusted server-side worker, bounded pagination, durable cursor/retry behavior and event read-back tests remain required.
+6. **Portal wiring/deployment:** the canonical portal feed UI is in an open PR and the deployed Lovable UI is not confirmed to consume the new Supabase project. A green source build does not prove production provider configuration or live synchronization.
+7. **Economic policy:** the layer constants and PiGold weights are proposals, not an approved settlement policy. External market price, internal reference, pool NAV, liabilities, utility fulfillment and redeemable cash must remain separate dimensions.
+
+No contract deployment, mint, transfer, signing, or mainnet operation is authorized by this remediation.

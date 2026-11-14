@@ -16,7 +16,7 @@ test("each proposed asset has a unique ID, symbol and explicit color", () => {
   assert.equal(new Set(PIGOLD_ASSETS.map((asset) => asset.symbol)).size, 7);
   for (const asset of PIGOLD_ASSETS) {
     assert.match(asset.color, /^#[0-9a-f]{6}$/i);
-    assert.match(asset.logoPath, /^\/images\/(blue|gold|green|orange|purple|red|yellow)\.png$/);
+    assert.match(asset.logoPath, /^\/token-logos\/(blue-314|gold-unmapped|green-picash|orange-3141|purple-mined-pi|red-governance|yellow-31140)\.svg$/);
     assert.equal(asset.status, "design");
     assert.ok(asset.legacyMapping.length > 10);
   }

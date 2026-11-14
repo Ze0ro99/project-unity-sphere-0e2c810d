@@ -1,6 +1,6 @@
 // PiRC-207 v2: Chakra-Aligned 7-Layer Colored Token System
-// Ordered Root → Crown for energetic & professional hierarchy
-// Zero changes to existing ALGORITHM_BASE_MICROS or WCF parity
+// Values below are proposal/reference constants, not market prices or redemption promises.
+// Unit ratios preserve the published PiRC-207 calculation notes; verify them against a normative release before settlement.
 
 const ALGORITHM_BASE_MICROS = 10000000;
 
@@ -126,16 +126,16 @@ function renderTokenLayerSection() {
             <div class="token-price" style="color:${layer.color};">${layer.label}</div>
             <div style="font-size:0.85rem;color:var(--text-muted);margin:10px 0;">
                 ${layer.meaning}<br>
-                Fixed value: <strong>${layer.value}</strong>
+                Reference constant: <strong>${layer.value}</strong>
             </div>
             <div style="font-size:0.8rem;">
                 <strong>Calculations (current algorithm):</strong><br>
-                ${layer.subunit.pi ? `10,000 units = 1 Pi` : ''}
-                ${layer.subunit.pigcv ? `1,000 units = 1 PiGCV` : ''}
-                ${layer.subunit.micro ? `10M micro = 1 Pi` : ''}
+                ${layer.subunit.pi ? `${layer.subunit.pi.toLocaleString()} layer units = 1 Pi (reference ratio)` : ''}
+                ${layer.subunit.pigcv ? `${layer.subunit.pigcv.toLocaleString()} layer units = 1 PiGCV (reference ratio)` : ''}
+                ${layer.subunit.micro ? `${layer.subunit.micro.toLocaleString()} micro-units = 1 Pi (native atomic scale)` : ''}
             </div>
             <div style="margin-top:12px;font-size:0.75rem;color:var(--text-muted);">
-                All π symbols ≡ 1 Pi on CEX • Blue/Heart layers bank-ready
+                π is a display symbol only; no CEX parity, price, redemption, or bank-readiness is implied.
             </div>
         </div>`;
         grid.insertAdjacentHTML('beforeend', cardHTML);

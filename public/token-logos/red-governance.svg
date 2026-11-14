@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Governance token mark</title>
+  <desc id="desc">Provisional Governance token artwork in #D94848; branding only, not an issuer verification mark.</desc>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D94848" stop-opacity="1"/>
+      <stop offset="1" stop-color="#101827" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="128" cy="128" r="116" fill="#0B1220" stroke="#D94848" stroke-width="8"/>
+  <circle cx="128" cy="128" r="96" fill="url(#g)" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="2"/>
+  <circle cx="128" cy="128" r="77" fill="none" stroke="#FFFFFF" stroke-opacity=".28" stroke-width="2" stroke-dasharray="4 8"/>
+  <path d="M128 43 L145 76 L183 82 L156 109 L162 147 L128 129 L94 147 L100 109 L73 82 L111 76 Z" fill="none" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="3"/>
+  <text x="128" y="139" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="52" font-weight="800" fill="#FFFFFF">RED</text>
+  <text x="128" y="184" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="2" fill="#FFFFFF">GOVERNANCE</text>
+</svg>

@@ -1,33 +1,46 @@
-export const CONTRACTS = {
-  CORE_MINT: "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6",
-  CORE_ISSUER: "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6",
-  
-  // 7 Colored Layers - Live on Pi PRC Testnet + Stellar Testnet
-  L0_PURPLE:  "CCGEMIEAZFJSBTRL5VGJJAUGPJI3B7UQ3BTAB2OQGW73JMWLS57YVVA4",
-  L1_GOLD:    "CD3UAUN4FU3VHPMLOZWFQWJ2UBUUBBD37SZ7WBEGJQACJ7YF6QVE2SYG",
-  L2_YELLOW:  "CANLSQUPUZYKE3S2HAIGXAHMOQWE4FVX5DS7GTL42BVKSNHLFVMQSDFF",
-  L3_ORANGE:  "CB7T6TDSZ5B2MQI7NI4EG6ZASYPRMJ3XVUWS6BON4Z64OBMUJ4ZD6GKF",
-  L4_BLUE:    "CAMSQZTSCTF3MG4UEIAWKRZNSX7LLKGKXMVBEQO2ETVPGS3CINM7JBQD",
-  L5_GREEN:   "CBPG33E7RUX6MGU65IMM4HXCAGLA4OZRBOUWKQSBTIZWE2RD52VGWDT4",
-  L6_RED:     "CC6WMAHKOPWY6HW46VNKTAV4DZZLRTTNMYLDEKCAICQGMCWV5PZYNTBO",
-
-  NETWORK: "TESTNET",
-  PI_RPC: "https://rpc.testnet.minepi.com",
-  STELLAR_RPC: "https://soroban-testnet.stellar.org"
+/**
+ * Network endpoints and account identity only.
+ * Contract IDs and live token attributes must come from the verified registry/feed.
+ * Never treat a repository allowlist or display label as deployment proof.
+ */
+export const NETWORKS = {
+  PI_TESTNET: {
+    id: "pi-testnet",
+    horizon: "https://api.testnet.minepi.com",
+    sorobanRpc: "https://rpc.testnet.minepi.com",
+    passphrase: "Pi Testnet",
+  },
+  STELLAR_TESTNET: {
+    id: "stellar-testnet",
+    horizon: "https://horizon-testnet.stellar.org",
+    sorobanRpc: "https://soroban-testnet.stellar.org",
+    passphrase: "Test SDF Network ; September 2015",
+  },
 };
 
+export const CORE_ACCOUNT_ID = "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6";
+
+/**
+ * No verified on-chain attribute reader is configured in this browser module.
+ * Return an explicit state instead of manufacturing QWF/solvency/capacity values.
+ */
 export async function getTokenAttributes(tokenId, layer) {
-  console.log(`🔥 Real-time attributes for ${layer} (Token: ${tokenId})`);
   return {
-    qwf_eff: 128,
-    phi_solvency: true,
-    ref_capacity: 32779800,
-    status: "ACTIVE",
-    layer: layer,
-    issuer: "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6",
-    last_updated: new Date().toISOString()
+    tokenId: typeof tokenId === "string" ? tokenId : null,
+    layer: typeof layer === "string" ? layer : null,
+    network: NETWORKS.PI_TESTNET.id,
+    status: "UNVERIFIED",
+    verificationStatus: "UNVERIFIED",
+    attributes: null,
+    source: null,
+    ledgerSequence: null,
+    observedAt: null,
+    reason: "No authoritative contract read-back is connected to this client module.",
   };
 }
 
-window.CONTRACTS = CONTRACTS;
-window.getTokenAttributes = getTokenAttributes;
+if (typeof window !== "undefined") {
+  window.NETWORKS = NETWORKS;
+  window.CORE_ACCOUNT_ID = CORE_ACCOUNT_ID;
+  window.getTokenAttributes = getTokenAttributes;
+}
