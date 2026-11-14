@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchLatestLedgers, fetchLatestTx, fetchRoot, relTime, shorten, HORIZON_MAINNET } from "@/lib/pi";
+import { fetchLatestLedgers, fetchLatestTx, fetchRoot, relTime, shorten, HORIZON_TESTNET } from "@/lib/pi";
 import { Activity, Blocks, Coins, GitBranch, Zap } from "lucide-react";
 import { LAYERS } from "@/data/layers";
 import { useI18n } from "@/i18n";
@@ -42,7 +42,7 @@ export default function Explorer() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="chip mb-3">
-              <span className="pulse-dot" />  {tr("Live · Pi Mainnet")} </div>
+              <span className="pulse-dot" />  {tr("Live · Pi Testnet 1")} </div>
             <h1 className="text-2xl md:text-3xl font-bold">{t("nav.explorer")}</h1>
             <p className="text-muted text-sm mt-1">
               Real-time blocks, transactions, and 7-layer token telemetry — Piscan-grade.
