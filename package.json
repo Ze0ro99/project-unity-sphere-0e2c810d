@@ -10,7 +10,8 @@
     "preview": "vite preview --host 0.0.0.0 --port 8080",
     "test:denomination": "node --experimental-strip-types --test tests/denomination.test.mjs",
     "audit:i18n": "node scripts/audit-i18n.mjs",
-    "gate:release": "node scripts/release-gate.mjs"
+    "gate:release": "node scripts/release-gate.mjs",
+    "test:pigold": "node --experimental-strip-types --test tests/pigold-economics.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
