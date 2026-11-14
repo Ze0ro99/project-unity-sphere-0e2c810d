@@ -1,44 +1,53 @@
-name: Auto-Update PiRC Table in README
+name: PiRC proposal table generation validation
 
 on:
-  push:
+  pull_request:
+    branches: [main]
     paths:
-      - 'docs/**'
-      - 'scripts/generate_pirc_table.py'
-      - 'scripts/update_readme_table.py'
-      - 'README.md'
+      - "docs/**"
+      - "scripts/generate_pirc_table.py"
+      - "scripts/update_readme_table.py"
+      - "README.md"
+      - ".github/workflows/update-readme.yml"
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "scripts/generate_pirc_table.py"
+      - "scripts/update_readme_table.py"
+      - "README.md"
+      - ".github/workflows/update-readme.yml"
   workflow_dispatch:
 
-jobs:
-  update-table:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+permissions:
+  contents: read
 
+concurrency:
+  group: pirc-readme-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+          persist-credentials: false
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
-      - name: Generate PiRC Table
-        run: python scripts/generate_pirc_table.py > table.md
-
-      - name: Update README with new table
-        run: python scripts/update_readme_table.py
-
-      - name: Commit and Push if changed
+          python-version: "3.12"
+      - name: Generate proposal table in the ephemeral workspace
         run: |
-          git config user.name "PiRC-AutoBot"
-          git config user.email "bot@ze0ro99.dev"
-          if ! git diff --quiet README.md; then
-            git add README.md
-            git commit -m "chore: auto-update PiRC proposals table [skip ci]"
-            git push
-          else
-            echo "No changes to README.md"
-          fi
+          python scripts/generate_pirc_table.py > table.md
+          test -s table.md
+      - name: Validate generated table structure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          table = Path("table.md").read_text(encoding="utf-8")
+          lines = [line for line in table.splitlines() if line.startswith("|")]
+          if len(lines) < 3 or not lines[0].startswith("| Proposal |"):
+              raise SystemExit("Generated PiRC proposal table is empty or malformed.")
+          print(f"Validated {len(lines) - 2} proposal rows.")
+          PY
