@@ -167,6 +167,26 @@
       ]
     },
     {
+      "id": "portals.canonical-feed",
+      "name": "Shared canonical data gateway for all portals",
+      "status": "SOURCE_IMPLEMENTED_DEPLOYMENT_UNVERIFIED",
+      "mode": "READ_ONLY",
+      "network": "pi-testnet",
+      "endpoint": "GET /functions/v1/pirc-portal-feed",
+      "description": "One versioned response for network health, raw event observations, contract cursors and per-domain source availability. Every portal and external Lovable client must consume the same source.",
+      "requires": [
+        "Supabase Edge Function deployed",
+        "Event inbox migration applied",
+        "SUPABASE_SERVICE_ROLE_KEY configured server-side",
+        "Frontend configured with public anon key only"
+      ],
+      "blocked_actions": [
+        "Treating allowlisted IDs as verified deployments",
+        "Treating raw events as settled balances",
+        "Inventing subscription, asset or liquidity records"
+      ]
+    },
+    {
       "id": "soroban.events.read",
       "name": "Authenticated Testnet event feed for Lovable",
       "status": "SOURCE_IMPLEMENTED_RUNTIME_UNVERIFIED",
