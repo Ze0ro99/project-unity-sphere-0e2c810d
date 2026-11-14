@@ -132,3 +132,15 @@ The following source-level corrections are included in the reviewed follow-up br
 7. **Economic policy:** the layer constants and PiGold weights are proposals, not an approved settlement policy. External market price, internal reference, pool NAV, liabilities, utility fulfillment and redeemable cash must remain separate dimensions.
 
 No contract deployment, mint, transfer, signing, or mainnet operation is authorized by this remediation.
+
+
+### Pi Testnet contract-instance probe — 2026-11-14
+
+A read-only CI probe on GitHub Actions run `43606786908` independently verified the Pi Testnet network identity at ledger `27701412`:
+- RPC and Horizon passphrases both matched `Pi Testnet`.
+- Soroban RPC protocol was `28`; Horizon supported protocol was `29`.
+- RPC health was `healthy`; network identity result was `verified`.
+
+The same probe called contract-instance read-back for all seven supplied contract IDs. Every result was `NOT_FOUND` on Pi Testnet at that ledger. The registry now records this exact result per contract. The supplied Stellar Expert Testnet transaction links remain a separate evidence domain; they do not establish Pi Testnet deployment.
+
+**Operational decision:** do not point PiDEX, token balances, liquidity pools, or the ingestion worker at these seven IDs as if they were Pi Testnet contracts. They remain disabled/unverified for Pi Testnet until valid Pi Testnet deployment transaction hashes and successful contract-instance/code-hash read-back are supplied.
