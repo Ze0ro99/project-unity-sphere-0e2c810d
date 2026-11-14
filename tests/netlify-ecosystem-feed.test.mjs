@@ -75,6 +75,15 @@ test("legacy token adapter returns unknowns until chain read-back exists", async
   assert.doesNotMatch(source, /qwf_eff: 128|phi_solvency: true|ref_capacity: 32779800|status: "ACTIVE"/);
 });
 
+test("legacy bulk merge script is fail-closed and cannot push main", async () => {
+  const fs = await import("node:fs/promises");
+  const source = await fs.readFile(new URL("../pirc_matrix_unifier_and_sync.sh", import.meta.url), "utf8");
+  assert.match(source, /DEPRECATED AND DISABLED/);
+  assert.match(source, /exit 2/);
+  assert.doesNotMatch(source, /git push origin main|git merge --no-ff/);
+  assert.doesNotMatch(source, /qwf_eff: 128|status: "ACTIVE"/);
+});
+
 test("Netlify API route precedes the SPA fallback", async () => {
   const fs = await import("node:fs/promises");
   const config = await fs.readFile(new URL("../netlify.toml", import.meta.url), "utf8");
