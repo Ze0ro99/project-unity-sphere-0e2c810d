@@ -1,6 +1,6 @@
 import { useMarketIndex } from "@/lib/market-index";
 import { PIGOLD_ASSETS } from "@/data/pigold-assets";
-import { PIGOLD_WEIGHTS, PIGOLD_MODEL_VERSION } from "@/lib/pigold-economics";
+import { PIGOLD_PROPOSED_WEIGHTS_BPS, PIGOLD_MODEL_VERSION } from "@/lib/pigold-economics";
 import { ArrowDownUp, ShieldCheck, Layers3, Activity, Coins } from "lucide-react";
 
 function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
@@ -53,14 +53,14 @@ export default function PiGold() {
         </div>
         <p className="mono text-sm text-[#e7c982] mt-3">Internal PP = External PI spot × Confidence Factor</p>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-3">
-          {Object.entries(PIGOLD_WEIGHTS).map(([key, weight]) => (
+          {Object.entries(PIGOLD_PROPOSED_WEIGHTS_BPS).map(([key, weight]) => (
             <div key={key} className="rounded-lg border border-border bg-panel2/60 p-2">
               <div className="text-[10px] text-muted break-words">{key.replace(/[A-Z]/g, (letter) => ` ${letter.toLowerCase()}`)}</div>
-              <div className="mono text-base font-semibold mt-1">{(weight * 100).toFixed(0)}%</div>
+              <div className="mono text-base font-semibold mt-1">{(weight / 100).toFixed(0)}%</div>
             </div>
           ))}
         </div>
-        <p className="text-[11px] text-muted mt-3">Provisional weights: market anchor 40%, verified liquidity coverage 25%, fulfilled utility 15%, measured velocity 10%, and price stability 10%. The policy is not active until governance approval and evidence-backed inputs are connected.</p>
+        <p className="text-[11px] text-muted mt-3">Proposed policy weights only: market anchor 40%, verified liquidity coverage 25%, fulfilled utility 15%, measured velocity 10%, and price stability 10%. The model refuses to calculate an internal index until a versioned policy is explicitly approved by governance and evidence-backed inputs are connected.</p>
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

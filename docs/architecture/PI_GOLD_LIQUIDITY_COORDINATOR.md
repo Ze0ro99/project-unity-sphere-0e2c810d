@@ -109,7 +109,7 @@ Where:
 - `V = clamp(measured 24h turnover / external market value / target velocity, 0, 1)`
 - `S = clamp(1 - venue deviation / maximum permitted deviation, 0, 1)`
 
-The weights are provisional engineering defaults, not an official monetary rule. They require governance review before use in any financial decision. A stale or untrusted quote, fewer than three venues, missing evidence, duplicate reserve-accounting identifiers, or invalid values causes the model to return no result (fail closed).
+The displayed 4,000/2,500/1,500/1,000/1,000 bps weights are a proposal only, not an official monetary rule. The computation accepts weights only as an explicit, versioned, governance-approved policy whose integer weights sum to exactly 10,000 bps. A missing or unapproved policy, stale or untrusted quote, fewer than three venues, missing evidence, duplicate reserve-accounting identifiers, or invalid values causes the model to return no result (fail closed).
 
 External market capitalization and internal reference value are displayed separately. They must not be summed as though they were independent assets; doing so can double-count the same underlying Pi supply. Liquidity is summed only across unique reserve-accounting identifiers. Turnover is measured from reconciled activity, not synthetic chart volume.
 
