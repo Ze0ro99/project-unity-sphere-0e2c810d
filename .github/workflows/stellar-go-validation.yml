@@ -28,13 +28,12 @@ jobs:
     timeout-minutes: 35
     env:
       PGUSER: postgres
-      PGPASSWORD: postgres
     services:
       postgres:
         image: postgres:16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
@@ -60,6 +59,19 @@ jobs:
           go mod verify
           cd ../stellar-rpc
           go mod verify
+      - name: Prepare Rust build tools
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          rustc --version
+          cargo --version
+      - name: Build Stellar RPC native libraries
+        working-directory: stellar-rpc
+        run: make build-libs
       - name: Test stellar-horizon
         working-directory: stellar-horizon
         run: go test ./...
