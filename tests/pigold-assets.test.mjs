@@ -16,6 +16,7 @@ test("each proposed asset has a unique ID, symbol and explicit color", () => {
   assert.equal(new Set(PIGOLD_ASSETS.map((asset) => asset.symbol)).size, 7);
   for (const asset of PIGOLD_ASSETS) {
     assert.match(asset.color, /^#[0-9a-f]{6}$/i);
+    assert.match(asset.logoPath, /^\/images\/(blue|gold|green|orange|purple|red|yellow)\.png$/);
     assert.equal(asset.status, "design");
   }
 });
