@@ -1,7 +1,6 @@
 // Pi Network Horizon API client.
-// Network selection is explicit: the default is Pi Mainnet and callers must pass
-// HORIZON_TESTNET or HORIZON_TESTNET2 for test environments. Never silently
-// switch networks when a request fails.
+// Safe default: Pi Testnet 1. Mainnet access must be explicitly requested by a
+// read-only caller. Never silently switch networks when a request fails.
 
 export const HORIZON_MAINNET = "https://api.mainnet.minepi.com";
 export const HORIZON_TESTNET = "https://api.testnet.minepi.com";
@@ -42,7 +41,7 @@ async function j<T>(url: string, init?: RequestInit): Promise<T> {
   return r.json() as Promise<T>;
 }
 
-export async function fetchLatestLedgers(base = HORIZON_MAINNET, limit = 15): Promise<Ledger[]> {
+export async function fetchLatestLedgers(base = HORIZON_TESTNET, limit = 15): Promise<Ledger[]> {
   const data = await j<any>(`${base}/ledgers?order=desc&limit=${limit}`);
   return data?._embedded?.records ?? [];
 }
