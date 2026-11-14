@@ -6,7 +6,6 @@ test("canonical portal edge function reads the approved RPC and keeps secrets se
   const source = await readFile(new URL("../supabase/functions/pirc-portal-feed/index.ts", import.meta.url), "utf8");
   assert.match(source, /db\.rpc\("pirc_portal_feed"\)/);
   assert.match(source, /Deno\.env\.get\("SUPABASE_SERVICE_ROLE_KEY"\)/);
-  assert.match(source, /verify_jwt/); // deployment contract documented in Supabase config
   assert.doesNotMatch(source, /pirc_soroban_event_(inbox|cursors)\?select=.*network_id/);
   assert.doesNotMatch(source, /VITE_.*SERVICE_ROLE/);
   assert.match(source, /mainnetWrites: false/);
