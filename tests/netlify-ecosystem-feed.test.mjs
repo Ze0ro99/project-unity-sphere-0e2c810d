@@ -9,6 +9,10 @@ test("Netlify ecosystem feed source is read-only and pins Pi Testnet endpoints",
   assert.match(source, /EXPECTED_PASSPHRASE = "Pi Testnet"/);
   assert.match(source, /events\?per_page=8/);
   assert.match(source, /function compactEvent/);
+  assert.match(source, /pulls\\?state=open&sort=updated/);
+  assert.match(source, /commits\\?per_page=1/);
+  assert.match(source, /failures === 4/);
+  assert.doesNotMatch(source, /failures === 3/);
   assert.match(source, /mainnetWrites: false/);
   assert.match(source, /signingEnabled: false/);
   assert.match(source, /tokenTransfersEnabled: false/);
