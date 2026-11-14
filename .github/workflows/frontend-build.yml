@@ -43,6 +43,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci
+      - name: Run exact AMM quote tests
+        run: npm run test:amm
       - name: Audit locale dictionary key coverage
         run: npm run audit:i18n
       - name: Build frontend

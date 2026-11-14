@@ -62,6 +62,9 @@ jobs:
       - name: Run deterministic denomination tests
         run: npm run test:denomination
 
+      - name: Run exact AMM quote tests
+        run: npm run test:amm
+
       - name: Build GitHub Pages application
         run: npm run build -- --base=/project-unity-sphere-0e2c810d/
 

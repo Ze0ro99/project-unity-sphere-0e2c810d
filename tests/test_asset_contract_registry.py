@@ -128,6 +128,45 @@ class AssetContractRegistryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_registry(registry)
 
+    def test_verified_asset_requires_explicit_atomic_decimals(self):
+        registry = valid_registry()
+        asset = registry["assets"][0]
+        asset.update({
+            "deployment_status": "verified",
+            "contract": {
+                "contract_id": "C" + "B" * 55,
+                "wasm_hash": "a" * 64,
+                "interface_version": "1.0.0",
+            },
+            "evidence": {
+                "deployment_transaction_hash": "b" * 64,
+                "readback_at": "2026-11-14T10:00:00Z",
+                "readback_method": "independent-rpc-readback",
+            },
+            "decimals": 7,
+        })
+        validate_registry(registry)
+
+    def test_verified_asset_rejects_missing_or_unsupported_decimals(self):
+        registry = valid_registry()
+        asset = registry["assets"][0]
+        asset.update({
+            "deployment_status": "verified",
+            "contract": {
+                "contract_id": "C" + "A" * 55,
+                "wasm_hash": "a" * 64,
+                "interface_version": "1.0.0",
+            },
+            "evidence": {
+                "deployment_transaction_hash": "b" * 64,
+                "readback_at": "2026-11-14T10:00:00Z",
+                "readback_method": "independent-rpc-readback",
+            },
+            "decimals": 13,
+        })
+        with self.assertRaises(ValueError):
+            validate_registry(registry)
+
 
 if __name__ == "__main__":
     unittest.main()
