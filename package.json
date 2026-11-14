@@ -16,7 +16,8 @@
     "test:token-layers": "node --test tests/token-layers.test.mjs",
     "test:asset-integrity": "node --test tests/asset-integrity.test.mjs",
     "test:canonical-feed": "node --test tests/canonical-portal-feed.test.mjs",
-    "test:legacy-script-safety": "node --test tests/legacy-matrix-script-safety.test.mjs"
+    "test:legacy-script-safety": "node --test tests/legacy-matrix-script-safety.test.mjs",
+    "test:gateway-claims": "node --test tests/gateway-claims.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

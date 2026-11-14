@@ -76,46 +76,48 @@ function compactEvent(event) {
 }
 
 async function githubRepositoryFeed(repository) {
-  const [runsResult, eventsResult] = await Promise.allSettled([
+  // Use the canonical GitHub collection endpoints. Repository Events are a
+  // short-lived activity stream, not a complete PR/commit/workflow history.
+  const [pullsResult, commitsResult, runsResult, eventsResult] = await Promise.allSettled([
+    getJson(`https://api.github.com/repos/${repository}/pulls?state=open&sort=updated&direction=desc&per_page=8`),
+    getJson(`https://api.github.com/repos/${repository}/commits?per_page=1`),
     getJson(`https://api.github.com/repos/${repository}/actions/runs?per_page=1`),
     getJson(`https://api.github.com/repos/${repository}/events?per_page=8`),
   ]);
 
+  const rawPulls = pullsResult.status === "fulfilled" && Array.isArray(pullsResult.value)
+    ? pullsResult.value : [];
+  const rawCommits = commitsResult.status === "fulfilled" && Array.isArray(commitsResult.value)
+    ? commitsResult.value : [];
   const rawEvents = eventsResult.status === "fulfilled" && Array.isArray(eventsResult.value)
-    ? eventsResult.value
-    : [];
-  const pulls = rawEvents
-    .filter((event) => event.type === "PullRequestEvent" && event.payload?.pull_request?.state === "open")
-    .map((event) => compactPull(event.payload.pull_request))
-    .filter((pull, index, all) => all.findIndex((item) => item.number === pull.number) === index)
-    .slice(0, 8);
-  const pushEvent = rawEvents.find((event) => event.type === "PushEvent" && Array.isArray(event.payload?.commits) && event.payload.commits.length > 0);
-  const pushedCommit = pushEvent?.payload.commits?.at(-1) || null;
-  const commit = pushedCommit ? {
-    sha: pushedCommit.sha,
-    commit: { message: pushedCommit.message, committer: { date: pushEvent.created_at } },
-    html_url: `https://github.com/${repository}/commit/${pushedCommit.sha}`,
+    ? eventsResult.value : [];
+  const pulls = rawPulls.map((pull) => compactPull(pull));
+  const rawCommit = rawCommits[0] || null;
+  const commit = rawCommit ? {
+    sha: rawCommit.sha,
+    message: rawCommit.commit?.message,
+    committedAt: rawCommit.commit?.committer?.date || rawCommit.commit?.author?.date || null,
+    url: rawCommit.html_url || null,
   } : null;
   const run = runsResult.status === "fulfilled"
     ? runsResult.value.workflow_runs?.[0] || null
     : null;
-  const events = rawEvents.map(compactEvent);
-  const failures = [runsResult, eventsResult]
+  const failures = [pullsResult, commitsResult, runsResult, eventsResult]
     .filter((result) => result.status === "rejected").length;
 
   return {
     repository,
-    status: failures === 0 ? "ok" : failures === 3 ? "unavailable" : "partial",
+    status: failures === 0 ? "ok" : failures === 4 ? "unavailable" : "partial",
     openPullRequests: pulls,
     latestCommit: commit ? {
       sha: commit.sha,
       shortSha: commit.sha?.slice(0, 10),
-      message: String(commit.commit?.message || "").split("\n")[0].slice(0, 180),
-      committedAt: commit.commit?.committer?.date || null,
-      url: commit.html_url || null,
+      message: String(commit.message || "").split("\n")[0].slice(0, 180),
+      committedAt: commit.committedAt,
+      url: commit.url,
     } : null,
     latestWorkflow: run ? compactRun(run) : null,
-    recentEvents: events,
+    recentEvents: rawEvents.map(compactEvent),
     failedSources: failures,
   };
 }
@@ -216,7 +218,7 @@ exports.handler = async (event) => {
       schemaVersion: "pirc.ecosystem-feed.v1",
       generatedAt: new Date().toISOString(),
       refreshAfterSeconds: CACHE_SECONDS,
-      sourceStatus: failedRepositories === repositories.length ? "PARTIAL" : "AVAILABLE",
+      sourceStatus: failedRepositories === repositories.length ? "PARTIAL" : repositories.some((item) => item.status === "partial") ? "PARTIAL" : "AVAILABLE",
       repositories,
       piTestnet: network,
       safety: {
