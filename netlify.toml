@@ -7,6 +7,16 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# Netlify Functions serve the live read-only ecosystem API.
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/api/ecosystem-feed"
+  to = "/.netlify/functions/ecosystem-feed"
+  status = 200
+  force = true
+
 # SPA routing: let React Router handle client-side paths.
 [[redirects]]
   from = "/*"
