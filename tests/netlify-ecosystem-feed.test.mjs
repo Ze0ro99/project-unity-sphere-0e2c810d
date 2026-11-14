@@ -6,7 +6,7 @@ test("Netlify ecosystem feed source is read-only and pins Pi Testnet endpoints",
   const source = await fs.readFile(new URL("../netlify/functions/ecosystem-feed.js", import.meta.url), "utf8");
   assert.match(source, /https:\/\/rpc\.testnet\.minepi\.com/);
   assert.match(source, /https:\/\/api\.testnet\.minepi\.com/);
-  assert.match(source, /EXPECTED_PASSPHRASE = "Pi Testnet"/);
+  assert.match(source, /EXPECTED_PASSPHRASE = "Pi Testnet"/);\n  assert.match(source, /events\\?per_page=8/);\n  assert.match(source, /function compactEvent/);
   assert.match(source, /mainnetWrites: false/);
   assert.match(source, /signingEnabled: false/);
   assert.match(source, /tokenTransfersEnabled: false/);
