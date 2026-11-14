@@ -84,6 +84,16 @@ test("legacy bulk merge script is fail-closed and cannot push main", async () =>
   assert.doesNotMatch(source, /qwf_eff: 128|status: "ACTIVE"/);
 });
 
+test("gateway catalogue does not label local simulations as live execution", async () => {
+  const fs = await import("node:fs/promises");
+  const source = await fs.readFile(new URL("../src/pages/Gateways.tsx", import.meta.url), "utf8");
+  assert.match(source, /tag: "SIMULATION"/);
+  assert.match(source, /tag: "NOT DEPLOYED"/);
+  assert.match(source, /tag: "READ-ONLY"/);
+  assert.match(source, /no on-chain orders or swaps/);
+  assert.doesNotMatch(source, /title: "Exchange Terminal"[^\n]*tag: "LIVE"/);
+});
+
 test("Netlify API route precedes the SPA fallback", async () => {
   const fs = await import("node:fs/promises");
   const config = await fs.readFile(new URL("../netlify.toml", import.meta.url), "utf8");
