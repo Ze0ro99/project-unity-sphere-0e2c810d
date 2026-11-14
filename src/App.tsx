@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route, NavLink, Link, useLocation } from "react-router-dom";
 import {
   Activity, Layers, Radio, Cpu, ArrowDownUp, FlaskConical, ShieldCheck, Lock, Menu, X, Boxes, GitBranch,
-  Sigma, ArrowLeftRight, Landmark, ScanFace, LineChart, Server, Satellite,
+  Sigma, ArrowLeftRight, Landmark, ScanFace, LineChart, Server, Satellite, Code2,
 } from "lucide-react";
 import { initPi } from "@/lib/piSdk";
 import PiConnectButton from "@/components/PiConnectButton";
@@ -28,11 +28,13 @@ import EconomicGateways from "./pages/EconomicGateways";
 import Infrastructure from "./pages/Infrastructure";
 import Oracle from "./pages/Oracle";
 import CanonicalPortalSync from "@/components/CanonicalPortalSync";
+import DeveloperStudio from "./pages/DeveloperStudio";
 
 const NAV = [
   { to: "/", key: "nav.pidex", icon: ArrowDownUp },
   { to: "/pigold", key: "nav.pigold", icon: Layers },
   { to: "/gateways", key: "nav.gateways", icon: Boxes },
+  { to: "/developer-studio", key: "Developer Studio", icon: Code2 },
   { to: "/sovereign", key: "nav.sovereign", icon: Sigma },
   { to: "/bridge", key: "nav.bridge", icon: ArrowLeftRight },
   { to: "/governance", key: "nav.governance", icon: Landmark },
@@ -65,6 +67,7 @@ export default function App() {
           <Route path="/pidex" element={<PiDEX />} />
           <Route path="/pigold" element={<PiGold />} />
           <Route path="/gateways" element={<Gateways />} />
+          <Route path="/developer-studio" element={<DeveloperStudio />} />
           <Route path="/sovereign" element={<Sovereign />} />
           <Route path="/bridge" element={<Bridge />} />
           <Route path="/governance" element={<Governance />} />
