@@ -163,7 +163,7 @@ export default function PiDEX() {
                   <AlertTriangle size={10} /> HALTED · PiRC-251
                 </span>
               ) : (
-                <span className="chip"><span className="pulse-dot" />  {tr("Live")}</span>
+                <span className="chip"><span className="pulse-dot" />  SIMULATED</span>
               )}
             </div>
             <div className="text-[11px] text-muted"> {tr("PiRC-101 base pair · Spot · Hybrid CLOB + AMM")} </div>
