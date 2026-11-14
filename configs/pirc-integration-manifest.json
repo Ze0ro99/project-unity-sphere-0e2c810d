@@ -383,6 +383,28 @@
       }
     }
   },
+  "portal_data_gateway": {
+    "function": "supabase/functions/pirc-portal-feed/index.ts",
+    "endpoint": "/functions/v1/pirc-portal-feed",
+    "schema_version": "pirc.canonical-portal-feed.v1",
+    "status": "SOURCE_IMPLEMENTED_DEPLOYMENT_UNVERIFIED",
+    "canonical_network_id": "pi-testnet",
+    "project_alias": "Testnet1",
+    "consumers": ["PiDEX", "PiGold", "Developer Studio", "Treasury/Governance", "Merchant", "Asset/RAW", "Subscription", "Monitoring", "Lovable external frontend"],
+    "read_models": {
+      "network": "LIVE_READ_ONLY_RPC_PROBE",
+      "contract_cursors": "SUPABASE_EVENT_INBOX",
+      "contract_events": "RAW_OBSERVATIONS_ONLY",
+      "raw_factory": "NOT_CONFIGURED",
+      "subscriptions": "NOT_CONFIGURED",
+      "assets": "NOT_CONFIGURED",
+      "liquidity": "NOT_CONFIGURED"
+    },
+    "policy": "All portals consume the same versioned response; no portal-local mock values may be presented as live data.",
+    "service_role_key_client_exposure": false,
+    "mainnet_writes_enabled": false,
+    "deployed_and_runtime_verified": false
+  },
   "wallet_capabilities": {
     "pi_sdk_version": "2.0",
     "requested_scopes": [
@@ -401,7 +423,9 @@
   },
   "asset_synchronization": {
     "registry_source": "PiRC-207 versioned registry",
-    "network_id": "pi-testnet1",
+    "network_id": "pi-testnet",
+    "network_alias": "Testnet1",
+    "legacy_project_alias": "pi-testnet1",
     "contract_instances_verified_at_probe": 0,
     "current_registry_contract_references_checked": 7,
     "on_chain_balance_sync": "NATIVE_TEST_PI_READ_ONLY_SOURCE_IMPLEMENTED; CUSTOM_ASSET_BALANCES_NOT_IMPLEMENTED",
