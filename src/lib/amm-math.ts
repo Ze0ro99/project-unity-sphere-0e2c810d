@@ -38,7 +38,10 @@ export function quoteConstantProduct(
   }
   const scale = 10n ** BigInt(decimals);
   const zero = { out: 0, priceImpactBps: 0, effPrice: 0, fee: 0 };
-  if (amountIn < 0 || reserveIn < 0 || reserveOut < 0) {\n    throw new RangeError("AMM quantities must be non-negative");\n  }\n  if (amountIn === 0 || reserveIn === 0 || reserveOut === 0) return zero;
+  if (amountIn < 0 || reserveIn < 0 || reserveOut < 0) {
+    throw new RangeError("AMM quantities must be non-negative");
+  }
+  if (amountIn === 0 || reserveIn === 0 || reserveOut === 0) return zero;
 
   const reserveInAtomic = toAtomic(reserveIn, scale);
   const reserveOutAtomic = toAtomic(reserveOut, scale);
