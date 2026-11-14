@@ -14,6 +14,7 @@ import MicroDevice from "./pages/MicroDevice";
 import Network from "./pages/Network";
 import PiDEX from "./pages/PiDEX";
 import PiGold from "./pages/PiGold";
+import EcosystemSync from "@/components/EcosystemSync";
 import Testnet from "./pages/Testnet";
 import Standards from "./pages/Standards";
 import Bn254 from "./pages/Bn254";
