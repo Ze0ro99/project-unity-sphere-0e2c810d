@@ -17,9 +17,21 @@ on:
       - 'supabase/functions/pirc-portal-feed/**'
       - 'src/components/CanonicalPortalSync.tsx'
       - 'tests/canonical-portal-feed.test.mjs'
+      - 'src/App.tsx'
+      - 'src/pages/Gateways.tsx'
+      - 'src/pages/DeveloperStudio.tsx'
+      - 'netlify/functions/ecosystem-feed.js'
+      - 'tests/netlify-ecosystem-feed.test.mjs'
+      - 'tests/gateway-claims.test.mjs'
       - 'api/network_adapters.py'
       - 'scripts/test_network_endpoints.py'
       - 'simulator/stochastic_abm_simulator.py'
+      - 'src/App.tsx'
+      - 'src/pages/Gateways.tsx'
+      - 'src/pages/DeveloperStudio.tsx'
+      - 'netlify/functions/ecosystem-feed.js'
+      - 'tests/netlify-ecosystem-feed.test.mjs'
+      - 'tests/gateway-claims.test.mjs'
       - '.github/workflows/test.yml'
   pull_request:
     paths:
@@ -59,6 +71,9 @@ jobs:
 
       - name: Test canonical portal feed safety
         run: npm run test:canonical-feed
+
+      - name: Test gateway capability claims
+        run: npm run test:gateway-claims
 
       - name: Set up Python
         uses: actions/setup-python@v5
