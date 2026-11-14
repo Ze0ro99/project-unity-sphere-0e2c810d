@@ -8,7 +8,7 @@
   ],
   "network_claim_in_source": "Pi Testnet",
   "verification_status": "UNVERIFIED",
-  "warning": "Contract identifiers below are repository-sourced claims and have not been independently verified against a live network in this registry.",
+  "warning": "Contract IDs are recorded as repository/user-supplied claims. Stellar Testnet transaction hashes and a Pi Testnet account snapshot are kept as separate evidence domains. No contract is marked Pi Testnet deployed until a Pi Testnet Soroban ledger read-back confirms its instance and code hash.",
   "layers": [
     {
       "key": "root",
@@ -24,7 +24,15 @@
       "verification_status": "UNVERIFIED",
       "logo_uri": "/v1/assets/pi-testnet/root/logo",
       "conversion_status": "UNSPECIFIED",
-      "logo_status": "PROVISIONAL_BADGE"
+      "logo_status": "PROVISIONAL_BADGE",
+      "deployment_evidence": {
+        "network_id": "stellar-testnet",
+        "transaction_hash": "f4b5e37209876dc04c7b8b5041973d2a89916f24b8a61dc3732f0f81cfe27bb4",
+        "explorer_url": "https://stellar.expert/explorer/testnet/tx/f4b5e37209876dc04c7b8b5041973d2a89916f24b8a61dc3732f0f81cfe27bb4",
+        "evidence_source": "user_supplied_deployment_log",
+        "submission_claim": "SUBMITTED_SUCCESSFULLY; final ledger result not independently checked",
+        "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
+      }
     },
     {
       "key": "sacral",
@@ -40,7 +48,15 @@
       "verification_status": "UNVERIFIED",
       "logo_uri": "/v1/assets/pi-testnet/sacral/logo",
       "conversion_status": "UNSPECIFIED",
-      "logo_status": "PROVISIONAL_BADGE"
+      "logo_status": "PROVISIONAL_BADGE",
+      "deployment_evidence": {
+        "network_id": "stellar-testnet",
+        "transaction_hash": "3363bce259f2e0acc5bad02408d89da2187dd5e4a485d6ecad397e5b014e7691",
+        "explorer_url": "https://stellar.expert/explorer/testnet/tx/3363bce259f2e0acc5bad02408d89da2187dd5e4a485d6ecad397e5b014e7691",
+        "evidence_source": "user_supplied_deployment_log",
+        "submission_claim": "SUBMITTED_SUCCESSFULLY; final ledger result not independently checked",
+        "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
+      }
     },
     {
       "key": "solar",
@@ -56,7 +72,15 @@
       "verification_status": "UNVERIFIED",
       "logo_uri": "/v1/assets/pi-testnet/solar/logo",
       "conversion_status": "UNSPECIFIED",
-      "logo_status": "PROVISIONAL_BADGE"
+      "logo_status": "PROVISIONAL_BADGE",
+      "deployment_evidence": {
+        "network_id": "stellar-testnet",
+        "transaction_hash": "75411b63eb7257496a9e19c4b89412eef3fc8b00f45f8b7942ba58fbe294845e",
+        "explorer_url": "https://stellar.expert/explorer/testnet/tx/75411b63eb7257496a9e19c4b89412eef3fc8b00f45f8b7942ba58fbe294845e",
+        "evidence_source": "user_supplied_deployment_log",
+        "submission_claim": "SUBMITTED_SUCCESSFULLY; final ledger result not independently checked",
+        "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
+      }
     },
     {
       "key": "heart",
@@ -72,7 +96,15 @@
       "verification_status": "UNVERIFIED",
       "logo_uri": "/v1/assets/pi-testnet/heart/logo",
       "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI",
-      "logo_status": "PROVISIONAL_BADGE"
+      "logo_status": "PROVISIONAL_BADGE",
+      "deployment_evidence": {
+        "network_id": "stellar-testnet",
+        "transaction_hash": "5e9c0b7fd03bb8c07395ce930997e09957c51e94b9a8015b06e22868ceff1142",
+        "explorer_url": "https://stellar.expert/explorer/testnet/tx/5e9c0b7fd03bb8c07395ce930997e09957c51e94b9a8015b06e22868ceff1142",
+        "evidence_source": "user_supplied_deployment_log",
+        "submission_claim": "SUBMITTED_SUCCESSFULLY; final ledger result not independently checked",
+        "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
+      }
     },
     {
       "key": "throat",
@@ -88,7 +120,15 @@
       "verification_status": "UNVERIFIED",
       "logo_uri": "/v1/assets/pi-testnet/throat/logo",
       "conversion_status": "SOURCE_DEFINED_10000_UNITS_PER_PI",
-      "logo_status": "PROVISIONAL_BADGE"
+      "logo_status": "PROVISIONAL_BADGE",
+      "deployment_evidence": {
+        "network_id": "stellar-testnet",
+        "transaction_hash": "8a5daf879a604e64088d5730f686250deffebe4d4514e1bd53f9a4792d748430",
+        "explorer_url": "https://stellar.expert/explorer/testnet/tx/8a5daf879a604e64088d5730f686250deffebe4d4514e1bd53f9a4792d748430",
+        "evidence_source": "user_supplied_deployment_log",
+        "submission_claim": "SUBMITTED_SUCCESSFULLY; final ledger result not independently checked",
+        "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
+      }
     },
     {
       "key": "thirdEye",
@@ -120,7 +160,15 @@
       "verification_status": "UNVERIFIED",
       "logo_uri": "/v1/assets/pi-testnet/crown/logo",
       "conversion_status": "SOURCE_DEFINED_10000000_MICRO_PER_PI",
-      "logo_status": "PROVISIONAL_BADGE"
+      "logo_status": "PROVISIONAL_BADGE",
+      "deployment_evidence": {
+        "network_id": "stellar-testnet",
+        "transaction_hash": "c8a50ce029788a8e26067f80313c65bff95a6b331113af002991ee9912c7cc2d",
+        "explorer_url": "https://stellar.expert/explorer/testnet/tx/c8a50ce029788a8e26067f80313c65bff95a6b331113af002991ee9912c7cc2d",
+        "evidence_source": "user_supplied_deployment_log",
+        "submission_claim": "SUBMITTED_SUCCESSFULLY; final ledger result not independently checked",
+        "note": "This evidence proves neither deployment on Pi Testnet nor equivalence of the same contract ID across networks."
+      }
     }
   ],
   "unmapped_registry_entries": [
@@ -130,7 +178,15 @@
       "registry_layer": "L1",
       "reason": "Gold contract exists in the CSV but no Gold chakra/token layer is defined in token_layers.js.",
       "logo_uri": "/v1/assets/pi-testnet/gold-unmapped/logo",
-      "logo_status": "PROVISIONAL_BADGE"
+      "logo_status": "PROVISIONAL_BADGE",
+      "deployment_evidence": {
+        "network_id": "stellar-testnet",
+        "transaction_hash": "1b3e65d28102febf458b49ec1ed095fee41c2ad0e38254dcda5464f0820cac88",
+        "explorer_url": "https://stellar.expert/explorer/testnet/tx/1b3e65d28102febf458b49ec1ed095fee41c2ad0e38254dcda5464f0820cac88",
+        "evidence_source": "user_supplied_deployment_log",
+        "submission_claim": "SUBMITTED_SUCCESSFULLY; final ledger result not independently checked",
+        "note": "Gold remains unmapped to a token/chakra definition. This evidence does not prove Pi Testnet deployment."
+      }
     }
   ],
   "additional_assets": [
@@ -156,5 +212,17 @@
       "description": "Interface/schema test record only. No issuer, deployed contract, USD peg, reserve backing or redemption claim."
     }
   ],
-  "logo_policy": "All served SVGs are provisional UI badges. They are not official issuer logos, proof of asset legitimacy or proof of contract deployment."
+  "logo_policy": "All served SVGs are provisional UI badges. They are not official issuer logos, proof of asset legitimacy or proof of contract deployment.",
+  "pi_testnet_account_evidence": {
+    "account_id": "GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6",
+    "horizon_endpoint": "https://api.testnet.minepi.com/accounts/GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6",
+    "ledger_sequence": 27665165,
+    "ledger_closed_at": "2026-11-12T12:28:23Z",
+    "protocol_version": 28,
+    "account_balance_native": "430.4171014",
+    "home_domain": "ze0ro99.github.io/PiRC",
+    "evidence_source": "user_supplied_horizon_response",
+    "verification_status": "USER_SUPPLIED_SNAPSHOT_NOT_INDEPENDENTLY_FETCHED",
+    "scope_note": "Confirms the supplied Pi Testnet account snapshot only; it does not prove any of the seven contract deployments or their association with this account."
+  }
 }

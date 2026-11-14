@@ -50,6 +50,12 @@ OUSD is included as a **test-only stable-asset proposal record** to complete int
 
 The current PiDEX page includes a local exchange simulation. A market card, chart, token logo, registry entry or contract address is not proof of a live order book, pool, on-chain swap or available liquidity. Before enabling live actions, require verified network identity, contract IDs, WASM/code hashes, token decimals, RPC readback, transaction simulation, slippage controls, pause controls and monitored testnet transactions.
 
+## Pi Testnet evidence and safe verification
+
+- [Deployment evidence and verification gates](docs/operations/PI_TESTNET_DEPLOYMENT_EVIDENCE_AND_SAFE_VERIFICATION.md)
+- Read-only account/RPC check: `bash scripts/testnet/verify-pi-testnet-account.sh`
+- The legacy `ultimate_pi_rpc_orchestrator.sh` is fail-closed; it cannot deploy or sign transactions.
+
 ## Development
 
 Frontend:
