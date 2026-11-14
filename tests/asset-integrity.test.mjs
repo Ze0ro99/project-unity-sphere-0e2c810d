@@ -20,7 +20,9 @@ test("asset registry never upgrades repository claims to verified status", async
   const registry = JSON.parse(await readFile(new URL("../assets/registry/pirc207-layer-registry.json", import.meta.url), "utf8"));
   assert.equal(registry.layers.length, 7);
   for (const asset of [...registry.layers, ...registry.unmapped_registry_entries]) {
-    assert.equal(asset.verification_status, "UNVERIFIED");
+    assert.equal(asset.verification_status, "NOT_FOUND_ON_PI_TESTNET_AT_LAST_PROBE");
+    assert.equal(asset.pi_testnet_probe.probe_status, "NOT_FOUND");
+    assert.equal(asset.pi_testnet_probe.latest_ledger, 27701412);
     assert.equal(asset.verified_network_id, null);
     assert.equal(asset.repository_claim_status, "UNVERIFIED_REPOSITORY_CLAIM");
   }
