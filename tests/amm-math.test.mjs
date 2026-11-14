@@ -28,7 +28,15 @@ test("quote rejects non-finite, negative and unsafe quantities", () => {
   assert.throws(() => quoteConstantProduct(Number.MAX_SAFE_INTEGER, 100, 1, 30), RangeError);
 });
 
+test("quote supports distinct input and output asset decimals", () => {
+  const quote = quoteConstantProduct(1_000, 2_000, 100, 30, 2, 3);
+  assert.equal(quote.out, 181.322);
+  assert.equal(quote.fee, 0.3);
+  assert.equal(quote.priceImpactBps, 933);
+});
+
 test("quote rejects invalid fee and precision policy", () => {
   assert.throws(() => quoteConstantProduct(100, 100, 1, 10_000), RangeError);
   assert.throws(() => quoteConstantProduct(100, 100, 1, 30, 13), RangeError);
+  assert.throws(() => quoteConstantProduct(100, 100, 1, 30, 7, 13), RangeError);
 });
