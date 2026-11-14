@@ -10,13 +10,27 @@
  */
 export const PIGOLD_MODEL_VERSION = "pigr-0.1-proposal";
 
-export const PIGOLD_WEIGHTS = {
-  externalMarketAnchor: 0.4,
-  liquidityCoverage: 0.25,
-  utilityFulfillment: 0.15,
-  economicVelocity: 0.1,
-  priceStability: 0.1,
+export const PIGOLD_PROPOSED_WEIGHTS_BPS = {
+  externalMarketAnchor: 4_000,
+  liquidityCoverage: 2_500,
+  utilityFulfillment: 1_500,
+  economicVelocity: 1_000,
+  priceStability: 1_000,
 } as const;
+
+export type PiGoldPolicyWeightsBps = {
+  externalMarketAnchor: number;
+  liquidityCoverage: number;
+  utilityFulfillment: number;
+  economicVelocity: number;
+  priceStability: number;
+};
+
+export type ApprovedPiGoldPolicy = {
+  version: string;
+  approved: boolean;
+  weightsBps: PiGoldPolicyWeightsBps;
+};
 
 export type VerifiedPoolSnapshot = {
   poolId: string;
@@ -39,11 +53,14 @@ export type PiGoldEconomicInput = {
   circulatingPi: number;
   targetVelocity24h: number;
   pools: VerifiedPoolSnapshot[];
+  policy: ApprovedPiGoldPolicy;
   nowMs?: number;
 };
 
 export type PiGoldEconomicMetrics = {
   modelVersion: string;
+  policyVersion: string;
+  confidenceFactorBps: number;
   externalPiUsd: number;
   internalPurchasingPowerUsd: number;
   externalMarketCapUsd: number;
@@ -64,6 +81,13 @@ const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 
 export function computePiGoldMetrics(input: PiGoldEconomicInput): PiGoldEconomicMetrics | null {
   const now = input.nowMs ?? Date.now();
+  if (!input.policy?.approved || !input.policy.version) return null;
+  const policyWeights = Object.values(input.policy.weightsBps);
+  if (
+    policyWeights.length !== 5 ||
+    policyWeights.some((weight) => !Number.isInteger(weight) || weight < 0 || weight > 10_000) ||
+    policyWeights.reduce((sum, weight) => sum + weight, 0) !== 10_000
+  ) return null;
   if (!input.quoteTrusted || input.quoteSources < 3) return null;
   if (!finitePositive(input.externalPiUsd) || !finitePositive(input.circulatingPi)) return null;
   if (!Number.isFinite(input.quoteTimestampMs) || input.quoteTimestampMs <= 0) return null;
@@ -102,13 +126,23 @@ export function computePiGoldMetrics(input: PiGoldEconomicInput): PiGoldEconomic
   const liquidityScore = clamp01(liquidityCoverage);
   const velocityScore = clamp01(economicVelocity24h / input.targetVelocity24h);
 
-  const confidenceFactor =
-    PIGOLD_WEIGHTS.externalMarketAnchor +
-    PIGOLD_WEIGHTS.liquidityCoverage * liquidityScore +
-    PIGOLD_WEIGHTS.utilityFulfillment * utilityFulfillment +
-    PIGOLD_WEIGHTS.economicVelocity * velocityScore +
-    PIGOLD_WEIGHTS.priceStability * priceStability;
-
+  const factorBps = {
+    externalMarketAnchor: 10_000,
+    liquidityCoverage: Math.floor(liquidityScore * 10_000),
+    utilityFulfillment: Math.floor(utilityFulfillment * 10_000),
+    economicVelocity: Math.floor(velocityScore * 10_000),
+    priceStability: Math.floor(priceStability * 10_000),
+  };
+  const confidenceFactorBps = Math.floor(
+    (
+      input.policy.weightsBps.externalMarketAnchor * factorBps.externalMarketAnchor +
+      input.policy.weightsBps.liquidityCoverage * factorBps.liquidityCoverage +
+      input.policy.weightsBps.utilityFulfillment * factorBps.utilityFulfillment +
+      input.policy.weightsBps.economicVelocity * factorBps.economicVelocity +
+      input.policy.weightsBps.priceStability * factorBps.priceStability
+    ) / 10_000,
+  );
+  const confidenceFactor = confidenceFactorBps / 10_000;
   const internalPurchasingPowerUsd = input.externalPiUsd * confidenceFactor;
   const externalMarketCapUsd = input.externalPiUsd * input.circulatingPi;
   const internalReferenceValueUsd = internalPurchasingPowerUsd * input.circulatingPi;
@@ -117,6 +151,8 @@ export function computePiGoldMetrics(input: PiGoldEconomicInput): PiGoldEconomic
 
   return {
     modelVersion: PIGOLD_MODEL_VERSION,
+    policyVersion: input.policy.version,
+    confidenceFactorBps,
     externalPiUsd: input.externalPiUsd,
     internalPurchasingPowerUsd,
     externalMarketCapUsd,
