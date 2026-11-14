@@ -55,7 +55,7 @@ export default function EcosystemSync() {
           <Activity size={15} className="text-[#d8b56d]" />
           Ecosystem API Sync
         </div>
-        <span className="text-[11px] text-muted flex items-center gap-1"><GitBranch size={12} /> {feed ? `${openCount} open PRs · 3 repositories` : loading ? "Connecting…" : "Feed unavailable"}</span>
+        <span className="text-[11px] text-muted flex items-center gap-1"><GitBranch size={12} /> {feed ? `${openCount} recent open PRs · 3 repositories` : loading ? "Connecting…" : "Feed unavailable"}</span>
         <span className={`text-[11px] flex items-center gap-1 ${feed?.piTestnet.identityVerified ? "text-emerald-400" : "text-amber-300"}`}>
           {feed?.piTestnet.identityVerified ? <ShieldCheck size={12} /> : <AlertTriangle size={12} />}
           {networkLabel}
@@ -90,7 +90,7 @@ export default function EcosystemSync() {
                     #{pr.number}{pr.draft ? " draft" : ""}
                   </a>
                 ))}
-                {repo.openPullRequests.length === 0 && <span className="text-[10px] text-muted">No open PRs</span>}
+                {repo.openPullRequests.length === 0 && <span className="text-[10px] text-muted">No recent open PR events</span>}
               </div>
             </div>
           ))}
