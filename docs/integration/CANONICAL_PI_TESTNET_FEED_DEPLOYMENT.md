@@ -15,7 +15,7 @@ Do not query invented columns such as `network_id`, `start_ledger`, `paging_curs
 Set these variables in the actual deployment provider (Netlify/Vercel) before expecting the shared panel to load:
 
 - `VITE_PIRC_PORTAL_FEED_URL=https://naeuosudklqsgeghafkw.supabase.co/functions/v1/pirc-portal-feed`
-- `VITE_PIRC_PORTAL_FEED_ANON_KEY=<the project's public legacy anon JWT key>`
+- `VITE_PIRC_PORTAL_FEED_ANON_KEY=<the project's public legacy anon JWT key>` (set in provider UI only; never commit it)
 
 The public anon key is intended for browser use; it does not grant access to private tables. The Edge Function still requires JWT verification and performs database reads using its server-side service-role secret. Never set a service-role key in a `VITE_*` variable.
 
