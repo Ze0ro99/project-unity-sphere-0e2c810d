@@ -33,6 +33,16 @@ test("Canonical portal feed never promotes unverified evidence to live state", a
   assert.doesNotMatch(source, /sendTransaction|submitTransaction|signTransaction|mint\(/i);
 });
 
+test("all portal routes mount one canonical read-only status component", async () => {
+  const fs = await import("node:fs/promises");
+  const app = await fs.readFile(new URL("../src/App.tsx", import.meta.url), "utf8");
+  const component = await fs.readFile(new URL("../src/components/CanonicalPortalSync.tsx", import.meta.url), "utf8");
+  assert.match(app, /<CanonicalPortalSync \/>/);
+  assert.match(component, /functions\/v1\/pirc-portal-feed/);
+  assert.match(component, /30_000/);
+  assert.match(component, /no mock replacement is used/);
+});
+
 test("Netlify API route precedes the SPA fallback", async () => {
   const fs = await import("node:fs/promises");
   const config = await fs.readFile(new URL("../netlify.toml", import.meta.url), "utf8");
