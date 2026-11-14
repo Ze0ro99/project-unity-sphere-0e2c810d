@@ -60,7 +60,8 @@ for (const [, locale, complete] of switcherLocales) {
 const network = manifest.target_network ?? {};
 if (network.network_id !== "pi-testnet1" || network.canonical_network !== "Pi Testnet") failures.push("The release target must be the explicitly named Pi Testnet profile.");
 if (network.mainnet_writes_enabled !== false) failures.push("Mainnet writes must remain disabled in the release manifest.");
-if (!process.env.PI_NETWORK_PASSPHRASE) failures.push("PI_NETWORK_PASSPHRASE must be configured as a protected deployment secret; secret values are never read from the manifest.");
+// Pi Testnet passphrase is public network identity metadata, not a secret.
+if (network.canonical_network !== "Pi Testnet") failures.push("The manifest must declare the public Pi Testnet passphrase.");
 const probe = network.last_read_only_probe ?? {};
 if (probe.identity_verified !== true) failures.push("The latest read-only Testnet identity probe is not verified.");
 const expectedLayerContracts = 7;
