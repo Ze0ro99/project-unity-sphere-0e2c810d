@@ -43,6 +43,18 @@ test("all portal routes mount one canonical read-only status component", async (
   assert.match(component, /no mock replacement is used/);
 });
 
+test("Developer Studio labels incomplete capabilities instead of simulating them", async () => {
+  const fs = await import("node:fs/promises");
+  const page = await fs.readFile(new URL("../src/pages/DeveloperStudio.tsx", import.meta.url), "utf8");
+  const gateways = await fs.readFile(new URL("../src/pages/Gateways.tsx", import.meta.url), "utf8");
+  assert.match(page, /SCAFFOLD ABI — NOT TESTNET VERIFIED/);
+  assert.match(page, /NOT IMPLEMENTED/);
+  assert.match(page, /NOT ON-CHAIN VERIFIED/);
+  assert.match(page, /Mainnet writes, automatic signing/);
+  assert.match(gateways, /Developer Studio \/ Contract Gateway/);
+  assert.match(gateways, /PIRC-2 Subscription Gateway/);
+});
+
 test("Netlify API route precedes the SPA fallback", async () => {
   const fs = await import("node:fs/promises");
   const config = await fs.readFile(new URL("../netlify.toml", import.meta.url), "utf8");
