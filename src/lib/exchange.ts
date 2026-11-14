@@ -1,8 +1,10 @@
 /**
  * PiDEX Exchange Engine
  * -------------------------------------------------------------
- * Client-side deterministic implementation of the economic
- * mechanisms defined by the PiRC monorepo standards:
+ * Client-side deterministic simulation of selected PiRC economic rules.
+ * The AMM quote uses integer atomic-unit arithmetic and the same fee/rounding
+ * policy as the reviewed pidex_amm quote interface. Market reserves, orders,
+ * balances and fills remain synthetic local demo data; no on-chain trade runs.
  *
  *   PiRC-101  Sovereign Monetary Standard  → π base pair discipline
  *   PiRC-207  7-Layer token registry       → market universe + fairness tiers
@@ -10,9 +12,6 @@
  *   PiRC-227  Slippage / MEV protection    → min_out + impact guard + TIF
  *   PiRC-251  Circuit breaker              → TWAP deviation halt
  *   PiRC-800  Shielded settlement          → BN254 / Groth16 flag
- *
- * The same math as contracts/pidex_amm/src/lib.rs is mirrored here so the
- * UI quotes are byte-for-byte comparable with on-chain execution.
  */
 
 import { LAYERS, Layer } from "@/data/layers";
