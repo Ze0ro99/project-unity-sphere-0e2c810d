@@ -56,6 +56,25 @@ function compactRun(run) {
   };
 }
 
+function compactEvent(event) {
+  const payload = event.payload || {};
+  const pull = payload.pull_request;
+  const issue = payload.issue;
+  const release = payload.release;
+  return {
+    id: String(event.id || ""),
+    type: String(event.type || "UnknownEvent"),
+    actor: String(event.actor?.login || "unknown"),
+    createdAt: event.created_at || null,
+    action: payload.action ? String(payload.action).slice(0, 40) : null,
+    title: String(pull?.title || issue?.title || release?.name || "").slice(0, 140) || null,
+    number: pull?.number || issue?.number || null,
+    ref: payload.ref ? String(payload.ref).slice(0, 160) : null,
+    commitCount: Array.isArray(payload.commits) ? payload.commits.length : null,
+    url: pull?.html_url || issue?.html_url || release?.html_url || null,
+  };
+}
+
 async function githubRepositoryFeed(repository) {
   const [pullsResult, commitsResult, runsResult] = await Promise.allSettled([
     getJson(`https://api.github.com/repos/${repository}/pulls?state=open&per_page=8`),
@@ -165,7 +184,7 @@ exports.handler = async (event) => {
       try {
         return await githubRepositoryFeed(repository);
       } catch {
-        return { repository, status: "unavailable", openPullRequests: [], latestCommit: null, latestWorkflow: null, failedSources: 3 };
+        return { repository, status: "unavailable", openPullRequests: [], latestCommit: null, latestWorkflow: null, recentEvents: [], failedSources: 4 };
       }
     })),
     piTestnetStatus().catch(() => ({
