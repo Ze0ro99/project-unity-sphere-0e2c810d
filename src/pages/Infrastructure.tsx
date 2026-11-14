@@ -33,7 +33,7 @@ export default function Infrastructure() {
   const refresh = async () => {
     setBusy(true);
     try {
-      await cached("ledgers:testnet1", () => fetchLatestLedgers(HORIZON_MAINNET, 10));
+      await cached("ledgers:testnet1", () => fetchLatestLedgers(HORIZON_TESTNET, 10));
       await cached("layers:registry", async () => CDN_POLICIES);
       await cached("standards:index", async () => WAREHOUSE);
     } catch {

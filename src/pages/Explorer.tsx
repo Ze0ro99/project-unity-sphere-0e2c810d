@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchLatestLedgers, fetchLatestTx, fetchRoot, relTime, shorten, HORIZON_TESTNET } from "@/lib/pi";
+import { fetchLatestLedgers, fetchLatestTx, fetchRoot, relTime, shorten, HORIZON_MAINNET } from "@/lib/pi";
 import { Activity, Blocks, Coins, GitBranch, Zap } from "lucide-react";
 import { LAYERS } from "@/data/layers";
 import { useI18n } from "@/i18n";

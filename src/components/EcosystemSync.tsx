@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Activity, GitBranch, RefreshCw, ShieldCheck, AlertTriangle } from "lucide-react";
+import { usePortalFeed } from "@/lib/usePortalFeed";
+import { useI18n } from "@/i18n";
 
 type RepoFeed = {
   repository: string;
@@ -19,6 +21,8 @@ type Feed = {
 const endpoint = "/api/ecosystem-feed";
 
 export default function EcosystemSync() {
+  const { t, lang } = useI18n();
+  const portal = usePortalFeed();
   const [feed, setFeed] = useState<Feed | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -53,7 +57,7 @@ export default function EcosystemSync() {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <div className="flex items-center gap-2 text-sm font-semibold">
           <Activity size={15} className="text-[#d8b56d]" />
-          Ecosystem API Sync
+          {t("portal.title")}
         </div>
         <span className="text-[11px] text-muted flex items-center gap-1"><GitBranch size={12} /> {feed ? `${openCount} recent open PRs · 3 repositories` : loading ? "Connecting…" : "Feed unavailable"}</span>
         <span className={`text-[11px] flex items-center gap-1 ${feed?.piTestnet.identityVerified ? "text-emerald-400" : "text-amber-300"}`}>
@@ -61,9 +65,29 @@ export default function EcosystemSync() {
           {networkLabel}
           {feed?.piTestnet.latestLedger?.sequence ? ` · Ledger ${feed.piTestnet.latestLedger.sequence}` : ""}
         </span>
-        <button type="button" onClick={() => void refresh()} className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted hover:text-text" aria-label="Refresh ecosystem feed">
-          <RefreshCw size={12} /> Refresh
+        <button type="button" onClick={() => { void refresh(); portal.refresh(); }} disabled={portal.isFetching || portal.cooldown} className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted hover:text-text disabled:opacity-50" aria-label={t("portal.refresh")}>
+          <RefreshCw size={12} /> {t("Refresh")}
         </button>
+      </div>
+      <div className="mt-3 border-t border-border pt-3" data-testid="portal-feed">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <ShieldCheck size={13} className="text-gold" />
+          <span className="font-semibold">Pi Testnet / Testnet1</span>
+          <span className="chip">{t("portal.readonly")}</span>
+          <span className="chip" role="status">{t(`portal.${portal.state}`)}</span>
+        </div>
+        <p className="mt-2 text-xs text-muted">{t("portal.notice")}</p>
+        {portal.state === "awaiting_testnet_ingestion" && <p className="mt-2 text-xs text-muted">awaiting_testnet_ingestion</p>}
+        {portal.error && <p className="mt-2 text-xs text-red" role="alert">{t("portal.failure")}</p>}
+        {portal.data && portal.data.events.length > 0 && (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead><tr className="text-start text-muted"><th>{t("portal.event")}</th><th>{t("Ledger")}</th><th>{t("Type")}</th><th>{t("Time")}</th></tr></thead>
+              <tbody>{portal.data.events.slice(0, 20).map(e => <tr key={e.id} className="border-t border-border"><td className="py-2 mono break-all">{e.id}</td><td>{e.ledger ?? "—"}</td><td>{e.type ?? "—"}</td><td>{e.observedAt ? new Date(e.observedAt).toLocaleString(lang) : "—"}</td></tr>)}</tbody>
+            </table>
+          </div>
+        )}
+        {portal.dataUpdatedAt > 0 && <p className="mt-2 text-[11px] text-muted">{t("portal.checked")}: {new Date(portal.dataUpdatedAt).toLocaleTimeString(lang)}</p>}
       </div>
       {error && <p className="mt-2 text-[11px] text-amber-300">API sync issue: {error}. Last successful data is retained.</p>}
       {feed && (
@@ -94,22 +118,6 @@ export default function EcosystemSync() {
               </div>
             </div>
           ))}
-        </div>
-      )}
-      {feed && recentEvents.length > 0 && (
-        <div className="mt-3 border-t border-border/70 pt-3">
-          <div className="mb-2 text-[11px] font-semibold text-muted">Recent repository events</div>
-          <div className="grid gap-1 sm:grid-cols-2">
-            {recentEvents.map((event) => (
-              <div key={event.id} className="min-w-0 rounded-md bg-panel2/40 px-2 py-1.5 text-[10px]">
-                <span className="font-semibold">{event.repository}</span>
-                <span className="text-muted"> · {event.type.replace("Event", "")}{event.action ? ` · ${event.action}` : ""}</span>
-                {event.title && <div className="truncate text-muted">{event.title}</div>}
-                {event.ref && <div className="truncate text-muted">{event.ref}{event.commitCount != null ? ` · ${event.commitCount} commits` : ""}</div>}
-                <div className="text-muted/70">{event.actor} · {event.createdAt ? new Date(event.createdAt).toLocaleString() : "time unavailable"}</div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
       {feed && recentEvents.length > 0 && (
