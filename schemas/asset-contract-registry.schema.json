@@ -106,9 +106,12 @@
         "wasm_hash": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
         "readback_at": { "type": "string", "format": "date-time" }
       },
-      "not": {
-        "properties": { "asset_a": { "const": { "$data": "1/asset_b" } } }
-      }
+      "allOf": [
+        {
+          "if": { "properties": { "deployment_status": { "const": "verified" } }, "required": ["deployment_status"] },
+          "then": { "required": ["wasm_hash", "readback_at"] }
+        }
+      ]
     }
   }
 }
