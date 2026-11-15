@@ -1,3 +1,4 @@
+import EvidenceBadge from "@/components/EvidenceBadge";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Radio, RefreshCw, ShieldCheck, AlertTriangle, Coins, Globe2, Activity } from "lucide-react";
 import {
@@ -178,7 +179,7 @@ export default function Oracle() {
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-xl border border-border bg-panel/60 p-4">
           <header className="flex items-center gap-2 text-sm mono uppercase tracking-widest text-muted mb-3">
-            <Globe2 size={14} /> {t("oracle.venues")}
+            <Globe2 size={14} /> {t("oracle.venues")} <EvidenceBadge level={agg ? "OBSERVED" : "UNKNOWN"} observedAt={market.ts || null} source={`${venues.filter((v) => v.ok).length} venues`} />
           </header>
           <div className="space-y-2">
             {venues.length === 0 && <div className="text-xs text-muted">{t("oracle.noVenues")}</div>}
@@ -209,7 +210,7 @@ export default function Oracle() {
 
         <section className="rounded-xl border border-border bg-panel/60 p-4">
           <header className="flex items-center gap-2 text-sm mono uppercase tracking-widest text-muted mb-3">
-            <Coins size={14} /> {t("oracle.power")}
+            <Coins size={14} /> {t("oracle.power")} <EvidenceBadge level={pp ? "SIMULATED" : "UNKNOWN"} source="model" />
           </header>
           {pp ? (
             <div className="grid grid-cols-2 gap-3 text-sm mono">

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Activity, GitBranch, RefreshCw, ShieldCheck, AlertTriangle } from "lucide-react";
 import { usePortalFeed } from "@/lib/usePortalFeed";
 import { useI18n } from "@/i18n";
+import EvidenceBadge from "@/components/EvidenceBadge";
 
 type RepoFeed = {
   repository: string;
@@ -75,6 +76,7 @@ export default function EcosystemSync() {
           <span className="font-semibold">Pi Testnet / Testnet1</span>
           <span className="chip">{t("portal.readonly")}</span>
           <span className="chip" role="status">{t(`portal.${portal.state}`)}</span>
+          <EvidenceBadge level={portal.state === "observed" ? "OBSERVED" : "UNKNOWN"} observedAt={portal.dataUpdatedAt || null} source="Pi Testnet1" />
         </div>
         <p className="mt-2 text-xs text-muted">{t("portal.notice")}</p>
         {portal.state === "awaiting_testnet_ingestion" && <p className="mt-2 text-xs text-muted">awaiting_testnet_ingestion</p>}

@@ -27,7 +27,6 @@ import Economics from "./pages/Economics";
 import EconomicGateways from "./pages/EconomicGateways";
 import Infrastructure from "./pages/Infrastructure";
 import Oracle from "./pages/Oracle";
-import CanonicalPortalSync from "@/components/CanonicalPortalSync";
 import DeveloperStudio from "./pages/DeveloperStudio";
 
 const NAV = [
@@ -61,7 +60,6 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 max-w-[1800px] w-full mx-auto px-3 sm:px-4 py-4">
-        <CanonicalPortalSync />
         <Routes>
           <Route path="/" element={<PiDEX />} />
           <Route path="/pidex" element={<PiDEX />} />

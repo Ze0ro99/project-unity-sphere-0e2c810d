@@ -1,3 +1,4 @@
+import EvidenceBadge from "@/components/EvidenceBadge";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import {
   exchangeStore,
@@ -163,7 +164,7 @@ export default function PiDEX() {
                   <AlertTriangle size={10} /> HALTED · PiRC-251
                 </span>
               ) : (
-                <span className="chip"><span className="pulse-dot" />  SIMULATED</span>
+                <EvidenceBadge level="SIMULATED" />
               )}
             </div>
             <div className="text-[11px] text-muted"> {tr("PiRC-101 base pair · Spot · Hybrid CLOB + AMM")} </div>
@@ -176,12 +177,13 @@ export default function PiDEX() {
             {chg >= 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}{chg.toFixed(2)}%
           </span>
           {idxOk && <span className="text-xs mono text-muted">≈ ${(m.price * piUsd).toFixed(6)} USDT</span>}
+          <EvidenceBadge level={idxOk ? "OBSERVED" : "UNKNOWN"} source="PI/USDT index" />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-2 text-xs ml-auto">
           <Stat label={tr("24h High")} value={fmt(m.high24h, 5)} />
           <Stat label={tr("24h Low")} value={fmt(m.low24h, 5)} />
           <Stat label={tr("24h Vol (π)")} value={compact(m.vol24h)} />
-          <Stat label={tr("Pool TVL (π)")} value={compact(m.reserveQuote * 2)} />
+          <Stat label={tr("Simulated pool TVL (π)")} value={compact(m.reserveQuote * 2)} />
         </div>
       </section>
 
@@ -421,6 +423,7 @@ export default function PiDEX() {
               {idxOk && <Row k={tr("Est. total (USDT reference)")} v={`$${(size * (type === "limit" ? price : m.price) * piUsd).toFixed(4)}`} />}
               <Row k={`${tr("Fee")} · T${tier.tier} ${tr(type === "limit" ? "maker" : "taker")}`}
                 v={`${((type === "limit" ? tier.makerBps : tier.takerBps) / 100).toFixed(2)}%`} />
+              {quote && <div className="flex items-center justify-between pt-1 text-[10px] text-muted"><span>{tr("AMM quote (simulated, not a swap)")}</span><EvidenceBadge level="SIMULATED" /></div>}
               {quote && <Row k={tr("Price impact")} v={`${(quote.priceImpactBps / 100).toFixed(3)}%`} danger={quote.priceImpactBps > slip} />}
               {quote && <Row k={tr("Min received")} v={`${fmt(quote.out * (1 - slip / 10000), 5)} ${side === "buy" ? `${m.layer.id}π` : "π"}`} />}
               <Row k={tr("Pool fee (PiRC-215)")} v={`${FEE_BPS / 100}% · x·y=k`} />
@@ -434,7 +437,7 @@ export default function PiDEX() {
               {m.halted ? tr("HALTED · PiRC-251") : `${tr(side === "buy" ? "Buy" : "Sell")} ${m.layer.id}π`}
             </button>
             <div className="text-[10px] text-muted mono pt-2 mt-2 border-t border-border">
-              Router PIDEX-ROUTER-V1 · Settlement Pi Mainnet + Soroban · Registry {m.layer.address.slice(0, 8)}…{m.layer.address.slice(-6)}
+              {tr("No settlement · local simulation only")} · Registry {m.layer.address.slice(0, 8)}…{m.layer.address.slice(-6)}
             </div>
           </div>
         </section>
@@ -442,7 +445,7 @@ export default function PiDEX() {
         {/* Trades + tier ladder */}
         <section className="order-3 space-y-3">
           <div className="card p-3">
-            <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><Activity size={13} />  {tr("Live Trades")}</h3>
+            <h3 className="text-xs font-semibold mb-2 flex items-center gap-2"><Activity size={13} />  {tr("Simulated Trades")} <EvidenceBadge level="SIMULATED" /></h3>
             <div className="text-[10px] text-muted grid grid-cols-3 px-1 mb-1 uppercase">
               <span>{tr("Price")}</span><span className="text-right">{tr("Size")}</span><span className="text-right">{tr("Time")}</span>
             </div>
@@ -485,6 +488,7 @@ export default function PiDEX() {
               {t === "orders" ? tr("Open Orders ({count})", { count: openOrders.length }) : tr(t === "pool" ? "Pool / AMM" : t)}
             </button>
           ))}
+          <span className="ms-2"><EvidenceBadge level="SIMULATED" /></span>
           {tab === "orders" && openOrders.length > 0 && (
             <button onClick={() => cancelAll()} className="ml-auto text-[11px] text-muted hover:text-red transition">{tr("Cancel all")}</button>
           )}
@@ -586,7 +590,7 @@ export default function PiDEX() {
         {tab === "pool" && (
           <div className="space-y-3">
             <div className="grid md:grid-cols-3 gap-3 text-xs">
-              <PoolCard title={tr("Reserves (PiRC-215)")}>
+              <PoolCard title={`${tr("Reserves (PiRC-215)")} · ${tr("evidence.SIMULATED")}`}>
                 <Row k={`${m.layer.id}π`} v={fmt(m.reserveBase, 2)} />
                 <Row k="π" v={fmt(m.reserveQuote, 2)} />
                 <Row k={tr("k invariant")} v={compact(m.reserveBase * m.reserveQuote)} />

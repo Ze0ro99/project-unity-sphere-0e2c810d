@@ -33,14 +33,13 @@ test("Canonical portal feed never promotes unverified evidence to live state", a
   assert.doesNotMatch(source, /sendTransaction|submitTransaction|signTransaction|mint\(/i);
 });
 
-test("all portal routes mount one canonical read-only status component", async () => {
+test("portal status is served by the single shared 60s poller, not a duplicate global panel", async () => {
   const fs = await import("node:fs/promises");
   const app = await fs.readFile(new URL("../src/App.tsx", import.meta.url), "utf8");
-  const component = await fs.readFile(new URL("../src/components/CanonicalPortalSync.tsx", import.meta.url), "utf8");
-  assert.match(app, /<CanonicalPortalSync \/>/);
-  assert.match(component, /VITE_PIRC_PORTAL_FEED_URL/);
-  assert.match(component, /30_000/);
-  assert.match(component, /No local mock data is substituted/);
+  const sync = await fs.readFile(new URL("../src/components/EcosystemSync.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(app, /CanonicalPortalSync/);
+  assert.match(sync, /usePortalFeed/);
+  assert.doesNotMatch(sync, /30_000/);
 });
 
 test("Developer Studio labels incomplete capabilities instead of simulating them", async () => {

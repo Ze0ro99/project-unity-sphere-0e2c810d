@@ -1,3 +1,4 @@
+import EvidenceBadge from "@/components/EvidenceBadge";
 import { useMarketIndex } from "@/lib/market-index";
 import { PIGOLD_ASSETS } from "@/data/pigold-assets";
 import { PIGOLD_PROPOSED_WEIGHTS_BPS, PIGOLD_MODEL_VERSION } from "@/lib/pigold-economics";
@@ -37,6 +38,10 @@ export default function PiGold() {
               PiGold coordinates routes and accounting; it does not combine, own or double-count component reserves.
             </p>
           </div>
+        </div>
+        <div className="relative mt-4 flex flex-wrap gap-2 text-[11px] text-muted items-center">
+          <span>PI/USDT</span><EvidenceBadge level={quoteFresh ? "OBSERVED" : "UNKNOWN"} source="exchange index" />
+          <span className="ms-3">Pools / reserves / liquidity</span><EvidenceBadge level="UNKNOWN" source="no contract readback" />
         </div>
         <div className="relative mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Stat label="External PI market reference" value={spot == null ? "UNAVAILABLE" : `${spot.toFixed(6)} USDT / PI`} note={quoteFresh ? `${index?.sources} venues · deviation ${index?.deviationBps.toFixed(1)} bps` : "Waiting for a fresh trusted venue quorum"} />

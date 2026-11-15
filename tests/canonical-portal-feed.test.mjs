@@ -13,10 +13,17 @@ test("canonical portal edge function reads the approved RPC and keeps secrets se
   assert.match(source, /rawEventsAreNotSettlementFinality: true/);
 });
 
-test("canonical portal component has no mock fallback or server secret", async () => {
-  const source = await readFile(new URL("../src/components/CanonicalPortalSync.tsx", import.meta.url), "utf8");
-  assert.match(source, /VITE_PIRC_PORTAL_FEED_URL/);
-  assert.match(source, /VITE_PIRC_PORTAL_FEED_ANON_KEY/);
-  assert.match(source, /No local mock data is substituted/);
-  assert.doesNotMatch(source, /SERVICE_ROLE_KEY|service_role/i);
+test("only one bounded portal poller exists in the app", async () => {
+  const { readdir } = await import("node:fs/promises");
+  const app = await readFile(new URL("../src/App.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(app, /CanonicalPortalSync/);
+  const components = await readdir(new URL("../src/components/", import.meta.url));
+  assert.ok(!components.includes("CanonicalPortalSync.tsx"));
+  const hook = await readFile(new URL("../src/lib/usePortalFeed.ts", import.meta.url), "utf8");
+  assert.match(hook, /refetchInterval/);
+  const feed = await import("../src/lib/portal-feed.ts");
+  assert.ok(feed.FEED_POLL_MS >= 60_000);
+  const sync = await readFile(new URL("../src/components/EcosystemSync.tsx", import.meta.url), "utf8");
+  assert.match(sync, /usePortalFeed\(\)/);
+  assert.doesNotMatch(sync, /pirc-portal-feed/);
 });

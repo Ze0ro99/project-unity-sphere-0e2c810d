@@ -4,6 +4,9 @@ import { HORIZON_TESTNET, fetchRoot, shorten } from "@/lib/pi";
 import { CheckCircle2, XCircle, Loader2, RefreshCw, FlaskConical, ExternalLink, AlertTriangle } from "lucide-react";
 import { useI18n } from "@/i18n";
 import { useProtocol } from "@/lib/useProtocol";
+import { TRACKED_UPGRADES } from "@/lib/protocol";
+import EvidenceBadge from "@/components/EvidenceBadge";
+import { classifyEvidence } from "@/lib/evidence";
 
 type Status = "pending" | "ok" | "fail" | "unknown";
 type Check = { id: string; label: string; kind: "token" | "contract" | "network"; address: string; status: Status; detail?: string; latencyMs?: number };
@@ -54,7 +57,7 @@ export default function Testnet() {
     const rest = initial.filter((c) => c.id !== "network");
     for (const c of rest) {
       const start = performance.now();
-      let status: Status = "fail";
+      let status: Status = "unknown";
       let detail = "";
       // C... StrKeys are Soroban contract IDs, not Horizon account IDs.
       // A Horizon 404 cannot prove whether a contract is deployed.
@@ -73,8 +76,8 @@ export default function Testnet() {
               status = "ok";
               detail = "Soroban instance present; code hash and issuer authority remain unverified";
             } else if (readback === "CONTRACT_INSTANCE_NOT_FOUND") {
-              status = "fail";
-              detail = "No contract instance found on configured Pi Testnet RPC";
+              status = "unknown";
+              detail = "NOT_FOUND — no instance on configured Pi Testnet RPC; deployment unproven (BLOCKED)";
             } else if (readback === "INVALID_CONTRACT_ID") {
               status = "fail";
               detail = "Invalid Soroban contract identifier";
@@ -98,8 +101,8 @@ export default function Testnet() {
           status = "ok";
           detail = `Horizon account · seq ${data.sequence} · balances ${data.balances?.length ?? 0}`;
         } else if (acc.status === 404) {
-          status = "fail";
-          detail = "Account not found on this Horizon network";
+          status = "unknown";
+          detail = "NOT_FOUND on Pi Testnet Horizon — cannot prove absence or deployment";
         } else {
           detail = `Horizon HTTP ${acc.status}`;
         }
@@ -152,7 +155,8 @@ export default function Testnet() {
             <Fact k={tr("Passphrase")} v={rootInfo.network_passphrase} />
             <Fact k="Horizon" v={rootInfo.horizon_version} />
             <Fact k="Core" v={rootInfo.core_version} />
-            <Fact k={t("protocol.active")} v={observation.active ? `v${observation.active}` : "—"} />
+            <Fact k={tr("Observed protocol")} v={observation.active ? `v${observation.active}` : "—"} />
+            <Fact k={tr("Expected protocol (tracked)")} v={TRACKED_UPGRADES.map((v) => `v${v}`).join(" / ")} />
           </div>
         )}
         {lastRun && <div className="text-[10px] text-muted mt-3">{tr("Last run:")} {lastRun.toLocaleTimeString()}</div>}
@@ -189,6 +193,7 @@ function Row({ c }: { c: Check }) {
         <div className="mono text-[10px] text-muted truncate">{shorten(c.address, 10, 8)}{c.detail ? ` · ${c.detail}` : ""}</div>
       </div>
       <div className="flex items-center gap-2">
+        <EvidenceBadge level={c.status === "pending" ? "UNKNOWN" : classifyEvidence({ source: "network", ok: c.status === "ok", observedAt: Date.now() })} />
         {c.latencyMs != null && <span className="mono text-[10px] text-muted">{c.latencyMs}ms</span>}
         {c.address.startsWith("G") && <a href={`https://api.testnet.minepi.com/accounts/${c.address}`} target="_blank" rel="noreferrer"
           className="text-muted hover:text-gold" aria-label={tr("Open Horizon account")}><ExternalLink size={12} /></a>}

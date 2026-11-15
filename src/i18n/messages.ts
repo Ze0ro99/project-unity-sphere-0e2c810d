@@ -1,3 +1,4 @@
+import { EVIDENCE_MESSAGES as EV } from "./evidence-messages";
 export type Lang = "en" | "ar" | "zh" | "id" | "fr" | "es" | "de" | "pt";
 
 type Dict = Record<string, string>;
@@ -2547,4 +2548,4 @@ const pt: Dict = {
   "footer.tagline": "PiScan · Ecossistema de rede soberana PiRC · Dados da Pi Network Horizon",
 };
 
-export const messages: Record<Lang, Dict> = { en, ar, zh, id, fr, es, de, pt };
+export const messages: Record<Lang, Dict> = { en: { ...en, ...EV.en }, ar: { ...ar, ...EV.ar }, zh: { ...zh, ...EV.zh }, id: { ...id, ...EV.id }, fr: { ...fr, ...EV.en }, es: { ...es, ...EV.en }, de: { ...de, ...EV.en }, pt: { ...pt, ...EV.en } };

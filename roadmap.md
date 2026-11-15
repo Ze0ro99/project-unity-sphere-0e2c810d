@@ -8,3 +8,10 @@
 - [ ] Restore real event retrieval: external endpoint returns HTTP 502 feed_query_failed; requires correction in the dedicated project's function/query.
 - [ ] Resolve two broad record-access findings: paid-challenge access mapping and access-scope confirmation are unavailable; policies unchanged.
 - [x] Save verified changes and report files, commit, and configuration.
+# Evidence labelling (Testnet read-only)
+- [x] Shared evidence badge (VERIFIED/OBSERVED/SIMULATED/UNKNOWN); VERIFIED only with fresh independent proof.
+- [x] Remove duplicate portal panel; single shared 60s poller with manual refresh and age.
+- [x] PiDEX simulated trades/order book/balances; quote shown apart from swap.
+- [x] PiGold pools/reserves UNKNOWN; Testnet NOT_FOUND/errors UNKNOWN; expected vs observed protocol; Oracle source/age, model SIMULATED.
+- [x] Tests for evidence, single poller, claims; combined npm test.
+- [ ] Two broad database read rules still open: the user forbade database changes in this task.
