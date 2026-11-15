@@ -9,7 +9,7 @@ import EvidenceBadge from "@/components/EvidenceBadge";
 import { classifyEvidence } from "@/lib/evidence";
 
 type Status = "pending" | "ok" | "fail" | "unknown";
-type Check = { id: string; label: string; kind: "token" | "contract" | "network"; address: string; status: Status; detail?: string; latencyMs?: number };
+type Check = { id: string; label: string; kind: "token" | "contract" | "network"; address: string; status: Status; detail?: string; latencyMs?: number; checkedAt?: number; endpoint?: string };
 
 // Only contract IDs sourced from the checked-in PiRC registry are listed here.
 // These IDs still require Soroban RPC deployment proof; Horizon account lookup is not sufficient.
@@ -50,7 +50,7 @@ export default function Testnet() {
     const netOk = !!root?.network_passphrase;
 
     setChecks((prev) => prev.map((c) => c.id === "network"
-      ? { ...c, status: netOk ? "ok" : "fail", latencyMs: netLat, detail: netOk ? root.network_passphrase : "Unreachable" }
+      ? { ...c, status: netOk ? "ok" : "unknown", latencyMs: netLat, checkedAt: Date.now(), endpoint: HORIZON_TESTNET, detail: netOk ? root.network_passphrase : "Unreachable" }
       : c));
 
     // Sequential-ish (limit concurrency)
@@ -91,7 +91,7 @@ export default function Testnet() {
           detail = e?.message ?? "Soroban verification API unavailable";
         }
         const lat = Math.round(performance.now() - start);
-        setChecks((prev) => prev.map((x) => x.id === c.id ? { ...x, status, detail, latencyMs: lat } : x));
+        setChecks((prev) => prev.map((x) => x.id === c.id ? { ...x, status, detail, latencyMs: lat, checkedAt: Date.now(), endpoint: c.address.startsWith("C") ? "Pi Testnet Soroban (read-only)" : HORIZON_TESTNET } : x));
         continue;
       }
       try {
@@ -110,7 +110,7 @@ export default function Testnet() {
         detail = e?.message ?? "network error";
       }
       const lat = Math.round(performance.now() - start);
-      setChecks((prev) => prev.map((x) => x.id === c.id ? { ...x, status, detail, latencyMs: lat } : x));
+      setChecks((prev) => prev.map((x) => x.id === c.id ? { ...x, status, detail, latencyMs: lat, checkedAt: Date.now(), endpoint: c.address.startsWith("C") ? "Pi Testnet Soroban (read-only)" : HORIZON_TESTNET } : x));
     }
 
     setRunning(false);
@@ -193,7 +193,7 @@ function Row({ c }: { c: Check }) {
         <div className="mono text-[10px] text-muted truncate">{shorten(c.address, 10, 8)}{c.detail ? ` · ${c.detail}` : ""}</div>
       </div>
       <div className="flex items-center gap-2">
-        <EvidenceBadge level={c.status === "pending" ? "UNKNOWN" : classifyEvidence({ source: "network", ok: c.status === "ok", observedAt: Date.now() })} />
+        <EvidenceBadge level={classifyEvidence({ source: "network", ok: c.status === "ok", observedAt: c.checkedAt ?? null })} observedAt={c.checkedAt ?? null} source={c.endpoint?.replace("https://", "")} />
         {c.latencyMs != null && <span className="mono text-[10px] text-muted">{c.latencyMs}ms</span>}
         {c.address.startsWith("G") && <a href={`https://api.testnet.minepi.com/accounts/${c.address}`} target="_blank" rel="noreferrer"
           className="text-muted hover:text-gold" aria-label={tr("Open Horizon account")}><ExternalLink size={12} /></a>}

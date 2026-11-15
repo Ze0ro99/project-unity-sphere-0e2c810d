@@ -24,6 +24,9 @@ test("Testnet treats NOT_FOUND and errors as unknown, not failed or deployed", a
   assert.match(s, /CONTRACT_INSTANCE_NOT_FOUND"\) \{\s*status = "unknown"/);
   assert.match(s, /api\.testnet\.minepi\.com|HORIZON_TESTNET/);
   assert.match(s, /Expected protocol \(tracked\)/);
+  assert.doesNotMatch(s, /horizon-testnet\.stellar\.org|soroban-testnet\.stellar\.org/);
+  assert.doesNotMatch(s, /status: netOk \? "ok" : "fail"/);
+  assert.match(s, /checkedAt: Date\.now\(\)/);
 });
 test("exchange and PiGold screens make no live trade, ACTIVE or liquidity claims", async () => {
   const dex = await readFile(new URL("../src/pages/PiDEX.tsx", import.meta.url), "utf8");
