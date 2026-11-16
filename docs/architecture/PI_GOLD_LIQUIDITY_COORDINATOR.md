@@ -142,5 +142,15 @@ The values are internal reference numeraire inputs only. They are not live excha
 
 The seven legacy layer roles remain intact. PiOrange is the Orange/Sacral utility and settlement tier; PiDEX is the exchange/router service and must not be conflated with the Orange asset. The legacy product key `piexchange` is retained in the current catalogue solely as a compatibility identifier while the display label is PiOrange. Any canonical asset-ID migration requires a separate versioned registry mapping and must preserve historical lookups.
 
+
+### Remaining legacy layer policy boundaries
+
+- **Purple / mined Pi:** the baseline reference is 10 PiGold per whole mined-Pi unit, with 10,000,000 mined-Pi subunits per whole mined-Pi unit. The optional 100 PiGold tier is a separate escrow migration policy, not a denomination change. It is unavailable until a frozen snapshot, exclusive escrow, reconciliation, governance approval and an `ACTIVATED` evidence record all exist. No native Pi supply is minted or altered by this reference calculation.
+- **Indigo / premium reserve:** preserve the legacy reserve layer and its independent reserve/eligibility method. This policy assigns no fixed PiGold ratio until its own reserve basis, haircuts, liabilities, liquidity and governance rules are approved.
+- **Red / governance:** voting and contribution weight are non-cash governance attributes. They have no fixed USD/PiGold redemption ratio.
+- **Yellow, Orange, Blue and Green:** use the explicit reference ladder above, with their own settlement rails and independent asset/pool ledgers.
+
+The frontend displays these boundaries separately. It must not infer missing Indigo or Red conversion ratios from the other layers, and it must not treat the Purple escrow tier as active because a larger subunit denomination is proposed.
+
 OUSD is an additional test-only profile, not a replacement for any legacy layer. The UI must label it TEST ONLY. The test liability lifecycle in `src/lib/ousd-liability.mjs` enforces policy preconditions for reserve evidence, issuer approval, payout and burn eligibility; it does not mint, burn, attest reserves, hold funds, call a bank, or execute payouts. The reserve evidence must identify a unique exclusive allocation so the same reserve cannot be counted twice. A production implementation still requires an independent reserve controller, durable uniqueness enforcement, legal issuer/redemption terms, key controls and external audit.
 
