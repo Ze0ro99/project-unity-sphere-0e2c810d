@@ -16,6 +16,9 @@ function Stat({ label, value, note }: { label: string; value: string; note?: str
 }
 
 
+const PURPLE_BASELINE_REFERENCE = purpleMinedPiToPiGoldReference("10000000");
+const PURPLE_BASELINE_PIGOLD = (BigInt(PURPLE_BASELINE_REFERENCE.piGoldReferenceCas) / 10_000_000n).toString();
+
 const REFERENCE_LAYER_LABELS: Record<string, string> = {
   pigold: "PiGold",
   yellow: "Pi Yellow",
@@ -131,7 +134,7 @@ export default function PiGold() {
       <section className="grid gap-3 md:grid-cols-3">
         <article className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4">
           <h3 className="font-semibold text-sm">Purple · mined-Pi bridge</h3>
-          <div className="mono text-lg mt-2">1 mined Pi = 10 PiGold</div>
+          <div className="mono text-lg mt-2">1 mined Pi = {PURPLE_BASELINE_PIGOLD} PiGold</div>
           <p className="text-[11px] text-muted mt-2">10,000,000 mined-Pi subunits per mined-Pi unit. The 100 PiGold tier is a separate migration policy and is not enabled by denomination changes alone.</p>
           <div className="mono text-xs mt-2">Escrow tier: 100 PiGold · ACTIVATED evidence required</div>
         </article>
