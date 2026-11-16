@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'src/**'
+      - 'tests/pigold-*.test.mjs'
+      - 'tests/netlify-ecosystem-feed.test.mjs'
       - 'public/**'
       - 'index.html'
       - 'package.json'
