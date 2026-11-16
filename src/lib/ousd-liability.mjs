@@ -11,7 +11,6 @@ export const OUSD_DECIMALS = 7;
 export const OUSD_ATOMIC_PER_WHOLE = 10_000_000n;
 export const OUSD_TEST_ONLY = true;
 
-const ACTIVE_STATES = new Set(["READY_TO_ISSUE", "ISSUED", "PAYOUT_PENDING", "PAYOUT_FAILED"]);
 const terminal = new Set(["REDEEMED", "CANCELLED"]);
 
 function uint(value, field) {
@@ -67,21 +66,22 @@ export function attachVerifiedReserve(record, evidence) {
     throw new Error("reserve must be independently verified and settled");
   }
   if (evidence.currency !== "USD") throw new Error("reserve currency must be USD");
+  if (evidence.liabilityId !== record.liabilityId) throw new Error("reserve evidence must be bound to this liability");
   if (typeof evidence.evidenceId !== "string" || !evidence.evidenceId.trim()) throw new Error("reserve evidenceId is required");
   if (typeof evidence.reserveAccountingId !== "string" || !evidence.reserveAccountingId.trim()) throw new Error("reserveAccountingId is required");
   if (typeof evidence.reserveAllocationId !== "string" || !evidence.reserveAllocationId.trim() || evidence.reserveAllocationExclusive !== true) {
     throw new Error("exclusive reserve allocation evidence is required to prevent double counting");
   }
-  const reserve = uint(evidence.reserveUsdMicros, "reserveUsdMicros");
+  const reserve = uint(evidence.allocatedUsdMicros, "allocatedUsdMicros");
   const required = uint(record.requiredReserveUsdMicros, "requiredReserveUsdMicros");
-  if (reserve < required) throw new Error("verified reserve is below the required liability coverage");
+  if (reserve < required) throw new Error("exclusive reserve allocation is below the required liability coverage");
   return freezeRecord({
     ...record,
     status: "READY_TO_ISSUE",
     reserveEvidenceId: evidence.evidenceId,
     reserveAccountingId: evidence.reserveAccountingId,
     reserveAllocationId: evidence.reserveAllocationId,
-    reserveUsdMicros: reserve.toString(),
+    allocatedUsdMicros: reserve.toString(),
   });
 }
 
@@ -100,13 +100,15 @@ export function authorizeOusdIssuance(record, approval) {
   });
 }
 
-export function requestOusdRedemption(record, requestId) {
+export function requestOusdRedemption(record, request) {
   if (record.status !== "ISSUED") throw new Error("only issued liabilities can enter redemption");
-  if (typeof requestId !== "string" || !requestId.trim()) throw new Error("redemption requestId is required");
+  if (!request || typeof request.requestId !== "string" || !request.requestId.trim()) throw new Error("redemption requestId is required");
+  if (typeof request.beneficiaryRef !== "string" || !request.beneficiaryRef.trim()) throw new Error("beneficiaryRef is required");
   return freezeRecord({
     ...record,
     status: "PAYOUT_PENDING",
-    redemptionRequestId: requestId,
+    redemptionRequestId: request.requestId,
+    beneficiaryRef: request.beneficiaryRef,
     mintPreparationEligible: false,
     burnPreparationEligible: false,
     payoutEvidenceId: null,
@@ -141,6 +143,15 @@ export function confirmOusdPayout(record, payoutEvidence) {
   if (record.status !== "PAYOUT_PENDING") throw new Error("payout must be pending");
   if (!payoutEvidence || payoutEvidence.status !== "SETTLED" || payoutEvidence.independentlyVerified !== true) {
     throw new Error("payout must be independently verified and settled before burn preparation");
+  }
+  if (payoutEvidence.liabilityId !== record.liabilityId || payoutEvidence.requestId !== record.redemptionRequestId) {
+    throw new Error("payout evidence must bind to the exact liability and redemption request");
+  }
+  if (payoutEvidence.beneficiaryRef !== record.beneficiaryRef || payoutEvidence.currency !== "USD") {
+    throw new Error("payout beneficiary or currency does not match the liability");
+  }
+  if (uint(payoutEvidence.amountUsdMicros, "amountUsdMicros") < uint(record.requiredReserveUsdMicros, "requiredReserveUsdMicros")) {
+    throw new Error("settled payout is below the liability amount");
   }
   if (typeof payoutEvidence.evidenceId !== "string" || !payoutEvidence.evidenceId.trim()) {
     throw new Error("payout evidenceId is required");
