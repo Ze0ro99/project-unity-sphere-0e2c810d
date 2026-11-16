@@ -123,3 +123,24 @@ The portal catalogue is a product taxonomy, not a replacement for the legacy PiR
 The current product catalogue proposes PiGold as a coordination/meta layer and six component roles. Blue, Green, Red, Purple and Yellow are conceptually aligned to the legacy labels, subject to independent contract/asset verification. Orange is not yet aligned: the legacy proposal calls it utility, while this product catalogue proposes exchange/market access. Indigo is not silently renamed to PiGold or PiPurple; it remains an unresolved legacy proposal outside the seven-product catalogue until governance records an explicit migration decision.
 
 No color or symbol is sufficient to bind a contract ID, issuer, reserve, supply, or redemption rule. The registry must retain the original identifiers and mark unresolved mappings as unverified.
+
+## Versioned internal purchasing-power ladder (illustrative)
+
+The application now exposes an additive `pirc-purchasing-power-v1` reference schedule. It does not replace the legacy PiRC-207 chakra conversions, existing contract decimals, historical balances or external market quote feeds.
+
+For the illustrative scenario where one PiGold reference unit is USD 600,000:
+
+| Layer | Illustrative reference per whole unit | Units per PiGold reference |
+|---|---:|---:|
+| PiGold | USD 600,000 | 1 |
+| Pi Yellow | USD 60,000 | 10 |
+| Pi Orange | USD 6,000 | 100 |
+| PiBank | USD 600 | 1,000 |
+| PiCash | USD 60 | 10,000 |
+
+The values are internal reference numeraire inputs only. They are not live exchange prices, collateral evidence, a promise to redeem for USD, or a claim of official Pi Network valuation. The dynamic market/evidence model above is a separate metric and must never silently overwrite this versioned reference ladder. Every quote and accounting display must identify which metric it uses.
+
+The seven legacy layer roles remain intact. PiOrange is the Orange/Sacral utility and settlement tier; PiDEX is the exchange/router service and must not be conflated with the Orange asset. The legacy product key `piexchange` is retained in the current catalogue solely as a compatibility identifier while the display label is PiOrange. Any canonical asset-ID migration requires a separate versioned registry mapping and must preserve historical lookups.
+
+OUSD is an additional test-only profile, not a replacement for any legacy layer. The UI must label it TEST ONLY. The test liability lifecycle in `src/lib/ousd-liability.mjs` enforces policy preconditions for reserve evidence, issuer approval, payout and burn eligibility; it does not mint, burn, attest reserves, hold funds, call a bank, or execute payouts. The reserve evidence must identify a unique exclusive allocation so the same reserve cannot be counted twice. A production implementation still requires an independent reserve controller, durable uniqueness enforcement, legal issuer/redemption terms, key controls and external audit.
+
