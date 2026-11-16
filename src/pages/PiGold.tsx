@@ -3,7 +3,7 @@ import { useMarketIndex } from "@/lib/market-index";
 import { PIGOLD_ASSETS } from "@/data/pigold-assets";
 import { PIGOLD_PROPOSED_WEIGHTS_BPS, PIGOLD_MODEL_VERSION } from "@/lib/pigold-economics";
 import { ArrowDownUp, ShieldCheck, Layers3, Activity, Coins } from "lucide-react";
-import { getPurchasingPowerLayer, listPurchasingPowerLayers } from "@/lib/pirc-purchasing-power-v1.js";
+import { getPurchasingPowerLayer, listPurchasingPowerLayers, purpleMinedPiToPiGoldReference } from "@/lib/pirc-purchasing-power-v1.js";
 
 function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
@@ -127,6 +127,26 @@ export default function PiGold() {
         </p>
       </section>
 
+
+      <section className="grid gap-3 md:grid-cols-3">
+        <article className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4">
+          <h3 className="font-semibold text-sm">Purple · mined-Pi bridge</h3>
+          <div className="mono text-lg mt-2">1 mined Pi = 10 PiGold</div>
+          <p className="text-[11px] text-muted mt-2">10,000,000 mined-Pi subunits per mined-Pi unit. The 100 PiGold tier is a separate migration policy and is not enabled by denomination changes alone.</p>
+          <div className="mono text-xs mt-2">Escrow tier: 100 PiGold · ACTIVATED evidence required</div>
+        </article>
+        <article className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4">
+          <h3 className="font-semibold text-sm">Indigo · premium reserve</h3>
+          <div className="mono text-lg mt-2">Independent valuation</div>
+          <p className="text-[11px] text-muted mt-2">Retained as a legacy reserve layer. No fixed PiGold conversion ratio is assigned until its own reserve, eligibility and governance policy is approved.</p>
+        </article>
+        <article className="rounded-xl border border-red-500/30 bg-red-500/5 p-4">
+          <h3 className="font-semibold text-sm">Red · governance</h3>
+          <div className="mono text-lg mt-2">No cash conversion</div>
+          <p className="text-[11px] text-muted mt-2">Contribution-based governance and voting weight. Voting rights and reputation are not a fixed USD or PiGold redemption claim.</p>
+        </article>
+      </section>
+
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="card p-4">
           <div className="flex items-center gap-2 text-sm font-semibold"><ArrowDownUp size={16} className="text-[#d8b56d]" /> Dynamic market anchor</div>
@@ -161,7 +181,7 @@ export default function PiGold() {
               <div className="flex items-center gap-3 pl-2">
                 <div className="relative h-11 w-11 shrink-0 rounded-xl flex items-center justify-center text-lg font-bold border border-white/10 overflow-hidden" style={{ background: `${asset.color}22`, color: asset.color }}>
                   {asset.symbol}
-                  <img src={asset.logoPath} alt={`${asset.name} logo`} className="absolute inset-0 h-full w-full object-contain p-0.5" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                  {asset.logoPath && <img src={asset.logoPath} alt={`${asset.name} logo`} className="absolute inset-0 h-full w-full object-contain p-0.5" onError={(event) => { event.currentTarget.style.display = "none"; }} />}
                 </div>
                 <div className="min-w-0">
                   <h3 className="font-semibold">{asset.name}</h3>
