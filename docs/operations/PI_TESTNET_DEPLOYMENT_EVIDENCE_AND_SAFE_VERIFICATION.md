@@ -24,6 +24,16 @@ The asset registry keeps two evidence domains separate:
 
 The supplied transaction URLs use `stellar.expert/explorer/testnet`; they are recorded as **Stellar Testnet evidence**, not Pi Testnet deployment evidence. A Pi Testnet account snapshot does not establish that these contracts were deployed on Pi Testnet or that the account deployed them.
 
+## Newly supplied application account — pending independent read-back
+
+- Public account supplied by the operator: `GD6HJ6WAXF4I7EW7M3SHOKRALOOPSSYSNVLCJ66PBFZRBZKYMPQFNMP4`
+- Intended network: Pi Testnet1 (`https://api.testnet.minepi.com`)
+- Intended use: account identity for read-only Horizon and Soroban RPC preflight.
+- Evidence status: `UNKNOWN` until Horizon returns HTTP 200 and the returned `account_id` exactly matches this value.
+- No balance, sequence, issuer role, signer authority, token ownership, or deployment relationship is asserted by the address alone.
+
+The read-only verifier now defaults to this operator-supplied public account. It still accepts an explicit `PI_ACCOUNT_ID` override and does not read secrets, sign, deploy, invoke, mint, transfer, or modify ledger state.
+
 ## Read-only check
 
 Run:
