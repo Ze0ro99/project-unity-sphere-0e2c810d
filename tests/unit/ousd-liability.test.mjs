@@ -22,6 +22,8 @@ const reserve = {
   currency: "USD",
   evidenceId: "bank-statement:2026-11-16:001",
   reserveAccountingId: "usd-reserve:segregated:001",
+  reserveAllocationId: "usd-allocation:liability-specific:001",
+  reserveAllocationExclusive: true,
   reserveUsdMicros: "1000000",
 };
 const payout = {
@@ -45,6 +47,7 @@ test("reserve coverage rounds upward and rejects unverified, unsettled or underf
   const liability = createOusdLiability({ liabilityId: "order:002", ousdAmountAtomic: "10000000" });
   assert.throws(() => attachVerifiedReserve(liability, { ...reserve, independentlyVerified: false }), /independently verified/);
   assert.throws(() => attachVerifiedReserve(liability, { ...reserve, status: "PENDING" }), /settled/);
+  assert.throws(() => attachVerifiedReserve(liability, { ...reserve, reserveAllocationExclusive: false }), /exclusive reserve allocation/);
   assert.throws(() => attachVerifiedReserve(liability, { ...reserve, reserveUsdMicros: "999999" }), /below/);
 });
 
