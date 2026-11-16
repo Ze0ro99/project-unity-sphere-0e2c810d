@@ -7,7 +7,7 @@
  * it does not custody or merge constituent pool reserves.
  */
 export type PiGoldAsset = {
-  id: "pigold" | "pibank" | "picash" | "piexchange" | "pigovernance" | "pipurple" | "piyellow";
+  id: "pigold" | "pibank" | "picash" | "piexchange" | "pigovernance" | "pipurple" | "piyellow" | "ousd";
   name: string;
   symbol: string;
   color: string;
@@ -15,7 +15,7 @@ export type PiGoldAsset = {
   role: string;
   legacyMapping: string;
   relationship: "coordinator" | "component";
-  status: "design";
+  status: "design" | "test-only";
   description: string;
 };
 
@@ -58,15 +58,15 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
   },
   {
     id: "piexchange",
-    name: "PiExchange",
-    symbol: "πX",
+    name: "PiOrange",
+    symbol: "πO",
     color: "#ed8a42",
     logoPath: "/token-logos/orange-3141.svg",
-    role: "Exchange and market access",
-    legacyMapping: "Orange / Sacral is a role conflict: legacy Orange is utility; exchange designation is a new proposal.",
+    role: "Mid-tier utility and settlement access",
+    legacyMapping: "Orange / Sacral utility tier retained; legacy asset ID piexchange is preserved as a compatibility key only.",
     relationship: "component",
     status: "design",
-    description: "Exchange venues, order books and pair-specific AMM pools; market quotes are not guaranteed execution.",
+    description: "Mid-tier utility and settlement layer. PiDEX remains a separate exchange and routing service, not the Orange asset itself.",
   },
   {
     id: "pigovernance",
@@ -91,6 +91,19 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
     relationship: "component",
     status: "design",
     description: "Foundational participation and provenance classification; eligibility does not imply redemption rights.",
+  },
+
+  {
+    id: "ousd",
+    name: "OUSD",
+    symbol: "OUSD",
+    color: "#6f9fd8",
+    logoPath: "/token-logos/ousd-test-placeholder.svg",
+    role: "USD-denominated test settlement profile",
+    legacyMapping: "Additional test-only asset; it is not a replacement for any of the seven legacy layers.",
+    relationship: "component",
+    status: "test-only",
+    description: "Interface and liability-lifecycle test asset only. No USD peg, reserve backing, custody, redemption or production issuer is verified.",
   },
   {
     id: "piyellow",
