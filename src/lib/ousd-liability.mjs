@@ -52,6 +52,7 @@ export function createOusdLiability({ liabilityId, ousdAmountAtomic }) {
     status: "AWAITING_RESERVE",
     reserveEvidenceId: null,
     reserveAccountingId: null,
+    reserveAllocationId: null,
     issuerApprovalId: null,
     payoutEvidenceId: null,
     outstandingLiability: true,
@@ -68,6 +69,9 @@ export function attachVerifiedReserve(record, evidence) {
   if (evidence.currency !== "USD") throw new Error("reserve currency must be USD");
   if (typeof evidence.evidenceId !== "string" || !evidence.evidenceId.trim()) throw new Error("reserve evidenceId is required");
   if (typeof evidence.reserveAccountingId !== "string" || !evidence.reserveAccountingId.trim()) throw new Error("reserveAccountingId is required");
+  if (typeof evidence.reserveAllocationId !== "string" || !evidence.reserveAllocationId.trim() || evidence.reserveAllocationExclusive !== true) {
+    throw new Error("exclusive reserve allocation evidence is required to prevent double counting");
+  }
   const reserve = uint(evidence.reserveUsdMicros, "reserveUsdMicros");
   const required = uint(record.requiredReserveUsdMicros, "requiredReserveUsdMicros");
   if (reserve < required) throw new Error("verified reserve is below the required liability coverage");
@@ -76,6 +80,7 @@ export function attachVerifiedReserve(record, evidence) {
     status: "READY_TO_ISSUE",
     reserveEvidenceId: evidence.evidenceId,
     reserveAccountingId: evidence.reserveAccountingId,
+    reserveAllocationId: evidence.reserveAllocationId,
     reserveUsdMicros: reserve.toString(),
   });
 }
