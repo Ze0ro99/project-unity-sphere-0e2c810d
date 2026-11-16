@@ -7,7 +7,7 @@ test("PiGold catalogue preserves seven legacy layers and adds OUSD as an eighth 
   assert.equal(PIGOLD_COMPONENTS.length, 8);
   assert.equal(PIGOLD_ASSETS.filter((asset) => asset.relationship === "coordinator").length, 1);
   assert.deepEqual(PIGOLD_COMPONENTS.map((asset) => asset.id).sort(), [
-    "ousd", "piindigo", "pibank", "picash", "piexchange", "pigovernance", "pipurple", "piyellow",
+    "ousd", "pibank", "picash", "piexchange", "pigovernance", "piindigo", "pipurple", "piyellow",
   ]);
 });
 
