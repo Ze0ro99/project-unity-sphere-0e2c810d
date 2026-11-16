@@ -11,6 +11,9 @@ export const CAS_PER_WHOLE_UNIT = 10_000_000n;
 export const REFERENCE_NUMERAIRE = "USD";
 export const REFERENCE_SCENARIO = "illustrative-600000-pigold";
 export const EXECUTION_ENABLED = false;
+export const PURPLE_SUBUNITS_PER_MINED_PI = 10_000_000n;
+export const PURPLE_PIGOLD_PER_MINED_PI_BASELINE = 10n;
+export const PURPLE_PIGOLD_PER_MINED_PI_ESCROW_TIER = 100n;
 
 const LAYERS = Object.freeze({
   pigold: Object.freeze({
@@ -119,3 +122,36 @@ export function illustrativeReferenceUsdMicros(layerKey, amountCas) {
 export function listPurchasingPowerLayers() {
   return Object.keys(LAYERS);
 }
+
+/**
+ * Reference-only Purple mined-Pi bridge math.
+ * The 100 PiGold tier is available only after escrow migration is ACTIVATED
+ * with a durable evidence ID. This never moves, locks, mints or burns assets.
+ */
+export function purpleMinedPiToPiGoldReference(minedPiSubunits, options = {}) {
+  const amount = unsignedBigInt(minedPiSubunits, "minedPiSubunits");
+  const tier = options.tier ?? "baseline";
+  let piGoldPerMinedPi;
+  if (tier === "baseline") {
+    piGoldPerMinedPi = PURPLE_PIGOLD_PER_MINED_PI_BASELINE;
+  } else if (tier === "escrow-migrated") {
+    if (options.migrationStatus !== "ACTIVATED" ||
+        typeof options.migrationEvidenceId !== "string" ||
+        !options.migrationEvidenceId.trim()) {
+      throw new Error("100 PiGold tier requires activated, evidenced escrow migration");
+    }
+    piGoldPerMinedPi = PURPLE_PIGOLD_PER_MINED_PI_ESCROW_TIER;
+  } else {
+    throw new RangeError("unsupported Purple mined-Pi tier");
+  }
+  return Object.freeze({
+    policyId: POLICY_ID,
+    layerKey: "purple",
+    tier,
+    minedPiSubunits: amount.toString(),
+    piGoldReferenceCas: (amount * piGoldPerMinedPi).toString(),
+    migrationEvidenceId: options.migrationEvidenceId ?? null,
+    executable: false,
+  });
+}
+
