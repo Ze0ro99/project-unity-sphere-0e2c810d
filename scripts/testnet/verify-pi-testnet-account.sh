@@ -3,7 +3,8 @@ set -Eeuo pipefail
 
 PI_HORIZON_BASE="${PI_HORIZON_BASE:-https://api.testnet.minepi.com}"
 PI_SOROBAN_RPC="${PI_SOROBAN_RPC:-https://rpc.testnet.minepi.com}"
-PI_ACCOUNT_ID="${PI_ACCOUNT_ID:-GA3ECRFJ6SO5BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6}"
+# Operator-provided public Testnet account. This is an identifier, not a signing key.
+PI_ACCOUNT_ID="${PI_ACCOUNT_ID:-GD6HJ6WAXF4I7EW7M3SHOKRALOOPSSYSNVLCJ66PBFZRBZKYMPQFNMP4}"
 
 for bin in curl jq; do
   command -v "$bin" >/dev/null 2>&1 || { echo "ERROR: required command not found: $bin" >&2; exit 2; }
@@ -51,6 +52,6 @@ cat <<'NOTICE'
 
 PASS: Pi Testnet account is readable and the Soroban RPC reports healthy.
 LIMIT: This script does NOT verify contract instances, WASM/code hashes, token
-metadata, issuer authorization, or any of the seven deployment transactions.
+metadata, issuer authorization, or any deployment transaction.
 It performs no signing, deployment, invocation, minting, payment, or transfer.
 NOTICE
