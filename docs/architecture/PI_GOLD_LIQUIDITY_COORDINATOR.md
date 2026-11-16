@@ -84,11 +84,11 @@ This specification does not create a PiGold router contract, deploy any contract
 
 ## Seven-asset product taxonomy
 
-The portal product taxonomy contains seven proposed assets:
+The portal product taxonomy preserves the seven legacy layer roles and adds OUSD as a separate test-only profile:
 - PiGold: system coordination, routing policy and consolidated reporting.
 - PiBank (blue): banking and institutional workflows.
 - PiCash (green): everyday payment utility.
-- PiExchange (orange): exchange and market access.
+- PiOrange (orange): mid-tier utility and settlement access; the legacy `piexchange` key remains for compatibility only.
 - PiGovernance (red): governance and policy.
 - PiPurple (purple): foundational participation and provenance classification.
 - PiYellow (yellow): utility and service access.
@@ -120,7 +120,7 @@ The dashboard must show `PENDING EVIDENCE` rather than filling gaps with synthet
 
 The portal catalogue is a product taxonomy, not a replacement for the legacy PiRC-207 proposal table. The legacy proposal identifies Red/Root as governance, Orange/Sacral as mid-tier utility, Yellow/Solar Plexus as high-tier utility, Green/Heart as PiCash, Blue/Throat as banking, Indigo/Third Eye as premium reserve, and Purple/Crown as mined Pi/fractions.
 
-The current product catalogue proposes PiGold as a coordination/meta layer and six component roles. Blue, Green, Red, Purple and Yellow are conceptually aligned to the legacy labels, subject to independent contract/asset verification. Orange is not yet aligned: the legacy proposal calls it utility, while this product catalogue proposes exchange/market access. Indigo is not silently renamed to PiGold or PiPurple; it remains an unresolved legacy proposal outside the seven-product catalogue until governance records an explicit migration decision.
+The current product catalogue proposes PiGold as a coordination/meta layer and preserves the six legacy component roles; OUSD is an additional test-only component outside the legacy layer count. Blue, Green, Red, Purple and Yellow are conceptually aligned to the legacy labels, subject to independent contract/asset verification. Orange is not yet aligned: the legacy proposal calls it utility, while this product catalogue proposes exchange/market access. Indigo is not silently renamed to PiGold or PiPurple; it remains an unresolved legacy proposal outside the seven-product catalogue until governance records an explicit migration decision.
 
 No color or symbol is sufficient to bind a contract ID, issuer, reserve, supply, or redemption rule. The registry must retain the original identifiers and mark unresolved mappings as unverified.
 
