@@ -57,6 +57,7 @@ test("reserve coverage rounds upward and rejects unverified, unsettled or underf
   const liability = createOusdLiability({ liabilityId: "order:002", ousdAmountAtomic: "10000000" });
   assert.throws(() => attachVerifiedReserve(liability, { ...reserve("order:002"), independentlyVerified: false }), /independently verified/);
   assert.throws(() => attachVerifiedReserve(liability, { ...reserve("order:002"), status: "PENDING" }), /settled/);
+  assert.throws(() => attachVerifiedReserve(liability, { ...reserve("different-order"), liabilityId: "different-order" }), /bound to this liability/);
   assert.throws(() => attachVerifiedReserve(liability, { ...reserve("order:002"), reserveAllocationExclusive: false }), /exclusive reserve allocation/);
   assert.throws(() => attachVerifiedReserve(liability, { ...reserve("order:002"), allocatedUsdMicros: "999999" }), /below/);
 });
@@ -89,6 +90,8 @@ test("burn preparation becomes eligible only after independently verified settle
   const issued = authorizeOusdIssuance(ready, { approved: true, approvalId: "issuer-approval-003" });
   const pending = requestOusdRedemption(issued, { requestId: "redeem-002", beneficiaryRef: "beneficiary:002" });
   assert.throws(() => confirmOusdPayout(pending, { ...payout(pending), independentlyVerified: false }), /independently verified/);
+  assert.throws(() => confirmOusdPayout(pending, { ...payout(pending), beneficiaryRef: "beneficiary:wrong" }), /beneficiary or currency/);
+  assert.throws(() => confirmOusdPayout(pending, { ...payout(pending), amountUsdMicros: "1" }), /below the liability/);
   const redeemed = confirmOusdPayout(pending, payout(pending));
   assert.equal(redeemed.status, "REDEEMED");
   assert.equal(redeemed.outstandingLiability, false);
