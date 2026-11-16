@@ -149,10 +149,10 @@ export default function PiGold() {
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold">Seven-asset ecosystem</h2>
-            <p className="text-xs text-muted">Proposed product taxonomy. Contract deployment, supply and official artwork are not verified by this catalogue.</p>
+            <h2 className="text-lg font-semibold">Core layers and OUSD extension</h2>
+            <p className="text-xs text-muted">The existing layer taxonomy is preserved; OUSD is an additional test-only profile. Contract deployment, supply and issuer evidence remain independently unverified.</p>
           </div>
-          <span className="chip">6 components + PiGold coordinator</span>
+          <span className="chip">Legacy layers + PiGold coordinator + OUSD test profile</span>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {PIGOLD_ASSETS.map((asset) => (
