@@ -3,6 +3,7 @@ import { useMarketIndex } from "@/lib/market-index";
 import { PIGOLD_ASSETS } from "@/data/pigold-assets";
 import { PIGOLD_PROPOSED_WEIGHTS_BPS, PIGOLD_MODEL_VERSION } from "@/lib/pigold-economics";
 import { ArrowDownUp, ShieldCheck, Layers3, Activity, Coins } from "lucide-react";
+import { getPurchasingPowerLayer, listPurchasingPowerLayers } from "@/lib/pirc-purchasing-power-v1.js";
 
 function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
@@ -12,6 +13,24 @@ function Stat({ label, value, note }: { label: string; value: string; note?: str
       {note && <div className="text-[11px] text-muted mt-1">{note}</div>}
     </div>
   );
+}
+
+
+const REFERENCE_LAYER_LABELS: Record<string, string> = {
+  pigold: "PiGold",
+  yellow: "Pi Yellow",
+  orange: "Pi Orange",
+  pibank: "PiBank",
+  picash: "PiCash",
+};
+
+function formatUsdMicros(value: string): string {
+  const usd = Number(BigInt(value)) / 1_000_000;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(usd);
 }
 
 export default function PiGold() {
@@ -66,6 +85,46 @@ export default function PiGold() {
           ))}
         </div>
         <p className="text-[11px] text-muted mt-3">Proposed policy weights only: market anchor 40%, verified liquidity coverage 25%, fulfilled utility 15%, measured velocity 10%, and price stability 10%. The model refuses to calculate an internal index until a versioned policy is explicitly approved by governance and evidence-backed inputs are connected.</p>
+      </section>
+
+
+      <section className="rounded-xl border border-[#806b42]/40 bg-panel/60 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="font-semibold text-sm">PiGold nested purchasing-power ladder</h2>
+            <p className="text-[11px] text-muted mt-1">Versioned reference schedule · pirc-purchasing-power-v1</p>
+          </div>
+          <span className="chip">REFERENCE ONLY · NOT A LIVE PRICE</span>
+        </div>
+        <div className="overflow-x-auto mt-3">
+          <table className="w-full min-w-[420px] text-sm">
+            <thead>
+              <tr className="text-left text-[10px] uppercase tracking-wider text-muted border-b border-border">
+                <th className="py-2 pr-3">Layer</th>
+                <th className="py-2 pr-3 text-right">Reference / unit</th>
+                <th className="py-2 text-right">Units per PiGold</th>
+              </tr>
+            </thead>
+            <tbody>
+              {listPurchasingPowerLayers().map((key) => {
+                const layer = getPurchasingPowerLayer(key);
+                return (
+                  <tr key={key} className="border-b border-border/60 last:border-0">
+                    <td className="py-2 pr-3 font-medium">{REFERENCE_LAYER_LABELS[key] ?? key}</td>
+                    <td className="py-2 pr-3 text-right mono">{formatUsdMicros(layer.illustrativeUsdMicrosPerWholeUnit)}</td>
+                    <td className="py-2 text-right mono">{Number(layer.unitsPerPiGold).toLocaleString("en-US")}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-[11px] text-muted mt-3">
+          Illustrative scenario: 1 PiGold reference = $600,000; Yellow = $60,000; Orange = $6,000;
+          PiBank = $600; PiCash = $60. Each layer retains its own issuer, ledger, reserves and settlement rail.
+          These figures do not represent exchange prices, collateral, guaranteed redemption or spendable USD.
+          External venue quotes, internal reference values and executable pool quotes remain separate.
+        </p>
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
