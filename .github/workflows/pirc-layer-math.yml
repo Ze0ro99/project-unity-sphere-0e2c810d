@@ -5,6 +5,8 @@ on:
     paths:
       - 'assets/js/pirc207-layer-math.mjs'
       - 'tests/unit/pirc207-layer-math.test.mjs'
+      - 'assets/js/pirc-purchasing-power-v1.mjs'
+      - 'tests/unit/pirc-purchasing-power-v1.test.mjs'
       - '.github/workflows/pirc-layer-math.yml'
   push:
     branches:
@@ -22,4 +24,4 @@ jobs:
         with:
           node-version: '22'
       - name: Run exact-arithmetic tests
-        run: node --test tests/unit/pirc207-layer-math.test.mjs
+        run: node --test tests/unit/pirc207-layer-math.test.mjs tests/unit/pirc-purchasing-power-v1.test.mjs
