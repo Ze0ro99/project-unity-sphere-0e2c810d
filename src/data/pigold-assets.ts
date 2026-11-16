@@ -7,7 +7,7 @@
  * it does not custody or merge constituent pool reserves.
  */
 export type PiGoldAsset = {
-  id: "pigold" | "pibank" | "picash" | "piexchange" | "pigovernance" | "pipurple" | "piyellow" | "ousd";
+  id: "pigold" | "pibank" | "picash" | "piexchange" | "pigovernance" | "pipurple" | "piyellow" | "piindigo" | "ousd";
   name: string;
   symbol: string;
   color: string;
@@ -86,13 +86,26 @@ export const PIGOLD_ASSETS: readonly PiGoldAsset[] = [
     symbol: "πP",
     color: "#9874d8",
     logoPath: "/token-logos/purple-mined-pi.svg",
-    role: "Identity and foundational participation",
-    legacyMapping: "Purple / Crown mined-Pi proposal; contract and asset-code mapping remain unverified.",
+    role: "Mined Pi bridge and provenance",
+    legacyMapping: "Purple / Crown mined-Pi and fractions; bridge conversion remains policy-gated and contract mapping unverified.",
     relationship: "component",
     status: "design",
-    description: "Foundational participation and provenance classification; eligibility does not imply redemption rights.",
+    description: "Mined-Pi provenance and bridge accounting. Baseline reference is 10 PiGold per mined-Pi unit; a 100 PiGold migration tier requires separately approved escrow reconciliation and activation.",
   },
 
+
+  {
+    id: "piindigo",
+    name: "PiIndigo",
+    symbol: "πI",
+    color: "#6e59d9",
+    logoPath: "",
+    role: "Premium reserve layer",
+    legacyMapping: "Indigo / Third Eye legacy reserve proposal retained; no fixed PiGold ratio is assigned by this policy.",
+    relationship: "component",
+    status: "design",
+    description: "Independent premium reserve layer. Its own reserve valuation, eligibility and liquidity policy must be approved; no automatic conversion ratio is inferred.",
+  },
   {
     id: "ousd",
     name: "OUSD",
