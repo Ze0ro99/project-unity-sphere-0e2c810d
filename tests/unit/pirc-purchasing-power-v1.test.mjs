@@ -9,6 +9,7 @@ import {
   piGoldReferenceToLayerCas,
   illustrativeReferenceUsdMicros,
   listPurchasingPowerLayers,
+  purpleMinedPiToPiGoldReference,
 } from "../../assets/js/pirc-purchasing-power-v1.mjs";
 
 test("new purchasing-power policy is additive and non-executable", () => {
@@ -51,4 +52,26 @@ test("unknown layers and negative or malformed amounts fail closed", () => {
   assert.throws(() => layerCasToPiGoldReference("indigo", "100"), /Unsupported/);
   assert.throws(() => layerCasToPiGoldReference("yellow", "-1"), /unsigned/);
   assert.throws(() => layerCasToPiGoldReference("yellow", "1.5"), /unsigned integer/);
+});
+
+test("Purple baseline bridge is 10 PiGold per mined-Pi unit", () => {
+  const result = purpleMinedPiToPiGoldReference("10000000");
+  assert.equal(result.piGoldReferenceCas, "100000000");
+  assert.equal(result.tier, "baseline");
+  assert.equal(result.executable, false);
+});
+
+test("Purple 100 PiGold migration tier requires activated escrow evidence", () => {
+  assert.throws(
+    () => purpleMinedPiToPiGoldReference("10000000", { tier: "escrow-migrated", migrationStatus: "RECONCILED" }),
+    /activated, evidenced escrow migration/,
+  );
+  const result = purpleMinedPiToPiGoldReference("10000000", {
+    tier: "escrow-migrated",
+    migrationStatus: "ACTIVATED",
+    migrationEvidenceId: "escrow-migration:approved:001",
+  });
+  assert.equal(result.piGoldReferenceCas, "1000000000");
+  assert.equal(result.migrationEvidenceId, "escrow-migration:approved:001");
+  assert.equal(result.executable, false);
 });
