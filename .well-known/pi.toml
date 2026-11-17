@@ -1,29 +1,17 @@
-# PiRC-207 Official Metadata
-VERSION="2.0.0"
+# PiRC community project metadata for Pi Testnet.
+# This file does not represent Pi Core Team endorsement or official asset activation.
+# Asset entries are intentionally omitted until issuer authority, network asset identity,
+# deployment transaction and authoritative ledger read-back are independently verified.
+VERSION="2.1.0"
 NETWORK_PASSPHRASE="Pi Testnet"
 
 [DOCUMENTATION]
-ORG_NAME="PiRC Ecosystem"
+ORG_NAME="PiRC Community Project"
 ORG_URL="https://ze0ro99.github.io/PiRC"
-ORG_DESCRIPTION="Professional 7-Layer RWA Ecosystem on Pi Network"
-ORG_OFFICIAL_EMAIL="admin@ze0ro99.github.io/PiRC"
+ORG_DESCRIPTION="Community engineering project. Proposed assets are not verified or activated."
 
 [[PRINCIPALS]]
 name="Ze0ro99"
-email="admin@ze0ro99.github.io/PiRC"
 
-[[CURRENCIES]]
-code="GOLD"
-issuer="GA3ECRFJ6S05BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6"
-display_decimals=7
-name="PiRC Reserve Asset"
-desc="Primary reserve currency with a Parity of 314,159."
-status="live"
-
-[[CURRENCIES]]
-code="GREEN"
-issuer="GA3ECRFJ6S05BW6NEIKW3ACJXNG5UNBTLRRXWC742NHUEDV6KL3RNEN6"
-display_decimals=7
-name="PiCash"
-desc="Official ecosystem currency for P2P and merchant use."
-status="live"
+# No CURRENCIES entries are published at this time.
+# Repository-supplied contract IDs remain unverified claims; do not list them as live assets.
