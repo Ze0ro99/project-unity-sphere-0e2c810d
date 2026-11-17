@@ -3,6 +3,7 @@ import { useMarketIndex } from "@/lib/market-index";
 import { PIGOLD_ASSETS } from "@/data/pigold-assets";
 import { PIGOLD_PROPOSED_WEIGHTS_BPS, PIGOLD_MODEL_VERSION } from "@/lib/pigold-economics";
 import { ArrowDownUp, ShieldCheck, Layers3, Activity, Coins } from "lucide-react";
+import { getPurchasingPowerLayer, listPurchasingPowerLayers, purpleMinedPiToPiGoldReference } from "@/lib/pirc-purchasing-power-v1.js";
 
 function Stat({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
@@ -12,6 +13,27 @@ function Stat({ label, value, note }: { label: string; value: string; note?: str
       {note && <div className="text-[11px] text-muted mt-1">{note}</div>}
     </div>
   );
+}
+
+
+const PURPLE_BASELINE_REFERENCE = purpleMinedPiToPiGoldReference("10000000");
+const PURPLE_BASELINE_PIGOLD = (BigInt(PURPLE_BASELINE_REFERENCE.piGoldReferenceCas) / 10_000_000n).toString();
+
+const REFERENCE_LAYER_LABELS: Record<string, string> = {
+  pigold: "PiGold",
+  yellow: "Pi Yellow",
+  orange: "Pi Orange",
+  pibank: "PiBank",
+  picash: "PiCash",
+};
+
+function formatUsdMicros(value: string): string {
+  const usd = Number(BigInt(value)) / 1_000_000;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(usd);
 }
 
 export default function PiGold() {
@@ -68,6 +90,66 @@ export default function PiGold() {
         <p className="text-[11px] text-muted mt-3">Proposed policy weights only: market anchor 40%, verified liquidity coverage 25%, fulfilled utility 15%, measured velocity 10%, and price stability 10%. The model refuses to calculate an internal index until a versioned policy is explicitly approved by governance and evidence-backed inputs are connected.</p>
       </section>
 
+
+      <section className="rounded-xl border border-[#806b42]/40 bg-panel/60 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 className="font-semibold text-sm">PiGold nested purchasing-power ladder</h2>
+            <p className="text-[11px] text-muted mt-1">Versioned reference schedule · pirc-purchasing-power-v1</p>
+          </div>
+          <span className="chip">REFERENCE ONLY · NOT A LIVE PRICE</span>
+        </div>
+        <div className="overflow-x-auto mt-3">
+          <table className="w-full min-w-[420px] text-sm">
+            <thead>
+              <tr className="text-left text-[10px] uppercase tracking-wider text-muted border-b border-border">
+                <th className="py-2 pr-3">Layer</th>
+                <th className="py-2 pr-3 text-right">Reference / unit</th>
+                <th className="py-2 text-right">Units per PiGold</th>
+              </tr>
+            </thead>
+            <tbody>
+              {listPurchasingPowerLayers().map((key) => {
+                const layer = getPurchasingPowerLayer(key);
+                return (
+                  <tr key={key} className="border-b border-border/60 last:border-0">
+                    <td className="py-2 pr-3 font-medium">{REFERENCE_LAYER_LABELS[key] ?? key}</td>
+                    <td className="py-2 pr-3 text-right mono">{formatUsdMicros(layer.illustrativeUsdMicrosPerWholeUnit)}</td>
+                    <td className="py-2 text-right mono">{Number(layer.unitsPerPiGold).toLocaleString("en-US")}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-[11px] text-muted mt-3">
+          Illustrative scenario: 1 PiGold reference = $600,000; Yellow = $60,000; Orange = $6,000;
+          PiBank = $600; PiCash = $60. Each layer retains its own issuer, ledger, reserves and settlement rail.
+          These figures do not represent exchange prices, collateral, guaranteed redemption or spendable USD.
+          External venue quotes, internal reference values and executable pool quotes remain separate.
+        </p>
+      </section>
+
+
+      <section className="grid gap-3 md:grid-cols-3">
+        <article className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4">
+          <h3 className="font-semibold text-sm">Purple · mined-Pi bridge</h3>
+          <div className="mono text-lg mt-2">1 mined Pi = {PURPLE_BASELINE_PIGOLD} PiGold</div>
+          <p className="text-[11px] text-muted mt-2">10,000,000 mined-Pi subunits per mined-Pi unit. The 100 PiGold tier is a separate migration policy and is not enabled by denomination changes alone.</p>
+          <div className="mono text-xs mt-2">Escrow tier: 100 PiGold · ACTIVATED evidence required</div>
+        </article>
+        <article className="rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4">
+          <h3 className="font-semibold text-sm">Indigo · premium reserve</h3>
+          <div className="mono text-lg mt-2">Independent valuation</div>
+          <p className="text-[11px] text-muted mt-2">Retained as a legacy reserve layer. No fixed PiGold conversion ratio is assigned until its own reserve, eligibility and governance policy is approved.</p>
+        </article>
+        <article className="rounded-xl border border-red-500/30 bg-red-500/5 p-4">
+          <h3 className="font-semibold text-sm">Red · governance</h3>
+          <div className="mono text-lg mt-2">No cash conversion</div>
+          <p className="text-[11px] text-muted mt-2">Contribution-based governance and voting weight. Voting rights and reputation are not a fixed USD or PiGold redemption claim.</p>
+        </article>
+      </section>
+
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="card p-4">
           <div className="flex items-center gap-2 text-sm font-semibold"><ArrowDownUp size={16} className="text-[#d8b56d]" /> Dynamic market anchor</div>
@@ -90,10 +172,10 @@ export default function PiGold() {
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold">Seven-asset ecosystem</h2>
-            <p className="text-xs text-muted">Proposed product taxonomy. Contract deployment, supply and official artwork are not verified by this catalogue.</p>
+            <h2 className="text-lg font-semibold">Core layers and OUSD extension</h2>
+            <p className="text-xs text-muted">The existing layer taxonomy is preserved; OUSD is an additional test-only profile. Contract deployment, supply and issuer evidence remain independently unverified.</p>
           </div>
-          <span className="chip">6 components + PiGold coordinator</span>
+          <span className="chip">Legacy layers + PiGold coordinator + OUSD test profile</span>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {PIGOLD_ASSETS.map((asset) => (
@@ -102,7 +184,7 @@ export default function PiGold() {
               <div className="flex items-center gap-3 pl-2">
                 <div className="relative h-11 w-11 shrink-0 rounded-xl flex items-center justify-center text-lg font-bold border border-white/10 overflow-hidden" style={{ background: `${asset.color}22`, color: asset.color }}>
                   {asset.symbol}
-                  <img src={asset.logoPath} alt={`${asset.name} logo`} className="absolute inset-0 h-full w-full object-contain p-0.5" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                  {asset.logoPath && <img src={asset.logoPath} alt={`${asset.name} logo`} className="absolute inset-0 h-full w-full object-contain p-0.5" onError={(event) => { event.currentTarget.style.display = "none"; }} />}
                 </div>
                 <div className="min-w-0">
                   <h3 className="font-semibold">{asset.name}</h3>

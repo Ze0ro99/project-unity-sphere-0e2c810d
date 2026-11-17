@@ -84,11 +84,11 @@ This specification does not create a PiGold router contract, deploy any contract
 
 ## Seven-asset product taxonomy
 
-The portal product taxonomy contains seven proposed assets:
+The portal product taxonomy preserves the seven legacy layer roles and adds OUSD as a separate test-only profile:
 - PiGold: system coordination, routing policy and consolidated reporting.
 - PiBank (blue): banking and institutional workflows.
 - PiCash (green): everyday payment utility.
-- PiExchange (orange): exchange and market access.
+- PiOrange (orange): mid-tier utility and settlement access; the legacy `piexchange` key remains for compatibility only.
 - PiGovernance (red): governance and policy.
 - PiPurple (purple): foundational participation and provenance classification.
 - PiYellow (yellow): utility and service access.
@@ -120,6 +120,37 @@ The dashboard must show `PENDING EVIDENCE` rather than filling gaps with synthet
 
 The portal catalogue is a product taxonomy, not a replacement for the legacy PiRC-207 proposal table. The legacy proposal identifies Red/Root as governance, Orange/Sacral as mid-tier utility, Yellow/Solar Plexus as high-tier utility, Green/Heart as PiCash, Blue/Throat as banking, Indigo/Third Eye as premium reserve, and Purple/Crown as mined Pi/fractions.
 
-The current product catalogue proposes PiGold as a coordination/meta layer and six component roles. Blue, Green, Red, Purple and Yellow are conceptually aligned to the legacy labels, subject to independent contract/asset verification. Orange is not yet aligned: the legacy proposal calls it utility, while this product catalogue proposes exchange/market access. Indigo is not silently renamed to PiGold or PiPurple; it remains an unresolved legacy proposal outside the seven-product catalogue until governance records an explicit migration decision.
+The current product catalogue proposes PiGold as a coordination/meta layer and preserves the six legacy component roles; OUSD is an additional test-only component outside the legacy layer count. Blue, Green, Red, Purple and Yellow are conceptually aligned to the legacy labels, subject to independent contract/asset verification. Orange is not yet aligned: the legacy proposal calls it utility, while this product catalogue proposes exchange/market access. Indigo is not silently renamed to PiGold or PiPurple; it remains an unresolved legacy proposal outside the seven-product catalogue until governance records an explicit migration decision.
 
 No color or symbol is sufficient to bind a contract ID, issuer, reserve, supply, or redemption rule. The registry must retain the original identifiers and mark unresolved mappings as unverified.
+
+## Versioned internal purchasing-power ladder (illustrative)
+
+The application now exposes an additive `pirc-purchasing-power-v1` reference schedule. It does not replace the legacy PiRC-207 chakra conversions, existing contract decimals, historical balances or external market quote feeds.
+
+For the illustrative scenario where one PiGold reference unit is USD 600,000:
+
+| Layer | Illustrative reference per whole unit | Units per PiGold reference |
+|---|---:|---:|
+| PiGold | USD 600,000 | 1 |
+| Pi Yellow | USD 60,000 | 10 |
+| Pi Orange | USD 6,000 | 100 |
+| PiBank | USD 600 | 1,000 |
+| PiCash | USD 60 | 10,000 |
+
+The values are internal reference numeraire inputs only. They are not live exchange prices, collateral evidence, a promise to redeem for USD, or a claim of official Pi Network valuation. The dynamic market/evidence model above is a separate metric and must never silently overwrite this versioned reference ladder. Every quote and accounting display must identify which metric it uses.
+
+The seven legacy layer roles remain intact. PiOrange is the Orange/Sacral utility and settlement tier; PiDEX is the exchange/router service and must not be conflated with the Orange asset. The legacy product key `piexchange` is retained in the current catalogue solely as a compatibility identifier while the display label is PiOrange. Any canonical asset-ID migration requires a separate versioned registry mapping and must preserve historical lookups.
+
+
+### Remaining legacy layer policy boundaries
+
+- **Purple / mined Pi:** the baseline reference is 10 PiGold per whole mined-Pi unit, with 10,000,000 mined-Pi subunits per whole mined-Pi unit. The optional 100 PiGold tier is a separate escrow migration policy, not a denomination change. It is unavailable until a frozen snapshot, exclusive escrow, reconciliation, governance approval and an `ACTIVATED` evidence record all exist. No native Pi supply is minted or altered by this reference calculation.
+- **Indigo / premium reserve:** preserve the legacy reserve layer and its independent reserve/eligibility method. This policy assigns no fixed PiGold ratio until its own reserve basis, haircuts, liabilities, liquidity and governance rules are approved.
+- **Red / governance:** voting and contribution weight are non-cash governance attributes. They have no fixed USD/PiGold redemption ratio.
+- **Yellow, Orange, Blue and Green:** use the explicit reference ladder above, with their own settlement rails and independent asset/pool ledgers.
+
+The frontend displays these boundaries separately. It must not infer missing Indigo or Red conversion ratios from the other layers, and it must not treat the Purple escrow tier as active because a larger subunit denomination is proposed.
+
+OUSD is an additional test-only profile, not a replacement for any legacy layer. The UI must label it TEST ONLY. The test liability lifecycle in `src/lib/ousd-liability.mjs` enforces local policy preconditions; it does not mint, burn, attest reserves, hold funds, call a bank, or execute payouts. A first Soroban reserve/liability accounting controller is proposed separately in [SmartContracts PR #1121](https://github.com/Ze0ro99/SmartContracts/pull/1121). That controller records trusted verifier attestations and reserve allocations, but it cannot prove external bank balances or execute a payment. It remains an open Draft PR pending CI and review, not a deployed contract. The reserve evidence must identify a unique exclusive allocation so the same reserve cannot be counted twice. Production release still requires independent reconciliation, durable uniqueness enforcement across the complete issuer/token lifecycle, legal issuer/redemption terms, key controls, token-burn integration and external audit.
+
