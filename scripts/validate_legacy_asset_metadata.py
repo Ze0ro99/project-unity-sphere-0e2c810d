@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CSV_PATH = ROOT / "LIVE_MATRIX_REGISTRY.csv"
 TOML_PATH = ROOT / ".well-known" / "pi.toml"
+MANIFEST_PATH = ROOT / "MASTER_MANIFEST.md"
 EXPECTED_COLUMNS = [
     "Layer",
     "Contract ID",
@@ -75,6 +76,20 @@ def validate() -> list[str]:
     for principal in metadata.get("PRINCIPALS", []):
         if "email" in principal:
             errors.append("principal email must not be published without verification")
+
+    manifest = MANIFEST_PATH.read_text(encoding="utf-8").lower()
+    prohibited_claims = (
+        "ultimate complete & verified",
+        "fully synchronized 7-layer environment deployed",
+        "all system state parity confirmed 1:1",
+    )
+    for claim in prohibited_claims:
+        if claim in manifest:
+            errors.append(f"master manifest contains unsupported deployment claim: {claim}")
+    if "not_found for all seven supplied layer contract ids" not in manifest:
+        errors.append("master manifest must state the last seven-contract Pi Testnet probe result")
+    if "mainnet writes, signing, minting, burning and payouts: not authorized" not in manifest:
+        errors.append("master manifest must retain the explicit no-write safety boundary")
 
     return errors
 
