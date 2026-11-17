@@ -330,8 +330,16 @@ impl PidexAmm {
         if !env.storage().instance().has(&DataKey::Admin) {
             return Err(Error::NotInitialized);
         }
-        let paused: bool = env.storage().instance().get(&DataKey::Paused).unwrap_or(false);
-        if paused { Err(Error::Paused) } else { Ok(()) }
+        let paused: bool = env
+            .storage()
+            .instance()
+            .get(&DataKey::Paused)
+            .unwrap_or(false);
+        if paused {
+            Err(Error::Paused)
+        } else {
+            Ok(())
+        }
     }
 
     fn reserves(env: &Env) -> (i128, i128, i128) {
@@ -385,12 +393,18 @@ impl PidexAmm {
     }
 
     fn sub_shares(env: &Env, who: &Address, delta: i128) -> Result<(), Error> {
-        let current: i128 = env.storage().persistent().get(&DataKey::Shares(who.clone())).unwrap_or(0);
+        let current: i128 = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Shares(who.clone()))
+            .unwrap_or(0);
         if current < delta {
             return Err(Error::InsufficientLiquidity);
         }
         let next = current.checked_sub(delta).ok_or(Error::Overflow)?;
-        env.storage().persistent().set(&DataKey::Shares(who.clone()), &next);
+        env.storage()
+            .persistent()
+            .set(&DataKey::Shares(who.clone()), &next);
         Ok(())
     }
 }
