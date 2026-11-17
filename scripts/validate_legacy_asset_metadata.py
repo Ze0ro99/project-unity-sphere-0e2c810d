@@ -44,6 +44,17 @@ def validate() -> list[str]:
         contract_id = row.get("Contract ID", "").strip().strip('"')
         if not contract_id:
             errors.append(f"{row.get('Layer', 'unknown')}: source identifier was not preserved")
+        else:
+            expected_prefix = "G" if row.get("Layer") == "CORE" else "C"
+            strkey_alphabet = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567")
+            if (
+                len(contract_id) != 56
+                or not contract_id.startswith(expected_prefix)
+                or any(character not in strkey_alphabet for character in contract_id)
+            ):
+                errors.append(
+                    f"{row.get('Layer', 'unknown')}: identifier has an invalid StrKey shape"
+                )
 
     core = next((row for row in rows if row.get("Layer") == "CORE"), None)
     if not core or core.get("Color") != "Core account reference":
