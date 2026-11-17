@@ -4,6 +4,11 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - "MASTER_MANIFEST.md"
+      - "LIVE_MATRIX_REGISTRY.csv"
+      - ".well-known/pi.toml"
+      - "scripts/validate_legacy_asset_metadata.py"
+      - "tests/test_legacy_asset_metadata.py"
       - "schemas/asset-contract-registry.schema.json"
       - "scripts/validate_asset_contract_registry.py"
       - "tests/test_asset_contract_registry.py"
@@ -11,6 +16,10 @@ on:
   push:
     branches: [main]
     paths:
+      - "MASTER_MANIFEST.md"
+      - "LIVE_MATRIX_REGISTRY.csv"
+      - ".well-known/pi.toml"
+      - "scripts/validate_legacy_asset_metadata.py"
       - "schemas/asset-contract-registry.schema.json"
       - "scripts/validate_asset_contract_registry.py"
       - "tests/test_asset_contract_registry.py"
@@ -40,4 +49,5 @@ jobs:
       - name: Validate registry schema and invariants
         run: |
           python scripts/validate_asset_contract_registry.py
-          python -m unittest tests.test_asset_contract_registry -v
+          python scripts/validate_legacy_asset_metadata.py
+          python -m unittest tests.test_asset_contract_registry tests.test_legacy_asset_metadata -v
