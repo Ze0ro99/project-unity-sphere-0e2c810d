@@ -38,8 +38,8 @@ jobs:
       - name: Check formatting
         run: cargo fmt --manifest-path contracts/pidex_amm/Cargo.toml -- --check
       - name: Run contract unit tests
-        run: cargo test --locked --manifest-path contracts/pidex_amm/Cargo.toml
+        run: cargo test --manifest-path contracts/pidex_amm/Cargo.toml
       - name: Build Testnet Wasm artifact
-        run: cargo build --locked --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
+        run: cargo build --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
 
 # Build and test only. No signing, deployment, minting, transfer or network write.
