@@ -2,6 +2,7 @@ import copy
 import unittest
 
 from scripts.validate_asset_contract_registry import validate_registry
+from scripts.validate_legacy_asset_metadata import validate as validate_legacy_metadata
 
 
 def valid_registry():
@@ -75,6 +76,9 @@ def valid_registry():
 class AssetContractRegistryTests(unittest.TestCase):
     def test_valid_testnet_registry_and_economic_policy(self):
         validate_registry(valid_registry())
+
+    def test_legacy_public_asset_metadata_is_fail_closed(self):
+        self.assertEqual(validate_legacy_metadata(), [])
 
     def test_weight_factors_must_sum_to_exact_basis_point_scale(self):
         registry = valid_registry()
