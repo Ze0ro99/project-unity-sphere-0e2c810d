@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - "MASTER_MANIFEST.md"
       - "LIVE_MATRIX_REGISTRY.csv"
       - ".well-known/pi.toml"
       - "scripts/validate_legacy_asset_metadata.py"
@@ -15,6 +16,10 @@ on:
   push:
     branches: [main]
     paths:
+      - "MASTER_MANIFEST.md"
+      - "LIVE_MATRIX_REGISTRY.csv"
+      - ".well-known/pi.toml"
+      - "scripts/validate_legacy_asset_metadata.py"
       - "schemas/asset-contract-registry.schema.json"
       - "scripts/validate_asset_contract_registry.py"
       - "tests/test_asset_contract_registry.py"
