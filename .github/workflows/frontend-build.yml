@@ -60,6 +60,8 @@ jobs:
         run: node --experimental-strip-types --test tests/pi-signin.test.mjs
       - name: Run OUSD test-only liability policy tests
         run: node --test tests/unit/ousd-liability.test.mjs
+      - name: Run canonical portal feed safety tests
+        run: npm run test:canonical-feed
       - name: Audit locale dictionary key coverage
         run: npm run audit:i18n
       - name: Build frontend
