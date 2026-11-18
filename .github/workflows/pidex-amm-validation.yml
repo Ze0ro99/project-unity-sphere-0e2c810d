@@ -13,7 +13,7 @@ on:
       - ".github/workflows/pidex-amm-validation.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: pidex-amm-validation-${{ github.event.pull_request.number || github.sha }}
@@ -22,9 +22,6 @@ concurrency:
 jobs:
   contract:
     name: PiDEX AMM unit tests and Wasm build
-
-permissions:
-  contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -42,18 +39,21 @@ permissions:
         run: |
           cargo generate-lockfile --manifest-path contracts/pidex_amm/Cargo.toml
           if ! git diff --quiet -- contracts/pidex_amm/Cargo.lock; then
+            if [ -z "${GITHUB_HEAD_REF:-}" ]; then
+              echo "Lockfile drift on main; update it in a reviewed PR."
+              exit 1
+            fi
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add contracts/pidex_amm/Cargo.lock
             git commit -m "chore(pidex): regenerate Soroban testutils lockfile"
             git push origin "HEAD:${GITHUB_HEAD_REF}"
           fi
-
       - name: Check formatting
         run: cargo fmt --manifest-path contracts/pidex_amm/Cargo.toml -- --check
-      - name: Run contract unit tests
+      - name: Run contract unit tests on native target
         run: cargo test --locked --target x86_64-unknown-linux-gnu --manifest-path contracts/pidex_amm/Cargo.toml
       - name: Build Testnet Wasm artifact
-        run: cargo build --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
+        run: cargo build --locked --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
 
 # Build and test only. No signing, deployment, minting, transfer or network write.
