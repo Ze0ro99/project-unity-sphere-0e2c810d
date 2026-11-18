@@ -495,14 +495,7 @@ mod test {
         let from = Address::generate(&env);
         let commitment = BytesN::from_array(&env, &[1u8; 32]);
         assert_eq!(
-            client
-                .try_swap_with_verified_commitment(
-                    &from,
-                    &true,
-                    &100,
-                    &1,
-                    &commitment,
-                ),
+            client.try_swap_with_verified_commitment(&from, &true, &100, &1, &commitment,),
             Err(Ok(Error::VerifierNotConfigured))
         );
     }
