@@ -27,6 +27,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # For pull_request events, check out the source branch rather than the synthetic merge ref.
+          # This keeps a reviewed lockfile commit fast-forwardable to the PR branch.
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -41,6 +46,10 @@ jobs:
           if ! git diff --quiet -- contracts/pidex_amm/Cargo.lock; then
             if [ -z "${GITHUB_HEAD_REF:-}" ]; then
               echo "Lockfile drift on main; update it in a reviewed PR."
+              exit 1
+            fi
+            if [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+              echo "Lockfile drift in a fork PR; update the lockfile in the source branch instead of pushing from this workflow."
               exit 1
             fi
             git config user.name "github-actions[bot]"
