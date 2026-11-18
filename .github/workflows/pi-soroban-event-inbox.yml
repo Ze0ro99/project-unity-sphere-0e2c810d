@@ -35,6 +35,8 @@ jobs:
         with:
           deno-version: v2.x
       - name: Type check Pi wallet and Soroban Edge Functions
-        run: deno check --no-config supabase/functions/pirc-soroban-event-ingest/index.ts supabase/functions/pirc-events-feed/index.ts supabase/functions/pi-payments/index.ts
+        run: deno check --no-config supabase/functions/pirc-soroban-event-ingest/index.ts supabase/functions/pirc-events-feed/index.ts supabase/functions/pi-payments/index.ts supabase/functions/pi-payments/payment-guards.ts
+      - name: Test payment write and completion guards
+        run: deno test --no-config supabase/functions/pi-payments/payment-guards.test.ts
       - name: Test Pi Testnet wallet balance reader
         run: deno test --no-config supabase/functions/pi-payments/pi-testnet-wallet.test.ts

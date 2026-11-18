@@ -7,9 +7,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { z } from "npm:zod@3.23.8";
 import { readPiTestnetNativeBalance } from "./pi-testnet-wallet.ts";
+import { paymentCompletionError, paymentsEnabled } from "./payment-guards.ts";
 
 const PI_API = "https://api.minepi.com/v2";
 const PI_API_KEY = (Deno.env.get("PI_API_KEY") || Deno.env.get("PI_NETWORK_API_KEY") || "").trim();
+// Payment state changes are disabled unless the operator explicitly enables them.
+const PI_PAYMENTS_ENABLED = paymentsEnabled(Deno.env.get("PI_PAYMENTS_ENABLED"));
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -55,7 +58,6 @@ async function piUser(accessToken: string): Promise<{ uid: string; username: str
   return me?.uid ? { uid: me.uid, username: me.username, ...(typeof me.wallet_address === "string" ? { wallet_address: me.wallet_address } : {}) } : null;
 }
 
-
 async function piTestnetWalletBalance(accessToken: string) {
   const me = await piUser(accessToken);
   if (!me) return json({ error: "Unauthorized" }, 401);
@@ -89,13 +91,13 @@ Deno.serve(async (req) => {
 
   try {
     if (body.action === "health") {
-      // Confirms the server API key is accepted by Pi Network (no secret is returned).
-      if (!PI_API_KEY) return json({ ok: false, key: "missing" });
+      // Never return a secret. Report only whether write actions are operator-enabled.
+      if (!PI_API_KEY) return json({ ok: false, key: "missing", payments_enabled: PI_PAYMENTS_ENABLED });
       try {
         await piServer("/payments/incomplete_server_payments");
-        return json({ ok: true, key: "valid" });
+        return json({ ok: true, key: "valid", payments_enabled: PI_PAYMENTS_ENABLED });
       } catch (e) {
-        return json({ ok: false, key: "rejected", detail: (e as Error).message });
+        return json({ ok: false, key: "rejected", payments_enabled: PI_PAYMENTS_ENABLED, detail: (e as Error).message });
       }
     }
 
@@ -109,6 +111,9 @@ Deno.serve(async (req) => {
       return await piTestnetWalletBalance(body.accessToken);
     }
 
+    // Fail closed before any payment lookup or state-changing Pi Platform call.
+    if (!PI_PAYMENTS_ENABLED) return json({ error: "payments_disabled" }, 503);
+
     const payment = await piServer(`/payments/${body.paymentId}`);
 
     if (body.action === "approve") {
@@ -120,16 +125,18 @@ Deno.serve(async (req) => {
       return json({ ok: true });
     }
 
-    // complete — allowed for the payer, or for an incomplete payment recovered at login
-    // as long as the on-chain txid matches the one Pi recorded for this payment.
+    // Completion is allowed for the payer or for recovery of an incomplete payment.
+    // In both cases, require Pi's payment record to prove approval and the exact txid.
     if (body.accessToken) {
       const me = await piUser(body.accessToken);
       if (!me) return json({ error: "Unauthorized" }, 401);
       if (payment.user_uid !== me.uid) return json({ error: "forbidden" }, 403);
-    } else if (!payment.transaction?.txid || payment.transaction.txid !== body.txid) {
-      return json({ error: "forbidden" }, 403);
     }
+
+    const completionError = paymentCompletionError(payment, body.txid);
+    if (completionError) return json({ error: completionError }, 409);
     if (payment.status?.developer_completed) return json({ ok: true, already: true });
+
     await piServer(`/payments/${body.paymentId}/complete`, {
       method: "POST",
       body: JSON.stringify({ txid: body.txid }),
