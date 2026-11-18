@@ -514,9 +514,8 @@ mod test {
         client.initialize(&admin, &token_a, &token_b);
         client.set_zk_verifier(&verifier);
         assert_eq!(
-            client
-                .try_swap_with_verified_commitment(
-                    &Address::generate(&env),
+            client.try_swap_with_verified_commitment(
+                &Address::generate(&env),
                     &true,
                     &100,
                     &1,
