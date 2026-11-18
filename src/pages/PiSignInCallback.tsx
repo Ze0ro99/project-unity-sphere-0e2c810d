@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, LoaderCircle, ShieldAlert } from "lucide-react";
 import { completePiOAuthCallback, type PiOAuthUser } from "@/lib/piOAuth";
 
 export default function PiSignInCallback() {
+  const handled = useRef(false);
   const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying");
   const [user, setUser] = useState<PiOAuthUser | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (handled.current) return;
+    handled.current = true;
     let active = true;
     void completePiOAuthCallback(window.location.hash).then((profile) => {
       if (!active) return;
