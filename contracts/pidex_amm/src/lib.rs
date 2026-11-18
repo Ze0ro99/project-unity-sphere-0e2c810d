@@ -516,11 +516,11 @@ mod test {
         assert_eq!(
             client.try_swap_with_verified_commitment(
                 &Address::generate(&env),
-                    &true,
-                    &100,
-                    &1,
-                    &commitment,
-                ),
+                &true,
+                &100,
+                &1,
+                &commitment,
+            ),
             Err(Ok(Error::InvalidProof))
         );
     }
