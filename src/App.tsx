@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route, NavLink, Link, useLocation } from "react-router-dom";
 import {
   Activity, Layers, Radio, Cpu, ArrowDownUp, FlaskConical, ShieldCheck, Lock, Menu, X, Boxes, GitBranch,
-  Sigma, ArrowLeftRight, Landmark, ScanFace, LineChart, Server, Satellite, Code2,
+  Sigma, ArrowLeftRight, Landmark, ScanFace, LineChart, Server, Satellite, Code2, Coins,
 } from "lucide-react";
 import { initPi } from "@/lib/piSdk";
 import PiConnectButton from "@/components/PiConnectButton";
@@ -14,6 +14,7 @@ import MicroDevice from "./pages/MicroDevice";
 import Network from "./pages/Network";
 import PiDEX from "./pages/PiDEX";
 import PiGold from "./pages/PiGold";
+import OUSD from "./pages/OUSD";
 import Testnet from "./pages/Testnet";
 import Standards from "./pages/Standards";
 import Bn254 from "./pages/Bn254";
@@ -32,6 +33,7 @@ import DeveloperStudio from "./pages/DeveloperStudio";
 const NAV = [
   { to: "/", key: "nav.pidex", icon: ArrowDownUp },
   { to: "/pigold", key: "nav.pigold", icon: Layers },
+  { to: "/ousd", key: "OUSD", icon: Coins },
   { to: "/gateways", key: "nav.gateways", icon: Boxes },
   { to: "/developer-studio", key: "Developer Studio", icon: Code2 },
   { to: "/sovereign", key: "nav.sovereign", icon: Sigma },
@@ -64,6 +66,7 @@ export default function App() {
           <Route path="/" element={<PiDEX />} />
           <Route path="/pidex" element={<PiDEX />} />
           <Route path="/pigold" element={<PiGold />} />
+          <Route path="/ousd" element={<OUSD />} />
           <Route path="/gateways" element={<Gateways />} />
           <Route path="/developer-studio" element={<DeveloperStudio />} />
           <Route path="/sovereign" element={<Sovereign />} />
