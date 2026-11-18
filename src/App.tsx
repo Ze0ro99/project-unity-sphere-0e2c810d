@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { initPi } from "@/lib/piSdk";
 import PiConnectButton from "@/components/PiConnectButton";
+import PiSignInButton from "@/components/PiSignInButton";
+import PiSignInCallback from "./pages/PiSignInCallback";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useI18n } from "@/i18n";
 import Explorer from "./pages/Explorer";
@@ -63,6 +65,7 @@ export default function App() {
       <Header />
       <main className="flex-1 max-w-[1800px] w-full mx-auto px-3 sm:px-4 py-4">
         <Routes>
+          <Route path="/signin/callback" element={<PiSignInCallback />} />
           <Route path="/" element={<PiDEX />} />
           <Route path="/pidex" element={<PiDEX />} />
           <Route path="/pigold" element={<PiGold />} />
@@ -131,6 +134,7 @@ function Header() {
         </div>
         <div className="ml-auto lg:ml-0 flex items-center gap-2">
           <LanguageSwitcher />
+          <PiSignInButton />
           <PiConnectButton />
           <button
             className="lg:hidden p-2 rounded-md border border-border hover:bg-panel2"
