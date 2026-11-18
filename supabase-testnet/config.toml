@@ -1,0 +1,4 @@
+project_id = "naeuosudklqsgeghafkw"
+
+[functions.ousd-public-status]
+verify_jwt = false
