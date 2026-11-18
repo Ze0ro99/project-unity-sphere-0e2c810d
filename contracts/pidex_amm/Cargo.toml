@@ -10,8 +10,12 @@ crate-type = ["cdylib"]
 
 [dependencies]
 soroban-sdk = "22.0.11"
+# Pin the fixed ethnum release required by current Rust toolchains.
+ethnum = "=1.5.3"
 
 [dev-dependencies]
+# Keep the Soroban 22 test host on the ed25519-dalek 2.x line; 3.x switches rand_core and is incompatible with rand_chacha 0.3.x.
+ed25519-dalek = { version = "=2.2.0", features = ["rand_core"] }
 soroban-sdk = { version = "22.0.11", features = ["testutils"] }
 
 [profile.release]
@@ -22,3 +26,8 @@ strip = "symbols"
 panic = "abort"
 codegen-units = 1
 lto = true
+
+# Keep this contract independently buildable; the parent contracts/Cargo.toml
+# is a legacy package manifest with a missing library source.
+[workspace]
+resolver = "2"
