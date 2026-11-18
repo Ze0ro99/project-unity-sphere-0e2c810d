@@ -28,6 +28,12 @@ on:
       - "postcss.config.*"
       - ".github/workflows/deploy_frontend.yml"
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish the verified static site to gh-pages"
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
@@ -97,7 +103,7 @@ jobs:
 
   deploy:
     name: Publish verified dist to gh-pages
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch' && inputs.publish == true
     needs: build
     runs-on: ubuntu-latest
     permissions:
