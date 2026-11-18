@@ -6,6 +6,7 @@ on:
       - 'src/**'
       - 'tests/pigold-*.test.mjs'
       - 'tests/netlify-ecosystem-feed.test.mjs'
+      - 'tests/unit/ousd-liability.test.mjs'
       - 'public/**'
       - 'index.html'
       - 'package.json'
@@ -55,6 +56,8 @@ jobs:
           npm install --no-audit --no-fund
       - name: Run PiGold economic model tests
         run: npm run test:pigold
+      - name: Run OUSD test-only liability policy tests
+        run: node --test tests/unit/ousd-liability.test.mjs
       - name: Audit locale dictionary key coverage
         run: npm run audit:i18n
       - name: Build frontend
