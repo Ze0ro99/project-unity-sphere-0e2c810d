@@ -26,3 +26,14 @@ The repository's primary Supabase configuration under supabase/ points to a diff
 - The public endpoint URL is https://naeuosudklqsgeghafkw.supabase.co/functions/v1/ousd-public-status.
 
 No contract was deployed and no reserve or liability was inserted. The source-only status is the correct current result.
+
+
+## Coverage accounting correction
+
+The public view reports gross verified reserve and backing reserve separately. Paid-and-burned liabilities consume reserve and must not continue to count as backing:
+
+`backing_reserve = max(gross_verified_reserve - paid_and_burned, 0)`
+
+`coverage_ratio = backing_reserve / outstanding_liabilities`
+
+Outstanding issued and redemption-pending liabilities remain in the denominator. A paid liability is excluded from outstanding only after the token burn is recorded. The view reports RECONCILIATION_REQUIRED if paid-and-burned exceeds gross verified reserve, and UNDERCOLLATERALIZED_TESTNET if backing is below outstanding liabilities. This is a testnet accounting ratio, not proof of USD backing or a redemption guarantee.
