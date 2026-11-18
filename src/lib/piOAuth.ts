@@ -1,3 +1,4 @@
+import { initPi } from "@/lib/piSdk";
 // Pi Network Sign-in OAuth integration. Separate from Pi.authenticate()/payments.
 // Current Pi Sign-in support is implicit-flow only: public client ID, no secret,
 // no authorization-code exchange, and no refresh token.
@@ -54,6 +55,7 @@ export function parsePiOAuthFragment(fragment: string, expectedState: string | n
 }
 
 export async function startPiOAuthSignIn(): Promise<void> {
+  await initPi();
   if (!PI_OAUTH_CLIENT_ID || !PI_OAUTH_REDIRECT_URI) {
     throw new Error("Pi Sign-in client configuration is missing.");
   }
