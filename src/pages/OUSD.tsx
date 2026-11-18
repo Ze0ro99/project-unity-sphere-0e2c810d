@@ -125,7 +125,7 @@ export default function OUSD() {
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="Contract state" value={data ? statusLabel(data.status) : "UNKNOWN"} note={data?.controller_contract_id ? `Controller ${data.controller_contract_id}` : "No verified controller contract ID"} />
-        <Stat label="Attestor-verified reserve" value={data ? formatUsdMicros(data.attestor_verified_reserve_usd_micros) : "UNKNOWN"} note="Only rows explicitly marked verified are counted; not proof of bank funds" />
+        <Stat label="Attestor-verified reserve" value={data ? formatUsdMicros(data.attestor_verified_reserve_usd_micros) : "UNKNOWN"} note="Gross verified reserve; paid settlements are deducted from current backing" />
         <Stat label="Outstanding liabilities" value={data ? formatUsdMicros(data.outstanding_usd_micros) : "UNKNOWN"} note={data ? `Redemption pending: ${formatUsdMicros(data.redemption_pending_usd_micros)}` : "Waiting for source readback"} />
         <Stat label="OUSD token supply" value={data ? formatOusdAtomic(data.token_supply_atomic) : "UNKNOWN"} note="7 decimals · supply must be read back from the token contract" />
       </section>
@@ -134,12 +134,13 @@ export default function OUSD() {
         <Panel title="Reserve and settlement controls" description="Integer accounting with explicit evidence and a separate payout verifier.">
           <div className="space-y-3 text-sm">
             <div className="flex justify-between gap-3"><span className="text-muted">Operational state</span><Chip>{operationalState}</Chip></div>
+            <div className="flex justify-between gap-3"><span className="text-muted">Backing after paid settlements</span><span className="mono">{data ? formatUsdMicros(data.backing_reserve_usd_micros) : "UNKNOWN"}</span></div>
             <div className="flex justify-between gap-3"><span className="text-muted">Coverage ratio</span><span className="mono">{data?.coverage_ratio ? `${Number(data.coverage_ratio).toFixed(4)}×` : "NOT AVAILABLE"}</span></div>
             <div className="flex justify-between gap-3"><span className="text-muted">Paid and burned</span><span className="mono">{data ? formatUsdMicros(data.paid_and_burned_usd_micros) : "UNKNOWN"}</span></div>
             <div className="flex justify-between gap-3"><span className="text-muted">Latest reserve ledger</span><span className="mono">{data?.latest_verified_reserve_ledger ?? "NOT READ BACK"}</span></div>
             <div className="flex justify-between gap-3"><span className="text-muted">Latest contract readback</span><span className="mono">{data?.latest_readback_ledger ?? "NOT READ BACK"}</span></div>
             <p className="border-t border-border pt-3 text-[11px] text-muted">
-              A coverage ratio is an accounting comparison, not a market price, peg, solvency opinion, or promise to redeem.
+              Coverage = (gross verified reserve − paid and burned settlements) ÷ outstanding liabilities. It is not a market price, peg, solvency opinion, or promise to redeem.
             </p>
           </div>
         </Panel>

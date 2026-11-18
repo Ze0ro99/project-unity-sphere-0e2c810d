@@ -11,6 +11,7 @@ export type OusdPublicStatus = {
   latest_readback_ledger: number | null;
   token_supply_atomic: string | null;
   attestor_verified_reserve_usd_micros: string;
+  backing_reserve_usd_micros: string;
   outstanding_usd_micros: string;
   redemption_pending_usd_micros: string;
   paid_and_burned_usd_micros: string;
