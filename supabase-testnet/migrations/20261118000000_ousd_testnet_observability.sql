@@ -184,7 +184,7 @@ INSERT INTO private.ousd_contract_registry (network_id, status)
 VALUES ('pi-testnet', 'source_only_not_deployed')
 ON CONFLICT (network_id) DO NOTHING;
 
-CREATE OR REPLACE VIEW public.ousd_public_status AS
+CREATE OR REPLACE VIEW public.ousd_public_status WITH (security_invoker = true) AS
 WITH reserve_totals AS (
   SELECT
     network_id,
