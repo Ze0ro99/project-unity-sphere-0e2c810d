@@ -35,10 +35,20 @@ jobs:
         uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.1
         with:
           workspaces: contracts/pidex_amm
+      - name: Regenerate lockfile including Soroban testutils
+        run: cargo generate-lockfile --manifest-path contracts/pidex_amm/Cargo.toml
+
+      - name: Upload generated lockfile for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: pidex-amm-generated-lockfile
+          path: contracts/pidex_amm/Cargo.lock
+          if-no-files-found: error
+
       - name: Check formatting
         run: cargo fmt --manifest-path contracts/pidex_amm/Cargo.toml -- --check
       - name: Run contract unit tests
-        run: cargo test --locked --target x86_64-unknown-linux-gnu --manifest-path contracts/pidex_amm/Cargo.toml
+        run: cargo test --target x86_64-unknown-linux-gnu --manifest-path contracts/pidex_amm/Cargo.toml
       - name: Build Testnet Wasm artifact
         run: cargo build --manifest-path contracts/pidex_amm/Cargo.toml --target wasm32-unknown-unknown --release
 
