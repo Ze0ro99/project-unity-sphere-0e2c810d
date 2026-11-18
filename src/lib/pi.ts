@@ -46,12 +46,12 @@ export async function fetchLatestLedgers(base = HORIZON_TESTNET, limit = 15): Pr
   return data?._embedded?.records ?? [];
 }
 
-export async function fetchLatestTx(base = HORIZON_MAINNET, limit = 20): Promise<Tx[]> {
+export async function fetchLatestTx(base = HORIZON_TESTNET, limit = 20): Promise<Tx[]> {
   const data = await j<any>(`${base}/transactions?order=desc&limit=${limit}`);
   return data?._embedded?.records ?? [];
 }
 
-export async function fetchRoot(base = HORIZON_MAINNET) {
+export async function fetchRoot(base = HORIZON_TESTNET) {
   return j<any>(`${base}/`);
 }
 
@@ -82,12 +82,12 @@ export type AccountInfo = {
   last_modified_ledger?: number;
 };
 
-export async function fetchAccount(id: string, base = HORIZON_MAINNET) {
+export async function fetchAccount(id: string, base = HORIZON_TESTNET) {
   return j<AccountInfo>(`${base}/accounts/${id}`);
 }
 
 /** Assets issued by an account — used for live PiRC-207 layer supply/holder metrics. */
-export async function fetchIssuedAssets(issuer: string, base = HORIZON_MAINNET) {
+export async function fetchIssuedAssets(issuer: string, base = HORIZON_TESTNET) {
   const data = await j<any>(`${base}/assets?asset_issuer=${issuer}&limit=200`);
   return (data?._embedded?.records ?? []) as {
     asset_code: string;
