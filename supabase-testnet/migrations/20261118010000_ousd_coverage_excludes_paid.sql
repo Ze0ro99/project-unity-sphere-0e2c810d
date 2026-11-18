@@ -56,7 +56,6 @@ SELECT
   latest_readback_ledger,
   token_supply_atomic,
   gross_verified_reserve::text AS attestor_verified_reserve_usd_micros,
-  backing_reserve::text AS backing_reserve_usd_micros,
   outstanding::text AS outstanding_usd_micros,
   redemption_pending::text AS redemption_pending_usd_micros,
   paid_and_burned::text AS paid_and_burned_usd_micros,
@@ -74,7 +73,8 @@ SELECT
     ELSE 'TESTNET_OBSERVED_NOT_A_REDEMPTION_GUARANTEE'
   END AS operational_state,
   last_readback_at,
-  updated_at
+  updated_at,
+  backing_reserve::text AS backing_reserve_usd_micros
 FROM accounting;
 
 REVOKE ALL ON public.ousd_public_status FROM PUBLIC, anon, authenticated;
